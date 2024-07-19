@@ -1,3 +1,4 @@
+
 #include <kamek.hpp>
 #include <MarioKartWii/UI/Ctrl/CtrlRace/CtrlRaceWifi.hpp>
 #include <MarioKartWii/UI/Page/Other/Title.hpp>

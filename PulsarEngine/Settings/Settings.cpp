@@ -367,5 +367,3 @@ kmCall(0x805bd2ac, Mgr::SaveGPResult);
 
 } //namespace Settings
 } //namespace Pulsar
-
-
