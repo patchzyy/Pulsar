@@ -243,5 +243,3 @@ Binary* Mgr::UpdateVersion(const Binary* old) {
 
 } //namespace Settings
 } //namespace Pulsar
-
-

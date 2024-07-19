@@ -195,9 +195,10 @@ bool CupsConfig::IsRegsSituation() {
     if(rkNet->connectionState == RKNet::CONNECTIONSTATE_SHUTDOWN) return false;
     switch(rkNet->roomType) {
         case(RKNet::ROOMTYPE_VS_REGIONAL):
-        case(RKNet::ROOMTYPE_JOINING_REGIONAL): return false;
+        case(RKNet::ROOMTYPE_JOINING_REGIONAL):
+        case(RKNet::ROOMTYPE_BT_REGIONAL):
         case(RKNet::ROOMTYPE_FROOM_HOST):
-        case(RKNet::ROOMTYPE_FROOM_NONHOST): return IsBattle();
+        case(RKNet::ROOMTYPE_FROOM_NONHOST): return false;
         default: return true;
     }
 }

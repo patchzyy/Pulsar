@@ -49,5 +49,5 @@ kmCall(0x806fab78, ConditionalChannelSwitch);
 
 
 
-}//namespace Sound
+}//namespace Audio
 }//namespace Pulsar

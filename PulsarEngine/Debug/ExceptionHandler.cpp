@@ -11,7 +11,7 @@ namespace Pulsar {
 namespace Debug {
 
 OS::Thread* crashThread = nullptr;
-static u16 crashError = 0;
+u16 crashError = 0;
 
 using namespace nw4r;
 
@@ -31,10 +31,10 @@ void LaunchSoftware() { //If dolphin, restarts game, else launches Riivo->HBC->O
         SystemManager::Shutdown();
         return;
     }
-    result = IO::OpenFix("/title/00010001/52494956/content/title.tmd\0", IOS::MODE_NONE); //Riivo
+    result = IO::OpenFix("/title/00010001/57524554/content/title.tmd\0", IOS::MODE_NONE); //Riivo
     if(result >= 0) {
         ISFS::Close(result);
-        OS::LaunchTitle(0x00010001, 0x52494956);
+        OS::LaunchTitle(0x00010001, 0x57524554);
         return;
     }
     result = IO::OpenFix("/title/00010001/4c554c5a/content/title.tmd\0", IOS::MODE_NONE); //OHBC
@@ -65,7 +65,7 @@ kmWrite32(0x80023948, 0x281e0007);
 //kmWrite32(0x80009324, 0x38800068);
 
 //Lines on the screen and x-pos
-static void SetConsoleParams() {
+void SetConsoleParams() {
     db::detail::ConsoleHead* console = EGG::Exception::console;
     console->viewLines = 0x16;
     console->viewPosX = 0x10;
@@ -104,7 +104,7 @@ ExceptionFile::ExceptionFile(const OS::Context& context) : magic('PULD'), region
     }
 }
 
-static void WriteHeaderCrash(u16 error, const OS::Context* context, u32 dsisr, u32 dar) {
+void WriteHeaderCrash(u16 error, const OS::Context* context, u32 dsisr, u32 dar) {
     crashError = error;
     crashThread = const_cast<OS::Thread*>(reinterpret_cast<const OS::Thread*>(context));
     db::ExceptionHead& exception = db::ExceptionHead::mInstance;
@@ -121,7 +121,7 @@ static void WriteHeaderCrash(u16 error, const OS::Context* context, u32 dsisr, u
 kmCall(0x80023484, WriteHeaderCrash);
 
 
-static void CreateCrashFile(s32 channel, KPAD::Status buff[], u32 count) {
+void CreateCrashFile(s32 channel, KPAD::Status buff[], u32 count) {
 
     IO* io = IO::sInstance;;
     bool exit = false;
@@ -180,7 +180,7 @@ static void CreateCrashFile(s32 channel, KPAD::Status buff[], u32 count) {
 kmCall(0x80226610, CreateCrashFile);
 
 /*
-static void OnCrashEnd() {
+void OnCrashEnd() {
     IO* io = IO::sInstance;;
     if(file != nullptr) { //should always exist if the crash is after strap
         register u32* const addressPtr = (u32*)(crashThread->context.srr0 + 4);

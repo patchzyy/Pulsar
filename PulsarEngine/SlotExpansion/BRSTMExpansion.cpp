@@ -4,6 +4,7 @@
 #include <Sound/MiscSound.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
 #include <SlotExpansion/UI/ExpansionUIMisc.hpp>
+#include <RetroRewind.hpp>
 
 
 namespace Pulsar {
@@ -30,22 +31,20 @@ s32 CheckBRSTM(const nw4r::snd::DVDSoundArchive* archive, PulsarId id, bool isFi
 
 nw4r::ut::FileStream* MusicSlotsExpand(nw4r::snd::DVDSoundArchive* archive, void* buffer, int size,
     const char* extFilePath, u32 r7, u32 length) {
-
+    u8 isBRSTMOn = (static_cast<RetroRewind::System::CTMusic>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_CTMUSIC)));
     const char firstChar = extFilePath[0xC];
     const PulsarId track = CupsConfig::sInstance->winningCourse;
     const CupsConfig* cupsConfig = CupsConfig::sInstance;
-    if((firstChar == 'n' || firstChar == 'S' || firstChar == 'r')) {
+    if((firstChar == 'n' || firstChar == 'S' || firstChar == 'r') && !CupsConfig::IsReg(track) && isBRSTMOn == RetroRewind::System::CTMUSIC_ENABLED) {
         const SectionId section = SectionMgr::sInstance->curSection->sectionId;
         register SoundIDs toPlayId;
         asm(mr toPlayId, r20;);
-        const char* customBGPath = nullptr;
-        if(toPlayId == SOUND_ID_KC) { //files are guaranteed to exist because it's been checked before
-            if(section >= SECTION_MAIN_MENU_FROM_BOOT && section <= SECTION_MAIN_MENU_FROM_LICENSE) customBGPath = titleMusicFile;
-            else if(section >= SECTION_SINGLE_P_FROM_MENU && section <= SECTION_SINGLE_P_LIST_RACE_GHOST || section == SECTION_LOCAL_MULTIPLAYER) customBGPath = offlineMusicFile;
-            else if(section >= SECTION_P1_WIFI && section <= SECTION_P2_WIFI_FROOM_COIN_VOTING) customBGPath = wifiMusicFile;
-
+        if(toPlayId == SOUND_ID_KC && section >= SECTION_P1_WIFI && section <= SECTION_P2_WIFI_FROOM_COIN_VOTING) {
+            extFilePath = wifiMusicFile; //guaranteed to exist because it's been checked before
         }
-        if(customBGPath != nullptr) extFilePath = customBGPath;
+        if(toPlayId == SOUND_ID_KC && (section >= SECTION_SINGLE_P_FROM_MENU && section <= SECTION_SINGLE_P_LIST_RACE_GHOST || section == SECTION_LOCAL_MULTIPLAYER)) {
+            extFilePath = offlineMusicFile; //guaranteed to exist because it's been checked before
+        }
         else if(!CupsConfig::IsReg(track)) {
             bool isFinalLap = false;
             register u32 strLength;
@@ -66,5 +65,5 @@ nw4r::ut::FileStream* MusicSlotsExpand(nw4r::snd::DVDSoundArchive* archive, void
 }
 kmCall(0x8009e0e4, MusicSlotsExpand);
 
-}//namespace Sound
+}//namespace Audio
 }//namespace Pulsar

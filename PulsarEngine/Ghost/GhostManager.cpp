@@ -390,4 +390,3 @@ kmCall(0x80639fb0, SetCorrectGhostRaceSlot);
 kmWrite32(0x8085b260, 0x60000000); //nop the check that replaces the currently raced ghost ONLY if it's a new best time and your pb
 }//namespace Ghosts
 }//namespace Pulsar
-

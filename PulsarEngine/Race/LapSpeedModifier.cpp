@@ -5,9 +5,9 @@
 #include <MarioKartWii/Kart/KartValues.hpp>
 #include <MarioKartWii/Kart/KartMovement.hpp>
 #include <MarioKartWii/Lakitu/LakituManager.hpp>
-#include <MarioKartWii/Item/Obj/ObjProperties.hpp>
-#include <MarioKartWii/3D/Model/ModelDirector.hpp>
+#include <MarioKartWii/Item/Obj/ItemObj.hpp>
 #include <Race/200ccParams.hpp>
+#include <RetroRewind.hpp>
 
 namespace Pulsar {
 namespace Race {
@@ -40,7 +40,13 @@ Kart::Stats* ApplySpeedModifier(KartId kartId, CharacterId characterId) {
     SpeedModConv speedModConv;
     speedModConv.kmpValue = (KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->speedMod << 16);
     if(speedModConv.speedMod == 0.0f) speedModConv.speedMod = 1.0f;
-    float factor = Info::Is200cc() ? speedFactor : 1.0f;
+    float factor = 1.0f;
+    if (Info::Is200cc()){
+        factor = speedFactor;
+    }
+    else if (RetroRewind::System::Is500cc()){
+        factor = 3.0f;
+    }
     factor *= speedModConv.speedMod;
 
     Item::greenShellSpeed = 105.0f * factor;

@@ -38,7 +38,6 @@ s32 IO::Write(u32 length, const void* buffer) {
 
 s32 IO::Overwrite(u32 length, const void* buffer) {
     if(this->fd < 0) return -1;
-    IOS::Seek(this->fd, 0, IOS::SEEK_START);
     return IOS::Write(this->fd, buffer, length);
 }
 

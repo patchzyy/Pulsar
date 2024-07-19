@@ -7,6 +7,7 @@
 #include <MarioKartWii/GlobalFunctions.hpp>
 #include <Settings/Settings.hpp>
 #include <Info.hpp>
+#include <RetroRewind.hpp>
 
 namespace Pulsar {
 namespace Race {
@@ -41,6 +42,9 @@ RaceLoadHook BattleGlitch(BattleGlitchEnable);
 
 kmWrite32(0x8085C914, 0x38000000); //times at the end of races in VS
 static void DisplayTimesInsteadOfNames(CtrlRaceResult& result, u8 id) {
+    if(static_cast<RetroRewind::System::Times>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2  ), RetroRewind::System::SETTINGRR2_RADIO_TIMES)) == RetroRewind::System::TIMES_DISABLED)
+    result.FillName(id);
+    if(static_cast<RetroRewind::System::Times>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2  ), RetroRewind::System::SETTINGRR2_RADIO_TIMES)) == RetroRewind::System::TIMES_ENABLED)
     result.FillFinishTime(id);
 }
 kmCall(0x8085d460, DisplayTimesInsteadOfNames); //for WWs
