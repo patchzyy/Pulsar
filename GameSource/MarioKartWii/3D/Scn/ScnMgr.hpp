@@ -29,11 +29,10 @@ struct ScnObjDrawOptions {
     u32 groupIdx; //0x8
 }; //0xC
 
-class ScnMgr;
 class Light;
 class LightMgrHolder;
 class ModelDirector;
-class MatModelDirector;
+
 using namespace nw4r;
 
 class ScnMgrCreator { //akin to EGG's sceneCreator
@@ -67,7 +66,6 @@ public:
 //since the g3d library provides ScnGroupEx, which draws all at once a group of ScnObj that share the same model
 class ScnGroupExHolder {
 public:
-    ScnGroupExHolder(ScnMgr* mgr, g3d::ResMdl resMdl, u32 scnObjDrawOptionsIdx); //80563c84 inlined
     virtual ~ScnGroupExHolder(); //80564278 vtable 808b4b24
     g3d::ResMdl mdl; //0x4
     u32 scnObjDrawOptionsIdx; //0x8
@@ -87,11 +85,8 @@ enum ScnGroupId { //matches GameScnProc names
 class ScnMgr : public EGG::Disposer {
 public:
     static u32 screenCount; //808b4bf0 copied from racedata
-    static void CalcMain(); //80564adc
-    static void Calc(u32 idx); //80564b7c calcs the specific scnmgr
-    static void Draw(u32 idx); //80564c64 never used
+    static void CalcAll(); //80564adc
     static void DrawMain(); //80564d60
-    static void DrawSecondary(); //80564e38
 
     //G3DInit + renderListInit + resets ScnMgr instances + ScreenHolders reset + 
     static void InitScn(u32 screenCount); //8056483c
@@ -99,15 +94,15 @@ public:
 
     static ScnMgr* sInstance[2]; //809c1850 set with Register, 1st is main, 2nd is created for stuff like Miis
 
-    ScnMgr(void* subStructConvGroupIdToIdxAndMore, u32 r5, u32 groupCount); //80561f40
+    ScnMgr(u32 r4, u32 r5, u32 groupCount); //80561f40
     ~ScnMgr() override; //805620bc vtable 808b4ad0
-    virtual void vf_0xc();  //0xC 80564228
+    virtual void vf_0xC();  //0xC 80564228
     virtual void Init(EGG::Heap* heap); //0x10 8056422c
-    virtual void CalcSelf(); //0x14 80564224
+    virtual void UpdateSelf(); //0x14 80564224
     virtual void DrawModels(); //0x18 8056421c
-    virtual void RemoveShadowTextureMgr(); //0x1c 80562bf8
+    virtual void DestroyShadowDirector(); //0x1c 80562bf8
     //Inserts mdlDirector's ScnObj into a group, the idx of which depends on mdlDirector 0x24
-    virtual void InsertModelDirectorInScn(ModelDirector* mdlDirector, u32 scnObjDrawOptionsIdx); //0x20 80562cbc r5 unused
+    virtual void InsertModelDirectorInScn(ModelDirector* mdlDirector, u32 scnObjDrawOptionsIdxd); //0x20 80562cbc r5 unused
     virtual void SetModelDrawPriority(ModelDirector* mdlDirector, u32 scnObjDrawOptionsIdx); //0x24 80562e90
     virtual void vf_0x28(); //0x28 80562354
     virtual void vf_0x2c(); //0x2c 80564218
@@ -119,26 +114,16 @@ public:
     virtual void SetModelXluDrawPriority(u32 scnIdx, ModelDirector* mdlDirector, const ScnObjDrawOptions& options); //0x44 80562f60
 
     void Register(u32 idx); //8056539c
-    void Unregister(); //80564ff4 finds the sInstance equal to this and removes it
-    void ResetRenderModeObj() const; //80562144 uses current TSystem's Video one, inlined in ctor
-    void DoneDraw(); //80562520 , RootEx DoneDraw, CopyFilter (ie aa)
-    void UpdateVisibility(GameScreen& screen); //80563674 inlined, calls ModelDirector::UpdateVisibility on all screenSpecific directors
-    void RemoveGroup(u32 idx); //8056410c removes groupHolder[idx]->group[curScnRoot]
-    void InsertGroup(u32 idx); //80564140 inserts groupHolder[idx]->group[curScnRoot]
-    void AppendScnGroupExHolder(ScnGroupExHolder* holder); //805635b4 inlined in ModelDirector::InitG3D
-    void AppendModelDirector(ModelDirector* mdlDirector); //805635bc
-    void RemoveModelDirector(ModelDirector* mdlToRemove); //805635c4
-    void AppendScreenSpecificModelDirector(ModelDirector* mdlDirector); //805635cc
-    void AppendMatModelDirector(MatModelDirector* hardcodedMatNamesMdlDirector); //805635d4
-    void RemoveMatModelDirector(MatModelDirector* hardcodedMatNamesMdlDirector); //805635dc
+    void AppendModelDirector1(ModelDirector* mdlDirector); //805635b4 list 1
+    void AppendModelDirector2(ModelDirector* mdlDirector); //805635cc list 2
     void InitImpl(EGG::Heap* heap, u32 lightObjCount, u32 lightSetCount); //80562180
 
     void CreateAllGroups(); //80562358
     void SwitchScnRoot(); //805635e4 changes scnRoot
     void CreateScnGroupEx(); //805638fc
-    void DrawModelsImpl(GameScreen* screen = nullptr); //805625a8
-    void UpdateScnRoot(u32 unused); //80562888 calcs world, view etc..., allows proper drawing of models
-
+    void DrawModelsImpl(bool r4); //805625a8
+    void UpdateScnRoot(); //80562888 calcs world, view etc..., allows proper drawing of models
+    void RemoveGroup(u32 idx); //8056410c removes groupHolder[idx]->group[curScnRoot]
     g3d::ScnGroup* GetScnGroup(u32 scnRootIdx, ScnGroupId groupId); //8056417c 0x3C is used to convert id to idx
     //checks if some directors could be inserted into a common ScnGroupEx (if they share the same model and the same draw options)
     void RearrangeDirectorGroups(); //80563a78 
@@ -162,12 +147,12 @@ public:
     FogManager* fogManager; //0x38
     void* subStructConvGroupIdToIdxAndMore; //0x3c
     u8 unknown_0x40[0x44 - 0x40];
-    ut::List scnGroupExHolderList; //0x44 offset 0x28
+    ut::List scnGroupExList; //0x44 offset 0x28
     u8 unknown_0x50[4];
     u32 groupHoldersCount; //0x54
-    ut::List modelDirectors; //0x58 contains all, even screen specific ones
-    ut::List screenSpecificModelDirectors; //0x64 gesso, POW, lakitu models ie models that may not render on a given screen
-    ut::List hardcodedMatNamesModelDirectors; //0x70
+    ut::List modelDirectors1; //0x58
+    ut::List modelDirectors2; //0x64
+    ut::List list_0x70; //0x70
     u32 curScnRootIdx; //0x7c
     ScnGroupHolder** scnGroupHolders; //0x80 as many as groupCount
     TextureHolder* efbCopy; //0x84 for example used for WLscreenGC which just displays a copy of the player's screen
@@ -188,16 +173,16 @@ class ScnMgrMenu : public ScnMgr {
     g3d::ScnGroup* CreateScnGroup() override; //0x40 8059e920
 
     u8 unknown_0x98[0xa4 - 0x98];
-    g3d::ScnRoot* dummyRoot; //used to contain earth_with_dummy_tex.brres, this also means the AnmScn is dummy
+    g3d::ScnRoot* scnRoot2;
 };
 
-class ScnMgrRace : public ScnMgr { //there is a middle class with ctor 805b3b00
+class ScnMgrRace : public ScnMgr {
 public:
     ScnMgrRace(); //805b1300
     ~ScnMgrRace(); //805b1354 vtable 808b70b0
-    void vf_0xc() override;  //0xC 805b1a74
+    void vf_0xC() override;  //0xC 805b1a74
     void Init(EGG::Heap* heap) override; //0x10 805b3b00
-    void CalcSelf() override; //0x14 805b1c78
+    void UpdateSelf() override; //0x14 805b1c78
     void DrawModels() override; //0x18 805b1cd8
     void LoadPostEffects() override; //0x34 805b14e0 bti, bdof, bblm
     void LoadLights() override; //0x38 805b1a18

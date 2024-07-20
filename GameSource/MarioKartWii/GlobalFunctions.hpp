@@ -40,7 +40,7 @@ void GetHour(int* hour = nullptr, int* min = nullptr, int* sec = nullptr); //805
 
 char* GetPath(const char* format, ...); //805aeec4
 void DivideColorByFloat(ut::Color& dest, const ut::Color& src, float divide); //805aee14 obviously part of another class
-
+int GetAreaReferencesByType(const Vec3& position, u32 areaType); //80786fc0
 
 
 //BMG
