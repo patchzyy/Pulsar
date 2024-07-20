@@ -68,6 +68,7 @@ struct RGBA16 {
 #define asm(...) {}
 #define asmVolatile asm
 #define asmFunc void
+#define NULL 0
 #define __sync(...)
 #define __isync(...)
 #define size_assert(type, num) static_assert(sizeof(type)==(num),"type")

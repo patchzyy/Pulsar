@@ -9,7 +9,7 @@
 class CtrlMenuCharacterSelect : public LayoutUIControl {
 public:
     class ButtonDriver : public PushButton {
-    private:
+    public:
         ButtonDriver(); //807e2808
         ~ButtonDriver() override; //807e2844 vtable 808d3074
         void InitSelf() override; //0x18 807e3e10

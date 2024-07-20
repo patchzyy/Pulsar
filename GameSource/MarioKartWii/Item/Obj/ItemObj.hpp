@@ -16,6 +16,37 @@ class Obj;
 class ObjHolder;
 class Player;
 
+struct ObjProperties {
+    static ObjProperties objProperties[15]; //809c2f48
+
+    ObjProperties(const ObjProperties& rel); //80790e7c copy constructor from rodata's static array "copyFromRel"
+    Obj** (*CreateArray)(u32 count);
+    u32 limit; //0x4
+    u32 competitionLimit;
+    u32 capacity; //0xc
+    u32 capacity2;
+    u8 unknown_0x14[0x30 - 0x14];
+    float backwardDrawDistance; //0x30
+    float forwardDrawDistance;
+    float unknown_0x38[7];
+    u8 unknown_0x54[0x58 - 0x54];
+    bool canFallOnTheGround; //0x58
+    bool canFallOnTheGround2; //0x59
+    bool unknown_0x5a[2];
+    u8 unknown_0x5b[0x6c - 0x5b];
+    float unknown_0x6c;
+    bool unknown_0x70;
+    u8 unknown_0x71[0x74 - 0x71];
+}; // Total size 0x74
+extern float greenShellSpeed;
+extern float redShellInitialSpeed;
+extern float redShellSpeed;
+extern float blueShellSpeed;
+extern float blueShellMinimumDiveDistance; //big because it's squared
+extern float blueShellHomingSpeed;
+
+void CopyObjPropertiesFromRelToTable();
+
 class Collision {
     //normals stuff
     u8 unknown[0x5c];

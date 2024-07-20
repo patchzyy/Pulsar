@@ -49,10 +49,17 @@ kmWrite32(0x8078e1f0, 0x2c030001); //compare r3
 
 
 //Loads ObjFlow/GeoTable binaries from the track; if they do not exist, gets them from common as per usual
-const void* GetCommonBinary(const ArchiveRoot& root, ArchiveSource source, const char* name) {
-    const void* binary = root.GetFile(ARCHIVE_HOLDER_COURSE, name);
-    if(binary == nullptr) binary = root.GetFile(ARCHIVE_HOLDER_COMMON, name);
-    return binary;
+const void* GetCommonBinary(const ArchiveRoot& archive, ArchiveSource source, const char * name) {
+    void * file = archive.GetFile(ARCHIVE_HOLDER_COURSE, name, 0);
+    if(file == nullptr)
+    {
+        char commonName[0x30];
+        snprintf(commonName, 0x30, "Common/%s", name);
+        file = archive.GetFile(ARCHIVE_HOLDER_COURSE, commonName, 0);
+    }
+    if(file == nullptr)
+        file = archive.GetFile(ARCHIVE_HOLDER_COMMON, name, 0);
+    return file;
 }
 kmCall(0x8082c140, GetCommonBinary); //ObjFlow
 kmCall(0x807f92ac, GetCommonBinary); //GeoHitTables
