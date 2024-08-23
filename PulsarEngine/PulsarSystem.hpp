@@ -178,7 +178,7 @@ public:
     static Inherit* inherit;
     friend class Info;
 
-    static inline void CacheInvalidateAddress(register u32 address) {
+static inline void CacheInvalidateAddress(register u32 address) {
         asm(dcbst 0, address;);
         asm(sync;);
         asm(icbi 0, address;);

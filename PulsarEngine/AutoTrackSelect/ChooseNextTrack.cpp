@@ -4,7 +4,7 @@
 #include <UI/UI.hpp>
 #include <PulsarSystem.hpp>
 #include <MarioKartWii/GlobalFunctions.hpp>
-
+/*
 
 namespace Pulsar {
 
@@ -219,3 +219,5 @@ static PageId CorrectPageAfterResults(PageId id) {
 kmBranch(0x80646754, CorrectPageAfterResults);
 }//namespace UI
 }//namespace Pulsar
+
+*/

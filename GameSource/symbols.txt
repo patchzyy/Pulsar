@@ -51,6 +51,7 @@ __construct_array = 0x80020ff4
 __construct_new_array = 0x80020e34
 __destroy_arr = 0x800210ec
 __destroy_new_array = 0x80021164
+__ptmf_test = 0x800213e4
 __ptmf_scall = 0x80021450
 __cvt_fp2unsigned = 0x80021478
 
@@ -1762,3 +1763,13 @@ TPLGetGXTexObjFromPalette= 0x801b7544
 isOnlineRace__Q211RetroRewind11RaceGlobals= 0x809C38B9
 
 WWFC_CUSTOM_REGION = 0x80005efc
+Frames_Per_Second = 0x8055422C
+TT_START_POSITION = 0x80536304
+TRIPLE_SHROOMS = 0x807997D8
+NO_COLLISION = 0x8056F874
+NO_BOXES = 0x8082887C
+NO_SLIP = 0x80587000
+ITEM_VANISH1 = 0x8079F744
+ITEM_VANISH2 = 0x8079F748
+RBBG_HOOK_PT1 = 0x802575DF
+RBBG_HOOK_PT2 = 0x80258184

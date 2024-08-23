@@ -41,6 +41,8 @@ void ExpFroomMessages::OnCourseButtonClick(PushButton& button, u32 hudSlotId) {
     Pages::FriendRoomMessages::OnModeButtonClick(clickedButton, 0); //hudslot is unused
 }
 
+/*
+
 //kmWrite32(0x805dc47c, 0x7FE3FB78); //Get Page in r3
 static void OnStartButtonFroomMsgActivate() {
     register ExpFroomMessages* msg;
@@ -113,5 +115,6 @@ u32 CorrectModeButtonsBMG(const RKNet::ROOMPacket& packet) {
     else return Pages::FriendRoomManager::GetMessageBmg(packet, 0);
 }
 kmCall(0x805dcb74, CorrectModeButtonsBMG);
+*/
 }//namespace UI
 }//namespace Pulsar

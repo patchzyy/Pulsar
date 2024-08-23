@@ -5,6 +5,8 @@
 #include <AutoTrackSelect/AutoVote.hpp>
 #include <SlotExpansion/Network/PulSELECT.hpp>
 
+/*
+
 namespace Pulsar {
 namespace UI {
 //If ever there is a need for more custom sections, CustomSectionBuilder should be easy to make
@@ -120,3 +122,4 @@ void AutoVote::OnUpdate() {
 
 }//namespace UI
 }//namespace Pulsar
+*/
