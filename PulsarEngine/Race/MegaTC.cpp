@@ -1,21 +1,24 @@
 #include <MarioKartWii/Item/ItemManager.hpp>
 #include <MarioKartWii/Item/Obj/Kumo.hpp>
 #include <MarioKartWii/Kart/KartMovement.hpp>
-#include <PulsarSystem.hpp>
+#include <RetroRewind.hpp>
+#include <Info.hpp>
 
 
 namespace Pulsar {
 namespace Race {
 //Mega TC
 void MegaTC(Kart::Movement& movement, int frames, int unk0, int unk1) {
-    if(System::sInstance->IsContext(PULSAR_MEGATC)) movement.ActivateMega();
+    const RetroRewind::System::TC tcMode = RetroRewind::System::GetTCMode();
+    if(Info::IsMegaTC() && tcMode == RetroRewind::System::TC_MEGA) movement.ActivateMega();
     else movement.ApplyLightningEffect(frames, unk0, unk1);
 }
 kmCall(0x80580630, MegaTC);
 
 void LoadCorrectTCBRRES(Item::ObjKumo& objKumo, const char* mdlName, const char* shadowSrc, u8 whichShadowListToUse,
-    Item::Obj::AnmParam* anmParam) {
-    if(System::sInstance->IsContext(PULSAR_MEGATC)) objKumo.LoadGraphics("megaTC.brres", mdlName, shadowSrc, 1, anmParam,
+    Item::ObjBase::AnmParam* anmParam) {
+    const RetroRewind::System::TC tcMode = RetroRewind::System::GetTCMode();
+    if(Info::IsMegaTC() && tcMode == RetroRewind::System::TC_MEGA) objKumo.LoadGraphics("megaTC.brres", mdlName, shadowSrc, 1, anmParam,
         static_cast<nw4r::g3d::ScnMdl::BufferOption>(0), nullptr, 0);
     else objKumo.LoadGraphicsImplicitBRRES(mdlName, shadowSrc, 1, anmParam, static_cast<nw4r::g3d::ScnMdl::BufferOption>(0), nullptr);
 }

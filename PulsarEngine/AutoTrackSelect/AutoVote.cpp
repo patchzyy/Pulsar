@@ -7,6 +7,8 @@
 #include <Network/PulSELECT.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
 
+/*
+
 namespace Pulsar {
 namespace UI {
 /*
@@ -126,3 +128,4 @@ void AutoVote::OnUpdate() {
 
 }//namespace UI
 }//namespace Pulsar
+*/
