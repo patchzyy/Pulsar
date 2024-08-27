@@ -60,7 +60,7 @@ void SetBikeDriftTiers(Kart::MovementBike& movement, bool charged){
         KartType type = movement.link.GetType();
         const s16 mtCharge = movement.mtCharge;
         const GameMode gameMode = RaceData::sInstance->racesScenario.settings.gamemode;
-        if (type == OUTSIDE_BIKE && gameMode!=MODE_TIME_TRIAL){
+        if (type == OUTSIDE_BIKE){
             if (mtCharge >= 570) movement.driftState = 3;
         }
     }
@@ -181,7 +181,7 @@ void LoadOrangeSparkEffects(ExpPlayerEffects& effects, EGG::Effect** effectArray
     KartType type = effects.kartPlayer->link.GetType();
     const u32 mtCharge = effects.kartPlayer->link.pointers->kartMovement->mtCharge;
     const GameMode gameMode = RaceData::sInstance->racesScenario.settings.gamemode;
-    if(mtCharge >= 570 && type == OUTSIDE_BIKE && gameMode!=MODE_TIME_TRIAL) {
+    if(mtCharge >= 570 && type == OUTSIDE_BIKE) {
         effects.CreateAndUpdateEffectsByIdx(effects.rk_orangeMT, 0, 2, playerMat2, wheelPos, updateScale);
         effects.FollowFadeEffectsByIdx(effectArray, firstEffectIndex, lastEffectIndex, playerMat2, wheelPos, updateScale);
     }

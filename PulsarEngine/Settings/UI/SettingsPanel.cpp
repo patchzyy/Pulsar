@@ -12,7 +12,7 @@ u8 SettingsPanel::scrollerCount[SettingsPanel::maxPageCount] ={ 1, 1, 1 }; //men
 u8 SettingsPanel::buttonsPerPagePerRow[SettingsPanel::maxPageCount][8] = //first row is SettingsType, 2nd is rowIdx of radio
 {
     { 2, 2, 3, 0, 0, 0, 0, 0 }, //Menu 
-    { 2, 2, 2, 2, 3, 0, 0, 0 }, //Race
+    { 2, 2, 3, 2, 3, 0, 0, 0 }, //Race
     { 2, 4, 2, 0, 0, 0, 0, 0 }, //Host
 };
 
