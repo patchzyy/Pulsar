@@ -34,8 +34,10 @@ kmWrite32(0x807eb160, 0x88de01b4);
 //credit to XeR for finding the float address
 static void BattleGlitchEnable() {
     const bool isEnabled = Settings::Mgr::GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_BATTLE) == RACESETTING_BATTLE_GLITCH_ENABLED;
+    const bool isGone = Settings::Mgr::GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_BATTLE) == RACESETTING_BATTLE_GLITCH_GONE;
     float maxDistance = 7500.0f;
     if(isEnabled) maxDistance = 75000.0f;
+    if(isGone) maxDistance = 0.0f;
     RaceBalloons::maxDistanceNames = maxDistance;
 }
 RaceLoadHook BattleGlitch(BattleGlitchEnable);
