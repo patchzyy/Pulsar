@@ -116,7 +116,7 @@ void ExpVR::RandomizeCombo(PushButton& randomComboButton, u32 hudSlotId) {
             multiKartSelect->rolledKartPos[0] = randomizedKartPos;
             u8 options = 12;
             if (RetroRewind::System::GetKartRestriction() != RetroRewind::System::KART_DEFAULTSELECTION) options = 6;
-            if(IsBattle()) options = 12;
+            if(IsBattle()) options = 2;
             multiKartSelect->rolledKartPos[1] = random.NextLimited(options);
             multiKartSelect->controlsManipulatorManager.inaccessible = true;
         }

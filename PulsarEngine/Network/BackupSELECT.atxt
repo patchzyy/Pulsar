@@ -1,116 +1,78 @@
 #include <kamek.hpp>
 #include <MarioKartWii/RKNet/RKNetController.hpp>
-#include <MarioKartWii/Archive/ArchiveMgr.hpp>
+#include <MarioKartWii/RKNet/Select.hpp>
+#include <MarioKartWii/System/random.hpp>
+#include <MarioKartWii/Archive/ArchiveRoot.hpp>
+#include <SlotExpansion/Network/PulSELECT.hpp>
+#include <SlotExpansion/CupsConfig.hpp>
 #include <PulsarSystem.hpp>
-#include <Gamemodes/KO/KOMgr.hpp>
-#include <Network/Network.hpp>
-#include <Network/PulSELECT.hpp>
-#include <Settings/Settings.hpp>
+#include <Info.hpp>
 
 
 namespace Pulsar {
 namespace Network {
 
-void BeforeSELECTSend(RKNet::PacketHolder<PulSELECT>* packetHolder, PulSELECT* src, u32 len) {
-    const System* system = System::sInstance;
-    if(!system->IsContext(PULSAR_CT)) {
-        PulSELECT copy = *src;
-        RKNet::SELECTPacket* normalPacket = reinterpret_cast<RKNet::SELECTPacket*>(&copy);
-        normalPacket->playersData[0].courseVote = (u8)CupsConfig::ConvertTrack_PulsarIdToRealId(static_cast<PulsarId>(src->base.pulSELPlayerData[0].pulCourseVote));
-        normalPacket->playersData[1].courseVote = (u8)CupsConfig::ConvertTrack_PulsarIdToRealId(static_cast<PulsarId>(src->base.pulSELPlayerData[1].pulCourseVote));
-        normalPacket->winningCourse = CupsConfig::ConvertTrack_PulsarIdToRealId(static_cast<PulsarId>(src->base.pulWinningCourse));
-        normalPacket->playersData[0].prevRaceRank = src->base.pulSELPlayerData[0].prevRaceRank;
-        normalPacket->playersData[1].prevRaceRank = src->base.pulSELPlayerData[1].prevRaceRank;
-        normalPacket->phase = src->base.phase;
-        normalPacket->engineClass = src->base.engineClass;
-        src = reinterpret_cast<PulSELECT*>(&copy);
-    }
-    else src->base.pulSELPlayerData[1].starRank |= 0x80; //set leftmost bit to specify PULSELECT
-    packetHolder->Copy(src, len);
-    if(system->IsContext(PULSAR_CT)) {
-        packetHolder->packetSize += sizeof(PulSELECT) - sizeof(RKNet::SELECTPacket); //this has been changed by copy so it's safe to do this
-        PulSELECT* destPacket = packetHolder->packet;
-        const Settings::Mgr& settings = Settings::Mgr::Get();
-        destPacket->allowChangeComboAfterVote = settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_ALLOWCHANGECOMBO);
-        destPacket->koPerRace = settings.GetSettingValue(Settings::SETTINGSTYPE_KO, SETTINGKO_KOPERRACE) + 1;
-        destPacket->racesPerKO = settings.GetSettingValue(Settings::SETTINGSTYPE_KO, SETTINGKO_RACESPERKO) + 1;
 
+void BeforeSELECTSend(RKNet::PacketHolder* packetHolder, CustomSELECTPacket* src, u32 len) {
+    if(CupsConfig::IsRegsSituation()) {
+    src->pulSELPlayerData[1].starRank += 0x80; //set leftmost bit to specify PULPacket
+    packetHolder->Copy(src, len);
     }
+    else src->pulSELPlayerData[1].starRank += 0x80; //set leftmost bit to specify PULPacket
+    packetHolder->Copy(src, len);
 }
 kmCall(0x80661040, BeforeSELECTSend);
 
-static void AfterSELECTReception(PulSELECT* dest, PulSELECT* src, u32 packetSize) {
-    if(!System::sInstance->IsContext(PULSAR_CT) || (src->base.pulSELPlayerData[1].starRank & 0x80 == 0)) {
-        RKNet::SELECTPacket* normalPacket = reinterpret_cast<RKNet::SELECTPacket*>(src);
-        const u8 courseVoteHud0 = CupsConfig::ConvertTrack_RealIdToPulsarId(static_cast<CourseId>(normalPacket->playersData[0].courseVote));
-        const u8 courseVoteHud1 = CupsConfig::ConvertTrack_RealIdToPulsarId(static_cast<CourseId>(normalPacket->playersData[1].courseVote));
-        const u8 winningId = CupsConfig::ConvertTrack_RealIdToPulsarId(static_cast<CourseId>(normalPacket->winningCourse));
-        const u8 prevRaceRankHud0 = normalPacket->playersData[0].prevRaceRank;
-        const u8 prevRaceRankHud1 = normalPacket->playersData[1].prevRaceRank;
-        const u8 phase = normalPacket->phase;
-        const u8 engineClass = normalPacket->engineClass;
-        src->base.pulSELPlayerData[0].pulCourseVote = courseVoteHud0;
-        src->base.pulSELPlayerData[1].pulCourseVote = courseVoteHud1;
-        src->base.pulSELPlayerData[0].prevRaceRank = prevRaceRankHud0;
-        src->base.pulSELPlayerData[1].prevRaceRank = prevRaceRankHud1;
-        src->base.pulWinningCourse = winningId;
-        src->base.phase = phase;
-        src->base.engineClass = engineClass;
+static void AfterSELECTReception(CustomSELECTPacket* dest, CustomSELECTPacket* src, u32 packetSize) {
+    if(CupsConfig::IsRegsSituation() || (src->pulSELPlayerData[1].starRank & 0x80 == 0)) {
+    src->pulSELPlayerData[1].starRank -= 0x80;
+    memcpy(dest, src, sizeof(CustomSELECTPacket));
     }
-    else {
-        src->base.pulSELPlayerData[1].starRank &= ~0x80;
-    }
-
-    memcpy(dest, src, sizeof(PulSELECT::Base));
+    else src->pulSELPlayerData[1].starRank -= 0x80;
+    memcpy(dest, src, sizeof(CustomSELECTPacket));
 }
 kmCall(0x80661130, AfterSELECTReception);
 
-static u8 GetEngineClass(const ExpSELECTHandler& select) {
+static u8 GetEngineClass(const CustomSELECTHandler& select) {
     if(select.toSendPacket.phase != 0) return select.toSendPacket.engineClass;
     return 0;
 }
 kmBranch(0x8066048c, GetEngineClass);
 
-static u16 GetWinningCourse(const ExpSELECTHandler& select) {
+static u16 GetWinningCourse(const CustomSELECTHandler& select) {
     if(select.toSendPacket.phase == 2) return select.toSendPacket.pulWinningCourse;
     else return 0xFF;
 }
 kmBranch(0x80660450, GetWinningCourse);
 
-static bool IsTrackDecided(const ExpSELECTHandler& select) {
-    return select.toSendPacket.pulWinningCourse != 0xFF;
+static bool IsTrackDecided(CustomSELECTHandler* select) {
+    return select->toSendPacket.pulWinningCourse != 0xFF;
 }
 kmBranch(0x80660d40, IsTrackDecided);
 
 
 PulsarId FixRandom(Random& random) {
-    return CupsConfig::sInstance->RandomizeTrack();
+    return CupsConfig::sInstance->RandomizeTrack(&random);
 }
 kmCall(0x80661f34, FixRandom);
 
-static void DecideTrack(ExpSELECTHandler* select) {
+static void DecideTrack(CustomSELECTHandler* select) {
     Random random;
     System* system = System::sInstance;
     const CupsConfig* cupsConfig = CupsConfig::sInstance;
-    RKNet::Controller* controller = RKNet::Controller::sInstance;
-    RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
-    const u8 hostAid = controller->subs[controller->currentSub].hostAid;
-    if(select->mode == RKNet::ONLINEMODE_PRIVATE_VS && system->IsContext(PULSAR_MODE_KO)) {
-        system->koMgr->PatchAids(sub);
+    const RKNet::Controller* controller = RKNet::Controller::sInstance;
+    const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
 
-    }
-
-
-    if(select->mode == RKNet::ONLINEMODE_PRIVATE_VS && Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_HOSTWINS) && !system->IsContext(PULSAR_MODE_KO)) {
-
+    if(select->mode == RKNet::ONLINEMODE_PRIVATE_VS && Info::IsHAW(true)) {
+        const u8 hostAid = controller->subs[controller->currentSub].hostAid;
         select->toSendPacket.winningVoterAid = hostAid;
         u16 hostVote = select->toSendPacket.pulSELPlayerData[0].pulCourseVote;
-        if(hostVote == 0xFF) hostVote = cupsConfig->RandomizeTrack();
+        if(hostVote == 0xFF) hostVote = cupsConfig->RandomizeTrack(&random);
         select->toSendPacket.pulWinningCourse = hostVote;
     }
-    else if((select->mode == RKNet::ONLINEMODE_PUBLIC_VS || select->mode == RKNet::ONLINEMODE_PRIVATE_VS) && system->IsContext(PULSAR_CT)) {
+    else if((select->mode == RKNet::ONLINEMODE_PUBLIC_VS || select->mode == RKNet::ONLINEMODE_PRIVATE_VS) && !CupsConfig::IsRegsSituation()) {
 
-        const u32 availableAids = sub.availableAids; //has been modified to remove KO'd player if KO is on
+        const u32 availableAids = sub.availableAids;
         u8 aids[12];
         u8 newVotesAids[12];
         PulsarId votes[12];
@@ -122,9 +84,9 @@ static void DecideTrack(ExpSELECTHandler* select) {
             ++playerCount;
             bool isRepeatVote = false;
             PulsarId aidVote = static_cast<PulsarId>(aid == sub.localAid ? select->toSendPacket.pulSELPlayerData[0].pulCourseVote : select->receivedPackets[aid].pulSELPlayerData[0].pulCourseVote);
-            if(aidVote == 0xFF) aidVote = cupsConfig->RandomizeTrack();
+            if(aidVote == 0xFF) aidVote = cupsConfig->RandomizeTrack(&random);
             votes[aid] = aidVote;
-            for(int i = 0; i < system->GetInfo().GetTrackBlocking(); ++i) {
+            for(int i = 0; i < Info::GetTrackBlocking(); ++i) {
                 if(system->lastTracks[i] == aidVote) {
                     isRepeatVote = true;
                 }
@@ -137,19 +99,19 @@ static void DecideTrack(ExpSELECTHandler* select) {
         u8 winner;
         if(newVoters > 0) winner = newVotesAids[random.NextLimited(newVoters)];
         else winner = aids[random.NextLimited(playerCount)];
-        PulsarId vote = static_cast<PulsarId>(votes[winner]);
+        u16 vote = votes[winner];
 
-        select->toSendPacket.pulWinningCourse = vote + (cupsConfig->RandomizeVariant(vote) << 12);
+        select->toSendPacket.pulWinningCourse = vote;
         select->toSendPacket.winningVoterAid = winner;
-        system->lastTracks[system->curBlockingArrayIdx] = vote;
-        system->curBlockingArrayIdx = (system->curBlockingArrayIdx + 1) % system->GetInfo().GetTrackBlocking();
+        system->lastTracks[system->curBlockingArrayIdx] = static_cast<PulsarId>(vote);
+        system->curBlockingArrayIdx = (system->curBlockingArrayIdx + 1) % Info::GetTrackBlocking();
     }
     else reinterpret_cast<RKNet::SELECTHandler*>(select)->DecideTrack();
 }
 kmCall(0x80661490, DecideTrack);
 
 //Patches GetWinningCOURSE call so that non-hosts prepare the correct track
-CourseId SetCorrectSlot(ExpSELECTHandler* select) {
+CourseId SetCorrectSlot(CustomSELECTHandler* select) {
     CourseId id = reinterpret_cast<RKNet::SELECTHandler*>(select)->GetWinningCourse();
     if(select->toSendPacket.engineClass != 0) id = CupsConfig::sInstance->GetCorrectTrackSlot();
     return id;
@@ -161,39 +123,10 @@ static void SetCorrectTrack(ArchiveRoot* root, PulsarId winningCourse) {
     //System* system = System::sInstance; ONLY STORE IF NON HOST
     //system->lastTracks[system->curBlockingArrayIdx] = winningCourse;
     //system->curBlockingArrayIdx = (system->curBlockingArrayIdx + 1) % Info::GetTrackBlocking();
-    cupsConfig->SetWinning(winningCourse, false);
+    cupsConfig->winningCourse = winningCourse;
     root->RequestLoadCourseAsync(static_cast<CourseId>(winningCourse));
 }
 kmCall(0x80644414, SetCorrectTrack);
-
-//Overwrites CC rules -> 10% 100, 65% 150, 25% mirror and/or in frooms, overwritten by host setting
-static void DecideCC(ExpSELECTHandler& handler) {
-    System* system = System::sInstance;
-    if(!system->IsContext(PULSAR_CT)) reinterpret_cast<RKNet::SELECTHandler&>(handler).DecideEngineClass();
-    else {
-        const u8 ccSetting = Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_CC);
-        RKNet::Controller* controller = RKNet::Controller::sInstance;
-        const RKNet::RoomType roomType = controller->roomType;
-        u8 ccClass = 1; //1 100, 2 150, 3 mirror
-        if(roomType == RKNet::ROOMTYPE_VS_REGIONAL
-            || roomType == RKNet::ROOMTYPE_FROOM_HOST && ccSetting == HOSTSETTING_CC_NORMAL) {
-            Random random;
-            const u32 result = random.NextLimited(100); //25
-            System* system = System::sInstance;
-            u32 prob100 = system->GetInfo().GetProb100(); //100
-            u32 prob150 = system->GetInfo().GetProb150(); //00
-            if(result < 100 - (prob100 + prob150)) ccClass = 3;
-            else if(result < 100 - prob100) ccClass = 2;
-        }
-        else if(ccSetting == HOSTSETTING_CC_150) ccClass = 2;
-        else if(ccSetting == HOSTSETTING_CC_MIRROR) ccClass = 3;
-        handler.toSendPacket.engineClass = ccClass;
-    }
-
-}
-kmCall(0x80661404, DecideCC);
-
-
 
 //Swap of rank and courseVote
 //CourseVote

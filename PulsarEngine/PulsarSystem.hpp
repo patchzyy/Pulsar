@@ -103,6 +103,12 @@ public:
     Network::Mgr netMgr;
 
     TTMode ttMode;
+    static inline void CacheInvalidateAddress(register u32 address) {
+        asm(dcbst 0, address;);
+        asm(sync;);
+        asm(icbi 0, address;);
+        asm(isync;);
+    }
 
     //LECODE data
     LECODE::Mgr* lecodeMgr;
@@ -138,13 +144,6 @@ public:
     };
     static Inherit* inherit;
     friend class Info;
-
-static inline void CacheInvalidateAddress(register u32 address) {
-        asm(dcbst 0, address;);
-        asm(sync;);
-        asm(icbi 0, address;);
-        asm(isync;);
-    }
 };
 } //namespace Pulsar
 

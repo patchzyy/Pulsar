@@ -35,17 +35,19 @@ kmWrite32(0x807eb160, 0x88de01b4);
 static void BattleGlitchEnable() {
     const bool isEnabled = Settings::Mgr::GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_BATTLE) == RACESETTING_BATTLE_GLITCH_ENABLED;
     const bool isGone = Settings::Mgr::GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_BATTLE) == RACESETTING_BATTLE_GLITCH_GONE;
+    const RetroRewind::System::Gamemode gameMode = RetroRewind::System::GetGameMode();
     float maxDistance = 7500.0f;
     if(isEnabled) maxDistance = 75000.0f;
-    if(isGone) maxDistance = 0.0f;
+    if(isGone || gameMode == RetroRewind::System::GAMEMODE_ONLINETT) maxDistance = 0.0f;
     RaceBalloons::maxDistanceNames = maxDistance;
 }
 RaceLoadHook BattleGlitch(BattleGlitchEnable);
 
 static void DisplayTimesInsteadOfNames(CtrlRaceResult& result, u8 id) {
+    const RetroRewind::System::Gamemode gameMode = RetroRewind::System::GetGameMode();
     if(static_cast<RetroRewind::System::Times>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_TIMES)) == RetroRewind::System::TIMES_DISABLED)
     result.FillName(id);
-    if(static_cast<RetroRewind::System::Times>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_TIMES)) == RetroRewind::System::TIMES_ENABLED)
+    if(static_cast<RetroRewind::System::Times>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_TIMES)) == RetroRewind::System::TIMES_ENABLED || gameMode == RetroRewind::System::GAMEMODE_ONLINETT)
     result.FillFinishTime(id);
 }
 kmCall(0x8085d460, DisplayTimesInsteadOfNames); //for WWs

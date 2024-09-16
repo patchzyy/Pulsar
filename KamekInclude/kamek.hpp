@@ -19,6 +19,7 @@
 #include <MarioKartWii/Math/Vector.hpp>
 #include <core/nw4r/ut/LinkList.hpp>
 #include <core/nw4r/ut/List.hpp>
+#include <core/rvl/OS/OS.hpp>
  //just for usability in other structs
 
 /*
@@ -215,6 +216,33 @@ struct PtmfHolder_3A : PtmfHolderBase_3A<Ret, A1, A2, A3> {
     }
 };
 
+#define DEBUG_COSMOS
+#define CosmosLog(f, ...) OSReport("[Cosmos:%s:%d] " f, __FILE__, __LINE__, ##__VA_ARGS__)
+#define CosmosError(f, ...) OSReport("[Cosmos Error:%s:%d] " f, __FILE__, __LINE__, ##__VA_ARGS__)
+
+#define COSMOS_ASSERT(c) if(!(c)) { OSReport("[Cosmos Assert Failed:%s:%d]" #c, __FILE__, __LINE__); u32 _blackColor = 0; u32 _whiteColor = ~0; OSFatal(&_whiteColor, &_blackColor, "Assertion Failed! " #c); }
+#define COSMOS_ASSERT_NOT_NULL(c) COSMOS_ASSERT(c != nullptr);
+
+#define COSMOS_SECURITY
+
+#if defined(COSMOS_SECURITY) && !defined(DEBUG_COSMOS)
+#define COSMOS_HANG() Cosmos::Security::KillAllStack()
+#else
+#define COSMOS_HANG() for(;;){}
+#endif
+
+#define __COMPILER_VERSION__ "4305_224"
+#define __COSMOS_VERSION__ "v0.1.5"
+
+
+enum HookPriority{
+    LOW,
+    MEDIUM,
+    HIGH,
+    FIRST,
+    LINK,
+};
+
 class DoFuncsHook {
 protected:
     typedef void (Func)();
@@ -222,28 +250,42 @@ protected:
     DoFuncsHook* next;
     DoFuncsHook(Func& f, DoFuncsHook** prev);
 
-    static void Exec(DoFuncsHook* first);
+    static void exec(DoFuncsHook* first);
 };
 
 class RaceLoadHook : public DoFuncsHook {
     static DoFuncsHook* raceLoadHooks;
 public:
     RaceLoadHook(Func& f) : DoFuncsHook(f, &raceLoadHooks) {}
-    static void Exec() { DoFuncsHook::Exec(raceLoadHooks); }
+    static void exec() { DoFuncsHook::exec(raceLoadHooks); }
+};
+
+class PageLoadHook : public DoFuncsHook {
+    static DoFuncsHook* pageLoadHooks;
+public:
+    PageLoadHook(Func& f) : DoFuncsHook(f, &pageLoadHooks) {}
+    static void exec() { DoFuncsHook::exec(pageLoadHooks); }
 };
 
 class RaceFrameHook : public DoFuncsHook {
     static DoFuncsHook* raceFrameHooks;
 public:
     RaceFrameHook(Func& f) : DoFuncsHook(f, &raceFrameHooks) {}
-    static void Exec() { DoFuncsHook::Exec(raceFrameHooks); }
+    static void exec() { DoFuncsHook::exec(raceFrameHooks); }
+};
+
+class SectionLoadHook : public DoFuncsHook {
+    static DoFuncsHook* sectionLoadHooks;
+public:
+    SectionLoadHook(Func& f) : DoFuncsHook(f, &sectionLoadHooks) {}
+    static void exec() { DoFuncsHook::exec(sectionLoadHooks); }
 };
 
 /*
 class SectionLoadHook {
 private:
     typedef void (Func)();
-    Func* func;
+    Func* mFunc;
     SectionLoadHook* mNext;
 
     static SectionLoadHook* sHooks;
@@ -252,27 +294,47 @@ public:
     SectionLoadHook(Func* f) {
         mNext = sHooks;
         sHooks = this;
-        func = f;
+        mFunc = f;
     }
 
-    static void Exec() {
+    static void exec() {
         for(SectionLoadHook* p = sHooks; p; p = p->mNext)
-            p->func();
+            p->mFunc();
     }
 };
 */
 
-//REL has NOT loaded yet, so do NOT do anything with REL addr, it will not work
+class RacePostLoadHook {
+private:
+    typedef void (Func)();
+    Func *mFunc;
+    RacePostLoadHook * mNext;
+
+    static RacePostLoadHook * sHooks;
+
+public:
+    RacePostLoadHook(Func * f) {
+        mNext = sHooks;
+        sHooks = this;
+        mFunc = f;
+    }
+
+    static void exec() {
+        for (RacePostLoadHook * p = sHooks; p; p = p->mNext)
+            p->mFunc();
+    }
+};
+
 class BootHook {
 public:
     typedef void (Func)();
-    Func* func;
+    Func* mFunc;
     nw4r::ut::Link link;
     static nw4r::ut::List list;
 
 public:
     BootHook(Func* f, u16 position) {
-        this->func = f;
+        this->mFunc = f;
         Func* obj = (Func*)nw4r::ut::List_GetNth(&list, position);
         if(obj == nullptr || position > list.count) nw4r::ut::List_Append(&list, this);
         else {
@@ -280,13 +342,15 @@ public:
         }
     }
 
-    static void Exec() {
+    static void exec() {
         BootHook* next = nullptr;
         BootHook* cur = (BootHook*)nw4r::ut::List_GetNth(&list, 0);
         for(cur; cur != nullptr; cur = next) {
-            cur->func();
+            cur->mFunc();
             next = (BootHook*)nw4r::ut::List_GetNext(&list, cur);
         }
     }
 };
+
+
 #endif
