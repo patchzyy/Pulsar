@@ -151,6 +151,12 @@ public:
     u8 racesPerGP;
     PulsarId* lastTracks;
     TTMode ttMode;
+    static inline void CacheInvalidateAddress(register u32 address) {
+        asm(dcbst 0, address;);
+        asm(sync;);
+        asm(icbi 0, address;);
+        asm(isync;);
+    }
 
 private:
     //Custom BMGS
@@ -177,13 +183,6 @@ public:
     };
     static Inherit* inherit;
     friend class Info;
-
-static inline void CacheInvalidateAddress(register u32 address) {
-        asm(dcbst 0, address;);
-        asm(sync;);
-        asm(icbi 0, address;);
-        asm(isync;);
-    }
 };
 } //namespace Pulsar
 

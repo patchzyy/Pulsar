@@ -28,7 +28,7 @@ CourseId ReturnCorrectId(const RKNet::RH1Handler& rh1Handler) {
         const RKNet::RH1Data& cur = rh1Handler.rh1Data[i];
         const CourseId curTrack = cur.trackId;
         if(curTrack != 0xFFFFFFFF && (curTrack <= 0x42 || curTrack > 0xff) && cur.timer != 0) {
-            if(CupsConfig::IsRegsSituation()) cupsConfig->winningCourse = CupsConfig::ConvertTrack_RealIdToPulsarId(cur.trackId);
+            if(CupsConfig::IsRegsSituation()) cupsConfig->winningCourse = static_cast<PulsarId>(cur.trackId);
             else cupsConfig->winningCourse = static_cast<PulsarId>(cur.trackId);
             return cupsConfig->GetCorrectTrackSlot();
         }
@@ -74,10 +74,9 @@ static void ImportRH1ToPulRH1() {
     register RKNet::RH1Data* data;
     asm(addi data, r26, 0x20;);
     if(CupsConfig::IsRegsSituation()) {
-        RKNet::RACEHEADER1Packet* normal = reinterpret_cast<RKNet::RACEHEADER1Packet*>(packet);
-        data->trackId = static_cast<CourseId>(normal->trackId);
-        data->starRank[0] = normal->starRank[0];
-        data->starRank[1] = normal->starRank[1];
+        data->trackId = static_cast<CourseId>(packet->trackId);
+        data->starRank[0] = packet->starRankHud0;
+        data->starRank[1] = packet->starRankHud1;
     }
     else {
         data->trackId = static_cast<CourseId>(packet->trackId);

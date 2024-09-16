@@ -93,8 +93,7 @@ bool UpdateSpeedMultiplier(Kart::Boost& boost, bool* boostEnded) {
     const float insideDriftMultiplier = 1.224f; //5% faster
     const float defaultMTMultiplier = 1.2f;
 
-    if (static_cast<RetroRewind::System::Transmission>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR), RetroRewind::System::SETTINGRR_RADIO_TRANSMISSION)) == RetroRewind::System::TRANSMISSION_INSIDEALL
-     && !Pulsar::CupsConfig::IsRegsSituation()) {
+    if (static_cast<RetroRewind::System::Transmission>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR), RetroRewind::System::SETTINGRR_RADIO_TRANSMISSION)) == RetroRewind::System::TRANSMISSION_INSIDEALL) {
         if (!isBoosting) state[id] = false;
         if (boost.multiplier == defaultMTMultiplier || boost.multiplier == insideDriftMultiplier) {
             if (state[id]) boost.multiplier = insideDriftMultiplier;

@@ -15,16 +15,8 @@ namespace Network {
 
 void BeforeSELECTSend(RKNet::PacketHolder* packetHolder, CustomSELECTPacket* src, u32 len) {
     if(CupsConfig::IsRegsSituation()) {
-        CustomSELECTPacket copy = *src;
-        RKNet::SELECTPacket* normalPacket = reinterpret_cast<RKNet::SELECTPacket*>(&copy);
-        normalPacket->playersData[0].courseVote = (u8)CupsConfig::ConvertTrack_PulsarIdToRealId(static_cast<PulsarId>(src->pulSELPlayerData[0].pulCourseVote));
-        normalPacket->playersData[1].courseVote = (u8)CupsConfig::ConvertTrack_PulsarIdToRealId(static_cast<PulsarId>(src->pulSELPlayerData[1].pulCourseVote));
-        normalPacket->winningCourse = CupsConfig::ConvertTrack_PulsarIdToRealId(static_cast<PulsarId>(src->pulWinningCourse));
-        normalPacket->playersData[0].prevRaceRank = src->pulSELPlayerData[0].prevRaceRank;
-        normalPacket->playersData[1].prevRaceRank = src->pulSELPlayerData[1].prevRaceRank;
-        normalPacket->phase = src->phase;
-        normalPacket->engineClass = src->engineClass;
-        src = reinterpret_cast<CustomSELECTPacket*>(&copy);
+    src->pulSELPlayerData[1].starRank += 0x80; //set leftmost bit to specify PULPacket
+    packetHolder->Copy(src, len);
     }
     else src->pulSELPlayerData[1].starRank += 0x80; //set leftmost bit to specify PULPacket
     packetHolder->Copy(src, len);
@@ -33,21 +25,8 @@ kmCall(0x80661040, BeforeSELECTSend);
 
 static void AfterSELECTReception(CustomSELECTPacket* dest, CustomSELECTPacket* src, u32 packetSize) {
     if(CupsConfig::IsRegsSituation() || (src->pulSELPlayerData[1].starRank & 0x80 == 0)) {
-        RKNet::SELECTPacket* normalPacket = reinterpret_cast<RKNet::SELECTPacket*>(src);
-        const u8 courseVoteHud0 = CupsConfig::ConvertTrack_RealIdToPulsarId(static_cast<CourseId>(normalPacket->playersData[0].courseVote));
-        const u8 courseVoteHud1 = CupsConfig::ConvertTrack_RealIdToPulsarId(static_cast<CourseId>(normalPacket->playersData[1].courseVote));
-        const u8 winningId = CupsConfig::ConvertTrack_RealIdToPulsarId(static_cast<CourseId>(normalPacket->winningCourse));
-        const u8 prevRaceRankHud0 = normalPacket->playersData[0].prevRaceRank;
-        const u8 prevRaceRankHud1 = normalPacket->playersData[1].prevRaceRank;
-        const u8 phase = normalPacket->phase;
-        const u8 engineClass = normalPacket->engineClass;
-        src->pulSELPlayerData[0].pulCourseVote = courseVoteHud0;
-        src->pulSELPlayerData[1].pulCourseVote = courseVoteHud1;
-        src->pulSELPlayerData[0].prevRaceRank = prevRaceRankHud0;
-        src->pulSELPlayerData[1].prevRaceRank = prevRaceRankHud1;
-        src->pulWinningCourse = winningId;
-        src->phase = phase;
-        src->engineClass = engineClass;
+    src->pulSELPlayerData[1].starRank -= 0x80;
+    memcpy(dest, src, sizeof(CustomSELECTPacket));
     }
     else src->pulSELPlayerData[1].starRank -= 0x80;
     memcpy(dest, src, sizeof(CustomSELECTPacket));

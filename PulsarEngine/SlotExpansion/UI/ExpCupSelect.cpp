@@ -32,15 +32,6 @@ ExpCupSelect::ExpCupSelect() {
     onBackPressHandler.ptmf = &ExpCupSelect::OnBackPress;
     randomizedId = PULSARID_NONE;
     this->controlsManipulatorManager.SetGlobalHandler(START_PRESS, onStartPressHandler, false, false);
-
-    CupsConfig* cupsConfig = CupsConfig::sInstance;
-    cupsConfig->ToggleCTs(!CupsConfig::IsRegsSituation());
-    if(cupsConfig->GetTotalCupCount() <= 8) {
-        this->arrows.leftArrow.manipulator.inaccessible = true;
-        this->arrows.leftArrow.isHidden = true;
-        this->arrows.rightArrow.manipulator.inaccessible = true;
-        this->arrows.rightArrow.isHidden = true;
-    }
 }
 
 void ExpCupSelect::OnActivate() {
