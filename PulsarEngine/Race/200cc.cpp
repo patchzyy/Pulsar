@@ -33,7 +33,7 @@ void EnableBrakeDrifting(Input::ControllerHolder& controllerHolder) {
     if (gameMode != MODE_TIME_TRIAL && 
     (brakeDriftMode == RetroRewind::System::FORCEBRAKEDRIFT_DISABLED && 
     static_cast<RetroRewind::System::BrakeDrift>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_BRAKEDRIFT)) == RetroRewind::System::BRAKEDRIFT_ENABLED) || 
-    Info::Is200cc())
+    Info::Is200cc() || RetroRewind::System::Is500cc())
 {
         const ControllerType controllerType = controllerHolder.curController->GetType();
         const u16 inputs = controllerHolder.inputStates[0].buttonRaw;
@@ -79,7 +79,7 @@ bool IsBrakeDrifting(const Kart::Status& status) {
     if (gameMode != MODE_TIME_TRIAL && 
     (brakeDriftMode == RetroRewind::System::FORCEBRAKEDRIFT_DISABLED && 
     static_cast<RetroRewind::System::BrakeDrift>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_BRAKEDRIFT)) == RetroRewind::System::BRAKEDRIFT_ENABLED) || 
-    Info::Is200cc())
+    Info::Is200cc() || RetroRewind::System::Is500cc())
 {
         u32 bitfield0 = status.bitfield0;
         const Input::ControllerHolder& controllerHolder = status.link->GetControllerHolder();
@@ -128,7 +128,7 @@ static int BrakeEffectBikes(Effects::Player& effects) {
     if (gameMode != MODE_TIME_TRIAL && 
     (brakeDriftMode == RetroRewind::System::FORCEBRAKEDRIFT_DISABLED && 
     static_cast<RetroRewind::System::BrakeDrift>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_BRAKEDRIFT)) == RetroRewind::System::BRAKEDRIFT_ENABLED) || 
-    Info::Is200cc())
+    Info::Is200cc() || RetroRewind::System::Is500cc())
 {
         if(IsBrakeDrifting(*kartPlayer->link.pointers->kartStatus)) effects.CreateAndUpdateEffectsByIdxVelocity(effects.bikeDriftEffects, 25, 26, 1);
         else effects.FollowFadeEffectsByIdxVelocity(effects.bikeDriftEffects, 25, 26, 1);
@@ -145,7 +145,7 @@ static int BrakeEffectKarts(Effects::Player& effects) {
     if (gameMode != MODE_TIME_TRIAL && 
     (brakeDriftMode == RetroRewind::System::FORCEBRAKEDRIFT_DISABLED && 
     static_cast<RetroRewind::System::BrakeDrift>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_BRAKEDRIFT)) == RetroRewind::System::BRAKEDRIFT_ENABLED) || 
-    Info::Is200cc())
+    Info::Is200cc() || RetroRewind::System::Is500cc())
 {
         if(IsBrakeDrifting(*kartPlayer->link.pointers->kartStatus)) effects.CreateAndUpdateEffectsByIdxVelocity(effects.kartDriftEffects, 34, 36, 1);
         else effects.FollowFadeEffectsByIdxVelocity(effects.kartDriftEffects, 34, 36, 1);

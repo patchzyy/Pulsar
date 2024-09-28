@@ -3,6 +3,7 @@
 #include <Settings/Settings.hpp>
 #include <Info.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
+#include <RetroRewind.hpp>
 
 namespace Pulsar {
 Info* Info::sInstance = nullptr;
@@ -23,7 +24,8 @@ bool Info::IsFeather() {
 }
 
 bool Info::IsUMTs() {
-    return Info::HasUMTs();
+    const RetroRewind::System::Gamemode gameMode = RetroRewind::System::GetGameMode();
+    return Info::HasUMTs() && !CupsConfig::IsRegsSituation();
 }
 bool Info::IsMegaTC() {
     return Info::HasMegaTC();
