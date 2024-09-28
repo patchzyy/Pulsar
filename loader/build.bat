@@ -5,7 +5,8 @@ cls
 
 :: CPP compilation settings
 SET CC="../cw/mwcceppc.exe"
-SET CFLAGS=-I- -i %cd% -i "../source" -i "../source/game" -i "../engine"  -O2,p -opt loop,peep,schedule -inline auto -enum int -proc gekko -fp hard -rostr -sdata 0 -sdata2 0 -maxerrors 1 -func_align 4 -rtti off 
+SET CFLAGS=-I- -i %cd% -i "../GameSource" -i "../KamekInclude" -i "../PulsarEngine"  -O2,p -opt loop,peep,schedule -inline auto -enum int -proc gekko -fp hard -rostr -sdata 0 -sdata2 0 -maxerrors 1 -func_align 4 -rtti off 
+
 SET DEFINE=
 
 ::: CPP Sources
@@ -14,7 +15,7 @@ SET DEFINE=
 
 :: Link
 echo Linking... %time%
-"../Kamek" "build/mkw.o" "build/kamek.o" -static=0x80004000 -output-code=Loader.pul
+"../KamekLinker/Kamek" "build/mkw.o" "build/kamek.o" -static=0x80004000 -output-code=Loader.pul
 
 if %ErrorLevel% equ 0 (
 	del build\*.o

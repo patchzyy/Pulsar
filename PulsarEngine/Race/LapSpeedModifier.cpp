@@ -37,11 +37,17 @@ Kart::Stats* ApplySpeedModifier(KartId kartId, CharacterId characterId) {
     };
 
     Kart::Stats* stats = Kart::ComputeStats(kartId, characterId);
+    const HostSettingHostCC ccSetting = RetroRewind::System::GetCCMode();
+    RKNet::Controller* controller = RKNet::Controller::sInstance;
+    const RKNet::RoomType roomType = controller->roomType;
     SpeedModConv speedModConv;
     speedModConv.kmpValue = (KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->speedMod << 16);
     if(speedModConv.speedMod == 0.0f) speedModConv.speedMod = 1.0f;
     float factor = 1.0f;
-    if (Info::Is200cc()){
+    if (Info::Is200cc() && ccSetting == HOSTSETTING_CC_500){
+        factor = 2.66f;
+    }
+    else if (Info::Is200cc()){
         factor = speedFactor;
     }
     else if (RetroRewind::System::Is500cc()){

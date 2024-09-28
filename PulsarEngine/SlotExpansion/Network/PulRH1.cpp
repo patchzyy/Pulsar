@@ -11,11 +11,9 @@ namespace Network {
 //Fixes for spectating
 u8 ExportRH1ToPulRH1(RKNet::PacketHolder& packetHolder, RKNet::RACEHEADER1Packet* rh1Packet, u32 len) {
     CustomRH1Packet* convPacket = reinterpret_cast<CustomRH1Packet*>(rh1Packet);
-    if(!CupsConfig::IsRegsSituation()) {
         convPacket->starRankHud0 = rh1Packet->starRank[0];
         convPacket->starRankHud1 = rh1Packet->starRank[1];
         convPacket->trackId = static_cast<u16>(CupsConfig::sInstance->winningCourse);
-    }
     packetHolder.Copy(convPacket, len);
     return convPacket->starRankHud0;
 }

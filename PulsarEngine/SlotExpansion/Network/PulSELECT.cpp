@@ -70,7 +70,7 @@ static void DecideTrack(CustomSELECTHandler* select) {
         if(hostVote == 0xFF) hostVote = cupsConfig->RandomizeTrack(&random);
         select->toSendPacket.pulWinningCourse = hostVote;
     }
-    else if((select->mode == RKNet::ONLINEMODE_PUBLIC_VS || select->mode == RKNet::ONLINEMODE_PRIVATE_VS) && !CupsConfig::IsRegsSituation()) {
+    else if(select->mode == RKNet::ONLINEMODE_PUBLIC_VS || select->mode == RKNet::ONLINEMODE_PRIVATE_VS) {
 
         const u32 availableAids = sub.availableAids;
         u8 aids[12];

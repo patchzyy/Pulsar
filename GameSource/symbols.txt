@@ -1756,7 +1756,7 @@ isOnlineRace__Q211RetroRewind11RaceGlobals= 0x809C38B9
 WWFC_CUSTOM_REGION = 0x80005efc
 OnlineTTHook = 0x80001200
 FPSPatchHook = 0x80001202
-RegionPatchHook = 0x80001204
+DataRateHook = 0x80001204
 DolphinCheat= 0x80001804
 MainDolCheat= 0x800018a8
 
