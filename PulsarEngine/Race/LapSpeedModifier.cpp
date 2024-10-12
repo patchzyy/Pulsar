@@ -38,6 +38,7 @@ Kart::Stats* ApplySpeedModifier(KartId kartId, CharacterId characterId) {
 
     Kart::Stats* stats = Kart::ComputeStats(kartId, characterId);
     const HostSettingHostCC ccSetting = RetroRewind::System::GetCCMode();
+    const GameMode gameMode = RaceData::sInstance->menusScenario.settings.gamemode;
     RKNet::Controller* controller = RKNet::Controller::sInstance;
     const RKNet::RoomType roomType = controller->roomType;
     SpeedModConv speedModConv;
@@ -50,8 +51,11 @@ Kart::Stats* ApplySpeedModifier(KartId kartId, CharacterId characterId) {
     else if (Info::Is200cc()){
         factor = speedFactor;
     }
-    else if (RetroRewind::System::Is500cc()){
+    else if (RetroRewind::System::Is500cc() && gameMode == MODE_PRIVATE_VS || RetroRewind::System::Is500cc() && gameMode == MODE_VS_RACE || RetroRewind::System::Is500cc() && gameMode == MODE_PUBLIC_VS){
         factor = 3.0f;
+    }
+    else if (RetroRewind::System::Is500cc() && gameMode == MODE_BATTLE || RetroRewind::System::Is500cc() && gameMode == MODE_PUBLIC_BATTLE || RetroRewind::System::Is500cc() && gameMode == MODE_PRIVATE_BATTLE){
+        factor = 1.428;
     }
     factor *= speedModConv.speedMod;
 
