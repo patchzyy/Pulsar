@@ -24,9 +24,9 @@ bool Info::IsFeather() {
 }
 
 bool Info::IsUMTs() {
-    const RetroRewind::System::Gamemode gameMode = RetroRewind::System::GetGameMode();
     return Info::HasUMTs() && !CupsConfig::IsRegsSituation();
 }
+
 bool Info::IsMegaTC() {
     return Info::HasMegaTC();
 }

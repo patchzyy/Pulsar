@@ -28,9 +28,9 @@ void CannonExitSpeed() {
 kmCall(0x805850c8, CannonExitSpeed);
 
 void EnableBrakeDrifting(Input::ControllerHolder& controllerHolder) {
-    const GameMode gameMode = RaceData::sInstance->racesScenario.settings.gamemode;
+    const RetroRewind::System::Gamemode gameMode = RetroRewind::System::GetGameMode();
     const RetroRewind::System::ForceBrakeDrift brakeDriftMode = RetroRewind::System::GetBrakeDrift();
-    if (gameMode != MODE_TIME_TRIAL && 
+    if (gameMode == !RetroRewind::System::GAMEMODE_ONLINETT && 
     (brakeDriftMode == RetroRewind::System::FORCEBRAKEDRIFT_DISABLED && 
     static_cast<RetroRewind::System::BrakeDrift>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_BRAKEDRIFT)) == RetroRewind::System::BRAKEDRIFT_ENABLED) || 
     Info::Is200cc() || RetroRewind::System::Is500cc())
@@ -74,9 +74,9 @@ kmCall(0x80521828, FixGhostBrakeDrifting);
 
 
 bool IsBrakeDrifting(const Kart::Status& status) {
-    const GameMode gameMode = RaceData::sInstance->racesScenario.settings.gamemode;
+    const RetroRewind::System::Gamemode gameMode = RetroRewind::System::GetGameMode();
     const RetroRewind::System::ForceBrakeDrift brakeDriftMode = RetroRewind::System::GetBrakeDrift();
-    if (gameMode != MODE_TIME_TRIAL && 
+    if (gameMode == !RetroRewind::System::GAMEMODE_ONLINETT && 
     (brakeDriftMode == RetroRewind::System::FORCEBRAKEDRIFT_DISABLED && 
     static_cast<RetroRewind::System::BrakeDrift>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_BRAKEDRIFT)) == RetroRewind::System::BRAKEDRIFT_ENABLED) || 
     Info::Is200cc() || RetroRewind::System::Is500cc())
@@ -122,10 +122,10 @@ kmCall(0x806faff8, BrakeDriftingSoundWrapper);
 
 kmWrite32(0x80698f88, 0x60000000);
 static int BrakeEffectBikes(Effects::Player& effects) {
-    const GameMode gameMode = RaceData::sInstance->racesScenario.settings.gamemode;
+    const RetroRewind::System::Gamemode gameMode = RetroRewind::System::GetGameMode();
     const Kart::Player* kartPlayer = effects.kartPlayer;
     const RetroRewind::System::ForceBrakeDrift brakeDriftMode = RetroRewind::System::GetBrakeDrift();
-    if (gameMode != MODE_TIME_TRIAL && 
+    if (gameMode == !RetroRewind::System::GAMEMODE_ONLINETT && 
     (brakeDriftMode == RetroRewind::System::FORCEBRAKEDRIFT_DISABLED && 
     static_cast<RetroRewind::System::BrakeDrift>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_BRAKEDRIFT)) == RetroRewind::System::BRAKEDRIFT_ENABLED) || 
     Info::Is200cc() || RetroRewind::System::Is500cc())
@@ -139,10 +139,10 @@ kmCall(0x80698f8c, BrakeEffectBikes);
 
 kmWrite32(0x80698048, 0x60000000);
 static int BrakeEffectKarts(Effects::Player& effects) {
-    const GameMode gameMode = RaceData::sInstance->racesScenario.settings.gamemode;
+    const RetroRewind::System::Gamemode gameMode = RetroRewind::System::GetGameMode();
     Kart::Player* kartPlayer = effects.kartPlayer;
     const RetroRewind::System::ForceBrakeDrift brakeDriftMode = RetroRewind::System::GetBrakeDrift();
-    if (gameMode != MODE_TIME_TRIAL && 
+    if (gameMode == !RetroRewind::System::GAMEMODE_ONLINETT && 
     (brakeDriftMode == RetroRewind::System::FORCEBRAKEDRIFT_DISABLED && 
     static_cast<RetroRewind::System::BrakeDrift>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_BRAKEDRIFT)) == RetroRewind::System::BRAKEDRIFT_ENABLED) || 
     Info::Is200cc() || RetroRewind::System::Is500cc())

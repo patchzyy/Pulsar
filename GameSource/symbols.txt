@@ -22,7 +22,15 @@ qsort = 0x80011b00
 rand = 0x80011c70
 srand = 0x80011c90
 sscanf = 0x80013040
-__mod2u = 0x80021828 
+__mod2u = 0x80021828
+
+__div2i = 0x800216f0
+PADRead = 0x801af44c
+OpenAsync__3IOSFPCcQ23IOS4ModePFiPv_vPv = 0x801937e0
+IOCtlAsync__3IOSFiQ23IOS9IOCtlTypePviPviPFiPv_vPv = 0x80194158
+sInstance__8GlobeMgr = 0x809c2cb8
+DisplayMii__8GlobeMgrFv = 0x807509b4
+AddPageLayer__4PageF6PageIdi = 0x806025b0
 
 strchr = 0x800133f8 
 strcat = 0x80013224
@@ -204,6 +212,8 @@ DCInvalidateRange__FPvUi = 0x801a1600
 ICInvalidateRange = 0x801a1710
 DCStoreRange__FPvUi = 0x801a165c
 OSCalcCRC32 = 0x801d1ca0
+DisableInterrupts__2OSFv = 0x801a65ac
+RestoreInterrupts__2OSFi = 0x801a65d4
 OSDisableInterrupts = 0x801a65ac
 OSRestoreInterrupts = 0x801a65d4
 OSGetCurrentContext = 0x801a1ecc
@@ -216,6 +226,11 @@ SleepThread__2OSFPQ22OS11ThreadQueue = 0x801aa9b8
 DetachThread__2OSFPQ22OS6Thread = 0x801aa4ec
 CancelThread__2OSFPQ22OS6Thread = 0x801aa1d4
 current__Q22OS6Thread = 0x800000e4
+
+mInstance__8RKSystem = 0x802a4080
+
+
+LockMutex__2OSFPQ22OS5Mutex = 0x801a7ee4
 
 #PAD
 Read__3PADFPQ23PAD6Status = 0x801af44c
@@ -1757,14 +1772,6 @@ WWFC_CUSTOM_REGION = 0x80005efc
 OnlineTTHook = 0x80001200
 FPSPatchHook = 0x80001202
 DataRateHook = 0x80001204
+BattleStartHook = 0x80001206
 DolphinCheat= 0x80001804
 MainDolCheat= 0x800018a8
-
-RKNetController_Search1 = 0x80653644
-RKNetController_Search2 = 0x806536B0
-RKNetController_Search3 = 0x8065920C
-RKNetController_Search4 = 0x80659260
-RKNetController_Search5 = 0x80659724
-RKNetController_Search6 = 0x80659778
-RKNetController_Search7 = 0x8065A034
-RKNetController_Search8 = 0x8065A080
