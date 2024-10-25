@@ -4,7 +4,13 @@
 #include <core/rvl/gx/GX.hpp>
 
 //it's not namespaced in the actual game but this makes it more readable
+#define OS_BUS_CLOCK (*(u32 *)0x800000f8)
+#define OS_TIMER_CLOCK (OS_BUS_CLOCK / 4)
 
+#define OSNanosecondsToTicks(nsec) ((nsec) / (1000000000 / OS_TIMER_CLOCK))
+#define OSTicksToSeconds(ticks) ((ticks) / OS_TIMER_CLOCK)
+#define OSTicksToNanoseconds(ticks) ((ticks) * (1000000000 / OS_TIMER_CLOCK))
+#define OSTicksToMilliseconds(ticks) ((ticks) / (OS_TIMER_CLOCK / 1000))
 namespace OS {
 
 struct CalendarTime {
