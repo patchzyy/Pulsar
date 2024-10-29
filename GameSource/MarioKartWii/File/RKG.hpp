@@ -48,15 +48,6 @@ struct RKGHeader {
 }; //total size 0x88
 size_assert(RKGHeader, 0x88);
 
-struct RKGInputData{
-    u16 faceButtonInputsCount;
-    u16 directionInputsCount;
-    u16 trickInputsCount;
-    u16 unknown_0x6; //padding
-    u8 unknown_0x8[0x2774-0x8]; //idk how to do that in c++
-}; //total size 0x2774
-
-
 struct CompressedRKG {
     RKGHeader header;
     u32 dataLength;
