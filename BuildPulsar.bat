@@ -17,7 +17,7 @@ set "GAMESOURCE=.\GameSource"
 SET "PULSAR=.\PulsarEngine"
 
 :: Change this as necessary depending on where you put CodeWarrior
-SET "CC="
+SET "CC=G:\Coding\MarioKart\Compilers\Wii\1.7\mwcceppc.exe"
 
 :: Riivolution Destination (change as necessary)
 SET "RIIVO="
