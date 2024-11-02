@@ -1,6 +1,7 @@
 
 SETLOCAL EnableDelayedExpansion
 @echo off
+@echo test
 cls
 del build\*.o
 
