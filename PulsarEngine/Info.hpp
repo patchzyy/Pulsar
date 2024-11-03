@@ -26,6 +26,20 @@ public:
     }
     inline u16 GetChooseNextTrackTimer() const { return this->chooseNextTrackTimer; }
 
+/*
+Wiimmfi being wiimmfi means I can't use a kmCall or a even a kmBranch because a wiimmfi function that USES THE LR gets injected,
+meaning the LR needs to be preserved. The u64 return is just to prevent the register variable from using r3/r4 as they are not safe
+This is insanely hacky but it works and there aren't a million solutions
+*/
+// #define PatchRegion(addr)\
+//     static inline u64 GetWiimmfiRegionStatic##addr(u64 src) {\
+//         register const Info *sInstance = Info::sInstance;\
+//         asmVolatile(lwz r7, Info.wiimmfiRegion(sInstance););\
+//         return src;\
+//     };\
+//     kmBranch(addr, GetWiimmfiRegionStatic##addr);\
+//     kmPatchExitPoint(GetWiimmfiRegionStatic##addr, ##addr + 4);
+
 private:
     Info() {}
     void Init(const Info& rawInfo) { memcpy(this, &rawInfo, sizeof(Info)); }

@@ -1,6 +1,38 @@
 #ifndef _IDENTIFIERS_
 #define _IDENTIFIERS_
 
+enum GameType {
+    GAMETYPE_DEFAULT = 0x0,
+    GAMETYPE_REPLAY = 0x1,
+    GAMETYPE_CPU_RACE = 0x5,
+    GAMETYPE_ONLINE_SPECTATOR = 0x6,
+    GAMETYPE_GP_WIN = 0x7,
+    GAMETYPE_VS_WIN = 0x8,
+    GAMETYPE_TEAMVS_WIN = 0x9,
+    GAMETYPE_BATTLE_WIN = 0xA,
+    GAMETYPE_LOSS = 0xC
+};
+
+enum GameMode {
+    MODE_GRAND_PRIX,
+    MODE_VS_RACE,
+    MODE_TIME_TRIAL,
+    MODE_BATTLE,
+    MODE_MISSION_TOURNAMENT,
+    MODE_GHOST_RACE,
+    MODE_6,
+    MODE_PRIVATE_VS,
+    MODE_PUBLIC_VS,
+    MODE_PUBLIC_BATTLE,
+    MODE_PRIVATE_BATTLE,
+    MODE_AWARD,
+    MODE_CREDITS
+};
+
+enum BattleType {
+    BATTLE_BALLOON,
+    BATTLE_COIN
+};
 
 
 enum KartId {
@@ -94,6 +126,23 @@ enum CharacterId {
     CHARACTER_NONE = -1
 };
 
+enum ControllerType {
+    WHEEL = 0x0, //0xCHANNEL11
+    NUNCHUCK = 0x1, //0xCHANNEL12
+    CLASSIC = 0x2, //0xCHANNEL13
+    GCN = 0x3, //0xCHANNEL14
+    DUMMY = 0x4,
+    CPU = 0x5,
+    CONTROLLER_TYPE_NONE = -1
+};
+
+enum ControllerType2 {
+    TYPE2_WHEEL = 0x0, //0xCHANNEL11
+    TYPE2_NUNCHUCK = 0x1, //0xCHANNEL12
+    TYPE2_CLASSIC = 0x2, //0xCHANNEL13
+    TYPE2_GCN = 0x3, //0xCHANNEL14
+    TYPE2_NONE = 0x4
+};
 
 enum ItemObjId {
     OBJ_GREEN_SHELL = 0x0,
