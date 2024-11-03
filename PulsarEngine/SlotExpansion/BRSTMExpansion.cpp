@@ -1,6 +1,6 @@
 #include <kamek.hpp>
 #include <MarioKartWii/Audio/AudioManager.hpp>
-#include <MarioKartWii/UI/SectionMgr/SectionMgr.hpp>
+#include <MarioKartWii/UI/Section/SectionMgr.hpp>
 #include <Sound/MiscSound.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
 #include <SlotExpansion/UI/ExpansionUIMisc.hpp>
@@ -13,7 +13,7 @@ namespace Sound {
 //kmWrite32(0x8009e0dc, 0x7F87E378); //mr r7, r28 to get string length
 
 static char pulPath[0x100];
-s32 CheckBRSTM(const nw4r::snd::DVDSoundArchive* archive, PulsarId id, bool isFinalLap) {
+s32 CheckBRSTM(const nw4r::snd::DVDSoundArchive* archive, PulsarId id, u8 variantIdx, bool isFinalLap) {
 
     const char* root = archive->extFileRoot;
     const char* lapSpecifier = isFinalLap ? "_f" : "_n";
@@ -21,49 +21,56 @@ s32 CheckBRSTM(const nw4r::snd::DVDSoundArchive* archive, PulsarId id, bool isFi
     char trackName[0x100];
     UI::GetTrackBMG(trackName, id);
     snprintf(pulPath, 0x100, "%sstrm/%s%s.brstm", root, trackName, lapSpecifier);
-    ret = DVDConvertPathToEntryNum(pulPath);
-    if(ret < 0) {
-        snprintf(pulPath, 0x50, "%sstrm/%d%s.brstm", root, CupsConfig::ConvertTrack_PulsarIdToRealId(id), lapSpecifier);
-        ret = DVDConvertPathToEntryNum(pulPath);
+    ret = DVD::ConvertPathToEntryNum(pulPath);
+    if (ret < 0) {
+        const char* format;
+        if (variantIdx == 0) format = "%sstrm/%d%s.brstm";
+        else format = "%sstrm/%d_%d%s.brstm";
+        u32 variantIdx = CupsConfig::sInstance->GetCurVariantIdx();
+        snprintf(pulPath, 0x50, format, root, CupsConfig::ConvertTrack_PulsarIdToRealId(id), variantIdx, lapSpecifier);
+        ret = DVD::ConvertPathToEntryNum(pulPath);
     }
     return ret;
 }
 
 nw4r::ut::FileStream* MusicSlotsExpand(nw4r::snd::DVDSoundArchive* archive, void* buffer, int size,
     const char* extFilePath, u32 r7, u32 length) {
-    u8 isBRSTMOn = (static_cast<RetroRewind::System::CTMusic>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_CTMUSIC)));
+    u8 isBRSTMOn = (static_cast<Pulsar::CTMusic>(Pulsar::Settings::Mgr::Get().GetSettingValue(static_cast<Pulsar::Settings::Type>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_CTMUSIC)));
     const char firstChar = extFilePath[0xC];
-    const PulsarId track = CupsConfig::sInstance->winningCourse;
     const CupsConfig* cupsConfig = CupsConfig::sInstance;
-    if((firstChar == 'n' || firstChar == 'S' || firstChar == 'r') && !CupsConfig::IsReg(track) && isBRSTMOn == RetroRewind::System::CTMUSIC_ENABLED) {
+    const PulsarId track = cupsConfig->GetWinning();
+
+    if ((firstChar == 'n' || firstChar == 'S' || firstChar == 'r') && isBRSTMOn == Pulsar::CTMUSIC_ENABLED) {
         const SectionId section = SectionMgr::sInstance->curSection->sectionId;
         register SoundIDs toPlayId;
         asm(mr toPlayId, r20;);
-        if(toPlayId == SOUND_ID_KC && section >= SECTION_P1_WIFI && section <= SECTION_P2_WIFI_FROOM_COIN_VOTING) {
-            extFilePath = wifiMusicFile; //guaranteed to exist because it's been checked before
+        const char* customBGPath = nullptr;
+        if (toPlayId == SOUND_ID_KC) { //files are guaranteed to exist because it's been checked before
+            if (section >= SECTION_MAIN_MENU_FROM_BOOT && section <= SECTION_MAIN_MENU_FROM_LICENSE) customBGPath = titleMusicFile;
+            else if (section >= SECTION_SINGLE_P_FROM_MENU && section <= SECTION_SINGLE_P_LIST_RACE_GHOST || section == SECTION_LOCAL_MULTIPLAYER) customBGPath = offlineMusicFile;
+            else if (section >= SECTION_P1_WIFI && section <= SECTION_P2_WIFI_FROOM_COIN_VOTING) customBGPath = wifiMusicFile;
         }
-        if(toPlayId == SOUND_ID_KC && (section >= SECTION_SINGLE_P_FROM_MENU && section <= SECTION_SINGLE_P_LIST_RACE_GHOST || section == SECTION_LOCAL_MULTIPLAYER)) {
-            extFilePath = offlineMusicFile; //guaranteed to exist because it's been checked before
-        }
-        else if(!CupsConfig::IsReg(track)) {
+        if (customBGPath != nullptr) extFilePath = customBGPath;
+        else if (!CupsConfig::IsReg(track)) {
             bool isFinalLap = false;
             register u32 strLength;
             asm(mr strLength, r28;);
             const char finalChar = extFilePath[strLength];
-            if(finalChar == 'f' || finalChar == 'F') isFinalLap = true;
+            if (finalChar == 'f' || finalChar == 'F') isFinalLap = true;
 
             bool found = false;
-            if(CheckBRSTM(archive, track, isFinalLap) >= 0) found = true;
-            else if(isFinalLap) {
-                if(CheckBRSTM(archive, track, false) >= 0) found = true;
-                if(found) Audio::Manager::sInstance->soundArchivePlayer->soundPlayerArray->soundList.GetFront().ambientParam.pitch = 1.1f;
+            const u8 variantIdx = cupsConfig->GetCurVariantIdx();
+            if (CheckBRSTM(archive, track, variantIdx, isFinalLap) >= 0) found = true;
+            else if (isFinalLap) {
+                if (CheckBRSTM(archive, track, variantIdx, false) >= 0) found = true;
+                if (found) Audio::Manager::sInstance->soundArchivePlayer->soundPlayerArray->soundList.GetFront().ambientParam.pitch = 1.1f;
             }
-            if(found) extFilePath = pulPath;
+            if (found) extFilePath = pulPath;
         }
     }
     return archive->OpenExtStream(buffer, size, extFilePath, 0, length);
 }
 kmCall(0x8009e0e4, MusicSlotsExpand);
 
-}//namespace Audio
+}//namespace Sound
 }//namespace Pulsar

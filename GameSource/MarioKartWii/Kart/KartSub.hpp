@@ -16,7 +16,7 @@ namespace Kart {
 
 class KartPointers;
 
-class Sub {
+class Sub : public Link {
 public:
 
     void Update(); //80596480
@@ -24,13 +24,11 @@ public:
     void ResetPhysics(); //8059617c
     void InitParts(); //80595f78
 
-    Link link;
-
     virtual ~Sub(); //offset 0xc 80598ac8 vtable 808b659c
     virtual void Init(const Values& values); //0xc 80595d48
     virtual void SetPointers(KartPointers& dest); //0x10 80596454
 
-    Movement* kartMovement;
+    Movement* kartMovement; //0x10
     Damage* kartDamage; //0x1c
     Collision* kartCollision; //0x18 contains kart body collision data
     Status* kartStatus; //0x1c contains input-related state

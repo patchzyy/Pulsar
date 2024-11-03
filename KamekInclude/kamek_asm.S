@@ -160,3 +160,4 @@ __kConstFloat\@: .float float_value
 
 // Default to .text so that Kamek macros work
 .text
+

@@ -1,17 +1,21 @@
 #include <kamek.hpp>
-#include <core/nw4r/ut/Misc.hpp>
+#include <core/System/SystemManager.hpp>
+#include <core/rvl/base/ppc.hpp>
+#include <core/rvl/os/OSthread.hpp>
+#include <core/rvl/os/OSTitle.hpp>
+#include <core/rvl/os/OSBootInfo.hpp>
 #include <core/rvl/pad.hpp>
 #include <core/rvl/kpad.hpp>
+#include <core/egg/Exception.hpp>
 #include <Debug/Debug.hpp>
-#include <IO/IO.hpp>
 #include <PulsarSystem.hpp>
+#include <IO/IO.hpp>
 
-extern char gameID[4];
 namespace Pulsar {
 namespace Debug {
 
 OS::Thread* crashThread = nullptr;
-u16 crashError = 0;
+static u16 crashError = 0;
 
 using namespace nw4r;
 
@@ -24,32 +28,27 @@ void FatalError(const char* string) {
 }
 
 #pragma suppress_warnings on
-void LaunchSoftware() { //If dolphin, restarts game, else launches Riivo->HBC->OHBC->WiiMenu
+void LaunchSoftware() { //If dolphin, restarts game, else launches Riivo->OHBC->HBC->WiiMenu
+    static const u32 titleIds[3] = { 'WRET','LULZ', 'HBC0' };
     s32 result = IO::OpenFix("/dev/dolphin", IOS::MODE_NONE);
     if(result >= 0) {
         IOS::Close(result);
         SystemManager::Shutdown();
         return;
     }
-    result = IO::OpenFix("/title/00010001/57524554/content/title.tmd\0", IOS::MODE_NONE); //Riivo
-    if(result >= 0) {
-        ISFS::Close(result);
-        OS::LaunchTitle(0x00010001, 0x57524554);
-        return;
+    char tmdPath[IOS::ipcMaxPath];
+    for(int i = 0; i < 3; ++i) {
+        u32 launchCode = 0x00010001;
+        u32 titleId = titleIds[i];
+        snprintf(tmdPath, IOS::ipcMaxPath, "/title/%8d/%8d/content/title.tmd\0", launchCode, titleId);
+        IO::OpenFix(tmdPath, IOS::MODE_NONE);
+        if(result >= 0) {
+            ISFS::Close(result);
+            OS::__LaunchTitle(launchCode, titleId);
+            return;
+        }
     }
-    result = IO::OpenFix("/title/00010001/4c554c5a/content/title.tmd\0", IOS::MODE_NONE); //OHBC
-    if(result >= 0) {
-        ISFS::Close(result);
-        OS::LaunchTitle(0x00010001, 0x4c554c5a);
-        return;
-    }
-    result = IO::OpenFix("/title/00010001/48424330/content/title.tmd\0", IOS::MODE_NONE); // If HBC can't be found try OHBC
-    if(result >= 0) {
-        ISFS::Close(result);
-        OS::LaunchTitle(0x00010001, 0x48424330);
-        return;
-    }
-    OS::LaunchTitle(0x1, 0x2); // Launch Wii Menu if channel isn't found
+    OS::__LaunchTitle(0x1, 0x2); // Launch Wii Menu if channel isn't found
 }
 #pragma suppress_warnings reset
 
@@ -65,7 +64,7 @@ kmWrite32(0x80023948, 0x281e0007);
 //kmWrite32(0x80009324, 0x38800068);
 
 //Lines on the screen and x-pos
-void SetConsoleParams() {
+static void SetConsoleParams() {
     db::detail::ConsoleHead* console = EGG::Exception::console;
     console->viewLines = 0x16;
     console->viewPosX = 0x10;
@@ -73,7 +72,7 @@ void SetConsoleParams() {
 BootHook ConsoleParams(SetConsoleParams, 1);
 
 
-ExceptionFile::ExceptionFile(const OS::Context& context) : magic('PULD'), region(*reinterpret_cast<u32*>(gameID)), reserved(-1) {
+ExceptionFile::ExceptionFile(const OS::Context& context) : magic('PULD'), region(*reinterpret_cast<u32*>(OS::BootInfo::mInstance.diskID.gameName)), reserved(-1) {
     this->srr0.name = 'srr0';
     this->srr0.gpr = context.srr0;
     this->srr1.name = 'srr1';
@@ -104,7 +103,7 @@ ExceptionFile::ExceptionFile(const OS::Context& context) : magic('PULD'), region
     }
 }
 
-void WriteHeaderCrash(u16 error, const OS::Context* context, u32 dsisr, u32 dar) {
+static void WriteHeaderCrash(u16 error, const OS::Context* context, u32 dsisr, u32 dar) {
     crashError = error;
     crashThread = const_cast<OS::Thread*>(reinterpret_cast<const OS::Thread*>(context));
     db::ExceptionHead& exception = db::ExceptionHead::mInstance;
@@ -121,7 +120,7 @@ void WriteHeaderCrash(u16 error, const OS::Context* context, u32 dsisr, u32 dar)
 kmCall(0x80023484, WriteHeaderCrash);
 
 
-void CreateCrashFile(s32 channel, KPAD::Status buff[], u32 count) {
+static void CreateCrashFile(s32 channel, KPAD::Status buff[], u32 count) {
 
     IO* io = IO::sInstance;;
     bool exit = false;
@@ -180,7 +179,7 @@ void CreateCrashFile(s32 channel, KPAD::Status buff[], u32 count) {
 kmCall(0x80226610, CreateCrashFile);
 
 /*
-void OnCrashEnd() {
+static void OnCrashEnd() {
     IO* io = IO::sInstance;;
     if(file != nullptr) { //should always exist if the crash is after strap
         register u32* const addressPtr = (u32*)(crashThread->context.srr0 + 4);
