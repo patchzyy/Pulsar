@@ -114,6 +114,7 @@ void Mgr::Init(PulsarId id) {
     }
     this->rkgCount = counter;
     delete decompressed;
+    Logger::GetInstance().LogInfo("Ghost manager finished initialized.");
 }
 
 void Mgr::Reset() {
@@ -179,14 +180,14 @@ void Mgr::DisableGhost(const GhostListEntry& entry) {
 
 //Loads and checks validity of a RKG
 bool Mgr::LoadGhost(RKG& rkg, u32 fileIndex) const {
-    Logger::GetInstance().LogInfo("Attempting to load ghost.");
+    Logger::GetInstance().LogDebug("Attempting to load ghost.");
 
     rkg.ClearBuffer();
     bool isExpertGhost = (fileIndex == expertFileIdx && this->HasExpert());
     bool success = false;
 
     if (isExpertGhost) {
-        Logger::GetInstance().LogInfo("Loading expert ghost file.");
+        Logger::GetInstance().LogDebug("Loading expert ghost file.");
 
         DVD::FileInfo info;
         DVD::FastOpen(this->expertEntryNum, &info);
@@ -194,12 +195,12 @@ bool Mgr::LoadGhost(RKG& rkg, u32 fileIndex) const {
         DVD::Close(&info);
         success = rkg.CheckValidity();
     } else {
-        Logger::GetInstance().LogInfo("Loading regular ghost file.");
+        Logger::GetInstance().LogDebug("Loading regular ghost file.");
         success = IO::sInstance->ReadFolderFile(&rkg, fileIndex, sizeof(RKG)) > 0 && rkg.CheckValidity();
     }
 
     if (success) {
-        Logger::GetInstance().LogInfo("Ghost file loaded successfully.");
+        Logger::GetInstance().LogDebug("Ghost file loaded successfully.");
     } else {
         Logger::GetInstance().LogError("Failed to load ghost file.");
     }
@@ -208,6 +209,7 @@ bool Mgr::LoadGhost(RKG& rkg, u32 fileIndex) const {
 }
 //Copies ghost from src to racedata's RKG buffers and adds mii if ghost race
 void Mgr::LoadAllGhosts(u32 maxGhosts, bool isGhostRace) {
+    Logger::GetInstance().LogDebug("Loading all ghosts.");
     u8 position = 1;
     for (int i = 0; i < maxGhosts; ++i) {
         if (this->selGhostsIndex[i] != 0xFF) {
@@ -229,6 +231,7 @@ void Mgr::LoadAllGhosts(u32 maxGhosts, bool isGhostRace) {
             }
         }
     }
+    Logger::GetInstance().LogDebug("All ghosts loaded.");
 }
 
 bool Mgr::SaveGhost(const RKSYS::LicenseLdbEntry& entry, u32 ldbPosition, bool isFlap) {

@@ -1,21 +1,35 @@
 #include <kamek.hpp>
 #include <IO/NANDIO.hpp>
 #include <Debug/Debug.hpp>
+#include <IO/Logger.hpp>
 
 namespace Pulsar {
 
 //Virtual Funcs
 bool NANDIO::CreateAndOpen(const char* path, u32 mode) {
     this->GetCorrectPath(this->filePath, path);
-    ISFS::CreateFile(this->filePath, 0, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE);
-    return this->OpenFileDirectly(this->filePath, mode);
+    
+    // Open in regular write mode but seek to the end if we're in append mode
+    if (mode == FILE_MODE_APPEND) {
+        ISFS::CreateFile(this->filePath, 0, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE);
+        if (this->OpenFileDirectly(this->filePath, FILE_MODE_WRITE)) {
+            IOS::Seek(this->fd, 0, IOS::SEEK_END);  // Move to end for appending
+            return true;
+        }
+    } else {
+        return this->OpenFileDirectly(this->filePath, mode);
+    }
+    
+    return false;
 }
+
 
 bool NANDIO::OpenFile(const char* path, u32 mode) {
     this->GetCorrectPath(this->filePath, path);
-
     if (!OpenFileDirectly(this->filePath, mode)) {
-        Debug::FatalError("NANDIO::OpenFile - Failed to open file.");
+        char errorMessage[256];
+        snprintf(errorMessage, sizeof(errorMessage), "NANDIO::OpenFile - Failed to open file at path, this does not mean it caused a crash, it just means its not found '%s'.", this->filePath);
+        Logger::GetInstance().LogError(errorMessage);
         return false;
     }
     

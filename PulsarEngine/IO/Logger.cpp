@@ -29,10 +29,11 @@ size_t custom_strlen(const char* str) {
     return length;
 }
 
-bool Logger::Init(IOType type, EGG::Heap* heap, EGG::TaskThread* taskThread) {
+bool Logger::Init(IOType type, EGG::Heap* heap, EGG::TaskThread* taskThread, bool debugMode) {
     if (initialized) {
         return true;
     }
+    this->debugMode = debugMode;
 
     if (!heap) {
         Debug::FatalError("Logger::Init - Initialization failed: Heap is null.");
@@ -49,7 +50,7 @@ bool Logger::Init(IOType type, EGG::Heap* heap, EGG::TaskThread* taskThread) {
     snprintf(this->logFilePath, sizeof(this->logFilePath), "%s/Logs/Log.txt", modFolder);
 
     // Open log.txt in write mode
-    logFileIO->CreateAndOpen(logFilePath, FILE_MODE_WRITE);
+    logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
 
     const char* initMessage = "Logger initialized successfully.\n";
     logFileIO->Write(custom_strlen(initMessage), initMessage);
@@ -70,7 +71,7 @@ void Logger::LogInfo(const char* message) {
     {
         Debug::FatalError("Logger::LogInfo - Log file IO is null.");
     }
-    logFileIO->CreateAndOpen(logFilePath, FILE_MODE_WRITE);
+    logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
     char finalBuffer[MAX_LOG_SIZE];
     snprintf(finalBuffer, sizeof(finalBuffer), "[INFO] %s\n", message);
     logFileIO->Write(strlen(finalBuffer), finalBuffer);
@@ -79,7 +80,7 @@ void Logger::LogInfo(const char* message) {
 
 void Logger::LogError(const char* message) {
     if (!initialized || !logFileIO) return;
-    logFileIO->CreateAndOpen(logFilePath, FILE_MODE_WRITE);
+    logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
     char finalBuffer[MAX_LOG_SIZE];
     snprintf(finalBuffer, sizeof(finalBuffer), "[ERROR] %s\n", message);
     logFileIO->Write(strlen(finalBuffer), finalBuffer);
@@ -87,8 +88,8 @@ void Logger::LogError(const char* message) {
 }
 
 void Logger::LogDebug(const char* message) {
-    if (!initialized || !logFileIO) return;
-    logFileIO->CreateAndOpen(logFilePath, FILE_MODE_WRITE);
+    if (!initialized || !logFileIO || !debugMode) return;
+    logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
     char finalBuffer[MAX_LOG_SIZE];
     snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] %s\n", message);
     logFileIO->Write(strlen(finalBuffer), finalBuffer);

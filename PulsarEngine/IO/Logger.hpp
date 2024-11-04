@@ -10,7 +10,7 @@ class Logger {
 public:
     static Logger& GetInstance();
 
-    bool Init(IOType type, EGG::Heap* heap, EGG::TaskThread* taskThread);
+    bool Init(IOType type, EGG::Heap* heap, EGG::TaskThread* taskThread, bool debugMode = true);
 
     void LogInfo(const char* message);
     void LogError(const char* message);
@@ -24,6 +24,7 @@ private:
     bool initialized;
     char logFilePath[256];
     bool isWriting;
+    bool debugMode;
 
     static const size_t MAX_LOG_SIZE = 1024;
 };
