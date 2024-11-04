@@ -1,6 +1,7 @@
 #include <kamek.hpp>
 #include <PulsarSystem.hpp>
 #include <IO/RiivoIO.hpp>
+#include <Debug/Debug.hpp>
 
 namespace Pulsar {
 

@@ -11,6 +11,7 @@
 #include <Config.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
 #include <core/egg/DVD/DvdRipper.hpp>
+#include <IO/Logger.hpp>
 namespace Pulsar {
 
 System* System::sInstance = nullptr;
@@ -102,6 +103,12 @@ void System::InitIO(IOType type) const {
     char ghostPath[IOS::ipcMaxPath];
     snprintf(ghostPath, IOS::ipcMaxPath, "%s%s", modFolder, "/Ghosts");
     io->CreateFolder(ghostPath);
+    const char* logFilePath = "/log.txt";
+    if (!Logger::GetInstance().Init(type, this->heap, this->taskThread)) {
+        Debug::FatalError("Failed to initialize Logger");
+            return;
+        }
+    Logger::GetInstance().LogInfo("Initializing IO...");
 }
 #pragma suppress_warnings reset
 

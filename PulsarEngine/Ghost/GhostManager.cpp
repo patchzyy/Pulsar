@@ -2,6 +2,7 @@
 #include <Settings/Settings.hpp>
 #include <IO/IO.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
+#include <IO/Logger.hpp>
 
 namespace Pulsar {
 namespace Ghosts {
@@ -32,6 +33,7 @@ reads them, fetches the leaderboard, creates GhostDatas based on the rkgs, sets 
 */
 
 void Mgr::Init(PulsarId id) {
+    Logger::GetInstance().LogInfo("Initializing ghost manager...");
     this->Reset();
     this->pulsarId = id;
     IO* io = IO::sInstance;
@@ -177,17 +179,33 @@ void Mgr::DisableGhost(const GhostListEntry& entry) {
 
 //Loads and checks validity of a RKG
 bool Mgr::LoadGhost(RKG& rkg, u32 fileIndex) const {
+    Logger::GetInstance().LogInfo("Attempting to load ghost.");
+
     rkg.ClearBuffer();
-    if (fileIndex == expertFileIdx && this->HasExpert() == true) {
+    bool isExpertGhost = (fileIndex == expertFileIdx && this->HasExpert());
+    bool success = false;
+
+    if (isExpertGhost) {
+        Logger::GetInstance().LogInfo("Loading expert ghost file.");
+
         DVD::FileInfo info;
         DVD::FastOpen(this->expertEntryNum, &info);
         DVD::ReadPrio(&info, &rkg, info.length, 0, 2);
         DVD::Close(&info);
+        success = rkg.CheckValidity();
+    } else {
+        Logger::GetInstance().LogInfo("Loading regular ghost file.");
+        success = IO::sInstance->ReadFolderFile(&rkg, fileIndex, sizeof(RKG)) > 0 && rkg.CheckValidity();
     }
-    else IO::sInstance->ReadFolderFile(&rkg, fileIndex, sizeof(RKG));
-    return rkg.CheckValidity();
-}
 
+    if (success) {
+        Logger::GetInstance().LogInfo("Ghost file loaded successfully.");
+    } else {
+        Logger::GetInstance().LogError("Failed to load ghost file.");
+    }
+
+    return success;
+}
 //Copies ghost from src to racedata's RKG buffers and adds mii if ghost race
 void Mgr::LoadAllGhosts(u32 maxGhosts, bool isGhostRace) {
     u8 position = 1;

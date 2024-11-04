@@ -1,5 +1,6 @@
 #include <kamek.hpp>
 #include <IO/NANDIO.hpp>
+#include <Debug/Debug.hpp>
 
 namespace Pulsar {
 
@@ -12,12 +13,25 @@ bool NANDIO::CreateAndOpen(const char* path, u32 mode) {
 
 bool NANDIO::OpenFile(const char* path, u32 mode) {
     this->GetCorrectPath(this->filePath, path);
-    return this->OpenFileDirectly(this->filePath, mode);
+
+    if (!OpenFileDirectly(this->filePath, mode)) {
+        Debug::FatalError("NANDIO::OpenFile - Failed to open file.");
+        return false;
+    }
+    
+    return true;
 }
 
 void NANDIO::GetCorrectPath(char* realPath, const char* path) const {
-    snprintf(realPath, IOS::ipcMaxPath, "%s%s", "/shared2/Pulsar", path);
-    //nand::GenerateAbsPath(realPath, path);
+    int requiredLength = snprintf(realPath, IOS::ipcMaxPath, "%s%s", "/shared2/Pulsar", path);
+
+    if (requiredLength < 0 || requiredLength >= IOS::ipcMaxPath) {
+        char errorMessage[256];
+        snprintf(errorMessage, sizeof(errorMessage),
+                 "NANDIO::GetCorrectPath - Path exceeds maximum length: '%s%s'.", 
+                 "/shared2/Pulsar", path);
+        Debug::FatalError(errorMessage);
+    }
 }
 
 //FOLDER
@@ -30,16 +44,29 @@ bool NANDIO::FolderExists(const char* path) const {
 }
 
 bool NANDIO::CreateFolder(const char* path) {
-    if(type != IOType_ISO) {
+    if (type != IOType_ISO) {
         this->Bind(path);
         char realPath[IOS::ipcMaxPath];
         this->GetCorrectPath(realPath, path);
+
         s32 error = ISFS::CreateDir(realPath, 0, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE);
-        return error >= 0 || error == ISFS::ERROR_FILE_EXISTS;
+        
+        // Check if folder creation was successful or if the folder already exists
+        if (error >= 0 || error == ISFS::ERROR_FILE_EXISTS) {
+            return true;
+        }
+
+        // Handle specific error case with Debug::FatalError
+        char errorMessage[512];
+        snprintf(errorMessage, sizeof(errorMessage), 
+                 "NANDIO::CreateFolder - Failed to create folder at path '%s'. Error code: %d", 
+                 realPath, error);
+        Debug::FatalError(errorMessage);
     }
+
+    // Return false if the type is IOType_ISO or if an error occurred
     return false;
 }
-
 void NANDIO::ReadFolder(const char* path) {
     this->Bind(path);
     char realPath[IOS::ipcMaxPath];
