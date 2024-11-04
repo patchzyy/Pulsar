@@ -25,7 +25,7 @@ SET "ENGINE=G:\Coding\MarioKart\RR\Common\KamekInclude"
 SET "GAMESOURCE=G:\Coding\MarioKart\RR\Common\GameSource"
 SET "PULSAR=G:\Coding\MarioKart\RR\Common\PulsarEngine"
 SET "CC=C:\CodeWarriors\Command_Line_Tools\mwcceppc.exe"
-SET "RIIVO=C:\Users\patchzy\AppData\Roaming\Dolphin Emulator\Load\Riivolution\Pulsar2\RetroRewind6\Binaries\new"
+SET "RIIVO=C:\Users\patchzy\AppData\Roaming\Dolphin Emulator\Load\Riivolution\Pulsar2\RetroRewind6"
 SET "CFLAGS=-I- -i %ENGINE% -i %GAMESOURCE% -i %PULSAR% -opt all -inline auto -enum int -proc gekko -fp hard -sdata 0 -sdata2 0 -maxerrors 1 -func_align 4 %cwDWARF%"
 
 :: Ensure the CodeWarrior path exists
