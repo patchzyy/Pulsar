@@ -16,6 +16,15 @@ public:
     void LogError(const char* message);
     void LogDebug(const char* message);
 
+    // Overloaded LogDebug functions to support formatted logging with integer arguments
+    void LogDebug(const char* format, int arg1);
+    void LogDebug(const char* format, int arg1, int arg2);
+    void LogDebug(const char* format, int arg1, int arg2, int arg3);
+    void LogDebug(const char* format, int arg1, int arg2, int arg3, int arg4);
+    void LogDebug(const char *format, void *ptr);
+    void LogDebug(const char *format, const char *arg1, const char *arg2);
+    void LogDebug(const char* format, const void* ptr);
+
 private:
     Logger();
     ~Logger();
