@@ -44,10 +44,21 @@ bool Logger::Init(IOType type, EGG::Heap* heap, EGG::TaskThread* taskThread, boo
         return false;
     }
 
+
     // Assuming IO::sInstance is initialized and ready to use
     const char* modFolder = System::sInstance->GetModFolder();
     logFileIO = IO::sInstance;
     snprintf(this->logFilePath, sizeof(this->logFilePath), "%s/Logs/Log.txt", modFolder);
+
+    char logFolderPath[256];
+    snprintf(logFolderPath, sizeof(logFolderPath), "%s/Logs", modFolder);
+
+    if (!logFileIO->FolderExists(logFolderPath)) {
+        if (!logFileIO->CreateFolder(logFolderPath)) {
+            Debug::FatalError("Logger::Init - Failed to create Logs folder.");
+            return false;
+        }
+    }
 
     // Open log.txt in write mode
     logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
@@ -102,7 +113,7 @@ void Logger::LogDebug(const char* format, int arg1) {
     logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
 
     char finalBuffer[MAX_LOG_SIZE];
-    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] ");
+    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] %s\n");
     snprintf(finalBuffer + custom_strlen(finalBuffer), sizeof(finalBuffer) - custom_strlen(finalBuffer), format, arg1);
     logFileIO->Write(custom_strlen(finalBuffer), finalBuffer);
     logFileIO->Close();
@@ -113,7 +124,7 @@ void Logger::LogDebug(const char* format, int arg1, int arg2) {
     logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
 
     char finalBuffer[MAX_LOG_SIZE];
-    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] ");
+    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] %s\n");
     snprintf(finalBuffer + custom_strlen(finalBuffer), sizeof(finalBuffer) - custom_strlen(finalBuffer), format, arg1, arg2);
     logFileIO->Write(custom_strlen(finalBuffer), finalBuffer);
     logFileIO->Close();
@@ -124,7 +135,7 @@ void Logger::LogDebug(const char* format, int arg1, int arg2, int arg3) {
     logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
 
     char finalBuffer[MAX_LOG_SIZE];
-    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] ");
+    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] %s\n");
     snprintf(finalBuffer + custom_strlen(finalBuffer), sizeof(finalBuffer) - custom_strlen(finalBuffer), format, arg1, arg2, arg3);
     logFileIO->Write(custom_strlen(finalBuffer), finalBuffer);
     logFileIO->Close();
@@ -136,7 +147,7 @@ void Logger::LogDebug(const char* format, int arg1, int arg2, int arg3, int arg4
     logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
 
     char finalBuffer[MAX_LOG_SIZE];
-    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] ");
+    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] %s\n");
     snprintf(finalBuffer + custom_strlen(finalBuffer), sizeof(finalBuffer) - custom_strlen(finalBuffer), format, arg1, arg2, arg3, arg4);
     logFileIO->Write(custom_strlen(finalBuffer), finalBuffer);
     logFileIO->Close();
@@ -147,7 +158,7 @@ void Logger::LogDebug(const char* format, void* ptr) {
     logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
 
     char finalBuffer[MAX_LOG_SIZE];
-    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] ");
+    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] %s\n");
     snprintf(finalBuffer + custom_strlen(finalBuffer), sizeof(finalBuffer) - custom_strlen(finalBuffer), format, ptr);
     logFileIO->Write(custom_strlen(finalBuffer), finalBuffer);
     logFileIO->Close();
@@ -158,7 +169,7 @@ void Logger::LogDebug(const char* format, const char* arg1, const char* arg2) {
     logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
 
     char finalBuffer[MAX_LOG_SIZE];
-    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] ");
+    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] %s\n");
     snprintf(finalBuffer + custom_strlen(finalBuffer), sizeof(finalBuffer) - custom_strlen(finalBuffer), format, arg1, arg2);
     logFileIO->Write(custom_strlen(finalBuffer), finalBuffer);
     logFileIO->Close();
@@ -169,12 +180,21 @@ void Logger::LogDebug(const char* format, const void* ptr) {
     logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
 
     char finalBuffer[MAX_LOG_SIZE];
-    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] ");
+    snprintf(finalBuffer, sizeof(finalBuffer), "[DEBUG] %s\n");
     snprintf(finalBuffer + custom_strlen(finalBuffer), sizeof(finalBuffer) - custom_strlen(finalBuffer), format, ptr);
     logFileIO->Write(custom_strlen(finalBuffer), finalBuffer);
     logFileIO->Close();
 }
 
+void Logger::LogDebug(const char* format, const char* reason) {
+    if (!initialized || !logFileIO) return;
+    logFileIO->CreateAndOpen(logFilePath, FILE_MODE_APPEND);
 
+    char finalBuffer[MAX_LOG_SIZE];
+    snprintf(finalBuffer, sizeof(finalBuffer), "[REASON] %s\n");
+    snprintf(finalBuffer + custom_strlen(finalBuffer), sizeof(finalBuffer) - custom_strlen(finalBuffer), format, reason);
+    logFileIO->Write(custom_strlen(finalBuffer), finalBuffer);
+    logFileIO->Close();
+}
 
 } // namespace Pulsar

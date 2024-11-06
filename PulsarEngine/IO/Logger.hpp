@@ -24,6 +24,7 @@ public:
     void LogDebug(const char *format, void *ptr);
     void LogDebug(const char *format, const char *arg1, const char *arg2);
     void LogDebug(const char* format, const void* ptr);
+    void LogDebug(const char* format, const char* reason);
 
 private:
     Logger();

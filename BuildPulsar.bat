@@ -25,7 +25,7 @@ SET "ENGINE=G:\Coding\MarioKart\RR\Common\KamekInclude"
 SET "GAMESOURCE=G:\Coding\MarioKart\RR\Common\GameSource"
 SET "PULSAR=G:\Coding\MarioKart\RR\Common\PulsarEngine"
 SET "CC=C:\CodeWarriors\Command_Line_Tools\mwcceppc.exe"
-SET "RIIVO=C:\Users\patchzy\AppData\Roaming\Dolphin Emulator\Load\Riivolution\Pulsar2\RetroRewind6"
+SET "RIIVO=C:\Users\patchzy\AppData\Roaming\Dolphin Emulator\Load\Riivolution\Pulsar2\RetroRewind6;G:\Dolphin-x64\ExtraDolphin\Dolphin 1\Pulsar2\RetroRewind6\Binaries"
 SET "CFLAGS=-I- -i %ENGINE% -i %GAMESOURCE% -i %PULSAR% -opt all -inline auto -enum int -proc gekko -fp hard -sdata 0 -sdata2 0 -maxerrors 1 -func_align 4 %cwDWARF%"
 
 :: Ensure the CodeWarrior path exists
@@ -77,15 +77,17 @@ if %ErrorLevel% neq 0 (
     exit /b 1
 )
 
-:: Copy output to Riivolution folder
-if defined RIIVO (
-    echo Copying binaries to %RIIVO%\Binaries...
-    xcopy /Y build\*.pul "%RIIVO%\Binaries" /i /q
-    if %ErrorLevel% neq 0 (
-        echo Error: Failed to copy binaries to %RIIVO%\Binaries.
-        exit /b 1
-    ) else (
-        echo Binaries copied successfully.
+:: Copy output to each specified RIIVO path
+for %%D in (%RIIVO%) do (
+    if defined %%D (
+        echo Copying binaries to %%D\Binaries...
+        xcopy /Y build\*.pul "%%D\Binaries" /i /q
+        if %ErrorLevel% neq 0 (
+            echo Error: Failed to copy binaries to %%D\Binaries.
+            exit /b 1
+        ) else (
+            echo Binaries copied successfully to %%D\Binaries.
+        )
     )
 )
 

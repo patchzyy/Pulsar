@@ -4,6 +4,7 @@
 #include <GameModes/KO/KOMgr.hpp>
 #include <Network/PacketExpansion.hpp>
 #include <Gamemodes/KO/KORaceEndPage.hpp>
+#include <IO/Logger.hpp>
 
 namespace Pulsar {
 namespace KO {
@@ -12,6 +13,8 @@ Mgr::Mgr() : winnerPlayerId(0xFF), isSpectating(false), hasSwapped(false) /*, st
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
     const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
     this->baseLocPlayerCount = sub.localPlayerCount;
+    Logger& logger = Logger::GetInstance();
+    logger.LogDebug("KO Manager initialized with base local player count: %d", this->baseLocPlayerCount);
     for (int aid = 0; aid < 12; ++aid) {
         this->isKOd[aid][0] = false;
         this->isKOd[aid][1] = false;
@@ -40,6 +43,13 @@ void Mgr::AddRaceStats() { //SHOULD ONLY BE CALLED AFTER PROCESSKOS
 }
 
 bool Mgr::CalcWouldBeKnockedOut(u8 playerId) {
+
+    static int frameCounter = 0;
+    if (frameCounter == 0 || frameCounter % 500 == 0) {
+        Logger& logger = Logger::GetInstance();
+        logger.LogDebug("Checking if player %d would be knocked out in pre-race state - raceFrames: %d", playerId, Raceinfo::sInstance->raceFrames);
+    }
+    frameCounter++;
 
     bool ret = false;
     Pages::GPVSLeaderboardUpdate::Player players[12];
@@ -97,12 +107,15 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, size_t nit
         const u8 playerCount = system->nonTTGhostPlayersCount;
 
         u8 disconnectedKOs = 0;
+        Logger& logger = Logger::GetInstance();
+
         for (int playerId = 0; playerId < playerCount; ++playerId) { //eliminate disconnected players
 
             const u8 aid = controller->aidsBelongingToPlayerIds[playerId];
             if ((1 << aid & sub.availableAids) == 0) {
                 self->SetKOd(playerId);
                 ++disconnectedKOs;
+                logger.LogDebug("Player %d got knocked out due to disconnection", playerId);
             }
         }
 
@@ -114,9 +127,13 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, size_t nit
             Raceinfo* raceinfo = Raceinfo::sInstance;
             self->winnerPlayerId = raceinfo->playerIdInEachPosition[0];
             self->SetKOd(raceinfo->playerIdInEachPosition[1]);
+            logger.LogDebug("Player %d got knocked out due to position-based KO", raceinfo->playerIdInEachPosition[1]);
         }
         else if (realKOCount > 0 && (SectionMgr::sInstance->sectionParams->onlineParams.currentRaceNumber + 1) % self->racesPerKO == 0) { //there are still spots left to be KOd and the race number is divisible by the setting
-            for (int idx = 0; idx < realKOCount; ++idx) self->SetKOd(playerArr[(playerCount - 1) - disconnectedKOs - idx].playerId);
+            for (int idx = 0; idx < realKOCount; ++idx) {
+                self->SetKOd(playerArr[(playerCount - 1) - disconnectedKOs - idx].playerId);
+                logger.LogDebug("Player %d got knocked out due to race-based KO", playerArr[(playerCount - 1) - disconnectedKOs - idx].playerId);
+            }
             //if 4players, 3KOs per race, 1DC, no always final: realKOCount == 2
             //start at the bottom (playerCount - 1), DC got last automatically so subtract it from the bottom, then go from the bottomup (2 1)
             if (playerCount - theoreKOs == 1) self->winnerPlayerId = playerArr[0].playerId; //only one player left
@@ -130,6 +147,14 @@ kmCall(0x8085cb94, Mgr::ProcessKOs);
 void Mgr::Update() {
     const System* system = System::sInstance;
     if (system->IsContext(PULSAR_MODE_KO)) {
+        //LOGGING
+        static int frameCounter = 0;
+
+        if (frameCounter % 500 == 0 || frameCounter == 0) {
+            Logger& logger = Logger::GetInstance();
+            logger.LogDebug("Mgr::Update() - frame: %d, raceFrames: %d", frameCounter, Raceinfo::sInstance->raceFrames);
+        }
+        frameCounter++;
         Mgr* self = System::sInstance->koMgr;
 
         const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
@@ -265,23 +290,35 @@ PageId Mgr::KickPlayersOut() { //only called if KOMode
     Mgr* mgr = system->koMgr;
     RacedataScenario& scenario = Racedata::sInstance->racesScenario;
     const bool isMainOut = mgr->IsKOdPlayerId(scenario.settings.hudPlayerIds[0]);
+    Logger& logger = Logger::GetInstance();
+
     if (system->nonTTGhostPlayersCount > 2) {
         if (scenario.localPlayerCount == 1) {
             const RKNet::Controller* controller = RKNet::Controller::sInstance;
             const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
             if (isMainOut) {
-                if (sub.localAid == sub.hostAid) mgr->isSpectating = true; //force the host to spectate, they should not be allowed to quit
-                else ret = static_cast<PageId>(RaceEndPage::id);
+                if (sub.localAid == sub.hostAid) {
+                    mgr->isSpectating = true;
+                    logger.LogDebug("Player %d put into spectator mode as host", sub.localAid);
+                } else {
+                    ret = static_cast<PageId>(RaceEndPage::id);
+                    logger.LogDebug("Player %d kicked out of the race", sub.localAid);
+                }
             }
         }
         else {
             const bool isGuestOut = mgr->IsKOdPlayerId(scenario.settings.hudPlayerIds[1]);
-            if (isMainOut != isGuestOut) SectionMgr::sInstance->sectionParams->localPlayerCount = 1;
+            if (isMainOut != isGuestOut) {
+                SectionMgr::sInstance->sectionParams->localPlayerCount = 1;
+                logger.LogDebug("Player %d or %d kicked out due to mixed KO status", scenario.settings.hudPlayerIds[0], scenario.settings.hudPlayerIds[1]);
+            }
             if (isMainOut && !isGuestOut) {
                 memcpy(&mgr->stats[0], &mgr->stats[1], sizeof(Mgr::Stats));
             }
-            else if (isMainOut && isGuestOut) ret = static_cast<PageId>(RaceEndPage::id);
-
+            else if (isMainOut && isGuestOut) {
+                ret = static_cast<PageId>(RaceEndPage::id);
+                logger.LogDebug("Both players %d and %d kicked out of the race", scenario.settings.hudPlayerIds[0], scenario.settings.hudPlayerIds[1]);
+            }
         }
     }
     return ret;
