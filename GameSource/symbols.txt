@@ -1733,8 +1733,10 @@ LoadGraphics__Q24Item3ObjFPCcPCcPCcUcPQ34Item3Obj8AnmParamQ44nw4r3g3d6ScnMdl12Bu
 DeployBlooper__Q24Item8GessoMgrFUs = 0x807a9128
 
 #ItemSlot
+sInstance__Q24Item12ItemSlotDataFv = 0x809c3670
 DecideItem__Q24Item12ItemSlotDataFUsUcbbPQ24Item6Player = 0x807bb42c
 DecideRouletteItem__Q24Item12ItemSlotDataFUsUc6ItemIdb = 0x807bb8d0
+SetItemAndMode__Q25RKNet11ITEMHandlerFUcUc6ItemId = 0x8065cfc4
 itemSlotData = 0x809c3670
 
 #Inventory
