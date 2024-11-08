@@ -49,7 +49,7 @@ static u8 EditPosTracker(CtrlRaceRankNum& posTracker) {
     if (system->IsContext(PULSAR_MODE_KO)) {
         u8 idx = posTracker.hudSlotId;
         lyt::Picture* posPane = static_cast<nw4r::lyt::Picture*>(posTracker.layout.GetPaneByName("position"));
-        ut::Color color = 0xffffffff;
+        ut::Color color = 0xFF0000FF;
 
         if (Raceinfo::sInstance->raceFrames > 0 && mgr->GetWouldBeKnockedOut(Racedata::sInstance->racesScenario.players[playerId].hudSlotId)) {
             s32 increment = mgr->posTrackerAnmFrames[idx] >= 31 ? 8 : -8;

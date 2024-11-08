@@ -23,7 +23,6 @@ class Mgr;
 
 class ConfigFile;
 
-
 enum Context {
     PULSAR_CT = 0,
     PULSAR_200,
@@ -37,12 +36,20 @@ enum Context {
     PULSAR_CHARRESTRICT,
     PULSAR_KARTRESTRICT,
     PULSAR_500,
+    PULSAR_THUNDERCLOUD,
+    PULSAR_ITEMMODE,
     PULSAR_CONTEXT_COUNT,
 };
 
 
 
 class System {
+    static inline void CacheInvalidateAddress(register u32 address) {
+        asm(dcbst 0, address;);
+        asm(sync;);
+        asm(icbi 0, address;);
+        asm(isync;);
+    }
 protected:
     System();
 private:
@@ -58,6 +65,7 @@ protected:
     virtual void AfterInit() {};
 public:
     static System* sInstance;
+    u32 GetContext() const;
 
     virtual void SetUserInfo(Network::ResvInfo::UserInfo& userInfo) {};
     virtual bool CheckUserInfo(const Network::ResvInfo::UserInfo& userInfo) { return true; };

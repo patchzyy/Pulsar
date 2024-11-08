@@ -49,14 +49,7 @@ public:
     };
 
     WeightClass weight;
-
-    u32 noRaceProgressionTimer[4];
-    float lastRaceCompletion[4];
-    
     static Pulsar::System *Create(); //My Create function, needs to return Pulsar
-    static System *GetsInstance(){return static_cast<System *>(sInstance);} //for ease of use, optional
     static WeightClass GetWeightClass(CharacterId);
-    
-    void AfterInit() override;
 };
 } // namespace RetroRewind

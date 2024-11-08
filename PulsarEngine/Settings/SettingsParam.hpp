@@ -1,5 +1,6 @@
 #ifndef _SETTINGS_PARAMS_
 #define _SETTINGS_PARAMS_
+
 #include <kamek.hpp>
 #include <PulsarSystem.hpp>
 #include <Config.hpp>
@@ -10,40 +11,39 @@ namespace Settings {
 
 class Params {
 public:
-    static const int pulsarPageCount = 7;
-    static const int userPageCount = 0;
+    static const int pulsarPageCount = 5;
+    static const int userPageCount = 2;
     static const int pageCount = pulsarPageCount + userPageCount;
 
-    static const int maxRadioCount = 6; //per page, due to space
-    static const int maxScrollerCount = 5; //per page, due to space
+    static const int maxRadioCount = 6; // per page, due to space
+    static const int maxScrollerCount = 5; // per page, due to space
 
-    //Pulsar and User
+    // Pulsar and User
     static u8 radioCount[pageCount];
     static u8 scrollerCount[pageCount];
     static u8 buttonsPerPagePerRow[pageCount][maxRadioCount];
     static u8 optionsPerPagePerScroller[pageCount][maxScrollerCount];
-
 };
 
-//Contains all the settings. 
+// Contains all the settings.
 enum Type {
     SETTINGSTYPE_MENU,
     SETTINGSTYPE_RACE,
     SETTINGSTYPE_HOST,
     SETTINGSTYPE_OTT,
-    SETTINGSTYPE_KO,
+    SETTINGSTYPE_KO
+};
+
+// If you want to add settings to your packs, they go in this enum, and GetUserSettingValue should be used to obtain the value of a given setting
+enum UserType {
     SETTINGSTYPE_RR,
     SETTINGSTYPE_RR2
 };
 
-//If you want to add settings to your packs, they go in this enum, and GetUserSettingValue should be used to obtain the value of a given setting
-enum UserType {
-};
+} // namespace Settings
 
-}//namespace Settings
-
-//SETTINGS ENUM, for the page, DO NOT FORGET THE +6 for scrollers (see menu settings for example)
-//Use these 3 for "u32 setting" in GetSettingValue, the return will be the value of the other enums
+// SETTINGS ENUM, for the page, DO NOT FORGET THE +6 for scrollers (see menu settings for example)
+// Use these 3 for "u32 setting" in GetSettingValue, the return will be the value of the other enums
 enum MenuSettings {
     SETTINGMENU_RADIO_FASTMENUS = 0,
     SETTINGMENU_RADIO_LAYOUT = 1,
@@ -57,7 +57,6 @@ enum RaceSettings {
     SETTINGRACE_RADIO_BATTLE,
     SETTINGRACE_RADIO_BLUES,
     SETTINGRACE_RADIO_SOM,
-
     SETTINGRACE_SCROLL_SOM = 0 + 6
 };
 
@@ -65,7 +64,6 @@ enum HostSettings {
     SETTINGHOST_RADIO_HOSTWINS = 0,
     SETTINGHOST_RADIO_CC = 1,
     SETTINGHOST_ALLOW_MIIHEADS = 2,
-
     SETTINGHOST_SCROLL_GP_RACES = 0 + 6
 };
 
@@ -74,33 +72,33 @@ enum OTTSettings {
     SETTINGOTT_OFFLINE = 1,
     SETTINGOTT_ALLOWCHANGECOMBO = 2,
     SETTINGOTT_ALLOWUMTS = 3,
-    SETTINGOTT_MUTEPTANDPLAYERS = 4,
+    SETTINGOTT_MUTEPTANDPLAYERS = 4
 };
 
 enum KOSettings {
     SETTINGKO_ENABLED = 0,
     SETTINGKO_FINAL = 1,
     SETTINGKO_KOPERRACE = 0 + 6,
-    SETTINGKO_RACESPERKO = 1 + 6,
-
+    SETTINGKO_RACESPERKO = 1 + 6
 };
 
-enum ExtraRRettings{
+enum ExtraRRettings {
     SETTINGRR_RADIO_TRANSMISSION = 0,
     SETTINGRR_RADIO_HARDAI = 1,
     SETTINGRR_RADIO_KARTSELECT = 2,
-    SETTINGRR_RADIO_CHARSELECT = 3
+    SETTINGRR_RADIO_CHARSELECT = 3,
+    SETTINGRR_SCROLLER_ITEMMODE = 0 + 6
 };
 
-enum RR2Settings{
+enum RR2Settings {
     SETTINGRR2_RADIO_CTMUSIC = 0,
     SETTINGRR2_RADIO_TIMES = 1,
     SETTINGRR2_RADIO_BRAKEDRIFT = 2,
     SETTIGNRR2_RADIO_FPS = 3,
-    SETTINGRR2_RADIO_DATARATE = 4
+    SETTINGRR2_RADIO_THUNDERCLOUD = 4
 };
 
-//MENU SETTINGS
+// MENU SETTINGS
 enum MenuSettingFastMenus {
     MENUSETTING_FASTMENUS_DISABLED = 0x0,
     MENUSETTING_FASTMENUS_ENABLED = 0x1
@@ -125,7 +123,7 @@ enum MenuSettingBoot {
     MENUSETTING_BOOT_L4
 };
 
-//RACE SETTINGS
+// RACE SETTINGS
 enum RaceSettingMII {
     RACESETTING_MII_DISABLED = 0x0,
     RACESETTING_MII_ENABLED = 0x1
@@ -156,10 +154,10 @@ enum RaceSettingSOMDigits {
     HOSTSETTING_SOM_DIGITS_0,
     HOSTSETTING_SOM_DIGITS_1,
     HOSTSETTING_SOM_DIGITS_2,
-    HOSTSETTING_SOM_DIGITS_3,
+    HOSTSETTING_SOM_DIGITS_3
 };
 
-//HOST SETTINGS
+// HOST SETTINGS
 enum HostSettingHAW {
     HOSTSETTING_HOSTWINS_DISABLED,
     HOSTSETTING_HOSTWINS_ENABLED
@@ -184,21 +182,21 @@ enum HostSettingGPRACES {
     HOSTSETTING_GP_RACES_24,
     HOSTSETTING_GP_RACES_32,
     HOSTSETTING_GP_RACES_64,
-    HOSTSETTING_GP_RACES_2,
-    //space for a 7th setting is available
+    HOSTSETTING_GP_RACES_2
+    // space for a 7th setting is available
 };
 
-//OTTSETTINGS
+// OTT SETTINGS
 enum OTTSettingOnline {
     OTTSETTING_ONLINE_DISABLED,
     OTTSETTING_ONLINE_NORMAL,
-    OTTSETTING_ONLINE_FEATHER,
+    OTTSETTING_ONLINE_FEATHER
 };
 
 enum OTTSettingOffline {
     OTTSETTING_OFFLINE_DISABLED,
     OTTSETTING_OFFLINE_NORMAL,
-    OTTSETTING_OFFLINE_FEATHER,
+    OTTSETTING_OFFLINE_FEATHER
 };
 
 enum OTTSettingCombo {
@@ -211,15 +209,17 @@ enum OTTSettingUMTs {
     OTTSETTING_UMTS_ENABLED
 };
 
-//KOSETTINGS
+// KO SETTINGS
 enum KOSettingEnabled {
     KOSETTING_DISABLED,
-    KOSETTING_ENABLED,
+    KOSETTING_ENABLED
 };
+
 enum KOSettingFINAL {
     KOSETTING_FINAL_DISABLED,
-    KOSETTING_FINAL_ALWAYS,
+    KOSETTING_FINAL_ALWAYS
 };
+
 enum KOSettingKOPerRace {
     KOSETTING_KOPERRACE_1,
     KOSETTING_KOPERRACE_2,
@@ -234,57 +234,65 @@ enum KOSettingRacesPerKO {
     KOSETTING_RACESPERKO_4
 };
 
-//RR Settings
+// RR Settings
+enum Transmission {
+    TRANSMISSION_DEFAULT,
+    TRANSMISSION_INSIDEALL,
+    TRANSMISSION_INSIDEBIKE,
+    TRANSMISSION_OUTSIDE
+};
 
-    enum Transmission{
-        TRANSMISSION_DEFAULT,
-        TRANSMISSION_INSIDEALL,
-        TRANSMISSION_INSIDEBIKE,
-        TRANSMISSION_OUTSIDE
-    };
+enum HardAI {
+    HARDAI_DISABLED,
+    HARDAI_ENABLED
+};
 
-    enum HardAI{
-        HARDAI_DISABLED,
-        HARDAI_ENABLED
-    };
+enum KartRestriction {
+    KART_DEFAULTSELECTION,
+    KART_KARTONLY,
+    KART_BIKEONLY
+};
 
-    enum KartRestriction{
-        KART_DEFAULTSELECTION,
-        KART_KARTONLY,
-        KART_BIKEONLY
-    };
+enum CharacterRestriction {
+    CHAR_DEFAULTSELECTION,
+    CHAR_LIGHTONLY,
+    CHAR_MEDIUMONLY,
+    CHAR_HEAVYONLY
+};
 
-    enum CharacterRestriction{
-        CHAR_DEFAULTSELECTION,
-        CHAR_LIGHTONLY,
-        CHAR_MEDIUMONLY,
-        CHAR_HEAVYONLY
-    };
+enum ItemMode {
+    GAMEMODE_DEFAULT,
+    GAMEMODE_RANDOM,
+    GAMEMODE_BLAST,
+    GAMEMODE_NONE
+};
 
-//RR2 Settings
+// RR2 Settings
+enum CTMusic {
+    CTMUSIC_DISABLED,
+    CTMUSIC_ENABLED
+};
 
-    enum CTMusic{
-        CTMUSIC_DISABLED,
-        CTMUSIC_ENABLED
-    };
+enum Times {
+    TIMES_DISABLED,
+    TIMES_ENABLED
+};
 
-    enum Times{
-        TIMES_DISABLED,
-        TIMES_ENABLED
-    };
+enum BrakeDrift {
+    BRAKEDRIFT_DISABLED,
+    BRAKEDRIFT_ENABLED
+};
 
-    enum BrakeDrift{
-        BRAKEDRIFT_DISABLED,
-        BRAKEDRIFT_ENABLED
-    };
+enum FPS {
+    FPS_DEFAULT,
+    FPS_HALF
+};
 
-    enum FPS{
-        FPS_DEFAULT,
-        FPS_HALF
-    };
+enum ThunderCloud {
+    THUNDERCLOUD_MEGA,
+    THUNDERCLOUD_NORMAL
+};
 
-}//namespace Pulsar
-
-
+} // namespace Pulsar
 
 #endif

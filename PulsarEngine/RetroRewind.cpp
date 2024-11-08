@@ -11,10 +11,6 @@ Pulsar::System *System::Create() {
 }
 Pulsar::System::Inherit CreateRetroRewind(System::Create);
 
-void System::AfterInit(){
-
-}
-
 bool System::Is500cc() {
     return Racedata::sInstance->racesScenario.settings.engineClass == CC_50;
 }
@@ -56,7 +52,7 @@ System::WeightClass System::GetWeightClass(const CharacterId id){
 
  void FPSPatch() {
     FPSPatchHook = 0x00;
-    if (static_cast<Pulsar::FPS>(Pulsar::Settings::Mgr::Get().GetSettingValue(static_cast<Pulsar::Settings::Type>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTIGNRR2_RADIO_FPS)) == Pulsar::FPS_HALF) {
+    if (static_cast<Pulsar::FPS>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTIGNRR2_RADIO_FPS)) == Pulsar::FPS_HALF) {
         FPSPatchHook = 0x00FF0100;
     }
  }
@@ -313,9 +309,6 @@ kmWrite16(0x808565BA, 0x00007530);
 kmWrite16(0x808565C2, 0x00007530);
 kmWrite16(0x8085C322, 0x00007530);
 kmWrite16(0x8085C32A, 0x00007530);
-
-//Don't Lose VR While Disconnecting [Bully]
-kmWrite32(0x80856560, 0x60000000);
 
 //Mushroom Glitch Fix [Leseratte]
 kmWrite8(0x807BA077, 0x00000000);

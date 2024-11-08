@@ -4,6 +4,10 @@
 #include <UI/ChangeCombo/ChangeCombo.hpp>
 #include <PulsarSystem.hpp>
 #include <Gamemodes/KO/KOMgr.hpp>
+#include <RetroRewind.hpp>
+#include <MarioKartWii/UI/Ctrl/Menu/CtrlMenuCharacterSelect.hpp>
+#include <MarioKartWii/UI/Page/Menu/CharacterSelect.hpp>
+#include <MarioKartWii/GlobalFunctions.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -71,11 +75,16 @@ void ExpVR::OnInit() {
 static void RandomizeCombo() {
     Random random;
     const SectionMgr* sectionMgr = SectionMgr::sInstance;
+    bool charRestrict = System::sInstance->IsContext(Pulsar::PULSAR_CHARRESTRICT);
+    bool kartRest = System::sInstance->IsContext(Pulsar::PULSAR_KARTRESTRICT);
     const Section* section = sectionMgr->curSection;
     SectionParams* sectionParams = sectionMgr->sectionParams;
     for(int hudId = 0; hudId < sectionParams->localPlayerCount; ++hudId) {
-        const CharacterId character = random.NextLimited<CharacterId>(24);
-        const u32 randomizedKartPos = random.NextLimited(12);
+        CharacterId character = random.NextLimited<CharacterId>(24);
+        if (charRestrict != Pulsar::CHAR_DEFAULTSELECTION) character = static_cast<CharacterId>(CtrlMenuCharacterSelect::buttonIdToCharacterId[static_cast<RetroRewind::System::CharButtonId>(random.NextLimited<u8>(8) + (8 * (charRestrict - 1)))]);
+        u8 kartCount = 12;
+        if (kartRest != Pulsar::KART_DEFAULTSELECTION) kartCount = 6;
+        const u32 randomizedKartPos = random.NextLimited(kartCount);
         const KartId kart = kartsSortedByWeight[GetCharacterWeightClass(character)][randomizedKartPos];
 
         sectionParams->characters[hudId] = character;
@@ -108,6 +117,7 @@ static void RandomizeCombo() {
             multiKartSelect->rouletteCounter = ExpVR::randomDuration;
             multiKartSelect->rolledKartPos[0] = randomizedKartPos;
             u32 options = 12;
+        if (kartRest != Pulsar::KART_DEFAULTSELECTION) options = 6;
             if(IsBattle()) options = 2;
             multiKartSelect->rolledKartPos[1] = random.NextLimited(options);
             multiKartSelect->controlsManipulatorManager.inaccessible = true;
@@ -162,17 +172,19 @@ kmCall(0x8062ec18, AddChangeComboPages); //0x67
 void ExpCharacterSelect::BeforeControlUpdate() {
     //CtrlMenuCharacterSelect::ButtonDriver* array = this->ctrlMenuCharSelect.driverButtonsArray;
     const s32 roulette = this->rouletteCounter;
+    bool charRestrict = System::sInstance->IsContext(Pulsar::PULSAR_CHARRESTRICT);
     if(roulette > 0) {
         --this->rouletteCounter;
         this->controlsManipulatorManager.inaccessible = true;
     }
     for(int hudId = 0; hudId < SectionMgr::sInstance->sectionParams->localPlayerCount; ++hudId) {
-        const CharacterId prevChar = this->rolledCharIdx[hudId];
+        CharacterId prevChar = this->rolledCharIdx[hudId];
         Random random;
         const bool isGoodFrame = roulette % 4 == 1;
         if(roulette == 1) this->rolledCharIdx[hudId] = this->randomizedCharIdx[hudId];
         else if(isGoodFrame) while(this->rolledCharIdx[hudId] == prevChar) {
             this->rolledCharIdx[hudId] = static_cast<CharacterId>(random.NextLimited(24));
+                if (charRestrict != Pulsar::CHAR_DEFAULTSELECTION) this->rolledCharIdx[hudId] = static_cast<CharacterId>(CtrlMenuCharacterSelect::buttonIdToCharacterId[static_cast<RetroRewind::System::CharButtonId>(random.NextLimited<u8>(8) + (8 * (charRestrict - 1)))]);
         }
         if(isGoodFrame) {
             this->ctrlMenuCharSelect.GetButtonDriver(prevChar)->HandleDeselect(hudId, -1);
@@ -207,6 +219,7 @@ void ExpBattleKartSelect::BeforeControlUpdate() {
 
 void ExpKartSelect::BeforeControlUpdate() {
     s32 roulette = this->rouletteCounter;
+    bool kartRest = System::sInstance->IsContext(Pulsar::PULSAR_KARTRESTRICT);
 
     if(roulette > 0) {
         this->controlsManipulatorManager.inaccessible = true;
@@ -217,8 +230,10 @@ void ExpKartSelect::BeforeControlUpdate() {
 
         u32 nextRoll = prevRoll;
         const bool isGoodFrame = roulette % 4 == 1;
+        u8 kartCount = 12;
+        if (kartRest != Pulsar::KART_DEFAULTSELECTION) kartCount = 6;
         if(roulette == 1) nextRoll = this->randomizedKartPos;
-        else if(isGoodFrame) while(nextRoll == prevRoll) nextRoll = random.NextLimited(12);
+        else if(isGoodFrame) while(nextRoll == prevRoll) nextRoll = random.NextLimited(kartCount);
         if(isGoodFrame) {
             ButtonMachine* nextButton = this->GetKartButton(nextRoll);
             nextButton->HandleSelect(0, -1);
@@ -235,8 +250,11 @@ void ExpKartSelect::BeforeControlUpdate() {
 }
 
 ButtonMachine* ExpKartSelect::GetKartButton(u32 idx) const {
-    const UIControl* globalButtonHolder = this->controlGroup.GetControl(2); //holds the 6 controls (6 rows) that each hold a pair of buttons
-    return globalButtonHolder->childrenGroup.GetControl(idx / 2)->childrenGroup.GetControl<ButtonMachine>(idx % 2);
+    bool kartRest = System::sInstance->IsContext(Pulsar::PULSAR_KARTRESTRICT);
+    u8 buttonsPerRow = 2;
+    if (kartRest != Pulsar::KART_DEFAULTSELECTION) buttonsPerRow = 1;
+    const UIControl* globalButtonHolder = this->controlGroup.GetControl(buttonsPerRow); //holds the 6 controls (6 rows) that each hold a pair of buttons
+    return globalButtonHolder->childrenGroup.GetControl(idx / buttonsPerRow)->childrenGroup.GetControl<ButtonMachine>(idx % buttonsPerRow);
 }
 
 void ExpMultiKartSelect::BeforeControlUpdate() {

@@ -8,6 +8,8 @@ const int ipcMaxFileName = 13;
 typedef char IPCFileName[ipcMaxFileName];
 typedef char IPCPath[ipcMaxPath];
 
+extern "C" s32 IOS_Open(const char* path, s32 mode);
+
 enum Error {
     ERROR_PERMISSION_DENIED = -1,
     ERROR_FILE_EXISTS = -2,
