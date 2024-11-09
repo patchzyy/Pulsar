@@ -5,6 +5,16 @@
 #include <MarioKartWii/System/Identifiers.hpp>
 
 extern u32 FPSPatchHook;
+extern u32 DolphinCheat;
+extern u32 MainDolCheat;
+extern u32 AntiCheat1;
+extern u32 AntiCheat2;
+extern u32 AntiCheat3;
+extern u32 AntiCheat4;
+extern u32 AntiCheat5;
+extern u32 AntiCheat6;
+extern u32 AntiCheat7;
+extern u32 GeckoLoader1;
 
 namespace RetroRewind {
 class System : public Pulsar::System {

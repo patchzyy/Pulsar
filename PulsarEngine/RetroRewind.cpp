@@ -58,7 +58,25 @@ System::WeightClass System::GetWeightClass(const CharacterId id){
  }
 static PageLoadHook PatchFPS(FPSPatch);
 
+//Simple Cheat code crash [Cats4Life]
+void CodeCrash() {
+    if(DolphinCheat == 0x00000001) Pulsar::Debug::FatalError("Please disable all cheat codes.");
+    else if(AntiCheat1 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
+    else if(AntiCheat2 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
+    else if(AntiCheat3 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
+    else if(AntiCheat4 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
+    else if(AntiCheat5 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
+    else if(AntiCheat6 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
+    else if(AntiCheat7 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
+    else if(MainDolCheat != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
+}
+static PageLoadHook CRASH_HOOK(CodeCrash);
 
+//GeckoLoader Patch [Toadette Hack Fan]
+void GeckoLoader() {
+    if(GeckoLoader1 != 0x00000000) Pulsar::Debug::FatalError("Please reinstall the distribution.");
+}
+BootHook GECKOLOADERDETECTION(GeckoLoader, 2);
 } // namespace RetroRewind
 
 namespace Visual {
