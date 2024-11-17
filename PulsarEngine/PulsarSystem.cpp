@@ -116,7 +116,7 @@ void System::InitIO(IOType type) const {
 void System::InitSettings(const u16* totalTrophyCount) const {
     Settings::Mgr* settings = new (this->heap) Settings::Mgr;
     char path[IOS::ipcMaxPath];
-    snprintf(path, IOS::ipcMaxPath, "%s/%s", this->GetModFolder(), "Settings.pul");
+    snprintf(path, IOS::ipcMaxPath, "%s/%s", this->GetModFolder(), "RRSettings.pul");
     settings->Init(totalTrophyCount, path); //params
     Settings::Mgr::sInstance = settings;
 }
@@ -126,9 +126,9 @@ void System::UpdateContext() {
     this->ottVoteState = OTT::COMBO_NONE;
     const Settings::Mgr& settings = Settings::Mgr::Get();
     bool isCT = true;
-    bool isHAW = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_HOSTWINS);
-    bool isKO = settings.GetSettingValue(Settings::SETTINGSTYPE_KO, SETTINGKO_ENABLED);
-    bool isOTT = settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_ONLINE);
+    bool isHAW = false;
+    bool isKO = false;
+    bool isOTT = false;
     bool isMiiHeads = settings.GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_MII);
 
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
@@ -138,10 +138,14 @@ void System::UpdateContext() {
 
     bool is200 = racedataSettings.engineClass == CC_100 && this->info.Has200cc();
     bool is500 = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, HOSTSETTING_CC_500);
-    bool isCharRestrict = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_CHARSELECT);
-    bool isKartRestrict = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_KARTSELECT);
-    bool isThunderCloud = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR2_RADIO_THUNDERCLOUD);
-    bool isItemMode = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_ITEMMODE);
+    bool isCharRestrictLight = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_CHARSELECT) == CHAR_LIGHTONLY;
+    bool isCharRestrictMid = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_CHARSELECT) == CHAR_MEDIUMONLY;
+    bool isCharRestrictHeavy = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_CHARSELECT) == CHAR_HEAVYONLY;
+    bool isKartRestrictKart = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_KARTSELECT) == KART_KARTONLY;
+    bool isKartRestrictBike = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_KARTSELECT) == KART_BIKEONLY;
+    bool isThunderCloud = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR2, SETTINGRR2_RADIO_THUNDERCLOUD);
+    bool isItemModeRandom = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_ITEMMODE) == GAMEMODE_RANDOM;
+    bool isItemModeBlast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_ITEMMODE) == GAMEMODE_BLAST;
     bool isFeather = this->info.HasFeather();
     bool isUMTs = this->info.HasUMTs();
     bool isMegaTC = this->info.HasMegaTC();
@@ -156,9 +160,13 @@ void System::UpdateContext() {
         case(RKNet::ROOMTYPE_FROOM_NONHOST):
             isCT = mode != MODE_BATTLE && mode != MODE_PUBLIC_BATTLE && mode != MODE_PRIVATE_BATTLE;
             newContext = netMgr.hostContext;
-            isCharRestrict = newContext & (1 << PULSAR_CHARRESTRICT);
-            isKartRestrict = newContext & (1 << PULSAR_KARTRESTRICT);
-            isItemMode = newContext & (1 << PULSAR_ITEMMODE);
+            isCharRestrictLight = newContext & (1 << PULSAR_CHARRESTRICTLIGHT);
+            isCharRestrictMid = newContext & (1 << PULSAR_CHARRESTRICTMID);
+            isCharRestrictHeavy = newContext & (1 << PULSAR_CHARRESTRICTHEAVY);
+            isKartRestrictKart = newContext & (1 << PULSAR_KARTRESTRICT);
+            isKartRestrictBike = newContext & (1 << PULSAR_BIKERESTRICT);
+            isItemModeRandom = newContext & (1 << PULSAR_ITEMMODERANDOM);
+            isItemModeBlast = newContext & (1 << PULSAR_ITEMMODEBLAST);
             is500 = newContext & (1 << PULSAR_500);
             isHAW = newContext & (1 << PULSAR_HAW);
             isKO = newContext & (1 << PULSAR_MODE_KO);
@@ -186,7 +194,8 @@ void System::UpdateContext() {
     u32 context = (isCT << PULSAR_CT) | (isHAW << PULSAR_HAW) | (isMiiHeads << PULSAR_MIIHEADS);
     if (isCT) { //contexts that should only exist when CTs are on
         context |= (is200 << PULSAR_200) | (isFeather << PULSAR_FEATHER) | (isUMTs << PULSAR_UMTS) | (isMegaTC << PULSAR_MEGATC) | (isOTT << PULSAR_MODE_OTT) | (isKO << PULSAR_MODE_KO)
-        | (isCharRestrict << PULSAR_CHARRESTRICT) | (isKartRestrict << PULSAR_KARTRESTRICT) | (is500 << PULSAR_500) | (isThunderCloud << PULSAR_THUNDERCLOUD) | (isItemMode << PULSAR_ITEMMODE);
+        | (isCharRestrictLight << PULSAR_CHARRESTRICTLIGHT) | (isCharRestrictMid << PULSAR_CHARRESTRICTMID) | (isCharRestrictHeavy << PULSAR_CHARRESTRICTHEAVY) | (isKartRestrictKart << PULSAR_KARTRESTRICT) | (isKartRestrictBike << PULSAR_BIKERESTRICT)
+        | (is500 << PULSAR_500) | (isThunderCloud << PULSAR_THUNDERCLOUD) | (isItemModeRandom << PULSAR_ITEMMODERANDOM) | (isItemModeBlast << PULSAR_ITEMMODEBLAST);
     }
     this->context = context;
 
@@ -208,6 +217,11 @@ void System::UpdateContext() {
     }
 }
 
+void System::UpdateContextWrapper() {
+    System::sInstance->UpdateContext();
+}
+
+static Pulsar::Settings::Hook UpdateContext(System::UpdateContextWrapper);
 
 s32 System::OnSceneEnter(Random& random) {
     System::sInstance->UpdateContext();

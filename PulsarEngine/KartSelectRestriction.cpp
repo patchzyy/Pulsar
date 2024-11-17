@@ -6,17 +6,25 @@
 
 namespace RetroRewind {
 namespace UI {
+
     // Changes the display type of the kart select depending on the kart restriction.
     u8 RestrictKartSelection() {
         SectionMgr::sInstance->sectionParams->kartsDisplayType = 2;
-        bool kartRest = System::sInstance->IsContext(Pulsar::PULSAR_KARTRESTRICT);
+        bool kartRest = Pulsar::KART_DEFAULTSELECTION;
+        bool bikeRest = Pulsar::KART_DEFAULTSELECTION;
+
+        if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || 
+            RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
+            kartRest = System::sInstance->IsContext(Pulsar::PULSAR_KARTRESTRICT) ? Pulsar::KART_KARTONLY : Pulsar::KART_DEFAULTSELECTION;
+            bikeRest = System::sInstance->IsContext(Pulsar::PULSAR_BIKERESTRICT) ? Pulsar::KART_BIKEONLY : Pulsar::KART_DEFAULTSELECTION;
+        }
 
         const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
         const GameMode mode = scenario.settings.gamemode;
 
         if (kartRest == Pulsar::KART_KARTONLY) {
             SectionMgr::sInstance->sectionParams->kartsDisplayType = 0;
-        } else if (kartRest == Pulsar::KART_BIKEONLY) {
+        } if (bikeRest == Pulsar::KART_BIKEONLY) {
             SectionMgr::sInstance->sectionParams->kartsDisplayType = 1;
         }
 
@@ -29,13 +37,15 @@ namespace UI {
     bool IsKartAccessible(KartId kart, u32 r4) {
         bool ret = IsKartUnlocked(kart, r4);
         bool kartRest = Pulsar::KART_DEFAULTSELECTION;
+        bool bikeRest = Pulsar::KART_DEFAULTSELECTION;
 
         if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || 
             RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
-            kartRest = System::sInstance->IsContext(Pulsar::PULSAR_KARTRESTRICT);
+            kartRest = System::sInstance->IsContext(Pulsar::PULSAR_KARTRESTRICT) ? Pulsar::KART_KARTONLY : Pulsar::KART_DEFAULTSELECTION;
+            bikeRest = System::sInstance->IsContext(Pulsar::PULSAR_BIKERESTRICT) ? Pulsar::KART_BIKEONLY : Pulsar::KART_DEFAULTSELECTION;
         }
 
-        else if ((kart < STANDARD_BIKE_S && kartRest == Pulsar::KART_BIKEONLY) ||
+        if ((kart < STANDARD_BIKE_S && bikeRest == Pulsar::KART_BIKEONLY) ||
             (kart >= STANDARD_BIKE_S && kartRest == Pulsar::KART_KARTONLY)) {
             ret = false;
         }
@@ -43,5 +53,6 @@ namespace UI {
         return ret;
     }
     kmCall(0x8084a45c, IsKartAccessible);
+
 } // namespace UI
 } // namespace RetroRewind

@@ -32,22 +32,25 @@ void *GetCustomKartAIParam(ArchiveMgr *archive, ArchiveSource type, const char *
 kmCall(0x8073ae9c, GetCustomKartAIParam);
 
 void *GetCustomItemSlot(ArchiveMgr *archive, ArchiveSource type, const char *name, u32 *length){
-    bool itemMode = Pulsar::GAMEMODE_DEFAULT;
+    bool itemModeRandom = Pulsar::GAMEMODE_DEFAULT;
+    bool itemModeBlast = Pulsar::GAMEMODE_DEFAULT;
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
-        itemMode = System::sInstance->IsContext(Pulsar::PULSAR_ITEMMODE);
+        itemModeRandom = System::sInstance->IsContext(Pulsar::PULSAR_ITEMMODERANDOM) ? Pulsar::GAMEMODE_RANDOM : Pulsar::GAMEMODE_DEFAULT;
+        itemModeBlast = System::sInstance->IsContext(Pulsar::PULSAR_ITEMMODEBLAST) ? Pulsar::GAMEMODE_BLAST : Pulsar::GAMEMODE_DEFAULT;
     }
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
-        itemMode = Pulsar::GAMEMODE_NONE;
+        itemModeRandom = Pulsar::GAMEMODE_NONE;
+        itemModeBlast = Pulsar::GAMEMODE_NONE;
     }
-    if (itemMode == Pulsar::GAMEMODE_DEFAULT)
+    if (itemModeRandom == Pulsar::GAMEMODE_DEFAULT || itemModeBlast == Pulsar::GAMEMODE_DEFAULT)
     {
         name="ItemSlotRR.bin";
     }
-    else if (itemMode == Pulsar::GAMEMODE_RANDOM)
+    if (itemModeRandom == Pulsar::GAMEMODE_RANDOM)
     {
         name="ItemSlotRandom.bin";
     }
-    else if (itemMode == Pulsar::GAMEMODE_BLAST)
+    if (itemModeBlast == Pulsar::GAMEMODE_BLAST)
     {
         name="ItemSlotBlast.bin";
     }

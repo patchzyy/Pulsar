@@ -23,6 +23,7 @@ class Mgr;
 
 class ConfigFile;
 
+
 enum Context {
     PULSAR_CT = 0,
     PULSAR_200,
@@ -33,26 +34,24 @@ enum Context {
     PULSAR_MIIHEADS,
     PULSAR_MODE_OTT,
     PULSAR_MODE_KO,
-    PULSAR_CHARRESTRICT,
+    PULSAR_CHARRESTRICTLIGHT,
+    PULSAR_CHARRESTRICTMID,
+    PULSAR_CHARRESTRICTHEAVY,
     PULSAR_KARTRESTRICT,
+    PULSAR_BIKERESTRICT,
     PULSAR_500,
     PULSAR_THUNDERCLOUD,
-    PULSAR_ITEMMODE,
+    PULSAR_ITEMMODERANDOM,
+    PULSAR_ITEMMODEBLAST,
     PULSAR_CONTEXT_COUNT,
 };
 
 
 
 class System {
-    static inline void CacheInvalidateAddress(register u32 address) {
-        asm(dcbst 0, address;);
-        asm(sync;);
-        asm(icbi 0, address;);
-        asm(isync;);
-    }
 protected:
     System();
-private:
+public:
     //System functions
     void Init(const ConfigFile& conf);
     void InitInstances(const ConfigFile& conf, IOType type);
@@ -60,21 +59,21 @@ private:
     void InitCups(const ConfigFile& conf);
     void InitSettings(const u16* totalTrophyCount) const;
     void UpdateContext();
+    static void UpdateContextWrapper();
 protected:
     //Virtual
     virtual void AfterInit() {};
 public:
     static System* sInstance;
-    u32 GetContext() const;
 
     virtual void SetUserInfo(Network::ResvInfo::UserInfo& userInfo) {};
     virtual bool CheckUserInfo(const Network::ResvInfo::UserInfo& userInfo) { return true; };
     //Deprecated because you can now freely expand ROOM packets and do what you need to with them
-    virtual u8 SetPackROOMMsg() { return 0; } //Only called for hosts
-    virtual void ParsePackROOMMsg(u8 msg) {}  //Only called for non-hosts
+    //virtual u8 SetPackROOMMsg() { return 0; } //Only called for hosts
+    //virtual void ParsePackROOMMsg(u8 msg) {}  //Only called for non-hosts
     const Info& GetInfo() const { return this->info; }
 
-    bool IsContext(Context context) const { return (this->context & (1 << context)) != 0; }
+    static bool IsContext(Context context) { return (sInstance->context & (1 << context)); }
     static s32 OnSceneEnter(Random& random);
 
     const char* GetModFolder() const { return modFolderName; }

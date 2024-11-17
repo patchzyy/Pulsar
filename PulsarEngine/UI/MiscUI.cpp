@@ -27,10 +27,6 @@ static PageId AfterWifiResults(PageId id) {
     const System* system = System::sInstance;
 
     if (system->IsContext(PULSAR_MODE_KO)) id = system->koMgr->KickPlayersOut(); //return KO::RaceEndPage with the choice to spectate if the local players are out
-    else if (system->IsContext(PULSAR_HAW)) {
-        ChooseNextTrack* chooseNext = ExpSection::GetSection()->GetPulPage<ChooseNextTrack>();
-        if (chooseNext != nullptr) id = chooseNext->GetPageAfterWifiResults(id);
-    }
     return id;
 }
 kmBranch(0x80646754, AfterWifiResults);
