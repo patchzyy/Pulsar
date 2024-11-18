@@ -41,7 +41,7 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
         const u8 itemModeRandom = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_ITEMMODE) == GAMEMODE_RANDOM;
         const u8 itemModeBlast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_ITEMMODE) == GAMEMODE_BLAST;
 
-        destPacket->hostSystemContext = (ottOnline != OTTSETTING_OFFLINE_DISABLED) << PULSAR_MODE_OTT // ott
+        destPacket->hostSystemContext |= (ottOnline != OTTSETTING_OFFLINE_DISABLED) << PULSAR_MODE_OTT // ott
             | (ottOnline == OTTSETTING_ONLINE_FEATHER) << PULSAR_FEATHER // ott feather
             | (settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_ALLOWUMTS) ^ true) << PULSAR_UMTS // ott umts
             | koSetting << PULSAR_MODE_KO
@@ -96,6 +96,29 @@ static void AfterROOMReception(const RKNet::PacketHolder<PulROOM>* packetHolder,
     //START msg sent by the host, size check should always be guaranteed in theory
     if(src.messageType == 1 && sub.localAid != sub.hostAid && packetHolder->packetSize == sizeof(PulROOM)) {
         ConvertROOMPacketToData(src);
+    const Settings::Mgr& settings = Settings::Mgr::Get();
+    bool isCharRestrictLight = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_CHARSELECT) == CHAR_LIGHTONLY;
+    bool isCharRestrictMid = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_CHARSELECT) == CHAR_MEDIUMONLY;
+    bool isCharRestrictHeavy = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_CHARSELECT) == CHAR_HEAVYONLY;
+    bool isKartRestrictKart = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_KARTSELECT) == KART_KARTONLY;
+    bool isKartRestrictBike = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_KARTSELECT) == KART_BIKEONLY;
+    bool isItemModeRandom = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_ITEMMODE) == GAMEMODE_RANDOM;
+    bool isItemModeBlast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_ITEMMODE) == GAMEMODE_BLAST;
+    u32 newContext = 0;
+    Network::Mgr& netMgr = Pulsar::System::sInstance->netMgr;
+            newContext = netMgr.hostContext;
+            isCharRestrictLight = newContext & (1 << PULSAR_CHARRESTRICTLIGHT);
+            isCharRestrictMid = newContext & (1 << PULSAR_CHARRESTRICTMID);
+            isCharRestrictHeavy = newContext & (1 << PULSAR_CHARRESTRICTHEAVY);
+            isKartRestrictKart = newContext & (1 << PULSAR_KARTRESTRICT);
+            isKartRestrictBike = newContext & (1 << PULSAR_BIKERESTRICT);
+            isItemModeRandom = newContext & (1 << PULSAR_ITEMMODERANDOM);
+            isItemModeBlast = newContext & (1 << PULSAR_ITEMMODEBLAST);
+        netMgr.hostContext = newContext;
+
+    u32 context = (isCharRestrictLight << PULSAR_CHARRESTRICTLIGHT) | (isCharRestrictMid << PULSAR_CHARRESTRICTMID) | (isCharRestrictHeavy << PULSAR_CHARRESTRICTHEAVY) | (isKartRestrictKart << PULSAR_KARTRESTRICT) | (isKartRestrictBike << PULSAR_BIKERESTRICT) |
+        (isItemModeRandom << PULSAR_ITEMMODERANDOM) | (isItemModeBlast << PULSAR_ITEMMODEBLAST);
+    Pulsar::System::sInstance->context = context;
 
         //Also exit the settings page to prevent weird graphical artefacts
         Page* topPage = SectionMgr::sInstance->curSection->GetTopLayerPage();

@@ -102,7 +102,7 @@ public:
     EGG::TaskThread* const taskThread; //0x8
     //Constants
 
-private:
+public:
     char modFolderName[IOS::ipcMaxFileName + 1]; //0xC
     u8 padding[2];
     Info info; //0x1c

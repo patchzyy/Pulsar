@@ -17,7 +17,8 @@ static void CalcSectionAfterRace(SectionMgr* sectionMgr, SectionId id) {
 
     UI::ChooseNextTrack* choosePage = reinterpret_cast<UI::ExpSection*>(sectionMgr->curSection)->GetPulPage<UI::ChooseNextTrack>();
     const System* system = System::sInstance;
-    if(system->IsContext(PULSAR_MODE_KO)) id = system->koMgr->GetSectionAfterKO(id);
+    if(choosePage != nullptr) id = choosePage->ProcessHAW(id);
+    else if(system->IsContext(PULSAR_MODE_KO)) id = system->koMgr->GetSectionAfterKO(id);
 
     if(id != SECTION_NONE) {
         sectionMgr->SetNextSection(id, 0);

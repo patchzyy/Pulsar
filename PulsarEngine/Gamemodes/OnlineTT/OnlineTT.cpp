@@ -173,20 +173,7 @@ static void SELECTStageMgrBeforeControlUpdate(Pages::SELECTStageMgr* stageMgr) {
     stageMgr->Pages::SELECTStageMgr::BeforeControlUpdate();
     stageMgr->status = old;
 
-        bool charRestrictLight = Pulsar::CHAR_DEFAULTSELECTION;
-        bool charRestrictMid = Pulsar::CHAR_DEFAULTSELECTION;
-        bool charRestrictHeavy = Pulsar::CHAR_DEFAULTSELECTION;
-        bool kartRest = Pulsar::KART_DEFAULTSELECTION;
-        bool bikeRest = Pulsar::KART_DEFAULTSELECTION;
-        if(RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
-            charRestrictLight = System::sInstance->IsContext(Pulsar::PULSAR_CHARRESTRICTLIGHT) ? Pulsar::CHAR_LIGHTONLY : Pulsar::CHAR_DEFAULTSELECTION;
-            charRestrictMid = System::sInstance->IsContext(Pulsar::PULSAR_CHARRESTRICTMID) ? Pulsar::CHAR_MEDIUMONLY : Pulsar::CHAR_DEFAULTSELECTION;
-            charRestrictHeavy = System::sInstance->IsContext(Pulsar::PULSAR_CHARRESTRICTHEAVY) ? Pulsar::CHAR_HEAVYONLY : Pulsar::CHAR_DEFAULTSELECTION;
-            kartRest = System::sInstance->IsContext(Pulsar::PULSAR_KARTRESTRICT) ? Pulsar::KART_KARTONLY : Pulsar::KART_DEFAULTSELECTION;
-            bikeRest = System::sInstance->IsContext(Pulsar::PULSAR_BIKERESTRICT) ? Pulsar::KART_BIKEONLY : Pulsar::KART_DEFAULTSELECTION;
-        }
-    if(system->IsContext(PULSAR_MODE_OTT) || charRestrictLight != Pulsar::CHAR_DEFAULTSELECTION || charRestrictMid != Pulsar::CHAR_DEFAULTSELECTION || charRestrictHeavy != Pulsar::CHAR_DEFAULTSELECTION 
-    || kartRest != Pulsar::KART_DEFAULTSELECTION || bikeRest != Pulsar::KART_DEFAULTSELECTION) {
+    if(system->IsContext(PULSAR_MODE_OTT)) {
         const RKNet::Controller* controller = RKNet::Controller::sInstance;
         const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
         Network::ExpSELECTHandler& handler = Network::ExpSELECTHandler::Get();
@@ -244,20 +231,7 @@ kmWritePointer(0x808C06E4, SELECTStageMgrBeforeControlUpdate);
 static void PreventVoteChangeSection(Pages::Vote& vote, SectionId id, float delay) {
     System* system = System::sInstance;
     system->ottVoteState = COMBO_NONE;
-        bool charRestrictLight = Pulsar::CHAR_DEFAULTSELECTION;
-        bool charRestrictMid = Pulsar::CHAR_DEFAULTSELECTION;
-        bool charRestrictHeavy = Pulsar::CHAR_DEFAULTSELECTION;
-        bool kartRest = Pulsar::KART_DEFAULTSELECTION;
-        bool bikeRest = Pulsar::KART_DEFAULTSELECTION;
-        if(RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
-            charRestrictLight = System::sInstance->IsContext(Pulsar::PULSAR_CHARRESTRICTLIGHT) ? Pulsar::CHAR_LIGHTONLY : Pulsar::CHAR_DEFAULTSELECTION;
-            charRestrictMid = System::sInstance->IsContext(Pulsar::PULSAR_CHARRESTRICTMID) ? Pulsar::CHAR_MEDIUMONLY : Pulsar::CHAR_DEFAULTSELECTION;
-            charRestrictHeavy = System::sInstance->IsContext(Pulsar::PULSAR_CHARRESTRICTHEAVY) ? Pulsar::CHAR_HEAVYONLY : Pulsar::CHAR_DEFAULTSELECTION;
-            kartRest = System::sInstance->IsContext(Pulsar::PULSAR_KARTRESTRICT) ? Pulsar::KART_KARTONLY : Pulsar::KART_DEFAULTSELECTION;
-            bikeRest = System::sInstance->IsContext(Pulsar::PULSAR_BIKERESTRICT) ? Pulsar::KART_BIKEONLY : Pulsar::KART_DEFAULTSELECTION;
-        }
-    if(system->IsContext(PULSAR_MODE_OTT) || charRestrictLight != Pulsar::CHAR_DEFAULTSELECTION || charRestrictMid != Pulsar::CHAR_DEFAULTSELECTION || charRestrictHeavy != Pulsar::CHAR_DEFAULTSELECTION 
-    || kartRest != Pulsar::KART_DEFAULTSELECTION || bikeRest != Pulsar::KART_DEFAULTSELECTION) {
+    if(system->IsContext(PULSAR_MODE_OTT)) {
         RKNet::Controller* controller = RKNet::Controller::sInstance;
         RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
         Network::ExpSELECTHandler& handler = Network::ExpSELECTHandler::Get();
@@ -265,8 +239,7 @@ static void PreventVoteChangeSection(Pages::Vote& vote, SectionId id, float dela
         const u8 hostAid = sub.hostAid;
         if(hostAid == sub.localAid) select = &handler.toSendPacket;
         else select = &handler.receivedPackets[hostAid];
-        if(select->allowChangeComboStatus > 0 || charRestrictLight != Pulsar::CHAR_DEFAULTSELECTION || charRestrictMid != Pulsar::CHAR_DEFAULTSELECTION || charRestrictHeavy != Pulsar::CHAR_DEFAULTSELECTION 
-    || kartRest != Pulsar::KART_DEFAULTSELECTION || bikeRest != Pulsar::KART_DEFAULTSELECTION) {
+        if(select->allowChangeComboStatus > 0) {
             Pages::SELECTStageMgr* page = SectionMgr::sInstance->curSection->Get<Pages::SELECTStageMgr>();
             page->countdown.SetInitial(10.0f);
             page->countdown.isActive = true;
