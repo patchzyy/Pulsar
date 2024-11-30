@@ -61,13 +61,13 @@ static PageLoadHook PatchFPS(FPSPatch);
 //Simple Cheat code crash [Cats4Life]
 void CodeCrash() {
     if(DolphinCheat == 0x00000001) Pulsar::Debug::FatalError("Please disable all cheat codes.");
-    else if(AntiCheat1 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
-    else if(AntiCheat2 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
-    else if(AntiCheat3 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
-    else if(AntiCheat4 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
-    else if(AntiCheat5 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
-    else if(AntiCheat6 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
-    else if(AntiCheat7 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
+    else if(AntiCheat1 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
+    else if(AntiCheat2 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
+    else if(AntiCheat3 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
+    else if(AntiCheat4 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
+    else if(AntiCheat5 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
+    else if(AntiCheat6 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
+    else if(AntiCheat7 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
     else if(MainDolCheat != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
 }
 static PageLoadHook CRASH_HOOK(CodeCrash);
@@ -168,6 +168,26 @@ validPOW:
     )
 }
 kmCall(0x807B1B44, GetItemDelimiterPOW);
+
+//Anti Mii Crash
+asmFunc AntiWiper() {
+    ASM(
+        nofralloc;
+loc_0x0:
+  cmpwi r4, 0x6;
+  ble validMii;
+  lhz r12, 0xE(r30);
+  cmpwi r12, 0x0;
+  bne validMii;
+  li r31, 0x0;
+  li r4, 0x6;
+validMii:
+  mr r29, r4;
+  blr;
+    )
+}
+kmCall(0x800CB6C0, AntiWiper);
+kmWrite32(0x80526660, 0x38000001); //Credits to Ro for the last line.
 
 //Anti Item Collission Crash [Marioiscool246]
 extern "C" void __ptmf_test(void*);
