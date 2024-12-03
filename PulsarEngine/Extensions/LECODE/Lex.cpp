@@ -29,8 +29,8 @@ const KMPHeader* LexMgr::LoadLEXAndKMP(u32, const char* kmpString) {
             if(header->magic == LEXHeader::goodMagic && header->majorVersion == 1) {
 
                 LEXSectionHeader* section = reinterpret_cast<LEXSectionHeader*>(reinterpret_cast<u8*>(header) + header->offsetToFirstSection);
-                u8* data = reinterpret_cast<u8*>(section) + sizeof(LEXSectionHeader);
                 while(section->magic != 0) {
+                    u8* data = reinterpret_cast<u8*>(section) + sizeof(LEXSectionHeader);
                     switch(section->magic) {
                         case SET1::magic:
                             self.set1 = reinterpret_cast<SET1*>(section);

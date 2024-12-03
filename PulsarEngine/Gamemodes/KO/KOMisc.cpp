@@ -61,7 +61,7 @@ static u8 EditPosTracker(CtrlRaceRankNum& posTracker) {
     if(system->IsContext(PULSAR_MODE_KO)) {
         u8 idx = posTracker.hudSlotId;
         lyt::Picture* posPane = static_cast<nw4r::lyt::Picture*>(posTracker.layout.GetPaneByName("position"));
-        ut::Color color = 0xFF0000FF;
+        ut::Color color = 0xffffffff;
 
         u8 playerId;
         if(mgr->isSpectating) playerId = RaceCameraMgr::sInstance->focusedPlayerIdx;

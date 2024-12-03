@@ -185,6 +185,7 @@ static void DecideCC(ExpSELECTHandler& handler) {
         const RKNet::RoomType roomType = controller->roomType;
         u8 ccClass = 1; //1 100, 2 150, 3 mirror
         if (roomType == RKNet::ROOMTYPE_VS_REGIONAL
+            || roomType == RKNet::ROOMTYPE_VS_WW
             || roomType == RKNet::ROOMTYPE_FROOM_HOST && ccSetting == HOSTSETTING_CC_NORMAL) {
             Random random;
             const u32 result = random.NextLimited(100); //25

@@ -146,6 +146,7 @@ void System::UpdateContext() {
     bool isThunderCloud = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR2, SETTINGRR2_RADIO_THUNDERCLOUD);
     bool isItemModeRandom = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_ITEMMODE) == GAMEMODE_RANDOM;
     bool isItemModeBlast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_ITEMMODE) == GAMEMODE_BLAST;
+    bool isRegs = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR2, SETTINGRR2_RADIO_REGS);
     bool isFeather = this->info.HasFeather();
     bool isUMTs = this->info.HasUMTs();
     bool isMegaTC = this->info.HasMegaTC();
@@ -167,6 +168,7 @@ void System::UpdateContext() {
             isKartRestrictBike = newContext & (1 << PULSAR_BIKERESTRICT);
             isItemModeRandom = newContext & (1 << PULSAR_ITEMMODERANDOM);
             isItemModeBlast = newContext & (1 << PULSAR_ITEMMODEBLAST);
+            isRegs = newContext & (1 << PULSAR_REGS);
             is500 = newContext & (1 << PULSAR_500);
             isHAW = newContext & (1 << PULSAR_HAW);
             isKO = newContext & (1 << PULSAR_MODE_KO);
@@ -195,11 +197,12 @@ void System::UpdateContext() {
     if (isCT) { //contexts that should only exist when CTs are on
         context |= (is200 << PULSAR_200) | (isFeather << PULSAR_FEATHER) | (isUMTs << PULSAR_UMTS) | (isMegaTC << PULSAR_MEGATC) | (isOTT << PULSAR_MODE_OTT) | (isKO << PULSAR_MODE_KO)
         | (isCharRestrictLight << PULSAR_CHARRESTRICTLIGHT) | (isCharRestrictMid << PULSAR_CHARRESTRICTMID) | (isCharRestrictHeavy << PULSAR_CHARRESTRICTHEAVY) | (isKartRestrictKart << PULSAR_KARTRESTRICT) | (isKartRestrictBike << PULSAR_BIKERESTRICT)
-        | (is500 << PULSAR_500) | (isThunderCloud << PULSAR_THUNDERCLOUD) | (isItemModeRandom << PULSAR_ITEMMODERANDOM) | (isItemModeBlast << PULSAR_ITEMMODEBLAST);
+        | (is500 << PULSAR_500) | (isThunderCloud << PULSAR_THUNDERCLOUD) | (isItemModeRandom << PULSAR_ITEMMODERANDOM) | (isItemModeBlast << PULSAR_ITEMMODEBLAST) | (isRegs << PULSAR_REGS);
     }
     this->context = context;
 
     //Create temp instances if needed:
+    /*
     if (sceneId == SCENE_ID_RACE) {
         if (this->lecodeMgr == nullptr) this->lecodeMgr = new (this->heap) LECODE::Mgr;
     }
@@ -207,7 +210,7 @@ void System::UpdateContext() {
         delete this->lecodeMgr;
         this->lecodeMgr = nullptr;
     }
-
+*/
     if (isKO) {
         if (sceneId == SCENE_ID_MENU && SectionMgr::sInstance->sectionParams->onlineParams.currentRaceNumber == -1) this->koMgr = new (this->heap) KO::Mgr; //create komgr when loading the select phase of the 1st race of a froom
     }
@@ -225,7 +228,7 @@ static Pulsar::Settings::Hook UpdateContext(System::UpdateContextWrapper);
 
 s32 System::OnSceneEnter(Random& random) {
     System::sInstance->UpdateContext();
-    if (System::sInstance->IsContext(PULSAR_MODE_OTT)) OTT::AddGhostToOfflineVS();
+    if (System::sInstance->IsContext(PULSAR_MODE_OTT)) OTT::AddGhostToVS();
     return random.NextLimited(8);
 }
 kmCall(0x8051ac40, System::OnSceneEnter);

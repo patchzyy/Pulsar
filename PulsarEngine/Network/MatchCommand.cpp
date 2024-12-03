@@ -14,6 +14,15 @@ ResvPacket::ResvPacket(const DWC::Reservation& src) {
     pulInfo.statusData = mgr.ownStatusData;
     pulInfo.roomKey = system->GetInfo().GetKey();
     strncpy(pulInfo.modFolderName, system->GetModFolder(), IOS::ipcMaxFileName);
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
+        u32 value = 123456789;
+
+    // Split the value into the userInfo array
+    pulInfo.userInfo.info[0] = (value & 0xFF);           // First 8 bits
+    pulInfo.userInfo.info[1] = (value >> 8) & 0xFF;      // Next 8 bits
+    pulInfo.userInfo.info[2] = (value >> 16) & 0xFF;     // Next 8 bits
+    pulInfo.userInfo.info[3] = (value >> 24) & 0xFF;     // Last 8 bits
+    }
 }
 
 asmFunc MoveSize() { //needed to get datasize later
@@ -30,6 +39,7 @@ DWC::MatchCommand Process(DWC::MatchCommand type, const void* data, u32 dataSize
     const RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
     const bool isCustom = roomType == RKNet::ROOMTYPE_FROOM_NONHOST || roomType == RKNet::ROOMTYPE_FROOM_HOST
         || roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL;
+    const bool isReg = roomType == RKNet::ROOMTYPE_VS_WW || roomType == RKNet::ROOMTYPE_JOINING_WW;
 
     Pulsar::System* system = Pulsar::System::sInstance;
     Mgr& mgr = system->netMgr;
@@ -49,6 +59,31 @@ DWC::MatchCommand Process(DWC::MatchCommand type, const void* data, u32 dataSize
             if(packet->pulInfo.statusData != mgr.ownStatusData) {
                 denyType = DENY_TYPE_OTT;
                 type = DWC::MATCH_COMMAND_RESV_DENY;
+            }
+        }
+    }
+    
+    else if(type == DWC::MATCH_COMMAND_RESV_OK && isReg) {
+        const ResvPacket* packet = reinterpret_cast<const ResvPacket*>(data);
+
+        // Recombine the value from the userInfo array
+        u32 userInfoValue = (packet->pulInfo.userInfo.info[0]) | 
+                            (packet->pulInfo.userInfo.info[1] << 8) |
+                            (packet->pulInfo.userInfo.info[2] << 16) |
+                            (packet->pulInfo.userInfo.info[3] << 24);
+
+        if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
+            u32 expectedKey = 123456789;
+        if (userInfoValue != expectedKey) {  // Host denies the player if the key doesn't match
+            DenyType denyType = DENY_TYPE_BAD_PACK;
+            if(roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_VS_WW) mgr.deniesCount++;
+            type = DWC::MATCH_COMMAND_RESV_DENY;
+        }
+        else if(roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_VS_WW) {
+            if(packet->pulInfo.statusData != mgr.ownStatusData) {
+                denyType = DENY_TYPE_OTT;
+                type = DWC::MATCH_COMMAND_RESV_DENY;
+                }
             }
         }
     }
@@ -97,7 +132,8 @@ kmCall(0x800dc4a0, ProcessWrapper);
 void Send(DWC::MatchCommand type, u32 pid, u32 ip, u16 port, void* data, u32 dataSize) {
     const RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
     const bool isCustom = roomType == RKNet::ROOMTYPE_FROOM_NONHOST || roomType == RKNet::ROOMTYPE_FROOM_HOST
-        || roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL;
+        || roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL
+         || roomType == RKNet::ROOMTYPE_VS_WW || roomType == RKNet::ROOMTYPE_JOINING_WW;
     if(type == DWC::MATCH_COMMAND_RESERVATION && isCustom) {
         ResvPacket packet(*reinterpret_cast<const DWC::Reservation*>(data));
         System::sInstance->SetUserInfo(packet.pulInfo.userInfo);

@@ -19,7 +19,7 @@ void RaceEndPage::OnActivate() {
 void RaceEndPage::BeforeControlUpdate() {
     this->countdown.Update();
     this->countdownControl.AnimateCurrentCountDown();
-    if(this->duration == 10 * 60) this->OnButtonClick(this->buttons[0], 0);
+    this->OnButtonClick(this->buttons[0], 0);
 }
 
 int RaceEndPage::GetMessageBMG() const {

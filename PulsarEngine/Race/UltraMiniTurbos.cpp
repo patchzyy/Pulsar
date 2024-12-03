@@ -89,7 +89,7 @@ bool UpdateSpeedMultiplier(Kart::Boost& boost, bool* boostEnded) {
     asm(mr movement, r28;);
     const u8 id = movement->GetPlayerIdx();
     bool* state = umtState;
-    const float umtMultiplier = 1.32; //5% faster
+    const float umtMultiplier = 1.32; //10% faster
     const float insideDriftMultiplier = 1.224f; //2.5% faster
     const float defaultMTMultiplier = 1.2f;
 

@@ -129,8 +129,12 @@ void CupsConfig::SetWinning(PulsarId id, u32 variantIdx) {
 
 void CupsConfig::ToggleCTs(bool enabled) {
     u32 count;
-    if (!enabled) {
-        if (lastSelectedCup > 7) {
+    bool isRegs = REGS_DISABLED;
+    if(RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
+        isRegs = System::sInstance->IsContext(PULSAR_REGS) ? REGS_DISABLED : REGS_ENABLED;
+    }
+    if(isRegs == REGS_DISABLED) {
+        if(lastSelectedCup > 7) {
             hasRegs = true;
             selectedCourse = PULSARID_FIRSTREG;
             lastSelectedCup = PULSARCUPID_FIRSTREG; //CT cup -> regs
@@ -138,9 +142,14 @@ void CupsConfig::ToggleCTs(bool enabled) {
         }
         count = 0;
     }
+    else if(isRegs == REGS_ENABLED) {
+        count = definedCTsCupCount;
+        hasRegs = false;
+    }
     else {
         count = definedCTsCupCount;
-        hasRegs = regsMode > 0;
+        hasRegs = (RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_REGIONAL) &&
+                  (RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_JOINING_REGIONAL);
     }
     ctsCupCount = count;
 }

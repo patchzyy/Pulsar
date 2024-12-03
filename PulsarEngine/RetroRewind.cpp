@@ -80,7 +80,6 @@ BootHook GECKOLOADERDETECTION(GeckoLoader, 2);
 } // namespace RetroRewind
 
 namespace Visual {
-
 //Visual codes
 //HUD Color [Spaghetti Noppers]
 kmWrite32(0x80895CC0, 0x00FF00FD);
@@ -330,6 +329,10 @@ kmWrite16(0x8085C32A, 0x00007530);
 
 //Mushroom Glitch Fix [Leseratte]
 kmWrite8(0x807BA077, 0x00000000);
+
+//Allow WFC on Wiimmfi Patched ISOs
+kmWrite32(0x800EE3A0, 0x2C030000);
+kmWrite32(0x800ECAAC, 0x7C7E1B78);
 
 //Ultra Uncut [MrBean35000vr + Chadderz]
 asmFunc GetUltraUncut() {
