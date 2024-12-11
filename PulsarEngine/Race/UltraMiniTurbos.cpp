@@ -1,5 +1,6 @@
 #include <MarioKartWii/Kart/KartManager.hpp>
 #include <MarioKartWii/Race/RaceData.hpp>
+#include <MarioKartWii/RKNet/RKNetController.hpp>
 #include <Race/UltraMiniTurbos.hpp>
 #include <Sound/MiscSound.hpp>
 #include <PulsarSystem.hpp>
@@ -55,12 +56,16 @@ kmWrite32(0x80588928, 0x60000000); //removed fixed 270 write to mtCharge
 kmWrite32(0x80588938, 0x7c040378); //setup "charged" for next function
 kmWrite32(0x8058893c, 0x48000010); //takes MT charge check and parses it into SetBikeDriftTiers
 void SetBikeDriftTiers(Kart::MovementBike& movement, bool charged){
+    bool isSMT = true;
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
+        isSMT = false;
+    }
     if (charged){
         movement.driftState = 2;
         KartType type = movement.GetType();
         const s16 mtCharge = movement.mtCharge;
         const GameMode gameMode = Racedata::sInstance->racesScenario.settings.gamemode;
-        if (type == OUTSIDE_BIKE){
+        if (type == OUTSIDE_BIKE && isSMT == true){
             if (mtCharge >= 570) movement.driftState = 3;
         }
     }
@@ -180,7 +185,11 @@ void LoadOrangeSparkEffects(ExpPlayerEffects& effects, EGG::Effect** effectArray
     KartType type = effects.kartPlayer->GetType();
     const u32 mtCharge = effects.kartPlayer->pointers.kartMovement->mtCharge;
     const GameMode gameMode = Racedata::sInstance->racesScenario.settings.gamemode;
-    if(mtCharge >= 570 && type == OUTSIDE_BIKE) {
+    bool isSMT = true;
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
+        isSMT = false;
+    }
+    if(mtCharge >= 570 && type == OUTSIDE_BIKE && isSMT == true) {
         effects.CreateAndUpdateEffectsByIdx(effects.rk_orangeMT, 0, 2, playerMat2, wheelPos, updateScale);
         effects.FollowFadeEffectsByIdx(effectArray, firstEffectIndex, lastEffectIndex, playerMat2, wheelPos, updateScale);
     }

@@ -129,9 +129,12 @@ void CupsConfig::SetWinning(PulsarId id, u32 variantIdx) {
 
 void CupsConfig::ToggleCTs(bool enabled) {
     u32 count;
-    bool isRegs = REGS_DISABLED;
+    bool isRegs = REGS_ENABLED;
     if(RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
         isRegs = System::sInstance->IsContext(PULSAR_REGS) ? REGS_DISABLED : REGS_ENABLED;
+    }
+    if(RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
+        isRegs = REGS_DISABLED;
     }
     if(isRegs == REGS_DISABLED) {
         if(lastSelectedCup > 7) {
@@ -253,21 +256,6 @@ PulsarId CupsConfig::ConvertTrack_IdxToPulsarId(u32 idx) const {
     }
     else if (idx > 31) idx += 0x100 - 32;
     return static_cast<PulsarId>(idx);
-}
-
-
-bool CupsConfig::IsRegsSituation() {
-    const RKNet::Controller* rkNet = RKNet::Controller::sInstance;
-    if(rkNet->connectionState == RKNet::CONNECTIONSTATE_SHUTDOWN) return false;
-    switch(rkNet->roomType) {
-        case(RKNet::ROOMTYPE_VS_REGIONAL):
-        case(RKNet::ROOMTYPE_JOINING_REGIONAL):
-        case(RKNet::ROOMTYPE_BT_REGIONAL):
-        case(RKNet::ROOMTYPE_FROOM_HOST):
-        case(RKNet::ROOMTYPE_FROOM_NONHOST):
-        case(RKNet::ROOMTYPE_NONE): return false;
-        default: return true;
-    }
 }
 
 

@@ -228,6 +228,8 @@ static void SELECTStageMgrBeforeControlUpdate(Pages::SELECTStageMgr* stageMgr) {
 
 kmWritePointer(0x808C06E4, SELECTStageMgrBeforeControlUpdate);
 
+static int frameCounter = 0;
+
 static void PreventVoteChangeSection(Pages::Vote& vote, SectionId id, float delay) {
     System* system = System::sInstance;
     system->ottVoteState = COMBO_NONE;
@@ -254,6 +256,15 @@ static void PreventVoteChangeSection(Pages::Vote& vote, SectionId id, float dela
                 page->AddPageLayer(PAGE_CHARACTER_SELECT, 0);
             }
             vote.EndStateAnimated(0, delay);
+
+            // Increment frame counter and check if it has reached 600
+            frameCounter++;
+            if (frameCounter >= 600) {
+                handler.toSendPacket.allowChangeComboStatus = Network::SELECT_COMBO_SELECTED;
+                system->ottVoteState = COMBO_SELECTED;
+                frameCounter = 0; // Reset the counter after selecting the combo
+            }
+
             return;
         }
     }

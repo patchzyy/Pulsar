@@ -45,7 +45,7 @@ private:
     void OnButtonClick(PushButton& button, u32 hudSlotId); //8055a0f4
 
 public:
-    // SectionId ProcessHAW(SectionId defaultId);
+    SectionId ProcessHAW(SectionId defaultId);
     PageId GetPageAfterWifiResults(PageId defaultId) const;
 
 

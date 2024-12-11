@@ -40,7 +40,9 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
         const u8 bikeRestrict = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_KARTSELECT) == KART_BIKEONLY;
         const u8 itemModeRandom = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_ITEMMODE) == GAMEMODE_RANDOM;
         const u8 itemModeBlast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_ITEMMODE) == GAMEMODE_BLAST;
+        const u8 itemModeNone = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_ITEMMODE) == GAMEMODE_NONE;
         const u8 RegOnly = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR2, SETTINGRR2_RADIO_REGS);
+        const u8 koFinal = settings.GetSettingValue(Settings::SETTINGSTYPE_KO, SETTINGKO_FINAL) == KOSETTING_FINAL_ALWAYS;
 
         destPacket->hostSystemContext |= (ottOnline != OTTSETTING_OFFLINE_DISABLED) << PULSAR_MODE_OTT // ott
             | (ottOnline == OTTSETTING_ONLINE_FEATHER) << PULSAR_FEATHER // ott feather
@@ -54,6 +56,8 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
             | bikeRestrict << PULSAR_BIKERESTRICT
             | itemModeRandom << PULSAR_ITEMMODERANDOM
             | itemModeBlast << PULSAR_ITEMMODEBLAST
+            | itemModeNone << PULSAR_ITEMMODENONE
+            | koFinal << PULSAR_KOFINAL
             | settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR2, SETTINGRR2_RADIO_THUNDERCLOUD) << PULSAR_THUNDERCLOUD
             | settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_CC) << PULSAR_500
             | settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_HOSTWINS) << PULSAR_HAW

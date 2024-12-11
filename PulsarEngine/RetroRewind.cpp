@@ -327,7 +327,7 @@ kmWrite16(0x808565C2, 0x00007530);
 kmWrite16(0x8085C322, 0x00007530);
 kmWrite16(0x8085C32A, 0x00007530);
 
-//Mushroom Glitch Fix [Leseratte]
+//Mushroom Glitch Fix [Vabold]
 kmWrite8(0x807BA077, 0x00000000);
 
 //Allow WFC on Wiimmfi Patched ISOs

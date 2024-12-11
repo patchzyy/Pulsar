@@ -224,75 +224,75 @@ void ChooseNextTrack::UpdateRH1() {
     }
 }
 
-// SectionId ChooseNextTrack::ProcessHAW(SectionId defaultId) {
+SectionId ChooseNextTrack::ProcessHAW(SectionId defaultId) {
 
-//     SectionId ret = defaultId;
-//     const SectionMgr* sectionMgr = SectionMgr::sInstance;
+    SectionId ret = defaultId;
+    const SectionMgr* sectionMgr = SectionMgr::sInstance;
 
-//     //Process Received Packets:
-//     RKNet::Controller* controller = RKNet::Controller::sInstance;
-//     RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
+    //Process Received Packets:
+    RKNet::Controller* controller = RKNet::Controller::sInstance;
+    RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
 
-//     bool hasReceivedEveryone = true;
-//     bool isEveryoneWaiting = true;
-//     bool isEveryoneInRace = true;
+    bool hasReceivedEveryone = true;
+    bool isEveryoneWaiting = true;
+    bool isEveryoneInRace = true;
 
-//     for(int aid = 0; aid < 12; ++aid) {
-//         if((1 << aid & sub.availableAids) == 0) continue;
-//         if(aid == sub.localAid) continue;
-//         const u32 lastBufferUsed = controller->lastReceivedBufferUsed[aid][RKNet::PACKET_RACEHEADER1];
-//         const RKNet::PacketHolder<Network::PulRH1>* holder = controller->splitReceivedRACEPackets[lastBufferUsed][aid]->GetPacketHolder<Network::PulRH1>();
+    for(int aid = 0; aid < 12; ++aid) {
+        if((1 << aid & sub.availableAids) == 0) continue;
+        if(aid == sub.localAid) continue;
+        const u32 lastBufferUsed = controller->lastReceivedBufferUsed[aid][RKNet::PACKET_RACEHEADER1];
+        const RKNet::PacketHolder<Network::PulRH1>* holder = controller->splitReceivedRACEPackets[lastBufferUsed][aid]->GetPacketHolder<Network::PulRH1>();
 
-//         if(holder->packetSize == sizeof(Network::PulRH1)) {
-//             const Network::PulRH1* rh1 = holder->packet;
-//             if(aid == sub.hostAid) {
-//                 if(rh1->chooseNextStatus == STATUS_TRACK) {
-//                     this->status = STATUS_TRACK;
-//                     CupsConfig* cupsConfig = CupsConfig::sInstance;
-//                     cupsConfig->SetWinning(static_cast<PulsarId>(rh1->nextTrack), rh1->variantIdx);
-//                     //cupsConfig->selectedCourse = cupsConfig->winningCourse;
-//                     Racedata::sInstance->menusScenario.settings.courseId = cupsConfig->GetCorrectTrackSlot();
-//                 }
-//                 else if(rh1->chooseNextStatus == STATUS_HOST_START) {
-//                     this->status = STATUS_RH1_READY;
-//                 }
-//             }
+        if(holder->packetSize == sizeof(Network::PulRH1)) {
+            const Network::PulRH1* rh1 = holder->packet;
+            if(aid == sub.hostAid) {
+                if(rh1->chooseNextStatus == STATUS_TRACK) {
+                    this->status = STATUS_TRACK;
+                    CupsConfig* cupsConfig = CupsConfig::sInstance;
+                    cupsConfig->SetWinning(static_cast<PulsarId>(rh1->nextTrack), rh1->variantIdx);
+                    //cupsConfig->selectedCourse = cupsConfig->winningCourse;
+                    Racedata::sInstance->menusScenario.settings.courseId = cupsConfig->GetCorrectTrackSlot();
+                }
+                else if(rh1->chooseNextStatus == STATUS_HOST_START) {
+                    this->status = STATUS_RH1_READY;
+                }
+            }
 
-//             if(this->isHost) {
-//                 if(rh1->chooseNextStatus < STATUS_TRACK) hasReceivedEveryone = false;
-//                 else if(rh1->timer != 0) isEveryoneInRace = false;
-//             }
-//         }
-//     }
+            if(this->isHost) {
+                if(rh1->chooseNextStatus < STATUS_TRACK) hasReceivedEveryone = false;
+                else if(rh1->timer != 0) isEveryoneInRace = false;
+            }
+        }
+    }
 
-//     if(this->isHost) {
-//         if(hasReceivedEveryone && this->status == STATUS_TRACK) {
-//             this->status = STATUS_HOST_START;
-//         }
-//         if(isEveryoneInRace && this->status == STATUS_HOST_START) {
-//             this->status = STATUS_RH1_READY;
-//         }
-//     }
-//     if(this->status == STATUS_RH1_READY) {
-//         ret = sectionMgr->curSection->sectionId;
-//     }
-//     else {
-//         ret = SECTION_NONE;
-//         this->UpdateRH1();
-//     }
-//     return ret;
-// }
+    if(this->isHost) {
+        if(hasReceivedEveryone && this->status == STATUS_TRACK) {
+            this->status = STATUS_HOST_START;
+        }
+        if(isEveryoneInRace && this->status == STATUS_HOST_START) {
+            this->status = STATUS_RH1_READY;
+        }
+    }
+    if(this->status == STATUS_RH1_READY) {
+        ret = sectionMgr->curSection->sectionId;
+    }
+    else {
+        ret = SECTION_NONE;
+        this->UpdateRH1();
+    }
+    return ret;
+}
 
-// PageId ChooseNextTrack::GetPageAfterWifiResults(PageId defaultId) const {
-//     PageId ret = defaultId;
-//     if(this->isHost) {
-//         const SectionParams* params = SectionMgr::sInstance->sectionParams;
-//         if(System::sInstance->IsContext(PULSAR_MODE_KO)
-//             || this->isBattle && params->redWins < 2 && params->blueWins < 2
-//             || !this->isBattle && params->onlineParams.currentRaceNumber != System::sInstance->netMgr.racesPerGP) ret = static_cast<PageId>(ChooseNextTrack::id);
-//     }
-//     return ret;
-// }
+PageId ChooseNextTrack::GetPageAfterWifiResults(PageId defaultId) const {
+    PageId ret = defaultId;
+    if(this->isHost) {
+        const SectionParams* params = SectionMgr::sInstance->sectionParams;
+        if(System::sInstance->IsContext(PULSAR_MODE_KO)
+            || this->isBattle && params->redWins < 2 && params->blueWins < 2
+            || !this->isBattle && params->onlineParams.currentRaceNumber != System::sInstance->netMgr.racesPerGP) ret = static_cast<PageId>(ChooseNextTrack::id);
+    }
+    return ret;
+}
 
 }//namespace UI
 }//namespace Pulsar

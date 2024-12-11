@@ -32,6 +32,7 @@ kmWrite32(0x80635058, 0x60000000);
 
 void ExpSection::CreatePages(ExpSection& self, SectionId id) {
     const System* system = System::sInstance;
+    // self.hasAutoVote = (id >= SECTION_P1_WIFI_FROOM_VS_VOTING && id <= SECTION_P2_WIFI_FROOM_COIN_VOTING) && system->IsContext(PULSAR_HAW); //can't think of a better way to do this awkward thing, where the usual pages are NOT built
     if(!self.hasAutoVote) self.CreateSectionPages(id);
     memset(&self.pulPages, 0, sizeof(Page*) * PULPAGE_MAX);
     self.CreatePulPages();

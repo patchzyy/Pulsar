@@ -1,7 +1,6 @@
 #include <kamek.hpp>
 #include <PulsarSystem.hpp>
 #include <IO/RiivoIO.hpp>
-#include <Debug/Debug.hpp>
 
 namespace Pulsar {
 
@@ -15,19 +14,8 @@ bool RiivoIO::CreateAndOpen(const char* path, u32 mode) {
     const s32 riivo_fd = this->GetDevice_fd();
     IOS::IOCtl(riivo_fd, static_cast<IOS::IOCtlType>(RIIVO_IOCTL_CREATEFILE), (void*)path, strlen(path) + 1, nullptr, 0);
     IOS::Close(riivo_fd);
-
-    // Open in write mode, then seek to the end if appending
-    if (RiivoIO::OpenFile(path, FILE_MODE_WRITE)) {
-        if (mode == FILE_MODE_APPEND) {
-            IOS::Seek(this->fd, 0, IOS::SEEK_END);  // Seek to end for appending
-        }
-        return true;
-    }
-    
-    return false;
+    return RiivoIO::OpenFile(path, mode);
 }
-
-
 
 void RiivoIO::GetCorrectPath(char* realPath, const char* path) const {
     snprintf(realPath, IOS::ipcMaxPath, "%s%s", "file", path);

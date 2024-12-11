@@ -1,51 +1,23 @@
 #include <kamek.hpp>
 #include <IO/NANDIO.hpp>
-#include <Debug/Debug.hpp>
-#include <IO/Logger.hpp>
 
 namespace Pulsar {
 
 //Virtual Funcs
 bool NANDIO::CreateAndOpen(const char* path, u32 mode) {
     this->GetCorrectPath(this->filePath, path);
-    
-    // Open in regular write mode but seek to the end if we're in append mode
-    if (mode == FILE_MODE_APPEND) {
-        ISFS::CreateFile(this->filePath, 0, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE);
-        if (this->OpenFileDirectly(this->filePath, FILE_MODE_WRITE)) {
-            IOS::Seek(this->fd, 0, IOS::SEEK_END);  // Move to end for appending
-            return true;
-        }
-    } else {
-        return this->OpenFileDirectly(this->filePath, mode);
-    }
-    
-    return false;
+    ISFS::CreateFile(this->filePath, 0, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE);
+    return this->OpenFileDirectly(this->filePath, mode);
 }
-
 
 bool NANDIO::OpenFile(const char* path, u32 mode) {
     this->GetCorrectPath(this->filePath, path);
-    if (!OpenFileDirectly(this->filePath, mode)) {
-        char errorMessage[256];
-        snprintf(errorMessage, sizeof(errorMessage), "NANDIO::OpenFile - Failed to open file at path, this does not mean it caused a crash, it just means its not found '%s'.", this->filePath);
-        Logger::GetInstance().LogError(errorMessage);
-        return false;
-    }
-    
-    return true;
+    return this->OpenFileDirectly(this->filePath, mode);
 }
 
 void NANDIO::GetCorrectPath(char* realPath, const char* path) const {
-    int requiredLength = snprintf(realPath, IOS::ipcMaxPath, "%s%s", "/shared2/Pulsar", path);
-
-    if (requiredLength < 0 || requiredLength >= IOS::ipcMaxPath) {
-        char errorMessage[256];
-        snprintf(errorMessage, sizeof(errorMessage),
-                 "NANDIO::GetCorrectPath - Path exceeds maximum length: '%s%s'.", 
-                 "/shared2/Pulsar", path);
-        Debug::FatalError(errorMessage);
-    }
+    snprintf(realPath, IOS::ipcMaxPath, "%s%s", "/shared2/Pulsar", path);
+    //nand::GenerateAbsPath(realPath, path);
 }
 
 //FOLDER
@@ -58,29 +30,16 @@ bool NANDIO::FolderExists(const char* path) const {
 }
 
 bool NANDIO::CreateFolder(const char* path) {
-    if (type != IOType_ISO) {
+    if(type != IOType_ISO) {
         this->Bind(path);
         char realPath[IOS::ipcMaxPath];
         this->GetCorrectPath(realPath, path);
-
         s32 error = ISFS::CreateDir(realPath, 0, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE);
-        
-        // Check if folder creation was successful or if the folder already exists
-        if (error >= 0 || error == ISFS::ERROR_FILE_EXISTS) {
-            return true;
-        }
-
-        // Handle specific error case with Debug::FatalError
-        char errorMessage[512];
-        snprintf(errorMessage, sizeof(errorMessage), 
-                 "NANDIO::CreateFolder - Failed to create folder at path '%s'. Error code: %d", 
-                 realPath, error);
-        Debug::FatalError(errorMessage);
+        return error >= 0 || error == ISFS::ERROR_FILE_EXISTS;
     }
-
-    // Return false if the type is IOType_ISO or if an error occurred
     return false;
 }
+
 void NANDIO::ReadFolder(const char* path) {
     this->Bind(path);
     char realPath[IOS::ipcMaxPath];

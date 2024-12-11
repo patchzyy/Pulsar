@@ -352,7 +352,3 @@ int SettingsPanel::GetNextBMGOffset(s32 direction) {
 
 }//namespace UI
 }//namespace Pulsar
-
-
-
-

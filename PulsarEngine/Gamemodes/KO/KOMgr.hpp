@@ -101,6 +101,7 @@ private:
     bool wouldBeOut[12];
 public:
     //Settings:
+    bool isTiebreakerRace;
     u8 racesPerKO;
     u8 koPerRace;
     bool alwaysFinal;

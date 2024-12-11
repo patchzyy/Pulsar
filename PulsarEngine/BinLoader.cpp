@@ -4,17 +4,21 @@
 
 namespace RetroRewind {
 void *GetCustomKartParam(ArchiveMgr *archive, ArchiveSource type, const char *name, u32 *length){
-    if (static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_TRANSMISSION)) == Pulsar::TRANSMISSION_INSIDEALL)
-    {
-        name="kartParamAll.bin";
-    }
-    else if (static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_TRANSMISSION)) == Pulsar::TRANSMISSION_INSIDEBIKE)
-    {
-        name="kartParamBike.bin";
-    }
-    else if (static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_TRANSMISSION)) == Pulsar::TRANSMISSION_OUTSIDE)
-    {
-        name="kartParamOut.bin";
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
+        name = "kartParam.bin";
+    } else {
+        if (static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_TRANSMISSION)) == Pulsar::TRANSMISSION_INSIDEALL)
+        {
+            name="kartParamAll.bin";
+        }
+        else if (static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_TRANSMISSION)) == Pulsar::TRANSMISSION_INSIDEBIKE)
+        {
+            name="kartParamBike.bin";
+        }
+        else if (static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_TRANSMISSION)) == Pulsar::TRANSMISSION_OUTSIDE)
+        {
+            name="kartParamOut.bin";
+        }
     }
     return archive->GetFile(type, name, length);
 }
@@ -36,17 +40,22 @@ void *GetCustomItemSlot(ArchiveMgr *archive, ArchiveSource type, const char *nam
     const GameMode mode = scenario.settings.gamemode;
     bool itemModeRandom = Pulsar::GAMEMODE_DEFAULT;
     bool itemModeBlast = Pulsar::GAMEMODE_DEFAULT;
+    bool itemModeNone = Pulsar::GAMEMODE_DEFAULT;
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || mode == MODE_VS_RACE || mode == MODE_BATTLE) {
         itemModeRandom = System::sInstance->IsContext(Pulsar::PULSAR_ITEMMODERANDOM) ? Pulsar::GAMEMODE_RANDOM : Pulsar::GAMEMODE_DEFAULT;
         itemModeBlast = System::sInstance->IsContext(Pulsar::PULSAR_ITEMMODEBLAST) ? Pulsar::GAMEMODE_BLAST : Pulsar::GAMEMODE_DEFAULT;
+        itemModeNone = System::sInstance->IsContext(Pulsar::PULSAR_ITEMMODENONE) ? Pulsar::GAMEMODE_NONE : Pulsar::GAMEMODE_DEFAULT;
     }
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
-        itemModeRandom = Pulsar::GAMEMODE_NONE;
-        itemModeBlast = Pulsar::GAMEMODE_NONE;
+        itemModeNone = Pulsar::GAMEMODE_NONE;
     }
     if (itemModeRandom == Pulsar::GAMEMODE_DEFAULT || itemModeBlast == Pulsar::GAMEMODE_DEFAULT)
     {
         name="ItemSlotRR.bin";
+    }
+    if (itemModeNone == Pulsar::GAMEMODE_NONE)
+    {
+        name="ItemSlot.bin";
     }
     if (itemModeRandom == Pulsar::GAMEMODE_RANDOM)
     {
