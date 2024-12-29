@@ -4,6 +4,7 @@
 #include <Network/MatchCommand.hpp>
 #include <MarioKartWii/UI/Page/Menu/KartSelect.hpp>
 
+//Origial code from VP, adapted to Pulsar 2.0
 namespace RetroRewind {
 namespace UI {
 

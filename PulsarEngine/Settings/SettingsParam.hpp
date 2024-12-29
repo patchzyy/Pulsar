@@ -82,7 +82,7 @@ enum KOSettings {
     SETTINGKO_RACESPERKO = 1 + 6
 };
 
-enum ExtraRRettings {
+enum RRettings {
     SETTINGRR_RADIO_TRANSMISSION = 0,
     SETTINGRR_RADIO_HARDAI = 1,
     SETTINGRR_RADIO_KARTSELECT = 2,

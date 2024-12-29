@@ -35,7 +35,7 @@ static void EditLdb(CtrlRaceResult* result, u8 playerId) {
             }
             else {
                 bmgId = UI::BMG_KO_TIE;
-                color = 0x0000ffc0;
+                color = 0xff00f0c0;
             }
             result->SetTextBoxMessage("player_name", bmgId);
             result->animator.GetAnimationGroupById(4).PlayAnimationAtFrame(6, 0.0f);

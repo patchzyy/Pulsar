@@ -78,7 +78,7 @@ inline int CupsConfig::GetCorrectMusicSlot() const {
 
 int CupsConfig::GetCRC32(PulsarId pulsarId) const {
     if (IsReg(pulsarId)) return RegsCRC32[pulsarId];
-    else return this->cur.crc32;
+    else return this->GetTrack(pulsarId).crc32;
 }
 
 void CupsConfig::GetTrackGhostFolder(char* dest, PulsarId pulsarId) const {

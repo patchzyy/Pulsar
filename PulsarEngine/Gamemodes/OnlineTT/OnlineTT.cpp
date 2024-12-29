@@ -157,14 +157,14 @@ static void EnableOpacityFunctionality(EGG::ScnRenderer& renderer, u32 enabledEf
 }
 kmCall(0x805b15e0, EnableOpacityFunctionality);
 
-static UnkType PreventBurnOuts(Kart::Status& status, s32 startBoostIdx) {
-    if(startBoostIdx == -1 && System::sInstance->IsContext(PULSAR_MODE_OTT)) {
-        startBoostIdx = 1;
-        status.startBoostIdx = 1;
-    }
-    return status.ApplyStartBoost(startBoostIdx);
-}
-kmCall(0x80595ad4, PreventBurnOuts);
+// static UnkType PreventBurnOuts(Kart::Status& status, s32 startBoostIdx) {
+//     if(startBoostIdx == -1 && System::sInstance->IsContext(PULSAR_MODE_OTT)) {
+//         startBoostIdx = 1;
+//         status.startBoostIdx = 1;
+//     }
+//     return status.ApplyStartBoost(startBoostIdx);
+// }
+// kmCall(0x80595ad4, PreventBurnOuts);
 
 static void SELECTStageMgrBeforeControlUpdate(Pages::SELECTStageMgr* stageMgr) {
     System* system = System::sInstance;

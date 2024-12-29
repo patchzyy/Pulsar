@@ -1885,6 +1885,7 @@ sprintf = 0x80011a2c
 
 WWFC_CUSTOM_REGION = 0x80005efc
 FPSPatchHook = 0x80001202
+ItemBoxHook = 0x80001204
 DolphinCheat= 0x80001804
 MainDolCheat= 0x800018a8
 AntiCheat1= 0x800023D0

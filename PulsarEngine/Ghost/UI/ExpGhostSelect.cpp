@@ -44,8 +44,9 @@ void ExpGhostSelect::OnInit() {
     this->AddControl(0xA, this->selectGhostButton, 0);
     this->selectGhostButton.Load(1, UI::buttonFolder, "SelectGhost", "SelectGhost"); //check multighost
     this->selectGhostButton.SetOnClickHandler(this->onSelectGhostChangeHandler, 0);
-    this->manipulatorManager.SetGlobalHandler(START_PRESS, onStartPressHandler, false, false);
+    //this->manipulatorManager.SetGlobalHandler(START_PRESS, onStartPressHandler, false, false);
     this->AddControl(0xB, this->favGhost, 0);
+    this->favGhost.isHidden = true;
     ControlLoader loader(&this->favGhost);
     loader.Load(UI::controlFolder, "PULInstruction", "OTTGhost", nullptr);
     this->Reset();

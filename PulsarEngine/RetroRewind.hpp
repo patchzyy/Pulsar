@@ -5,6 +5,7 @@
 #include <MarioKartWii/System/Identifiers.hpp>
 
 extern u32 FPSPatchHook;
+extern u32 ItemBoxHook;
 extern u32 DolphinCheat;
 extern u32 MainDolCheat;
 extern u32 AntiCheat1;

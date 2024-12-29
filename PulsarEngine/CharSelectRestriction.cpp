@@ -4,6 +4,7 @@
 #include <MarioKartWii/GlobalFunctions.hpp>
 #include <MarioKartWii/RKNet/RKNetController.hpp>
 
+//Origial code from VP, adapted to Pulsar 2.0
 namespace RetroRewind {
 namespace UI {
     // Uses the global function to get the character ID of the local player's Mii to determine its weight class. Credits to Brawlbox for the code.
@@ -85,7 +86,7 @@ namespace UI {
             }
         }
 
-        // Disables the Miis in Local 2P no matter what.
+        // Disables the Miis in Local 2P.
         if (curSection == SECTION_P2_WIFI ||
             curSection == SECTION_P2_WIFI_FROOM_VS_VOTING ||
             curSection == SECTION_P2_WIFI_FROOM_TEAMVS_VOTING ||

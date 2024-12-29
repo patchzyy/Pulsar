@@ -4,6 +4,7 @@
 #include <RetroRewind.hpp>
 #include <MarioKartWii/RKNet/RKNetController.hpp>
 
+//Origial code from VP, adapted to Pulsar 2.0
 namespace RetroRewind {
 namespace Race {
     static void ChangeBlueOBJProperties(Item::ObjProperties* dest, const Item::ObjProperties& rel) {
