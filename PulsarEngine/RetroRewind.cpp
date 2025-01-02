@@ -90,6 +90,34 @@ void ItemBoxPatch() {
 }
 static PageLoadHook PatchItemBox(ItemBoxPatch);
 
+//No Disconnect from being Idle [Bully]
+asmFunc GetNoDC() {
+    ASM(
+loc_0x0:
+  addi      r0, r3, 1;
+  lis       r12, 0x8000;
+  lbz       r12, 0x1208(r12);
+  cmpwi     r12, 0;
+  beq       end;
+  li        r0, 0;
+
+end:
+  blr;
+    )
+}
+kmCall(0x80521408, GetNoDC);
+kmCall(0x8053EF6C, GetNoDC);
+kmCall(0x8053F0B4, GetNoDC);
+kmCall(0x8053F124, GetNoDC);
+
+void NoDCPatch() {
+  DCHook = 0x00;
+  if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST) {
+    DCHook = 0x00FF0100;
+  }
+}
+static PageLoadHook PatchNoDC(NoDCPatch);
+
 //Simple Cheat code crash [Cats4Life]
 void CodeCrash() {
     if(DolphinCheat == 0x00000001) Pulsar::Debug::FatalError("Please disable all cheat codes.");

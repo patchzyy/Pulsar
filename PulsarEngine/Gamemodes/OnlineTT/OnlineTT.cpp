@@ -169,7 +169,7 @@ kmCall(0x805b15e0, EnableOpacityFunctionality);
 static void SELECTStageMgrBeforeControlUpdate(Pages::SELECTStageMgr* stageMgr) {
     System* system = System::sInstance;
     const Pages::SELECTStageMgr::Status old = stageMgr->status;
-    if(system->ottVoteState != COMBO_NONE) stageMgr->status = Pages::SELECTStageMgr::STATUS_VR_PAGE; //so that the countdown shows
+    if(system->ottMgr.voteState != COMBO_NONE) stageMgr->status = Pages::SELECTStageMgr::STATUS_VR_PAGE; //so that the countdown shows
     stageMgr->Pages::SELECTStageMgr::BeforeControlUpdate();
     stageMgr->status = old;
 
@@ -186,41 +186,45 @@ static void SELECTStageMgrBeforeControlUpdate(Pages::SELECTStageMgr* stageMgr) {
         if(hostSelect->allowChangeComboStatus > 0) {
             bool hasReceivedEveryone = true;
             bool isEveryoneWaiting = true;
-            bool isEveryoneInRace = true;
+            //bool isEveryoneInRace = true;
 
-            for(int i = 0; i < 12; ++i) {
-                if((1 << i & sub.availableAids) == 0) continue;
-                if(i == localAid) continue;
-                if(system->ottVoteState == COMBO_SELECTED) {
-                    if(handler.receivedPackets[i].allowChangeComboStatus < Network::SELECT_COMBO_SELECTED) hasReceivedEveryone = false;
+            for(int aid = 0; aid < 12; ++aid) {
+                u32 bit = 1 << aid;
+                if((bit & sub.availableAids) == 0) continue;
+                if(aid == localAid) continue;
+                if(bit & handler.hasNewRACEHEADER_1) system->ottMgr.aidsInRace |= bit;
+                if(system->ottMgr.voteState == COMBO_SELECTED) {
+                    if(handler.receivedPackets[aid].allowChangeComboStatus < Network::SELECT_COMBO_SELECTED) hasReceivedEveryone = false;
                 }
                 if(hostAid == localAid) {
-                    if(system->ottVoteState == WAITING_FOR_START) {
-                        if(handler.receivedPackets[i].allowChangeComboStatus < Network::SELECT_COMBO_WAITING_FOR_START) isEveryoneWaiting = false;
+                    if(system->ottMgr.voteState == WAITING_FOR_START) {
+                        if(handler.receivedPackets[aid].allowChangeComboStatus < Network::SELECT_COMBO_WAITING_FOR_START) isEveryoneWaiting = false;
                     }
-                    else if(system->ottVoteState == HOST_START) {
-                        if(Network::GetLastRecvSECTIONSize(i, Network::PulSELECT::idx) != 0) isEveryoneInRace = false;
+                    /*
+                    else if(system->ottMgr.voteState == HOST_START) {
+                        if(Network::GetLastRecvSECTIONSize(aid, Network::PulRH1::idx) == 0) isEveryoneInRace = false;
                     }
+                    */
                 }
             }
 
-            if(hasReceivedEveryone && system->ottVoteState == COMBO_SELECTED) {
-                system->ottVoteState = WAITING_FOR_START;
+            if(hasReceivedEveryone && system->ottMgr.voteState == COMBO_SELECTED) {
+                system->ottMgr.voteState = WAITING_FOR_START;
                 handler.toSendPacket.allowChangeComboStatus = Network::SELECT_COMBO_WAITING_FOR_START;
             }
             if(hostAid == sub.localAid) {
-                if(isEveryoneWaiting && system->ottVoteState == WAITING_FOR_START) {
-                    system->ottVoteState = HOST_START;
+                if(isEveryoneWaiting && system->ottMgr.voteState == WAITING_FOR_START) {
+                    system->ottMgr.voteState = HOST_START;
                     handler.toSendPacket.allowChangeComboStatus = Network::SELECT_COMBO_HOST_START;
                 }
-                if(isEveryoneInRace && system->ottVoteState == HOST_START) system->ottVoteState = SELECT_READY;
+                if((system->ottMgr.aidsInRace | (1 << sub.localAid)) == sub.availableAids && system->ottMgr.voteState == HOST_START) system->ottMgr.voteState = SELECT_READY;
             }
-            else if(hostSelect->allowChangeComboStatus == Network::SELECT_COMBO_HOST_START) system->ottVoteState = SELECT_READY;
+            else if(hostSelect->allowChangeComboStatus == Network::SELECT_COMBO_HOST_START) system->ottMgr.voteState = SELECT_READY;
         }
 
-        if(system->ottVoteState == SELECT_READY) {
-            const SectionId id = static_cast<SectionId>(SectionMgr::sInstance->curSection->sectionId + 0x10);
+        if(system->ottMgr.voteState == SELECT_READY) {
             stageMgr->PrepareRace();
+            const SectionId id = static_cast<SectionId>(SectionMgr::sInstance->curSection->sectionId + 0x10);
             stageMgr->ChangeSectionBySceneChange(id, 0, 0.0f);
         }
     }
@@ -228,11 +232,9 @@ static void SELECTStageMgrBeforeControlUpdate(Pages::SELECTStageMgr* stageMgr) {
 
 kmWritePointer(0x808C06E4, SELECTStageMgrBeforeControlUpdate);
 
-static int frameCounter = 0;
-
 static void PreventVoteChangeSection(Pages::Vote& vote, SectionId id, float delay) {
     System* system = System::sInstance;
-    system->ottVoteState = COMBO_NONE;
+    system->ottMgr.Reset();
     if(system->IsContext(PULSAR_MODE_OTT)) {
         RKNet::Controller* controller = RKNet::Controller::sInstance;
         RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
@@ -248,23 +250,14 @@ static void PreventVoteChangeSection(Pages::Vote& vote, SectionId id, float dela
             page->timerControl.Reset();
             if(system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating) {
                 handler.toSendPacket.allowChangeComboStatus = Network::SELECT_COMBO_SELECTED;
-                system->ottVoteState = COMBO_SELECTED;
+                system->ottMgr.voteState = COMBO_SELECTED;
             }
             else {
-                system->ottVoteState = COMBO_SELECTION;
+                system->ottMgr.voteState = COMBO_SELECTION;
                 handler.toSendPacket.allowChangeComboStatus = Network::SELECT_COMBO_SELECTING;
                 page->AddPageLayer(PAGE_CHARACTER_SELECT, 0);
             }
             vote.EndStateAnimated(0, delay);
-
-            // Increment frame counter and check if it has reached 600
-            frameCounter++;
-            if (frameCounter >= 600) {
-                handler.toSendPacket.allowChangeComboStatus = Network::SELECT_COMBO_SELECTED;
-                system->ottVoteState = COMBO_SELECTED;
-                frameCounter = 0; // Reset the counter after selecting the combo
-            }
-
             return;
         }
     }
@@ -274,8 +267,8 @@ kmCall(0x80643da0, PreventVoteChangeSection);
 
 static void FixAfterDrift(Pages::Menu& menu, PageId id, PushButton& button) { //menu is either drift or multidrift
     System* system = System::sInstance;
-    if(system->ottVoteState == COMBO_SELECTION) {
-        system->ottVoteState = COMBO_SELECTED;
+    if(system->ottMgr.voteState == COMBO_SELECTION) {
+        system->ottMgr.voteState = COMBO_SELECTED;
         Network::ExpSELECTHandler& handler = Network::ExpSELECTHandler::Get();
         handler.toSendPacket.playersData[0].character = SectionMgr::sInstance->sectionParams->characters[0];
         handler.toSendPacket.playersData[0].kart = SectionMgr::sInstance->sectionParams->karts[0];

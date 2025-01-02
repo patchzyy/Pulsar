@@ -98,7 +98,7 @@ bool UpdateSpeedMultiplier(Kart::Boost& boost, bool* boostEnded) {
     const float insideDriftMultiplier = 1.224f; //2.5% faster
     const float defaultMTMultiplier = 1.2f;
 
-    if (static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetSettingValue(static_cast<Pulsar::Settings::Type>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_TRANSMISSION)) == Pulsar::TRANSMISSION_INSIDEALL) {
+    if (static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_TRANSMISSION)) == Pulsar::TRANSMISSION_INSIDEALL) {
         if (!isBoosting) state[id] = false;
         if (boost.multiplier == defaultMTMultiplier || boost.multiplier == insideDriftMultiplier) {
             if (state[id]) boost.multiplier = insideDriftMultiplier;

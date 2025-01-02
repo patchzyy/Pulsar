@@ -38,8 +38,8 @@ void LoadCorrectPageAfterMultiDrift(Pages::MultiDriftSelect* page, u32 animDirec
     page->EndStateAnimated(animLength, animDirection);
     System* system = System::sInstance;
     SectionMgr* sectionMgr = SectionMgr::sInstance;
-    if(system->ottVoteState == OTT::COMBO_SELECTION) {
-        system->ottVoteState = OTT::COMBO_SELECTED;
+    if(system->ottMgr.voteState == OTT::COMBO_SELECTION) {
+        system->ottMgr.voteState = OTT::COMBO_SELECTED;
         Network::ExpSELECTHandler& handler = Network::ExpSELECTHandler::Get();
         for(int i = 0; i < 2; ++i) {
             handler.toSendPacket.playersData[i].character = sectionMgr->sectionParams->characters[i];

@@ -21,8 +21,11 @@ static void CannonExitSpeed() {
 kmCall(0x805850c8, CannonExitSpeed);
 
 void EnableBrakeDrifting(Input::ControllerHolder& controllerHolder) {
+    const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
+    const GameMode mode = scenario.settings.gamemode;
     if(System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc()
-    || static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED) {
+    || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
+    && mode != MODE_TIME_TRIAL)) {
         const ControllerType controllerType = controllerHolder.curController->GetType();
         const u16 inputs = controllerHolder.inputStates[0].buttonRaw;
         u16 inputsMask = 0x700;
@@ -62,8 +65,11 @@ kmCall(0x80521828, FixGhostBrakeDrifting);
 
 
 bool IsBrakeDrifting(const Kart::Status& status) {
+    const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
+    const GameMode mode = scenario.settings.gamemode;
     if(System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc()
-    || static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED) {
+    || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
+    && mode != MODE_TIME_TRIAL)) {
         u32 bitfield0 = status.bitfield0;
         const Input::ControllerHolder& controllerHolder = status.link->GetControllerHolder();
         if((bitfield0 & 0x40000) != 0 && (bitfield0 & 0x1F) == 0xF && (bitfield0 & 0x80100000) == 0
@@ -106,8 +112,11 @@ kmCall(0x806faff8, BrakeDriftingSoundWrapper);
 kmWrite32(0x80698f88, 0x60000000);
 static int BrakeEffectBikes(Effects::Player& effects) {
     const Kart::Player* kartPlayer = effects.kartPlayer;
+    const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
+    const GameMode mode = scenario.settings.gamemode;
     if(System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc()
-    || static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED){
+    || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
+    && mode != MODE_TIME_TRIAL)){
         if(IsBrakeDrifting(*kartPlayer->pointers.kartStatus)) effects.CreateAndUpdateEffectsByIdxVelocity(effects.bikeDriftEffects, 25, 26, 1);
         else effects.FollowFadeEffectsByIdxVelocity(effects.bikeDriftEffects, 25, 26, 1);
     }
@@ -118,8 +127,11 @@ kmCall(0x80698f8c, BrakeEffectBikes);
 kmWrite32(0x80698048, 0x60000000);
 static int BrakeEffectKarts(Effects::Player& effects) {
     Kart::Player* kartPlayer = effects.kartPlayer;
+    const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
+    const GameMode mode = scenario.settings.gamemode;
     if(System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc()
-    || static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED){
+    || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
+    && mode != MODE_TIME_TRIAL)){
         if(IsBrakeDrifting(*kartPlayer->pointers.kartStatus)) effects.CreateAndUpdateEffectsByIdxVelocity(effects.kartDriftEffects, 34, 36, 1);
         else effects.FollowFadeEffectsByIdxVelocity(effects.kartDriftEffects, 34, 36, 1);
     }

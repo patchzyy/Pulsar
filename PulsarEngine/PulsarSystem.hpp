@@ -12,6 +12,7 @@
 #include <Config.hpp>
 #include <Network/Network.hpp>
 #include <Network/MatchCommand.hpp>
+#include <Gamemodes/OnlineTT/OnlineTT.hpp>
 
 
 namespace Pulsar {
@@ -76,7 +77,7 @@ public:
     //virtual void ParsePackROOMMsg(u8 msg) {}  //Only called for non-hosts
     const Info& GetInfo() const { return this->info; }
 
-    static bool IsContext(Context context) { return (sInstance->context & (1 << context)); }
+    bool IsContext(Context context) const { return (this->context & (1 << context)) != 0; }
     static s32 OnSceneEnter(Random& random);
 
     const char* GetModFolder() const { return modFolderName; }
@@ -122,8 +123,8 @@ public:
 
     //Modes
     KO::Mgr* koMgr;
-    u32 ottVoteState;
     bool ottHideNames;
+    OTT::Mgr ottMgr;
     u8 nonTTGhostPlayersCount; //because a ghost can be added in vs, racedata's playercount is not reliable
 
 private:

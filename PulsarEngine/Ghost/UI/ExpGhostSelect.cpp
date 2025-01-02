@@ -189,11 +189,18 @@ void ExpGhostSelect::Reset() {
 
 //Complete rewrite TTSplits BeforeEntranceAnimations; this will request a RKG if needed (flap or top 10 time)
 void BeforeEntranceAnimations(Pages::TTSplits* page) {
+    const u32 gamemode = Racedata::sInstance->racesScenario.settings.gamemode;
     //Init Variables
     const SectionMgr* sectionMgr = SectionMgr::sInstance;
     SectionParams* sectionParams = sectionMgr->sectionParams;
     sectionParams->isNewTime = false;
     sectionParams->fastestLapId = 0xFFFFFFFF;
+    if (System::sInstance->IsContext(PULSAR_MODE_OTT)) {
+    page->maxActiveFrames = 0x12C;
+    }
+    else if(gamemode == MODE_TIME_TRIAL) {
+    page->maxActiveFrames = 0xFFFFFFFF;
+    }
     sectionParams->unknown_0x3D8 = false;
     RKSYS::LicenseLdbEntry entry;
 

@@ -38,7 +38,7 @@ BootHook CreateSystem(System::CreateSystem, 0);
 System::System() :
     heap(RKSystem::mInstance.EGGSystem), taskThread(EGG::TaskThread::Create(8, 0, 0x4000, this->heap)),
     //Modes
-    koMgr(nullptr), ottHideNames(false) {
+    koMgr(nullptr) {
 }
 
 void System::Init(const ConfigFile& conf) {
@@ -116,7 +116,7 @@ void System::InitSettings(const u16* totalTrophyCount) const {
 
 void System::UpdateContext() {
     const RacedataSettings& racedataSettings = Racedata::sInstance->menusScenario.settings;
-    this->ottVoteState = OTT::COMBO_NONE;
+    this->ottMgr.Reset();
     const Settings::Mgr& settings = Settings::Mgr::Get();
     bool isCT = true;
     bool isHAW = false;
@@ -148,46 +148,46 @@ void System::UpdateContext() {
     bool isUMTs = this->info.HasUMTs();
     bool isMegaTC = this->info.HasMegaTC();
     u32 newContext = 0;
-    if (sceneId != SCENE_ID_GLOBE && controller->connectionState != RKNet::CONNECTIONSTATE_SHUTDOWN) {
-        switch (controller->roomType) {
-        case(RKNet::ROOMTYPE_VS_REGIONAL):
-        case(RKNet::ROOMTYPE_JOINING_REGIONAL):
-            isOTT = netMgr.ownStatusData == true;
-            break;
-        case(RKNet::ROOMTYPE_FROOM_HOST):
-        case(RKNet::ROOMTYPE_FROOM_NONHOST):
-            isCT = mode != MODE_BATTLE && mode != MODE_PUBLIC_BATTLE && mode != MODE_PRIVATE_BATTLE;
-            newContext = netMgr.hostContext;
-            isKOFinal = newContext & (1 << PULSAR_KOFINAL);
-            isCharRestrictLight = newContext & (1 << PULSAR_CHARRESTRICTLIGHT);
-            isCharRestrictMid = newContext & (1 << PULSAR_CHARRESTRICTMID);
-            isCharRestrictHeavy = newContext & (1 << PULSAR_CHARRESTRICTHEAVY);
-            isKartRestrictKart = newContext & (1 << PULSAR_KARTRESTRICT);
-            isKartRestrictBike = newContext & (1 << PULSAR_BIKERESTRICT);
-            isItemModeRandom = newContext & (1 << PULSAR_ITEMMODERANDOM);
-            isItemModeBlast = newContext & (1 << PULSAR_ITEMMODEBLAST);
-            isItemModeNone = newContext & (1 << PULSAR_ITEMMODENONE);
-            isRegs = newContext & (1 << PULSAR_REGS);
-            is500 = newContext & (1 << PULSAR_500);
-            isHAW = newContext & (1 << PULSAR_HAW);
-            isKO = newContext & (1 << PULSAR_MODE_KO);
-            isOTT = newContext & (1 << PULSAR_MODE_OTT);
-            isSMTs = newContext & (1 << PULSAR_SMTS);
-            isMiiHeads = newContext & (1 << PULSAR_MIIHEADS);
-            isThunderCloud = newContext & (1 << PULSAR_THUNDERCLOUD);
-            if (isOTT) {
-                isUMTs = newContext & (1 << PULSAR_UMTS);
-                isFeather &= newContext & (1 << PULSAR_FEATHER);
-                isChangeCombo = newContext & (1 << PULSAR_CHANGECOMBO);
-            }
-            break;
-        default: isCT = false;
+    if(sceneId != SCENE_ID_GLOBE && controller->connectionState != RKNet::CONNECTIONSTATE_SHUTDOWN) {
+        switch(controller->roomType) {
+            case(RKNet::ROOMTYPE_VS_REGIONAL):
+            case(RKNet::ROOMTYPE_JOINING_REGIONAL):
+                isOTT = netMgr.ownStatusData == true;
+                break;
+            case(RKNet::ROOMTYPE_FROOM_HOST):
+            case(RKNet::ROOMTYPE_FROOM_NONHOST):
+                isCT = mode != MODE_BATTLE && mode != MODE_PUBLIC_BATTLE && mode != MODE_PRIVATE_BATTLE;
+                newContext = netMgr.hostContext;
+                isKOFinal = newContext & (1 << PULSAR_KOFINAL);
+                isCharRestrictLight = newContext & (1 << PULSAR_CHARRESTRICTLIGHT);
+                isCharRestrictMid = newContext & (1 << PULSAR_CHARRESTRICTMID);
+                isCharRestrictHeavy = newContext & (1 << PULSAR_CHARRESTRICTHEAVY);
+                isKartRestrictKart = newContext & (1 << PULSAR_KARTRESTRICT);
+                isKartRestrictBike = newContext & (1 << PULSAR_BIKERESTRICT);
+                isItemModeRandom = newContext & (1 << PULSAR_ITEMMODERANDOM);
+                isItemModeBlast = newContext & (1 << PULSAR_ITEMMODEBLAST);
+                isItemModeNone = newContext & (1 << PULSAR_ITEMMODENONE);
+                isRegs = newContext & (1 << PULSAR_REGS);
+                is500 = newContext & (1 << PULSAR_500);
+                isHAW = newContext & (1 << PULSAR_HAW);
+                isKO = newContext & (1 << PULSAR_MODE_KO);
+                isOTT = newContext & (1 << PULSAR_MODE_OTT);
+                isSMTs = newContext & (1 << PULSAR_SMTS);
+                isMiiHeads = newContext & (1 << PULSAR_MIIHEADS);
+                isThunderCloud = newContext & (1 << PULSAR_THUNDERCLOUD);
+                if (isOTT) {
+                    isUMTs = newContext & (1 << PULSAR_UMTS);
+                    isFeather &= newContext & (1 << PULSAR_FEATHER);
+                    isChangeCombo = newContext & (1 << PULSAR_CHANGECOMBO);
+                }
+                break;
+            default: isCT = false;
         }
     }
     else {
         const u8 ottOffline = settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_OFFLINE);
         isOTT = (mode == MODE_GRAND_PRIX || mode == MODE_VS_RACE) ? (ottOffline != OTTSETTING_OFFLINE_DISABLED) : false; //offlineOTT
-        if (isOTT) {
+        if(isOTT) {
             isFeather &= (ottOffline == OTTSETTING_OFFLINE_FEATHER);
             isUMTs = settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_ALLOWUMTS);
         }
@@ -195,7 +195,7 @@ void System::UpdateContext() {
     this->netMgr.hostContext = newContext;
 
     u32 context = (isCT << PULSAR_CT) | (isHAW << PULSAR_HAW) | (isMiiHeads << PULSAR_MIIHEADS);
-    if (isCT) { //contexts that should only exist when CTs are on
+    if(isCT) { //contexts that should only exist when CTs are on
         context |= (is200 << PULSAR_200) | (isFeather << PULSAR_FEATHER) | (isUMTs << PULSAR_UMTS) | (isSMTs << PULSAR_SMTS) | (isMegaTC << PULSAR_MEGATC) | (isOTT << PULSAR_MODE_OTT) | (isKO << PULSAR_MODE_KO)
         | (isCharRestrictLight << PULSAR_CHARRESTRICTLIGHT) | (isCharRestrictMid << PULSAR_CHARRESTRICTMID) | (isCharRestrictHeavy << PULSAR_CHARRESTRICTHEAVY) | (isKartRestrictKart << PULSAR_KARTRESTRICT) | (isKartRestrictBike << PULSAR_BIKERESTRICT) | (isChangeCombo << PULSAR_CHANGECOMBO)
         | (is500 << PULSAR_500) | (isThunderCloud << PULSAR_THUNDERCLOUD) | (isItemModeRandom << PULSAR_ITEMMODERANDOM) | (isItemModeBlast << PULSAR_ITEMMODEBLAST) | (isItemModeNone << PULSAR_ITEMMODENONE) | (isRegs << PULSAR_REGS) | (isKOFinal << PULSAR_KOFINAL);
