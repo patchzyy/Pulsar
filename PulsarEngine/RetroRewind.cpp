@@ -72,7 +72,7 @@ loc_0x0:
   lbz       r12, 0x1206(r12);
   cmpwi     r12, 0;
   beq       end;
-  li        r12, 0x3C;
+  li        r12, 0x5A;
   stw       r12, 0xB8(r27);
   stw       r0, 0xB0(r27);
 
@@ -83,9 +83,10 @@ end:
 kmCall(0x80828EDC, GetItemBoxRespawn);
 
 void ItemBoxPatch() {
-  ItemBoxHook = 0x00FF0100;
-  if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
-    ItemBoxHook = 0x00;
+  bool isFastRespawn = Pulsar::System::sInstance->IsContext(Pulsar::PULSAR_ITEMBOXRESPAWN) ? Pulsar::ITEMBOX_DEFAULTRESPAWN : Pulsar::ITEMBOX_FASTRESPAWN;
+  ItemBoxHook = 0x00;
+  if (isFastRespawn == Pulsar::ITEMBOX_DEFAULTRESPAWN) {
+    ItemBoxHook = 0x00FF0100;
   }
 }
 static PageLoadHook PatchItemBox(ItemBoxPatch);

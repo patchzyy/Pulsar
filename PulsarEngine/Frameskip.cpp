@@ -10,6 +10,7 @@ kmWrite32(0x80654400, 0x60000000);
 
 asmFunc GetFrameskip1() {
     ASM(
+      nofralloc;
 loc_0x0:
   lis r3, 0x8000;
   lbz r4, 5665(r3);
@@ -47,34 +48,10 @@ loc_0x70:
 
 loc_0x74:
   cmpwi r0, 0x0;
+  blr;
     )
 }
 kmCall(0x80562AD0, GetFrameskip1);
-
-extern "C" void sInstance__10SectionMgr(void*);
-asmFunc GetFrameskip2() {
-    ASM(
-loc_0x0:
-  lis r3, sInstance__10SectionMgr@ha;
-  lwz r3, sInstance__10SectionMgr@l(r3);
-  lwz r3, 0(r3);
-  lwz r3, 0(r3);
-  cmpwi r3, 0x21;
-  beq- loc_0x30;
-  cmpwi r3, 0x25;
-  beq- loc_0x30;
-  cmpwi r3, 0x29;
-  beq- loc_0x30;
-  li r3, 0x1;
-  b loc_0x34;
-
-loc_0x30:
-  li r3, 0x0;
-
-loc_0x34:
-    )
-}
-kmCall(0x8054DF88, GetFrameskip2);
 
 extern "C" void isTT__9DriverMgr(void*);
 extern "C" void DisableInterrupts__2OSFv(void*);
@@ -84,8 +61,9 @@ extern "C" void sInstance__Q25RKNet9PacketMgr(void*);
 extern "C" void sInstance__8Racedata(void*);
 extern "C" void GXDrawDone(void*);
 extern "C" void beginFrame(void*);
-asmFunc GetFrameskip3() {
+asmFunc GetFrameskip2() {
     ASM(
+      nofralloc;
 loc_0x0:
   mr r3, r21;
   mr r4, r25;
@@ -379,71 +357,7 @@ loc_0x424:
   blr;
     )
 }
-kmCall(0x800095C4, GetFrameskip3);
-
-kmWrite32(0x803632A8, 0x3D20809C);
-kmWrite32(0x803632AC, 0x81291F50);
-kmWrite32(0x803632B0, 0x2F890000);
-kmWrite32(0x803632B4, 0x419E00D4);
-kmWrite32(0x803632B8, 0x3D40809C);
-kmWrite32(0x803632BC, 0x814AD728);
-kmWrite32(0x803632C0, 0x2F8A0000);
-kmWrite32(0x803632C4, 0x419E00C4);
-kmWrite32(0x803632C8, 0x3D00809C);
-kmWrite32(0x803632CC, 0x80E820D8);
-kmWrite32(0x803632D0, 0x2F870000);
-kmWrite32(0x803632D4, 0x419E00B4);
-kmWrite32(0x803632D8, 0x89090000);
-kmWrite32(0x803632DC, 0x2F880000);
-kmWrite32(0x803632E0, 0x419E00A8);
-kmWrite32(0x803632E4, 0xA9090012);
-kmWrite32(0x803632E8, 0x2F880000);
-kmWrite32(0x803632EC, 0x41BD009C);
-kmWrite32(0x803632F0, 0x814A0B74);
-kmWrite32(0x803632F4, 0x2F8A0006);
-kmWrite32(0x803632F8, 0x419E0090);
-kmWrite32(0x803632FC, 0x8147291C);
-kmWrite32(0x80363300, 0x3D008000);
-kmWrite32(0x80363304, 0xA0090010);
-kmWrite32(0x80363308, 0x396727A0);
-kmWrite32(0x8036330C, 0x1D4A0058);
-kmWrite32(0x80363310, 0x39870180);
-kmWrite32(0x80363314, 0x90081664);
-kmWrite32(0x80363318, 0x3900000C);
-kmWrite32(0x8036331C, 0x7D475214);
-kmWrite32(0x80363320, 0x39200000);
-kmWrite32(0x80363324, 0x38E70150);
-kmWrite32(0x80363328, 0x88CA0059);
-kmWrite32(0x8036332C, 0x7D0903A6);
-kmWrite32(0x80363330, 0x48000024);
-kmWrite32(0x80363334, 0x7D07202E);
-kmWrite32(0x80363338, 0x80A80004);
-kmWrite32(0x8036333C, 0x81050008);
-kmWrite32(0x80363340, 0x80850004);
-kmWrite32(0x80363344, 0x7F882000);
-kmWrite32(0x80363348, 0x419E0048);
-kmWrite32(0x8036334C, 0x39290001);
-kmWrite32(0x80363350, 0x42400038);
-kmWrite32(0x80363354, 0x7F864800);
-kmWrite32(0x80363358, 0x41BEFFF4);
-kmWrite32(0x8036335C, 0x806A0048);
-kmWrite32(0x80363360, 0x55282834);
-kmWrite32(0x80363364, 0x7C634E30);
-kmWrite32(0x80363368, 0x70630001);
-kmWrite32(0x8036336C, 0x41A2FFE0);
-kmWrite32(0x80363370, 0x7D0B402E);
-kmWrite32(0x80363374, 0x5524103A);
-kmWrite32(0x80363378, 0x2F880000);
-kmWrite32(0x8036337C, 0x41BEFFB8);
-kmWrite32(0x80363380, 0x7D0C202E);
-kmWrite32(0x80363384, 0x4BFFFFB4);
-kmWrite32(0x80363388, 0x38600000);
-kmWrite32(0x8036338C, 0x4E800020);
-kmWrite32(0x80363390, 0x81050000);
-kmWrite32(0x80363394, 0xA108000C);
-kmWrite32(0x80363398, 0x7F880040);
-kmWrite32(0x8036339C, 0x409DFFB0);
-kmWrite32(0x803633A0, 0x4E800020);
+kmCall(0x800095C4, GetFrameskip2);
 kmWrite32(0x80001614, 0x000F7709);
 kmWrite32(0x80001634, 0x00000006);
 

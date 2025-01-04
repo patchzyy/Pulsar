@@ -57,9 +57,9 @@ kmWrite32(0x80588938, 0x7c040378); //setup "charged" for next function
 kmWrite32(0x8058893c, 0x48000010); //takes MT charge check and parses it into SetBikeDriftTiers
 void SetBikeDriftTiers(Kart::MovementBike& movement, bool charged){
     bool isSMT = true;
-    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
-        isSMT = false;
-    }
+    const RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
+    if (roomType == RKNet::ROOMTYPE_VS_WW || roomType == RKNet::ROOMTYPE_BT_WW) isSMT = false;
+    if (!System::sInstance->IsContext(PULSAR_UMTS)) isSMT = false;
     if (charged){
         movement.driftState = 2;
         KartType type = movement.GetType();
@@ -186,9 +186,9 @@ void LoadOrangeSparkEffects(ExpPlayerEffects& effects, EGG::Effect** effectArray
     const u32 mtCharge = effects.kartPlayer->pointers.kartMovement->mtCharge;
     const GameMode gameMode = Racedata::sInstance->racesScenario.settings.gamemode;
     bool isSMT = true;
-    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
-        isSMT = false;
-    }
+    const RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
+    if (roomType == RKNet::ROOMTYPE_VS_WW || roomType == RKNet::ROOMTYPE_BT_WW) isSMT = false;
+    if (!System::sInstance->IsContext(PULSAR_UMTS)) isSMT = false;
     if(mtCharge >= 570 && type == OUTSIDE_BIKE && isSMT == true) {
         effects.CreateAndUpdateEffectsByIdx(effects.rk_orangeMT, 0, 2, playerMat2, wheelPos, updateScale);
         effects.FollowFadeEffectsByIdx(effectArray, firstEffectIndex, lastEffectIndex, playerMat2, wheelPos, updateScale);
