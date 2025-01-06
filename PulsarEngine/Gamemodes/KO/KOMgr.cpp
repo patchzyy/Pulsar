@@ -43,21 +43,21 @@ void Mgr::AddRaceStats() { //SHOULD ONLY BE CALLED AFTER PROCESSKOS
 void Mgr::CalcWouldBeKnockedOut() {
     // Initialize players
     Pages::GPVSLeaderboardUpdate::Player players[12];
-    memset( & players, 0, sizeof(players));
-    const RacedataScenario & scenario = Racedata::sInstance->menusScenario;
-    const RKNet::Controller * controller = RKNet::Controller::sInstance;
-    const RKNet::ControllerSub & sub = controller->subs[controller->currentSub];
+    memset(&players, 0, sizeof(players));
+    const RacedataScenario& scenario = Racedata::sInstance->menusScenario;
+    const RKNet::Controller* controller = RKNet::Controller::sInstance;
+    const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
     const u8 playerCount = System::sInstance->nonTTGhostPlayersCount;
-    const Raceinfo * raceInfo = Raceinfo::sInstance;
+    const Raceinfo* raceInfo = Raceinfo::sInstance;
 
-    const u8 * pointsArray = & Racedata::pointsRoom[playerCount - 1][0];
+    const u8* pointsArray = &Racedata::pointsRoom[playerCount - 1][0];
 
     u32 disconnectedKOs = 0;
     for (int curPlayerId = 0; curPlayerId < playerCount; ++curPlayerId) { // Initialize players struct
         this->wouldBeOut[curPlayerId] = false;
         const u8 aid = controller->aidsBelongingToPlayerIds[curPlayerId];
         if ((1 << aid & sub.availableAids) == 0) ++disconnectedKOs;
-        Pages::GPVSLeaderboardUpdate::Player & cur = players[curPlayerId];
+        Pages::GPVSLeaderboardUpdate::Player& cur = players[curPlayerId];
         const u8 wouldBePoints = pointsArray[raceInfo->players[curPlayerId]->position - 1];
         cur.lastRaceScore = wouldBePoints;
         cur.totalScore = scenario.players[curPlayerId].previousScore + wouldBePoints;
@@ -74,16 +74,15 @@ void Mgr::CalcWouldBeKnockedOut() {
         }
     } else {
         // Sort players
-        qsort(players, playerCount, sizeof(Pages::GPVSLeaderboardUpdate::Player), reinterpret_cast < int( * )(const void * ,
-            const void * ) > ( & Pages::GPVSLeaderboardTotal::ComparePlayers));
+        qsort(players, playerCount, sizeof(Pages::GPVSLeaderboardUpdate::Player), reinterpret_cast<int(*)(const void*, const void*)>(&Pages::GPVSLeaderboardTotal::ComparePlayers));
 
         // Calculate real KO count
         const u32 theoreKOs = this->koPerRace - ((playerCount - this->koPerRace == 1) && this->alwaysFinal);
-        const s32 realKOCount = theoreKOs - disconnectedKOs;
+        const s32 realKOCount = theoreKOs;
 
         if (realKOCount > 0 && (SectionMgr::sInstance->sectionParams->onlineParams.currentRaceNumber + 1) % this->racesPerKO == 0) {
             int koAssigned = 0;
-            for (int idx = playerCount - 1 - disconnectedKOs; idx >= 0 && koAssigned < realKOCount; --idx) {
+            for (int idx = playerCount - 1; idx >= 0 && koAssigned < realKOCount; --idx) { // Start from last player
                 u32 position = idx;
                 u8 playerId;
                 if (racesPerKO == 1) {
@@ -134,7 +133,7 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player * playerArr, size_t ni
         }
 
         u8 theoreKOs = self->koPerRace - ((playerCount - self->koPerRace == 1) && self->alwaysFinal);
-        s8 realKOCount = theoreKOs - disconnectedKOs;
+        s8 realKOCount = theoreKOs;
 
         const Raceinfo * raceinfo = Raceinfo::sInstance;
         bool hasTies = false;
@@ -211,13 +210,8 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player * playerArr, size_t ni
             // KO players in elimination positions if no ties
             if (realKOCount > 0 && hasTies == false) {
                 int koCount = 0;
-                for (int idx = playerCount - 1 - disconnectedKOs; idx >= 0 && koCount < realKOCount; --idx) {
-                    u8 playerId;
-                    if (self->racesPerKO == 1) {
-                        playerId = raceinfo->playerIdInEachPosition[idx];
-                    } else {
-                        playerId = playerArr[idx].playerId;
-                    }
+                for (int idx = playerCount - 1; idx >= 0 && koCount < realKOCount; --idx) {
+                    u8 playerId = playerArr[idx].playerId;
 
                     // Skip the winner and the player in first position
                     if (playerId == self->winnerPlayerId || raceinfo->players[playerId]->position == 1) {

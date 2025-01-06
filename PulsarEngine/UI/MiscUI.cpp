@@ -20,9 +20,6 @@ namespace UI {
 kmWrite32(0x8054913C, 0x60000000);
 kmWrite32(0x80855f48, 0x48000148);
 
-//BMG size patch (Diamond)
-kmWrite32(0x8007B37C, 0x38000128);
-
 static PageId AfterWifiResults(PageId id) {
     const SectionMgr* sectionMgr = SectionMgr::sInstance;
     const System* system = System::sInstance;
