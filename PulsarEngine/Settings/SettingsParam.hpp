@@ -12,7 +12,7 @@ namespace Settings {
 class Params {
 public:
     static const int pulsarPageCount = 5;
-    static const int userPageCount = 2;
+    static const int userPageCount = 3;
     static const int pageCount = pulsarPageCount + userPageCount;
 
     static const int maxRadioCount = 6; // per page, due to space
@@ -37,7 +37,8 @@ enum Type {
 // If you want to add settings to your packs, they go in this enum, and GetUserSettingValue should be used to obtain the value of a given setting
 enum UserType {
     SETTINGSTYPE_RR,
-    SETTINGSTYPE_RR2
+    SETTINGSTYPE_RR2,
+    SETTINGSTYPE_RR3,
 };
 
 } // namespace Settings
@@ -85,19 +86,23 @@ enum KOSettings {
 enum RRettings {
     SETTINGRR_RADIO_TRANSMISSION = 0,
     SETTINGRR_RADIO_HARDAI = 1,
-    SETTINGRR_RADIO_KARTSELECT = 2,
-    SETTINGRR_RADIO_CHARSELECT = 3,
-    SETTINGRR_RADIO_ITEMBOXRESPAWN = 4,
-    SETTINGRR_SCROLLER_ITEMMODE = 0 + 6
+    SETTINGRR_RADIO_BRAKEDRIFT = 2,
+    SETTINGRR_SCROLLER_WWMODE = 0 + 6,
 };
 
 enum RR2Settings {
     SETTINGRR2_RADIO_CTMUSIC = 0,
     SETTINGRR2_RADIO_TIMES = 1,
-    SETTINGRR2_RADIO_BRAKEDRIFT = 2,
-    SETTIGNRR2_RADIO_FPS = 3,
-    SETTINGRR2_RADIO_THUNDERCLOUD = 4,
-    SETTINGRR2_RADIO_REGS = 0 + 6
+    SETTIGNRR2_RADIO_FPS = 2
+};
+
+enum RR3Settings {
+    SETTINGRR3_RADIO_KARTSELECT = 0,
+    SETTINGRR3_RADIO_CHARSELECT = 1,
+    SETTINGRR3_RADIO_ITEMBOXRESPAWN = 2,
+    SETTINGRR3_RADIO_THUNDERCLOUD = 3,
+    SETTINGRR3_SCROLLER_ITEMMODE = 0 + 6,
+    SETTINGRR3_SCROLLER_REGS = 1 + 6
 };
 
 // MENU SETTINGS
@@ -249,6 +254,33 @@ enum HardAI {
     HARDAI_ENABLED
 };
 
+enum BrakeDrift {
+    BRAKEDRIFT_DISABLED,
+    BRAKEDRIFT_ENABLED
+};
+
+enum WWMode {
+    WWMODE_DEFAULT,
+    WWMODE_OTT
+};
+
+// RR2 Settings
+enum CTMusic {
+    CTMUSIC_ENABLED,
+    CTMUSIC_DISABLED
+};
+
+enum Times {
+    TIMES_DISABLED,
+    TIMES_ENABLED
+};
+
+enum FPS {
+    FPS_DEFAULT,
+    FPS_HALF
+};
+
+// RR3 Settings
 enum KartRestriction {
     KART_DEFAULTSELECTION,
     KART_KARTONLY,
@@ -267,37 +299,16 @@ enum ItemBoxRespawn {
     ITEMBOX_FASTRESPAWN
 };
 
+enum ThunderCloud {
+    THUNDERCLOUD_MEGA,
+    THUNDERCLOUD_NORMAL
+};
+
 enum ItemMode {
     GAMEMODE_DEFAULT,
     GAMEMODE_RANDOM,
     GAMEMODE_BLAST,
     GAMEMODE_NONE
-};
-
-// RR2 Settings
-enum CTMusic {
-    CTMUSIC_DISABLED,
-    CTMUSIC_ENABLED
-};
-
-enum Times {
-    TIMES_DISABLED,
-    TIMES_ENABLED
-};
-
-enum BrakeDrift {
-    BRAKEDRIFT_DISABLED,
-    BRAKEDRIFT_ENABLED
-};
-
-enum FPS {
-    FPS_DEFAULT,
-    FPS_HALF
-};
-
-enum ThunderCloud {
-    THUNDERCLOUD_MEGA,
-    THUNDERCLOUD_NORMAL
 };
 
 enum Regs {

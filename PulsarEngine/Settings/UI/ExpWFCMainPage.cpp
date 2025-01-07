@@ -41,26 +41,26 @@ void ExpWFCMain::ExtOnButtonSelect(PushButton& button, u32 hudSlotId) {
 }
 
 //ExpWFCModeSel
-kmWrite32(0x8064c284, 0x38800001); //distance func
-void ExpWFCModeSel::InitOTTButton(ExpWFCModeSel& self) {
-    self.InitControlGroup(6);
-    self.AddControl(5, self.ottButton, 0);
-    self.ottButton.Load(UI::buttonFolder, "PULOTTButton", "PULOTTButton", 1, 0, 0);
-    self.ottButton.buttonId = ottButtonId;
-    self.ottButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
-    self.ottButton.SetOnSelectHandler(self.onButtonSelectHandler);
+// kmWrite32(0x8064c284, 0x38800001); //distance func
+// void ExpWFCModeSel::InitOTTButton(ExpWFCModeSel& self) {
+//     self.InitControlGroup(6);
+//     self.AddControl(5, self.ottButton, 0);
+//     self.ottButton.Load(UI::buttonFolder, "PULOTTButton", "PULOTTButton", 1, 0, 0);
+//     self.ottButton.buttonId = ottButtonId;
+//     self.ottButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
+//     self.ottButton.SetOnSelectHandler(self.onButtonSelectHandler);
 
-    Text::Info info;
-    RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
-    u32 vr = 0;
-    if(rksysMgr->curLicenseId >= 0) {
-        RKSYS::LicenseMgr& license = rksysMgr->licenses[rksysMgr->curLicenseId];
-        vr = license.vr.points;
-    }
-    info.intToPass[0] = vr;
-    self.ottButton.SetTextBoxMessage("go", BMG_RATING, &info);
-}
-kmCall(0x8064c294, ExpWFCModeSel::InitOTTButton);
+//     Text::Info info;
+//     RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
+//     u32 vr = 0;
+//     if(rksysMgr->curLicenseId >= 0) {
+//         RKSYS::LicenseMgr& license = rksysMgr->licenses[rksysMgr->curLicenseId];
+//         vr = license.vr.points;
+//     }
+//     info.intToPass[0] = vr;
+//     self.ottButton.SetTextBoxMessage("go", BMG_RATING, &info);
+// }
+// kmCall(0x8064c294, ExpWFCModeSel::InitOTTButton);
 
 void ExpWFCModeSel::OnActivatePatch() {
     register ExpWFCModeSel* page;
