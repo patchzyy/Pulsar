@@ -261,7 +261,8 @@ enum BrakeDrift {
 
 enum WWMode {
     WWMODE_DEFAULT,
-    WWMODE_OTT
+    WWMODE_OTT,
+    WWMODE_200
 };
 
 // RR2 Settings

@@ -182,6 +182,7 @@ static void DecideCC(ExpSELECTHandler& handler) {
     RKNet::Controller* controller = RKNet::Controller::sInstance;
     const RKNet::RoomType roomType = controller->roomType;
     u8 ccClass = 1; //1 100, 2 150, 3 mirror
+    bool is200 = (roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL) && System::sInstance->IsContext(PULSAR_200_WW) ? WWMODE_200 : WWMODE_DEFAULT;
     if (roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL ||
     roomType == RKNet::ROOMTYPE_VS_WW || roomType == RKNet::ROOMTYPE_JOINING_WW || 
     (roomType == RKNet::ROOMTYPE_FROOM_HOST && ccSetting == HOSTSETTING_CC_NORMAL)) {
@@ -193,8 +194,9 @@ static void DecideCC(ExpSELECTHandler& handler) {
         if (result < 100 - (prob100 + prob150)) ccClass = 3;
         else if (result < 100 - prob100) ccClass = 2;
     }
-    else if (ccSetting == HOSTSETTING_CC_150) ccClass = 2;
-    else if (ccSetting == HOSTSETTING_CC_500 || ccSetting == HOSTSETTING_CC_100) ccClass = 1;
+    if (is200 == Pulsar::WWMODE_200) ccClass = 1;
+    else if (roomType == RKNet::ROOMTYPE_FROOM_HOST && ccSetting == HOSTSETTING_CC_150) ccClass = 2;
+    else if (roomType == RKNet::ROOMTYPE_FROOM_HOST && ccSetting == HOSTSETTING_CC_500 || roomType == RKNet::ROOMTYPE_FROOM_HOST && ccSetting == HOSTSETTING_CC_100) ccClass = 1;
     handler.toSendPacket.engineClass = ccClass;
 }
 kmCall(0x80661404, DecideCC);

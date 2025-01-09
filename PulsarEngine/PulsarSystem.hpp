@@ -26,6 +26,7 @@ class ConfigFile;
 enum Context {
     PULSAR_CT = 0,
     PULSAR_200,
+    PULSAR_200_WW,
     PULSAR_FEATHER,
     PULSAR_UMTS,
     PULSAR_SMTS,

@@ -211,7 +211,12 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player * playerArr, size_t ni
             if (realKOCount > 0 && hasTies == false) {
                 int koCount = 0;
                 for (int idx = playerCount - 1; idx >= 0 && koCount < realKOCount; --idx) {
-                    u8 playerId = playerArr[idx].playerId;
+                    u8 playerId;
+                    if (self->racesPerKO == 1) {
+                        playerId = raceinfo->playerIdInEachPosition[idx];
+                    } else {
+                        playerId = playerArr[idx].playerId;
+                    }
 
                     // Skip the winner and the player in first position
                     if (playerId == self->winnerPlayerId || raceinfo->players[playerId]->position == 1) {
