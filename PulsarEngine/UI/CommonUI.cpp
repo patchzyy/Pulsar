@@ -17,12 +17,12 @@ namespace Pulsar {
 namespace UI {
 
 PageId TTSplitsGetNextPage(const Pages::TTSplits& splits) {
-    const bool isOTTF = System::sInstance->IsContext(PULSAR_MODE_OTT)&&
+    const bool isOTTF = System::sInstance->IsContext(PULSAR_MODE_OTT) &&
     (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST) || 
-    (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST);
+    (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE;
     const bool isOTTW = System::sInstance->IsContext(PULSAR_MODE_OTT) && 
-    ((RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) ||
-    (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL));
+    (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) || 
+    (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL);
 
     const SectionId sectionId = SectionMgr::sInstance->curSection->sectionId;
     if (isOTTW) return PAGE_WW_LEADERBOARDS_UPDATE;

@@ -25,7 +25,7 @@ void EnableBrakeDrifting(Input::ControllerHolder& controllerHolder) {
     const GameMode mode = scenario.settings.gamemode;
     if(System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc()
     || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
-    && mode != MODE_TIME_TRIAL)) {
+    && mode != MODE_TIME_TRIAL && !System::sInstance->IsContext(PULSAR_MODE_OTT))) {
         const ControllerType controllerType = controllerHolder.curController->GetType();
         const u16 inputs = controllerHolder.inputStates[0].buttonRaw;
         u16 inputsMask = 0x700;
