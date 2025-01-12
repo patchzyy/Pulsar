@@ -57,6 +57,8 @@ void System::Init(const ConfigFile& conf) {
         }
     }
     strncpy(this->modFolderName, conf.header.modFolderName, IOS::ipcMaxFileName);
+    static char* pulMagic = reinterpret_cast<char*>(0x800017CC);
+    strcpy(pulMagic, "PUL2");
 
     //InitInstances
     CupsConfig::sInstance = new CupsConfig(conf.GetSection<CupsHolder>());
