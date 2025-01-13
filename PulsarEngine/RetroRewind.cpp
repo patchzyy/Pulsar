@@ -119,6 +119,32 @@ void NoDCPatch() {
 }
 static PageLoadHook PatchNoDC(NoDCPatch);
 
+asmFunc ItemVanish() {
+    ASM(
+        nofralloc;
+loc_0x0:
+  lfs f0, 0x0(r31);
+  fcmpo cr0, f1, f0;
+  lis r12, 0x8000;
+  lbz r12, 0x120A(r12);
+  cmpwi cr7, r12, 0;
+  beqlr cr7;
+  cmpwi r0, 0xA;
+
+end:
+  blr;
+    )
+}
+kmCall(0x8079F748, ItemVanish);
+
+void OTTPatch() {
+  OTTFixHook = 0x00;
+  if (Pulsar::System::sInstance->IsContext(Pulsar::PULSAR_MODE_OTT)) {
+      OTTFixHook = 0x00FF0100;
+  }
+}
+static PageLoadHook PatchOTT(OTTPatch);
+
 //Simple Cheat code crash [Cats4Life]
 void CodeCrash() {
     if(DolphinCheat == 0x00000001) Pulsar::Debug::FatalError("Please disable all cheat codes.");
@@ -138,16 +164,5 @@ void GeckoLoader() {
     if(GeckoLoader1 != 0x00000000) Pulsar::Debug::FatalError("Please reinstall the distribution.");
 }
 BootHook GECKOLOADERDETECTION(GeckoLoader, 2);
-
-//Instant Finish [Mainly Done for Testing]
-// asmFunc InstantFinish() {
-//     ASM(
-//   lis       r12, 0x3;
-//   ori       r12, r12, 0x387;
-//   stw       r12, 0x24(r30);
-//   lha       r3, 0x24(r30);
-//     )
-// }
-// kmCall(0x80535508, InstantFinish);
 
 } // namespace RetroRewind

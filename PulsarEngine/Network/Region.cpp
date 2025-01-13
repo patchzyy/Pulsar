@@ -16,8 +16,6 @@ static void PatchRegionNumber() {
         region = 0x0B;
     } else if (is200 == WWMODE_200) {
         region = 0x0C;
-    } else {
-        region = 0x0A;
     }
 }
 static PageLoadHook RegionNumberPatch(PatchRegionNumber);
