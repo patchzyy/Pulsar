@@ -156,6 +156,7 @@ void CodeCrash() {
     else if(AntiCheat6 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
     else if(AntiCheat7 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
     else if(MainDolCheat != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
+    
 }
 static PageLoadHook CRASH_HOOK(CodeCrash);
 
