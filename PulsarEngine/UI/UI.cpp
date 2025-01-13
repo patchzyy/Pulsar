@@ -5,6 +5,9 @@
 //Expanded Pages:
 #include <Ghost/UI/ExpGhostSelect.hpp>
 #include <SlotExpansion/UI/ExpCupSelect.hpp>
+#include <UI/Leaderboard/ExpGPVSLeaderboardUpdate.hpp>
+#include <UI/Leaderboard/ExpGPVSLeaderboardTotal.hpp>
+#include <UI/Leaderboard/ExpWWLeaderboardUpdate.hpp>
 #include <AutoTrackSelect/ExpFroomMessages.hpp>
 #include <Settings/UI/ExpFroomPage.hpp>
 #include <Settings/UI/ExpOptionsPage.hpp>
@@ -174,7 +177,15 @@ void ExpSection::CreateAndInitPage(ExpSection& self, u32 id) {
             if(self.hasAutoVote) page = new AutoVote;
             else page = new Pages::SELECTStageMgr;
             break;
-
+        case PAGE_GPVS_LEADERBOARD_UPDATE:
+            page = new ExpGPVSLeaderboardUpdate;
+            break;
+        case PAGE_GPVS_TOTAL_LEADERBOARDS:
+            page = new ExpGPVSLeaderboardTotal;
+            break;
+        case PAGE_WW_LEADERBOARDS_UPDATE:
+            page = new ExpWWLeaderboardUpdate;
+            break;
             //PULPAGES
         case ChooseNextTrack::id:
             initId = ChooseNextTrack::fakeId;
