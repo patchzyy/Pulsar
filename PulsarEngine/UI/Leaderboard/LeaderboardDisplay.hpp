@@ -18,6 +18,8 @@ LeaderboardDisplayType getLeaderboardDisplayType();
 void nextLeaderboardDisplayType();
 void fillLeaderboardResults(int count, CtrlRaceResult** results);
 
+bool checkLeaderboardDisplaySwapInputs();
+
 }//namespace UI
 }//namespace Pulsar
 #endif

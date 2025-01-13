@@ -1602,6 +1602,12 @@ FillRows__Q25Pages20GPVSLeaderboardTotalFv = 0x8085cae8
 GetRuntimeTypeInfo__Q25Pages20GPVSLeaderboardTotalCFv = 0x8085e5b0
 OnInit__Q25Pages20GPVSLeaderboardTotalFv = 0x8085c9b0
 GetNextPage__Q25Pages20GPVSLeaderboardTotalCFv = 0x8085cc40
+__ct__Q25Pages19WWLeaderboardUpdateFv = 0x806252e4
+__dt__Q25Pages19WWLeaderboardUpdateFv = 0x8085e4c4
+FillRows__Q25Pages19WWLeaderboardUpdateFv = 0x8085ce8c
+GetRuntimeTypeInfo__Q25Pages19WWLeaderboardUpdateCFv = 0x8085e534
+OnInit__Q25Pages19WWLeaderboardUpdateFv = 0x8085cd18
+GetNextPage__Q25Pages19WWLeaderboardUpdateCFv = 0x8085d55c
 
 ##RKNET
 #RKNetController
