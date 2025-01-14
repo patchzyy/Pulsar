@@ -37,6 +37,10 @@ void fillLeaderboardResults(int count, CtrlRaceResult** results) {
     }
 }
 
+const u32 WIIMOTE_DPAD_BUTTONS = WPAD::WPAD_BUTTON_LEFT | WPAD::WPAD_BUTTON_RIGHT | WPAD::WPAD_BUTTON_DOWN | WPAD::WPAD_BUTTON_UP;
+const u32 CLASSIC_DPAD_BUTTONS = WPAD::WPAD_CL_BUTTON_UP | WPAD::WPAD_CL_BUTTON_LEFT | WPAD::WPAD_CL_BUTTON_DOWN | WPAD::WPAD_CL_BUTTON_RIGHT;
+const u32 GC_DPAD_BUTTONS = PAD::PAD_BUTTON_LEFT | PAD::PAD_BUTTON_RIGHT | PAD::PAD_BUTTON_DOWN | PAD::PAD_BUTTON_UP;
+
 bool checkLeaderboardDisplaySwapInputs() {
     const Input::RealControllerHolder* controllerHolder = SectionMgr::sInstance->pad.padInfos[0].controllerHolder;
     const ControllerType controllerType = controllerHolder->curController->GetType();
@@ -47,13 +51,13 @@ bool checkLeaderboardDisplaySwapInputs() {
     switch (controllerType) {
     case NUNCHUCK:
     case WHEEL:
-        swapDisplayType = (newInputs & (WPAD::WPAD_BUTTON_LEFT | WPAD::WPAD_BUTTON_RIGHT)) != 0;
+        swapDisplayType = (newInputs & WIIMOTE_DPAD_BUTTONS) != 0;
         break;
     case CLASSIC:
-        swapDisplayType = (newInputs & (WPAD::WPAD_CL_TRIGGER_L | WPAD::WPAD_CL_TRIGGER_R)) != 0;
+        swapDisplayType = (newInputs & (WPAD::WPAD_CL_TRIGGER_L | WPAD::WPAD_CL_TRIGGER_R | CLASSIC_DPAD_BUTTONS)) != 0;
         break;
     default:
-        swapDisplayType = (newInputs & (PAD::PAD_BUTTON_L | PAD::PAD_BUTTON_R)) != 0;
+        swapDisplayType = (newInputs & (PAD::PAD_BUTTON_L | PAD::PAD_BUTTON_R | GC_DPAD_BUTTONS)) != 0;
         break;
     }
 
