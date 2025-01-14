@@ -1,6 +1,9 @@
 #include <UI/Leaderboard/LeaderboardDisplay.hpp>
 #include <MarioKartWii/Race/RaceInfo/RaceInfo.hpp>
 #include <MarioKartWii/UI/Section/SectionMgr.hpp>
+#include <MarioKartWii/RKNet/RKNetController.hpp>
+#include <MarioKartWii/RKNet/USER.hpp>
+#include <UI/UI.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -20,8 +23,18 @@ void nextLeaderboardDisplayType() {
     if (displayLeaderboardType == LEADERBOARD_DISPLAY_NAMES) {
         displayLeaderboardType = LEADERBOARD_DISPLAY_TIMES;
     } else if (displayLeaderboardType == LEADERBOARD_DISPLAY_TIMES) {
+        if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
+            displayLeaderboardType = LEADERBOARD_DISPLAY_NAMES;
+        } else {
+            displayLeaderboardType = LEADERBOARD_DISPLAY_FC;
+        }
+    } else if (displayLeaderboardType == LEADERBOARD_DISPLAY_FC) {
         displayLeaderboardType = LEADERBOARD_DISPLAY_NAMES;
     }
+}
+
+bool isSectionSpectatorLiveView(SectionId id) {
+    return id == SECTION_P1_WIFI_VS_LIVEVIEW || id == SECTION_P2_WIFI_VS_LIVEVIEW || id == SECTION_P1_WIFI_BT_LIVEVIEW || id == SECTION_P2_WIFI_BT_LIVEVIEW;
 }
 
 void fillLeaderboardResults(int count, CtrlRaceResult** results) {
@@ -33,6 +46,37 @@ void fillLeaderboardResults(int count, CtrlRaceResult** results) {
             results[i]->FillFinishTime(playerId);
         } else if(displayLeaderboardType == LEADERBOARD_DISPLAY_NAMES) {
             results[i]->FillName(playerId);
+        } else if(displayLeaderboardType == LEADERBOARD_DISPLAY_FC) {
+            if (playerId < 12) {
+                u32 hudSlot = Racedata::sInstance->GetHudSlotId(playerId);
+                u64 fc = RKNet::USERHandler::sInstance->receivedPackets[playerId].fc;
+
+                // This is the local player, so we need to get the FC from the packet we send.
+                if (hudSlot < 2 && !isSectionSpectatorLiveView(SectionMgr::sInstance->curSection->sectionId)) {
+                    fc = RKNet::USERHandler::sInstance->toSendPacket.fc;
+                }
+
+                u32 fcParts[3];
+                for (int j = 0; j < 3; ++j) {
+                    fcParts[j] = fc % 10000;
+                    fc /= 10000;
+                }
+
+                wchar_t fcText[16];
+                swprintf(fcText, 16, L"%04d-%04d-%04d", fcParts[2], fcParts[1], fcParts[0]);
+
+                if (wcscmp(fcText, L"0000-0000-0000") == 0) {
+                    wcscpy(fcText, L"----");
+                    continue;
+                }
+
+                Text::Info textInfo;
+                textInfo.strings[0] = fcText;
+
+                results[i]->SetTextBoxMessage("player_name", UI::BMG_TEXT, &textInfo);
+                results[i]->ResetTextBoxMessage("time");
+
+            }
         }
     }
 }

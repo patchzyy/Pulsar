@@ -1050,6 +1050,7 @@ SetPaneVisibility__15LayoutUIControlFPCcb = 0x8063e54c
 SetMiiPane__15LayoutUIControlFPCcRC8MiiGroupUiUc = 0x8063e3dc
 vf_0x30__15LayoutUIControlFv = 0x8063E61c
 __vt__15LayoutUIControl = 0x808befb4
+ResetTextBoxMessage__15LayoutUIControlFPCc = 0x8063deec
 
 #LayoutUIControlScaleFade
 __ct__24LayoutUIControlScaleFadeFv = 0x8063e674

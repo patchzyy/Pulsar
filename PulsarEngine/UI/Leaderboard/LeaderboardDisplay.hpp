@@ -9,7 +9,8 @@ namespace UI {
 
 enum LeaderboardDisplayType {
     LEADERBOARD_DISPLAY_NAMES,
-    LEADERBOARD_DISPLAY_TIMES
+    LEADERBOARD_DISPLAY_TIMES,
+    LEADERBOARD_DISPLAY_FC
 };
 
 void setLeaderboardDisplayType(LeaderboardDisplayType type);
