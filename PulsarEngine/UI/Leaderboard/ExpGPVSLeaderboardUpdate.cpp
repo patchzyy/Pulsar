@@ -19,6 +19,8 @@ void ExpGPVSLeaderboardUpdate::BeforeEntranceAnimations() {
     } else if(static_cast<Pulsar::Times>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_TIMES)) == Pulsar::TIMES_ENABLED) {
         setLeaderboardDisplayType(LEADERBOARD_DISPLAY_TIMES);
     }
+
+    fillLeaderboardResults(GetRowCount(), this->results);
 }
 
 }
