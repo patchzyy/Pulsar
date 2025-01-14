@@ -47,7 +47,7 @@ bool checkLeaderboardDisplaySwapInputs() {
     switch (controllerType) {
     case NUNCHUCK:
     case WHEEL:
-        swapDisplayType = (newInputs & WPAD::WPAD_BUTTON_LEFT | WPAD::WPAD_BUTTON_RIGHT) != 0;
+        swapDisplayType = (newInputs & (WPAD::WPAD_BUTTON_LEFT | WPAD::WPAD_BUTTON_RIGHT)) != 0;
         break;
     case CLASSIC:
         swapDisplayType = (newInputs & (WPAD::WPAD_CL_TRIGGER_L | WPAD::WPAD_CL_TRIGGER_R)) != 0;
