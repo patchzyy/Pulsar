@@ -10,65 +10,63 @@ namespace UI {
 const s8 CtrlRaceInputViewer::DPAD_HOLD_FOR_N_FRAMES = 10;
 
 void CtrlRaceInputViewer::Init() {
-
     char name[32];
-    bool isBrakedriftToggled = System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc();
-
+    bool isBrakedriftToggled = System::sInstance->IsContext(PULSAR_200);
     RacedataScenario& raceScenario = Racedata::sInstance->racesScenario;
+    
     for (int i = 0; i < (int)DpadState_Count; ++i) {
         DpadState state = static_cast<DpadState>(i);
         const char* stateName = CtrlRaceInputViewer::DpadStateToName(state);
         
         snprintf(name, 32, "Dpad%.*s", strlen(stateName), stateName);
-
         nw4r::lyt::Pane* pane = this->layout.GetPaneByName(name);
         this->SetPaneVisibility(name, state == DpadState_Off);
-
         this->m_dpadPanes[i] = pane;
+        
+        this->HudSlotColorEnable(name, true);
     }
-
+    
     for (int i = 0; i < (int)AccelState_Count; ++i) {
         AccelState state = static_cast<AccelState>(i);
         const char* stateName = CtrlRaceInputViewer::AccelStateToName(state);
-
+        
         snprintf(name, 32, "Accel%.*s", strlen(stateName), stateName);
-
         nw4r::lyt::Pane* pane = this->layout.GetPaneByName(name);
         this->SetPaneVisibility(name, state == AccelState_Off);
-
         if (isBrakedriftToggled) {
             pane->trans.x += pane->scale.x * 15.0f;
             pane->trans.y += pane->scale.z * 15.0f;
         }
-
         this->m_accelPanes[i] = pane;
+        
+        this->HudSlotColorEnable(name, true);
     }
-
+    
     for (int i = 0; i < (int)Trigger_Count; ++i) {
         Trigger trigger = static_cast<Trigger>(i);
         const char* triggerName = CtrlRaceInputViewer::TriggerToName(trigger);
-
+        
         for (int j = 0; j < (int)TriggerState_Count; ++j) {
             TriggerState state = static_cast<TriggerState>(j);
             const char* stateName = CtrlRaceInputViewer::TriggerStateToName(state);
-
+            
             snprintf(name, 32, "Trigger%.*s%.*s", strlen(triggerName), triggerName, strlen(stateName), stateName);
-
             nw4r::lyt::Pane* pane = this->layout.GetPaneByName(name);
             this->SetPaneVisibility(name, state == TriggerState_Off);
-
             if (!isBrakedriftToggled && trigger == Trigger_BD) {
                 this->SetPaneVisibility(name, false);
             }
-
             this->m_triggerPanes[i][j] = pane;
+            
+            this->HudSlotColorEnable(name, true);
         }
     }
-
+    
     this->m_stickPane = this->layout.GetPaneByName("Stick");
     this->m_stickOrigin = this->m_stickPane->trans;
-
     this->m_playerId = this->GetPlayerId();
+    this->HudSlotColorEnable("Stick", true);
+    this->HudSlotColorEnable("StickBackdrop", true);
 
     LayoutUIControl::Init();
 }
@@ -123,15 +121,15 @@ void CtrlRaceInputViewer::OnUpdate() {
 }
 
 u32 CtrlRaceInputViewer::Count() {
-
-    return 0; // TODO: Implement settings to toggle this feature
-
-    const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
-    u32 localPlayerCount = scenario.localPlayerCount;
-    const SectionId sectionId = SectionMgr::sInstance->curSection->sectionId;
-    if(sectionId >= SECTION_WATCH_GHOST_FROM_CHANNEL && sectionId <= SECTION_WATCH_GHOST_FROM_MENU) localPlayerCount += 1;
-    if(localPlayerCount == 0 && (scenario.settings.gametype & GAMETYPE_ONLINE_SPECTATOR)) localPlayerCount = 1;
-    return localPlayerCount;
+    if(static_cast<Pulsar::InputDisplay>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_INPUTDISPLAY)) == Pulsar::INPUTDISPLAY_ENABLED) {
+        const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
+        u32 localPlayerCount = scenario.localPlayerCount;
+        const SectionId sectionId = SectionMgr::sInstance->curSection->sectionId;
+        if(sectionId >= SECTION_WATCH_GHOST_FROM_CHANNEL && sectionId <= SECTION_WATCH_GHOST_FROM_MENU) localPlayerCount += 1;
+        if(localPlayerCount == 0 && (scenario.settings.gametype & GAMETYPE_ONLINE_SPECTATOR)) localPlayerCount = 1;
+        return localPlayerCount;
+    }
+    return 0;
 }
 
 void CtrlRaceInputViewer::Create(Page& page, u32 index, u32 count) {

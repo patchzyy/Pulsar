@@ -93,7 +93,8 @@ enum RRettings {
 enum RR2Settings {
     SETTINGRR2_RADIO_CTMUSIC = 0,
     SETTINGRR2_RADIO_TIMES = 1,
-    SETTIGNRR2_RADIO_FPS = 2
+    SETTIGNRR2_RADIO_FPS = 2,
+    SETTINGRR2_RADIO_INPUTDISPLAY = 3,
 };
 
 enum RR3Settings {
@@ -279,6 +280,11 @@ enum Times {
 enum FPS {
     FPS_DEFAULT,
     FPS_HALF
+};
+
+enum InputDisplay {
+    INPUTDISPLAY_DISABLED,
+    INPUTDISPLAY_ENABLED
 };
 
 // RR3 Settings
