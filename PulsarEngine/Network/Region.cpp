@@ -16,6 +16,10 @@ static void PatchRegionNumber() {
         region = 0x0B;
     } else if (is200 == WWMODE_200) {
         region = 0x0C;
+    } else if (is200 == WWMODE_DEFAULT && System::sInstance->IsContext(PULSAR_MODE_OTT) == false) {
+        region = 0x0A;
+    } else {
+        region = 0x0A;
     }
 }
 static PageLoadHook RegionNumberPatch(PatchRegionNumber);
