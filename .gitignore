@@ -59,3 +59,4 @@ PulsarPackCreator/Executable/Pulsar Pack Creator.dll.config
 PulsarEngine/AntiCheat.cpp
 GameSource/symbols.txt
 PulsarEngine/Network/MatchCommand.cpp
+PulsarEngine/AntiCheat.hpp

@@ -125,7 +125,7 @@ void System::UpdateContext() {
     bool isHAW = false;
     bool isKO = false;
     bool isOTT = false;
-    bool isOTTOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_OTT && mode != MODE_VS_RACE && mode != MODE_TIME_TRIAL;
+    bool isOTTOnline = settings.GetSettingValue(Settings::SETTINGSTYPE_MENU, SETTINGMENU_SCROLLER_WWMODE) == WWMODE_OTT && mode != MODE_VS_RACE && mode != MODE_TIME_TRIAL;
     bool isMiiHeads = settings.GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_MII);
 
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
@@ -133,7 +133,7 @@ void System::UpdateContext() {
     const u32 sceneId = GameScene::GetCurrent()->id;
 
     bool is200 = racedataSettings.engineClass == CC_100 && this->info.Has200cc();
-    bool is200Online = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_200 && mode != MODE_VS_RACE && mode != MODE_TIME_TRIAL;
+    bool is200Online = settings.GetSettingValue(Settings::SETTINGSTYPE_MENU, SETTINGMENU_SCROLLER_WWMODE) == WWMODE_200 && mode != MODE_VS_RACE && mode != MODE_TIME_TRIAL;
     bool is500 = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, HOSTSETTING_CC_500);
     bool isKOFinal = settings.GetSettingValue(Settings::SETTINGSTYPE_KO, SETTINGKO_FINAL) == KOSETTING_FINAL_ALWAYS;
     bool isCharRestrictLight = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_CHARSELECT) == CHAR_LIGHTONLY;

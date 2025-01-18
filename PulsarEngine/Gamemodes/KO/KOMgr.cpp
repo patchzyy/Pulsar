@@ -79,7 +79,6 @@ void Mgr::CalcWouldBeKnockedOut() {
         // Calculate real KO count
         const u32 theoreKOs = this->koPerRace - ((playerCount - this->koPerRace == 1) && this->alwaysFinal);
         const s32 realKOCount = theoreKOs;
-
         if (realKOCount > 0 && (SectionMgr::sInstance->sectionParams->onlineParams.currentRaceNumber + 1) % this->racesPerKO == 0) {
             int koAssigned = 0;
             for (int idx = playerCount - 1; idx >= 0 && koAssigned < realKOCount; --idx) { // Start from last player
@@ -209,14 +208,11 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player * playerArr, size_t ni
 
             // KO players in elimination positions if no ties
             if (realKOCount > 0 && hasTies == false) {
-                int koCount = 0;
-                for (int idx = playerCount - 1; idx >= 0 && koCount < realKOCount; --idx) {
+                for(int idx = 0; idx < realKOCount; ++idx) {
                     u8 playerId;
-                    if (self->racesPerKO == 1) {
-                        playerId = raceinfo->playerIdInEachPosition[idx];
-                    } else {
-                        playerId = playerArr[idx].playerId;
-                    }
+                    u32 position = (playerCount - 1) - disconnectedKOs - idx;
+                    if(self->racesPerKO == 1) playerId = raceinfo->playerIdInEachPosition[position];
+                    else playerId = playerArr[position].playerId;
 
                     // Skip the winner and the player in first position
                     if (playerId == self->winnerPlayerId || raceinfo->players[playerId]->position == 1) {
@@ -231,7 +227,6 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player * playerArr, size_t ni
                     }
 
                     self->SetKOd(playerId);
-                    ++koCount;
                 }
             }
 

@@ -49,7 +49,8 @@ enum MenuSettings {
     SETTINGMENU_RADIO_FASTMENUS = 0,
     SETTINGMENU_RADIO_LAYOUT = 1,
     SETTINGMENU_RADIO_MUSIC = 2,
-    SETTINGMENU_SCROLL_BOOT = 0 + 6
+    SETTINGMENU_SCROLL_BOOT = 0 + 6,
+    SETTINGMENU_SCROLLER_WWMODE = 1 + 6,
 };
 
 enum RaceSettings {
@@ -87,7 +88,6 @@ enum RRettings {
     SETTINGRR_RADIO_TRANSMISSION = 0,
     SETTINGRR_RADIO_HARDAI = 1,
     SETTINGRR_RADIO_BRAKEDRIFT = 2,
-    SETTINGRR_SCROLLER_WWMODE = 0 + 6,
 };
 
 enum RR2Settings {
@@ -129,6 +129,12 @@ enum MenuSettingBoot {
     MENUSETTING_BOOT_L2,
     MENUSETTING_BOOT_L3,
     MENUSETTING_BOOT_L4
+};
+
+enum WWMode {
+    WWMODE_DEFAULT,
+    WWMODE_OTT,
+    WWMODE_200
 };
 
 // RACE SETTINGS
@@ -258,12 +264,6 @@ enum HardAI {
 enum BrakeDrift {
     BRAKEDRIFT_DISABLED,
     BRAKEDRIFT_ENABLED
-};
-
-enum WWMode {
-    WWMODE_DEFAULT,
-    WWMODE_OTT,
-    WWMODE_200
 };
 
 // RR2 Settings
