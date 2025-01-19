@@ -12,17 +12,17 @@ static u32 region = 0x0A;
 
 static void PatchRegionNumber() {
     bool is200 = System::sInstance->IsContext(PULSAR_200_WW) ? WWMODE_200 : WWMODE_DEFAULT;
-    if (System::sInstance->IsContext(PULSAR_MODE_OTT) == true) {
+    bool isOTT = System::sInstance->IsContext(PULSAR_MODE_OTT) ? WWMODE_OTT : WWMODE_DEFAULT;
+    if (isOTT == WWMODE_OTT) {
         region = 0x0B;
     } else if (is200 == WWMODE_200) {
         region = 0x0C;
-    } else if (is200 == WWMODE_DEFAULT && System::sInstance->IsContext(PULSAR_MODE_OTT) == false) {
-        region = 0x0A;
-    } else {
+    } else if (is200 == WWMODE_DEFAULT && isOTT == WWMODE_DEFAULT) {
         region = 0x0A;
     }
 }
-static PageLoadHook RegionNumberPatch(PatchRegionNumber);
+PageLoadHook RegionNumberPatch(PatchRegionNumber);
+Settings::Hook RegionNumberPatch2(PatchRegionNumber);
 
 static void PatchLoginRegion() {
     WWFC_CUSTOM_REGION = region;

@@ -133,7 +133,7 @@ void CupsConfig::ToggleCTs(bool enabled) {
     if(RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
         isRegs = System::sInstance->IsContext(PULSAR_REGS) ? REGS_DISABLED : REGS_ENABLED;
     }
-    if(RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
+    if(RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_WW) {
         isRegs = REGS_DISABLED;
     }
     if(isRegs == REGS_DISABLED) {

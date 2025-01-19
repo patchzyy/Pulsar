@@ -111,7 +111,7 @@ void System::InitIO(IOType type) const {
 void System::InitSettings(const u16* totalTrophyCount) const {
     Settings::Mgr* settings = new (this->heap) Settings::Mgr;
     char path[IOS::ipcMaxPath];
-    snprintf(path, IOS::ipcMaxPath, "%s/%s", this->GetModFolder(), "RRSettings.pul");
+    snprintf(path, IOS::ipcMaxPath, "%s/%s", this->GetModFolder(), "Settings.pul");
     settings->Init(totalTrophyCount, path); //params
     Settings::Mgr::sInstance = settings;
 }

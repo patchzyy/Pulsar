@@ -64,7 +64,7 @@ void Mgr::CalcWouldBeKnockedOut() {
         cur.playerId = curPlayerId;
     }
 
-    if (playerCount == 2 || (playerCount - disconnectedKOs) == 1) { // Use position-based KOs
+    if (playerCount == 2 || (playerCount - disconnectedKOs) == 1 || racesPerKO == 1) { // Use position-based KOs
         for (int i = 0; i < playerCount; ++i) {
             if (raceInfo->players[i]->position == 1) {
                 this->wouldBeOut[i] = false; // Winner is not knocked out
@@ -96,9 +96,15 @@ void Mgr::CalcWouldBeKnockedOut() {
                 }
 
                 // Check if the context is PULSAR_KOFINAL and KOSETTING_FINAL_ALWAYS is true
-                if (System::sInstance->IsContext(Pulsar::PULSAR_KOFINAL) == KOSETTING_FINAL_ALWAYS && playerCount > 2) {
+                if (System::sInstance->IsContext(Pulsar::PULSAR_KOFINAL) == KOSETTING_FINAL_ALWAYS && playerCount > 2 && this->racesPerKO > 1) {
                     if (players[0].playerId == playerId || players[1].playerId == playerId) {
                         continue; // Do not KO the top 2 racers
+                    }
+                }
+
+                if (System::sInstance->IsContext(Pulsar::PULSAR_KOFINAL) == KOSETTING_FINAL_ALWAYS && playerCount > 2 && this->racesPerKO == 1) {
+                    if (raceInfo->players[playerId]->position <= 2) {
+                        continue; // Do not eliminate positions 1 and 2
                     }
                 }
 
@@ -214,15 +220,19 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player * playerArr, size_t ni
                     if(self->racesPerKO == 1) playerId = raceinfo->playerIdInEachPosition[position];
                     else playerId = playerArr[position].playerId;
 
-                    // Skip the winner and the player in first position
                     if (playerId == self->winnerPlayerId || raceinfo->players[playerId]->position == 1) {
                         continue;
                     }
 
-                    // Check if the context is PULSAR_KOFINAL and KOSETTING_FINAL_ALWAYS is true
-                    if (System::sInstance->IsContext(Pulsar::PULSAR_KOFINAL) == KOSETTING_FINAL_ALWAYS && playerCount > 2) {
+                    if (System::sInstance->IsContext(Pulsar::PULSAR_KOFINAL) == KOSETTING_FINAL_ALWAYS && playerCount > 2 && self->racesPerKO > 1) {
                         if (playerArr[0].playerId == playerId || playerArr[1].playerId == playerId) {
                             continue; // Do not KO the top 2 racers
+                        }
+                    }
+
+                    if (System::sInstance->IsContext(Pulsar::PULSAR_KOFINAL) == KOSETTING_FINAL_ALWAYS && playerCount > 2 && self->racesPerKO == 1) {
+                        if (raceinfo->players[playerId]->position <= 2) {
+                            continue; // Do not eliminate positions 1 and 2
                         }
                     }
 

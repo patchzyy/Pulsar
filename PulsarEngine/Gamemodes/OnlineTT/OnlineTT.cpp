@@ -233,6 +233,17 @@ static void SELECTStageMgrBeforeControlUpdate(Pages::SELECTStageMgr* stageMgr) {
 kmWritePointer(0x808C06E4, SELECTStageMgrBeforeControlUpdate);
 
 static void PreventVoteChangeSection(Pages::Vote& vote, SectionId id, float delay) {
+    static int frameCounter = 0; // Added frame counter
+    frameCounter++; // Increment frame counter
+
+    if(frameCounter >= 600) { // Check if 600 frames have passed
+        System* system = System::sInstance;
+        system->ottMgr.voteState = COMBO_SELECTED; // Trigger combo selection automatically
+        vote.EndStateAnimated(0, delay);
+        frameCounter = 0; // Reset frame counter
+        return;
+    }
+
     System* system = System::sInstance;
     system->ottMgr.Reset();
     if(system->IsContext(PULSAR_MODE_OTT)) {
@@ -284,7 +295,7 @@ kmCall(0x8084e698, FixAfterDrift);
 //OPTIONS
 static void MuteKartSounds(Audio::EngineMgr* mgr, Audio::KartActor* actor) {
     mgr->Init(actor);
-    if(System::sInstance->IsContext(PULSAR_MODE_OTT) && !actor->isLocal && Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_MUTEPTANDPLAYERS) == true) {
+    if(System::sInstance->IsContext(PULSAR_MODE_OTT) && !actor->isLocal && Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_MUTEPTANDPLAYERS) == false) {
         actor->isGhost = true;
     }
 }
@@ -292,7 +303,7 @@ kmCall(0x80707620, MuteKartSounds);
 
 static bool MuteCharSounds(Kart::Link* link) {
     const u32 bitfield = link->pointers->kartStatus->bitfield4;
-    if(System::sInstance->IsContext(PULSAR_MODE_OTT) && Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_MUTEPTANDPLAYERS) == true) {
+    if(System::sInstance->IsContext(PULSAR_MODE_OTT) && Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_MUTEPTANDPLAYERS) == false) {
         return !(bitfield & 0x2); //isLocal
     }
     return bitfield & 0x40; //isGhost
@@ -303,7 +314,7 @@ static bool MutePositionTracker(CtrlRaceRankNum& tracker) { //isInactive = muted
     asmVolatile(bctrl;);
     register bool isInactive;
     asm(mr isInactive, r3;);
-    if(System::sInstance->IsContext(PULSAR_MODE_OTT) && !isInactive) isInactive = Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_MUTEPTANDPLAYERS);
+    if(System::sInstance->IsContext(PULSAR_MODE_OTT) && isInactive) isInactive = Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_MUTEPTANDPLAYERS);
     return isInactive;
 }
 kmCall(0x807F4AC4, MutePositionTracker);
