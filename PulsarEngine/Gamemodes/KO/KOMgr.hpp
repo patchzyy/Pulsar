@@ -16,6 +16,11 @@ enum Status {
 };
 class Mgr {
 public:
+    struct PlayerPosition {
+        u8 position;
+        u8 playerId;
+    };
+
     struct Stats {
         Stats() : percentageSum(0.0f) {}
         struct Final {
@@ -37,6 +42,10 @@ public:
     static const u32 arbitraryAlmostDied = 60; //60 frames in danger the last 5s = almost out
 
     static void Create(Page* froom, u32 director, float length);
+
+    static int SortPlayersByPosition(PlayerPosition* a, PlayerPosition* b) {
+        return a->position - b->position;
+    }
 
     Mgr();
     ~Mgr();
