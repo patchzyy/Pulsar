@@ -20,6 +20,10 @@ void ExpGPVSLeaderboardUpdate::BeforeEntranceAnimations() {
         setLeaderboardDisplayType(LEADERBOARD_DISPLAY_TIMES);
     }
 
+    if (System::sInstance->IsContext(PULSAR_MODE_OTT)) {
+        setLeaderboardDisplayType(LEADERBOARD_DISPLAY_TIMES);
+    }
+
     fillLeaderboardResults(GetRowCount(), this->results);
 }
 
