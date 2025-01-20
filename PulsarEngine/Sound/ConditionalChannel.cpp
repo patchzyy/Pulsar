@@ -1,7 +1,7 @@
 #include <kamek.hpp>
 #include <MarioKartWii/Audio/AudioManager.hpp>
 #include <MarioKartWii/Audio/Other/AudioStreamsMgr.hpp>
-#include <MarioKartWii/UI/SectionMgr/SectionMgr.hpp>
+#include <MarioKartWii/UI/Section/SectionMgr.hpp>
 
 namespace Pulsar {
 namespace Sound {
@@ -49,5 +49,5 @@ kmCall(0x806fab78, ConditionalChannelSwitch);
 
 
 
-}//namespace Audio
+}//namespace Sound
 }//namespace Pulsar

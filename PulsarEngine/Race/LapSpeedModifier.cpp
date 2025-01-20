@@ -1,21 +1,21 @@
 #include <kamek.hpp>
-#include <MarioKartWii/Race/racedata.hpp>
-#include <MarioKartWii/Race/RaceInfo/RaceInfo.hpp>
-#include <MarioKartWii/KMP/KMPManager.hpp>
+#include <MarioKartWii/Race/Raceinfo/Raceinfo.hpp>
+#include <MarioKartWii/3D/Model/ModelDirector.hpp>
 #include <MarioKartWii/Kart/KartValues.hpp>
 #include <MarioKartWii/Kart/KartMovement.hpp>
-#include <MarioKartWii/Lakitu/LakituManager.hpp>
-#include <MarioKartWii/Item/Obj/ItemObj.hpp>
+#include <MarioKartWii/Item/Obj/ObjProperties.hpp>
+#include <MarioKartWii/RKNet/RKNetController.hpp>
 #include <Race/200ccParams.hpp>
+#include <PulsarSystem.hpp>
 #include <RetroRewind.hpp>
 
 namespace Pulsar {
 namespace Race {
 //Mostly a port of MrBean's version with better hooks and arguments documentation
-RaceInfoPlayer* LoadCustomLapCount(RaceInfoPlayer* player, u8 id) {
+RaceinfoPlayer* LoadCustomLapCount(RaceinfoPlayer* player, u8 id) {
     const u8 lapCount = KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->lapCount;
-    RaceData::sInstance->racesScenario.settings.lapCount = lapCount;
-    return new(player) RaceInfoPlayer(id, lapCount);
+    Racedata::sInstance->racesScenario.settings.lapCount = lapCount;
+    return new(player) RaceinfoPlayer(id, lapCount);
 }
 kmCall(0x805328d4, LoadCustomLapCount);
 
@@ -37,25 +37,24 @@ Kart::Stats* ApplySpeedModifier(KartId kartId, CharacterId characterId) {
     };
 
     Kart::Stats* stats = Kart::ComputeStats(kartId, characterId);
-    const HostSettingHostCC ccSetting = RetroRewind::System::GetCCMode();
-    const GameMode gameMode = RaceData::sInstance->menusScenario.settings.gamemode;
-    RKNet::Controller* controller = RKNet::Controller::sInstance;
-    const RKNet::RoomType roomType = controller->roomType;
+    const GameMode gameMode = Racedata::sInstance->menusScenario.settings.gamemode;
+    const RKNet::Controller* controller = RKNet::Controller::sInstance;
+    const RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
     SpeedModConv speedModConv;
     speedModConv.kmpValue = (KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->speedMod << 16);
     if(speedModConv.speedMod == 0.0f) speedModConv.speedMod = 1.0f;
     float factor = 1.0f;
-    if (Info::Is200cc() && ccSetting == HOSTSETTING_CC_500){
+    if (System::sInstance->IsContext(PULSAR_200) && System::sInstance->IsContext(Pulsar::PULSAR_500)){
         factor = 2.66f;
     }
-    else if (Info::Is200cc()){
+    else if (System::sInstance->IsContext(PULSAR_200)){
         factor = speedFactor;
     }
     else if (RetroRewind::System::Is500cc() && gameMode == MODE_PRIVATE_VS || RetroRewind::System::Is500cc() && gameMode == MODE_VS_RACE || RetroRewind::System::Is500cc() && gameMode == MODE_PUBLIC_VS){
         factor = 3.0f;
     }
     else if (RetroRewind::System::Is500cc() && gameMode == MODE_BATTLE || RetroRewind::System::Is500cc() && gameMode == MODE_PUBLIC_BATTLE || RetroRewind::System::Is500cc() && gameMode == MODE_PRIVATE_BATTLE){
-        factor = 1.428;
+        factor = 1.214;
     }
     factor *= speedModConv.speedMod;
 

@@ -1,6 +1,6 @@
 #include <kamek.hpp>
 #include <MarioKartWii/Audio/AudioManager.hpp>
-#include <MarioKartWii/UI/SectionMgr/SectionMgr.hpp>
+#include <MarioKartWii/UI/Section/SectionMgr.hpp>
 #include <Sound/MiscSound.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
 #include <SlotExpansion/UI/ExpansionUIMisc.hpp>
@@ -21,21 +21,22 @@ s32 CheckBRSTM(const nw4r::snd::DVDSoundArchive* archive, PulsarId id, bool isFi
     char trackName[0x100];
     UI::GetTrackBMG(trackName, id);
     snprintf(pulPath, 0x100, "%sstrm/%s%s.brstm", root, trackName, lapSpecifier);
-    ret = DVDConvertPathToEntryNum(pulPath);
+    ret = DVD::ConvertPathToEntryNum(pulPath);
     if(ret < 0) {
         snprintf(pulPath, 0x50, "%sstrm/%d%s.brstm", root, CupsConfig::ConvertTrack_PulsarIdToRealId(id), lapSpecifier);
-        ret = DVDConvertPathToEntryNum(pulPath);
+        ret = DVD::ConvertPathToEntryNum(pulPath);
     }
     return ret;
 }
 
 nw4r::ut::FileStream* MusicSlotsExpand(nw4r::snd::DVDSoundArchive* archive, void* buffer, int size,
     const char* extFilePath, u32 r7, u32 length) {
-    u8 isBRSTMOn = (static_cast<RetroRewind::System::CTMusic>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(RetroRewind::System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_CTMUSIC)));
+    u8 isBRSTMOn = (static_cast<Pulsar::CTMusic>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_CTMUSIC)));
     const char firstChar = extFilePath[0xC];
-    const PulsarId track = CupsConfig::sInstance->winningCourse;
     const CupsConfig* cupsConfig = CupsConfig::sInstance;
-    if((firstChar == 'n' || firstChar == 'S' || firstChar == 'r') && !CupsConfig::IsReg(track) && isBRSTMOn == RetroRewind::System::CTMUSIC_ENABLED) {
+    const PulsarId track = cupsConfig->GetWinning();
+
+    if ((firstChar == 'n' || firstChar == 'S' || firstChar == 'r') && isBRSTMOn == Pulsar::CTMUSIC_ENABLED) {
         const SectionId section = SectionMgr::sInstance->curSection->sectionId;
         register SoundIDs toPlayId;
         asm(mr toPlayId, r20;);
@@ -65,5 +66,5 @@ nw4r::ut::FileStream* MusicSlotsExpand(nw4r::snd::DVDSoundArchive* archive, void
 }
 kmCall(0x8009e0e4, MusicSlotsExpand);
 
-}//namespace Audio
+}//namespace Sound
 }//namespace Pulsar
