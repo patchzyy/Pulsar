@@ -217,6 +217,7 @@ kmCall(0x805e504c, GlobeMsgColor);
 
 void GlobeSearchTopMsg(CtrlMenuPageTitleText& title, u32 bmgId, Text::Info* info) {
     if(System::sInstance->IsContext(PULSAR_MODE_OTT) == Pulsar::OTTSETTING_ONLINE_NORMAL) bmgId = UI::BMG_OTT_TITLE_TEXT;
+    else if(System::sInstance->IsContext(PULSAR_200_WW) == Pulsar::WWMODE_200) bmgId = UI::BMG_200;
     title.SetMessage(bmgId, info);
 }
 kmCall(0x80608658, GlobeSearchTopMsg);

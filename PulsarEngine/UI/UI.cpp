@@ -8,6 +8,7 @@
 #include <UI/Leaderboard/ExpGPVSLeaderboardUpdate.hpp>
 #include <UI/Leaderboard/ExpGPVSLeaderboardTotal.hpp>
 #include <UI/Leaderboard/ExpWWLeaderboardUpdate.hpp>
+#include <UI/SelectStage/ExpVotePage.hpp>
 #include <AutoTrackSelect/ExpFroomMessages.hpp>
 #include <Settings/UI/ExpFroomPage.hpp>
 #include <Settings/UI/ExpOptionsPage.hpp>
@@ -185,6 +186,9 @@ void ExpSection::CreateAndInitPage(ExpSection& self, u32 id) {
             break;
         case PAGE_WW_LEADERBOARDS_UPDATE:
             page = new ExpWWLeaderboardUpdate;
+            break;
+        case PAGE_VOTE:
+            page = new ExpVotePage;
             break;
             //PULPAGES
         case ChooseNextTrack::id:
