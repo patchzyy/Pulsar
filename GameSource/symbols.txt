@@ -1932,4 +1932,15 @@ displayFcAndCountryHookExit__Fv = 0x807f0050
 displayFcAndCountryInResultFillNameHookExit__Fv = 0x807f5300
 displayFcAndCountryInResultFillTimeHookExit__Fv = 0x807f5968
 MD5Digest__FPCUcUiPUc = 0x800f0e08
-PicturePaneExists__15LayoutUIControlFPCc = 0x8063e328
+PicturePaneExists__15LayoutUIControlFPCc = 0x8063e328PicturePaneExists__15LayoutUIControlFPCc = 0x8063e328
+
+#VotePage
+__ct__Q25Pages4VoteFv = 0x80642f90
+__dt__Q25Pages4VoteFv = 0x806430bc
+BeforeControlUpdate__Q25Pages4VoteFv = 0x806437e8
+GetRuntimeTypeInfo__Q25Pages4VoteCFv = 0x8064464c
+OnInit__Q25Pages4VoteFv = 0x80643168
+OnDispose__Q25Pages4VoteFv = 0x806433c8
+BeforeEntranceAnimations__Q25Pages4VoteFv = 0x806433cc
+BeforeExitAnimations__Q25Pages4VoteFv = 0x80643e98
+GetNextPage__Q25Pages4VoteCFv = 0x80643f18

@@ -97,8 +97,13 @@ bool UpdateSpeedMultiplier(Kart::Boost& boost, bool* boostEnded) {
     const float umtMultiplier = 1.32; //10% faster
     const float insideDriftMultiplier = 1.224f; //2.5% faster
     const float defaultMTMultiplier = 1.2f;
+    bool insideAll = Pulsar::HOSTSETTING_FORCE_TRANSMISSION_DEFAULT;
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
+        insideAll = System::sInstance->IsContext(Pulsar::PULSAR_TRANSMISSIONINSIDE) ? Pulsar::HOSTSETTING_FORCE_TRANSMISSION_INSIDE : Pulsar::HOSTSETTING_FORCE_TRANSMISSION_DEFAULT;
+    }
 
-    if (static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_TRANSMISSION)) == Pulsar::TRANSMISSION_INSIDEALL) {
+    if (static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_TRANSMISSION)) == Pulsar::TRANSMISSION_INSIDEALL
+    || insideAll == Pulsar::HOSTSETTING_FORCE_TRANSMISSION_INSIDE) {
         if (!isBoosting) state[id] = false;
         if (boost.multiplier == defaultMTMultiplier || boost.multiplier == insideDriftMultiplier) {
             if (state[id]) boost.multiplier = insideDriftMultiplier;

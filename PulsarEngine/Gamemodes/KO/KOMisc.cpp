@@ -287,5 +287,21 @@ void StoreItemsForSpectating(RKNet::ITEMHandler& itemHandler) {
 }
 kmCall(0x8065c69c, StoreItemsForSpectating);
 
+static void SkipConfirmationPage(Pages::SELECTStageMgr* _this, PageId id, u32 animDirection) {
+    if (System::sInstance->IsContext(PULSAR_MODE_KO)) {
+        if (System::sInstance->koMgr->isSpectating) {
+            _this->status = Pages::SELECTStageMgr::STATUS_VOTES_PAGE;
+            return _this->AddPageLayer(PAGE_VOTE, animDirection);
+        }
+    }
+
+    _this->status = Pages::SELECTStageMgr::STATUS_VR_PAGE;
+    return _this->AddPageLayer(id, animDirection);
+}
+
+kmWriteNop(0x806508f8);
+kmCall(0x806508f0, SkipConfirmationPage);
+
+
 }//namespace KO
 }//namespace Pulsar

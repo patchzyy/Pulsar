@@ -4,10 +4,22 @@
 
 namespace RetroRewind {
 void *GetCustomKartParam(ArchiveMgr *archive, ArchiveSource type, const char *name, u32 *length){
+    bool insideAll = Pulsar::HOSTSETTING_FORCE_TRANSMISSION_DEFAULT;
+    bool outsideAll = Pulsar::HOSTSETTING_FORCE_TRANSMISSION_DEFAULT;
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
+        insideAll = System::sInstance->IsContext(Pulsar::PULSAR_TRANSMISSIONINSIDE) ? Pulsar::HOSTSETTING_FORCE_TRANSMISSION_INSIDE : Pulsar::HOSTSETTING_FORCE_TRANSMISSION_DEFAULT;
+        outsideAll = System::sInstance->IsContext(Pulsar::PULSAR_TRANSMISSIONOUTSIDE) ? Pulsar::HOSTSETTING_FORCE_TRANSMISSION_OUTSIDE : Pulsar::HOSTSETTING_FORCE_TRANSMISSION_DEFAULT;
+    }
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
         name = "kartParam.bin";
     } else {
-        if (static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_TRANSMISSION)) == Pulsar::TRANSMISSION_INSIDEALL)
+        if (insideAll == Pulsar::HOSTSETTING_FORCE_TRANSMISSION_INSIDE) {
+            name = "kartParamAll.bin";
+        }
+        else if (outsideAll == Pulsar::HOSTSETTING_FORCE_TRANSMISSION_OUTSIDE) {
+            name = "kartParamOut.bin";
+        }
+        else if (static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_TRANSMISSION)) == Pulsar::TRANSMISSION_INSIDEALL)
         {
             name="kartParamAll.bin";
         }

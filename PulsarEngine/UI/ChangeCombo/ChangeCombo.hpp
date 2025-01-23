@@ -21,7 +21,7 @@ namespace UI {
 static void RandomizeCombo();
 class ExpVR : public Pages::VR {
 public:
-    static const int randomDuration = 152; //2.5s
+    static const int randomDuration = 60; //1s
     static_assert(randomDuration % 4 == 0, "Random Combo Duration");
     ExpVR();
     void OnInit() override;

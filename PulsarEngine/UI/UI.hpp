@@ -154,6 +154,7 @@ enum BMG {
     BMG_OTT_PLAYING = 0x2852,
     BMG_OTT_TITLE_TEXT = 0x2853,
     BMG_OTT_TIME_DIFF = 0x2854,
+    BMG_200 = 0x2855,
 
     //KO
     BMG_KO_OUT = 0x2860,
