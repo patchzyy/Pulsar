@@ -41,55 +41,68 @@ void Mgr::AddRaceStats() { //SHOULD ONLY BE CALLED AFTER PROCESSKOS
 }
 
 void Mgr::CalcWouldBeKnockedOut() {
-    const Raceinfo* raceInfo = Raceinfo::sInstance;
+
+    bool ret = false;
+    Pages::GPVSLeaderboardUpdate::Player players[12];
+    memset(&players, 0, sizeof(Pages::GPVSLeaderboardUpdate::Player) * 12);
+    const RacedataScenario& scenario = Racedata::sInstance->menusScenario;
+    const RKNet::Controller* controller = RKNet::Controller::sInstance;
+    const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
     const u8 playerCount = System::sInstance->nonTTGhostPlayersCount;
+    const Raceinfo* raceInfo = Raceinfo::sInstance;
 
-    PlayerPosition players[12];
-    for (u8 curPlayerId = 0; curPlayerId < playerCount; ++curPlayerId) {
+    const u8* pointsArray = &Racedata::pointsRoom[playerCount - 1][0];
+
+    u32 disconnectedKOs = 0;
+    for(int curPlayerId = 0; curPlayerId < playerCount; ++curPlayerId) { //init players struct
         this->wouldBeOut[curPlayerId] = false;
-        players[curPlayerId].playerId = curPlayerId;
-        players[curPlayerId].position = raceInfo->players[curPlayerId]->position;
+        const u8 aid = controller->aidsBelongingToPlayerIds[curPlayerId];
+        if((1 << aid & sub.availableAids) == 0) ++disconnectedKOs;
+        Pages::GPVSLeaderboardUpdate::Player& cur = players[curPlayerId];
+        const u8 wouldBePoints = pointsArray[raceInfo->players[curPlayerId]->position - 1];
+        cur.lastRaceScore = wouldBePoints;
+        cur.totalScore = scenario.players[curPlayerId].previousScore + wouldBePoints;
+        cur.playerId = curPlayerId;
     }
-
-    // If it's a 1v1 final, only the winner is not knocked out
-    if (playerCount == 2) {
-        for (int i = 0; i < playerCount; ++i) {
-            if (raceInfo->players[i]->position == 1) {
-                this->wouldBeOut[i] = false;
-            } else {
-                this->wouldBeOut[i] = true;
-            }
+    if(playerCount == 2 || (playerCount - disconnectedKOs) == 1) { //either it's the final race, or there were so many DCs that only one racer is left; in both cases, use position-based KOs
+        for(int i = 0; i < playerCount; ++i) {
+            this->wouldBeOut[i] = raceInfo->players[i]->position != 1;
         }
-
-        return;
     }
+    else {
+        qsort(&players, playerCount, sizeof(Pages::GPVSLeaderboardUpdate::Player), reinterpret_cast<int (*)(const void*, const void*)>(&Pages::GPVSLeaderboardTotal::ComparePlayers));
 
-    const bool force1v1Final = System::sInstance->IsContext(Pulsar::PULSAR_KOFINAL) == KOSETTING_FINAL_ALWAYS;
-    const u32 currentRaceCount = SectionMgr::sInstance->sectionParams->onlineParams.currentRaceNumber + 1;
-    const bool isKoRace = currentRaceCount % this->racesPerKO == 0;
+        const u32 theoreKOs = this->koPerRace - ((playerCount - this->koPerRace == 1) && System::sInstance->IsContext(PULSAR_KOFINAL) == KOSETTING_FINAL_ALWAYS); //remove exactly 1KO from the count if always final is on and only 1 player would be left
+        const s32 realKOCount = theoreKOs - disconnectedKOs; //DCd players have already been eliminated
+        if (realKOCount > 0 && (SectionMgr::sInstance->sectionParams->onlineParams.currentRaceNumber + 1) % this->racesPerKO == 0) {
+            int koAssigned = 0;
+            for (int idx = playerCount - 1; idx >= 0 && koAssigned < realKOCount; --idx) { // Start from last player
+                u32 position = idx;
+                u8 playerId;
+                if (racesPerKO == 1) {
+                    playerId = raceInfo->playerIdInEachPosition[position];
+                } else {
+                    playerId = players[position].playerId;
+                }
 
-    if (isKoRace) {
-        s32 roundKOs = this->koPerRace;
-        const s32 remainingPlayersAfter = playerCount - roundKOs;
+                // Skip the winner
+                if (playerId == winnerPlayerId || raceInfo->players[playerId]->position == 1) {
+                    continue;
+                }
+                if (System::sInstance->IsContext(Pulsar::PULSAR_KOFINAL) == KOSETTING_FINAL_ALWAYS && playerCount > 2 && this->racesPerKO > 1) {
+                    if (players[0].playerId == playerId || players[1].playerId == playerId) {
+                        continue; // Do not KO the top 2 racers
+                    }
+                }
 
-        // If the "force 1v1 final" setting is enabled, make sure to keep 2 players
-        if (remainingPlayersAfter < 2 && force1v1Final) {
-            roundKOs = playerCount - 2;
-        }
-
-        // Sort the players by position (and not points...)
-        qsort(players, playerCount, sizeof(PlayerPosition), reinterpret_cast<int(*)(const void*, const void*)>(SortPlayersByPosition));
-    
-        // Calculate the expected KOs
-        s32 assignedKOs = 0;
-        for (s32 idx = playerCount - 1; idx >= 0 && assignedKOs < roundKOs; --idx) {
-            // Skip the winner
-            if (players[idx].position == 1) {
-                continue;
+                if (System::sInstance->IsContext(Pulsar::PULSAR_KOFINAL) == KOSETTING_FINAL_ALWAYS && playerCount > 2 && this->racesPerKO == 1) {
+                    if (raceInfo->players[playerId]->position <= 2) {
+                        continue; // Do not eliminate positions 1 and 2
+                    }
+                }
+                this->wouldBeOut[playerId] = true;
+                ++koAssigned;
             }
-
-            this->wouldBeOut[players[idx].playerId] = true;
-            ++assignedKOs;
         }
     }
 }
@@ -183,8 +196,8 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, size_t nit
             }
 
             //Reset the scores if no ties AND more than 1 race per KO
-            if(realKOCount > 0 && self->racesPerKO > 1) {
-                for(int idx = 0; idx < 12; ++idx) {
+            if (realKOCount > 0 && self->racesPerKO > 1 && !hasTies) {
+                for (int idx = 0; idx < 12; ++idx) {
                     scenario.players[idx].score = 0;
                     scenario.players[idx].previousScore = 0;
                 }
@@ -196,7 +209,12 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, size_t nit
                 u32 position = (playerCount - 1) - disconnectedKOs - idx;
                 if(self->racesPerKO == 1) playerId = raceinfo->playerIdInEachPosition[position];
                 else playerId = playerArr[position].playerId;
-                if (playerId == self->winnerPlayerId || raceinfo->players[playerId]->position == 1) continue;
+                if (self->racesPerKO == 1 || playerCount == 2 ) {
+                    if (playerId == self->winnerPlayerId || raceinfo->players[playerId]->position == 1) continue;
+                }
+                if (self->racesPerKO > 1 && playerCount > 2 ) {
+                    if (playerId == self->winnerPlayerId) continue;
+                }
                 self->SetKOd(playerId);
             }
         }

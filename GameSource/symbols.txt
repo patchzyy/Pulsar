@@ -1932,7 +1932,7 @@ displayFcAndCountryHookExit__Fv = 0x807f0050
 displayFcAndCountryInResultFillNameHookExit__Fv = 0x807f5300
 displayFcAndCountryInResultFillTimeHookExit__Fv = 0x807f5968
 MD5Digest__FPCUcUiPUc = 0x800f0e08
-PicturePaneExists__15LayoutUIControlFPCc = 0x8063e328PicturePaneExists__15LayoutUIControlFPCc = 0x8063e328
+PicturePaneExists__15LayoutUIControlFPCc = 0x8063e328
 
 #VotePage
 __ct__Q25Pages4VoteFv = 0x80642f90
