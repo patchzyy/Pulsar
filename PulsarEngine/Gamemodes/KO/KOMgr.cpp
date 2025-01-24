@@ -111,15 +111,23 @@ void Mgr::CalcWouldBeKnockedOut() {
     
         // Mark players for KO starting with lowest scores
         s32 assignedKOs = 0;
-        for (s32 idx = 0; idx < playerCount && assignedKOs < roundKOs; ++idx) {
-            if (this->racesPerKO == 1 && raceInfo->players[players[idx].playerId]->position == 1) {
-                continue;
+        if (racesPerKO > 1) {
+            for (s32 idx = 0; idx < playerCount && assignedKOs < roundKOs; ++idx) {
+                if (this->racesPerKO > 1 && idx == playerCount - 1) {
+                    continue;
+                    }
+                this->wouldBeOut[players[idx].playerId] = true;
+                ++assignedKOs;
             }
-            if (this->racesPerKO > 1 && idx == playerCount - 1) {
-                continue;
+        }
+        else if (racesPerKO == 1) {
+        for (s32 idx = playerCount - 1; idx >= 0 && assignedKOs < roundKOs; --idx) {
+                if (this->racesPerKO == 1 && raceInfo->players[players[idx].playerId]->position == 1) {
+                    continue;
+                    }
+                this->wouldBeOut[players[idx].playerId] = true;
+                ++assignedKOs;
             }
-            this->wouldBeOut[players[idx].playerId] = true;
-            ++assignedKOs;
         }
     }
 }
