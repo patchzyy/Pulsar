@@ -60,6 +60,3 @@ PulsarPackCreator/Executable/Pulsar Pack Creator.dll.config
 # AntiCheat
 PulsarEngine/AntiCheat.cpp
 PulsarEngine/AntiCheat.hpp
-GameSource/AntiCheat.txt
-PulsarEngine/Network/RoomKey.cpp
-PulsarEngine/Network/RoomKey.hpp
