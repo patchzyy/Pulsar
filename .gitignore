@@ -56,7 +56,10 @@ BuildTesting.bat
 *.vsidx
 PulsarPackCreator/Executable/Pulsar Pack Creator.dll.config
 *.v2
+
+# AntiCheat
 PulsarEngine/AntiCheat.cpp
-GameSource/symbols.txt
-PulsarEngine/Network/MatchCommand.cpp
 PulsarEngine/AntiCheat.hpp
+GameSource/AntiCheat.txt
+PulsarEngine/Network/RoomKey.cpp
+PulsarEngine/Network/RoomKey.hpp

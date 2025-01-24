@@ -167,6 +167,8 @@ kmCall(0x805b15e0, EnableOpacityFunctionality);
 // kmCall(0x80595ad4, PreventBurnOuts);
 
 static void SELECTStageMgrBeforeControlUpdate(Pages::SELECTStageMgr* stageMgr) {
+    static int waitFrames = 0; // ← Add a static counter so we can perform a fallback
+
     System* system = System::sInstance;
     const Pages::SELECTStageMgr::Status old = stageMgr->status;
     if(system->ottMgr.voteState != COMBO_NONE) stageMgr->status = Pages::SELECTStageMgr::STATUS_VR_PAGE; //so that the countdown shows
@@ -213,9 +215,20 @@ static void SELECTStageMgrBeforeControlUpdate(Pages::SELECTStageMgr* stageMgr) {
                 handler.toSendPacket.allowChangeComboStatus = Network::SELECT_COMBO_WAITING_FOR_START;
             }
             if(hostAid == sub.localAid) {
-                if(isEveryoneWaiting && system->ottMgr.voteState == WAITING_FOR_START) {
-                    system->ottMgr.voteState = HOST_START;
-                    handler.toSendPacket.allowChangeComboStatus = Network::SELECT_COMBO_HOST_START;
+                if(system->ottMgr.voteState == WAITING_FOR_START) {
+                    if (isEveryoneWaiting) {
+                        waitFrames = 0; // Reset our fallback counter if all players appear ready
+                        system->ottMgr.voteState = HOST_START;
+                        handler.toSendPacket.allowChangeComboStatus = Network::SELECT_COMBO_HOST_START;
+                    } else {
+                        // Not everyone is done. Increment & check our fallback timer.
+                        ++waitFrames;
+                        if (waitFrames > 600) { // ~10 seconds at 60fps
+                            // Force the next state to avoid getting stuck forever.
+                            system->ottMgr.voteState = HOST_START;
+                            handler.toSendPacket.allowChangeComboStatus = Network::SELECT_COMBO_HOST_START;
+                        }
+                    }
                 }
                 if((system->ottMgr.aidsInRace | (1 << sub.localAid)) == sub.availableAids && system->ottMgr.voteState == HOST_START) system->ottMgr.voteState = SELECT_READY;
             }

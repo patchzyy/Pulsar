@@ -72,7 +72,7 @@ FOR %%H IN (%CPPFILES%) DO (
 
 :: Linking
 echo Linking... %time%
-".\KamekLinker\Kamek.exe" "build/kamek.o" %OBJECTS% %debug% -dynamic -externals="%GAMESOURCE%/symbols.txt" -versions="%GAMESOURCE%/versions.txt" -output-combined=build\Code.pul
+".\KamekLinker\Kamek.exe" "build/kamek.o" %OBJECTS% %debug% -dynamic -externals="%GAMESOURCE%/symbols.txt" -externals="%GAMESOURCE%/AntiCheat.txt" -versions="%GAMESOURCE%/versions.txt" -output-combined=build\Code.pul
 if %ErrorLevel% neq 0 (
     echo Error: Linking failed.
     exit /b 1
