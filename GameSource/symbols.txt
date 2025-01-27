@@ -1917,16 +1917,6 @@ FPSPatchHook = 0x80001202
 ItemBoxHook = 0x80001204
 DCHook = 0x80001206
 OTTFixHook = 0x80001208
-DolphinCheat= 0x80001804
-MainDolCheat= 0x800018a8
-AntiCheat1= 0x800023D0
-AntiCheat2= 0x80002470
-AntiCheat3= 0x80002370
-AntiCheat4= 0x80002400
-AntiCheat5= 0x800024A0
-AntiCheat6= 0x800024E0
-AntiCheat7= 0x80002510
-GeckoLoader1= 0x817E9F50
 beginFrame= 0x8020fe24
 
 # eppe FC code fix
@@ -1959,3 +1949,9 @@ SetAllAmbiencesVolume__Q25Audio15RaceAmbienceMgrFUcUif = 0x806fcfa0
 LowOpenPartition__3DVDFPQ23DVD12CommandBlockUiPvPvPv = 0x80164c34
 LowClosePartition__3DVDFPQ23DVD12CommandBlock = 0x801655a4
 ReadAbsAsyncPrio__3DVDFPQ23DVD8FileInfoPvUiUiPFiPQ23DVD8FileInfo_vi = 0x801628cc
+sInstance__Q23EGG7TSystem = 0x80385fc8
+Open__9NandUtilsFPCcPQ24NAND8FileInfoUc = 0x8052af64
+Close__9NandUtilsFPQ24NAND8FileInfo = 0x8052b144
+EntrynumIsDir__3DVDFi = 0x8015e58c
+Init__3DVDFv = 0x8015ea1c
+GetCurrentContext__2OSFv = 0x801a1ecc
