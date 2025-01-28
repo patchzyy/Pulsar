@@ -1955,3 +1955,9 @@ Close__9NandUtilsFPQ24NAND8FileInfo = 0x8052b144
 EntrynumIsDir__3DVDFi = 0x8015e58c
 Init__3DVDFv = 0x8015ea1c
 GetCurrentContext__2OSFv = 0x801a1ecc
+
+OnButtonClick__Q25Pages2VRFR10PushButtonUi = 0x8064ae6c
+HandleDeselect__18RadioButtonControlFUiUi = 0x80606434
+HandleSelect__18RadioButtonControlFUiUi = 0x806062d8
+HandleClick__18RadioButtonControlFUiUi = 0x80606620
+HandleDeselect__13UpDownControlFUiUi = 0x8063f7c4
