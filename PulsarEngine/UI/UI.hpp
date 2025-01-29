@@ -32,9 +32,10 @@ enum PulPageId {
     PULPAGE_KORACEEND,
     PULPAGE_KOWINNER,
     PULPAGE_SETTINGS,
+    PULPAGE_EXTENDEDTEAMSELECT,
 
 
-    PULPAGE_MAX = PULPAGE_SETTINGS - PULPAGE_INITIAL + 1
+    PULPAGE_MAX = PULPAGE_EXTENDEDTEAMSELECT - PULPAGE_INITIAL + 1
 };
 
 class ExpSection : public Section { //u32 id -> either a standard pageId but can also be a PulPageId
@@ -92,6 +93,7 @@ enum BMG {
     BMG_GP_BLANK = 0xd36,
 
     BMG_CHOOSE_GHOST_DATA = 0xd4f,
+    BMG_DISCONNECTED_FROM_OTHER_PLAYERS = 0xfb2,
     BMG_PLAY_GP = 0x100e,
     BMG_PLAY_TEAM_GP = 0x100f,
     BMG_RATING = 0x106a, //vr/br value + "rating" under
@@ -198,6 +200,10 @@ enum BMG {
     BMG_RADIO_SETTINGS = 0x3000,
     BMG_SCROLLER_SETTINGS = 0x3700,
     BMG_USERSETTINGSOFFSET = 0x60000, //user settings therefore start at 0x53000 for radi osettings, 0x53700 for scrollers
+
+    // Custom texts (extended teams, explanations, etc..)
+    BMG_EXTENDEDTEAMS_EXPLANATION = 0x83337,
+    BMG_EXTENDEDTEAMS_NONHOST_TITLE = 0x83338
 
 };
 

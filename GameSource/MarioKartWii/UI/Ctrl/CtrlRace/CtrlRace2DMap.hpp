@@ -2,6 +2,7 @@
 #define _CTRLRACE2DMAP_
 #include <kamek.hpp>
 #include <MarioKartWii/UI/Ctrl/CtrlRace/CtrlRaceBase.hpp>
+#include <MarioKartWii/Kart/KartPlayer.hpp>
 
 //_sinit_ at 807ebeec
 
@@ -22,6 +23,7 @@ class CtrlRace2DMapObject : public CtrlRaceBase { //used as a base for other obj
 }; //0x1b4
 
 class CtrlRace2DMapCharacter : public CtrlRace2DMapObject {
+public:
     CtrlRace2DMapCharacter(); //807ea89c
     ~CtrlRace2DMapCharacter() override; //807ea98c vtable 808d389c
     void InitSelf() override; //0x18 807eaecc
@@ -31,8 +33,15 @@ class CtrlRace2DMapCharacter : public CtrlRace2DMapObject {
     void CalculatePosition(const Vec3& kartPosition, Vec2& dest, u32 r6) override; //0x50 807eb3cc
     char* GetPaneName() const override; //0x5c 807ebe60
     virtual void Load(u8 index); //0x60 807eae00
-    u8 unknown_0x1b4[0x1CC - 0x1B4];
+    u8 playerId; // 0x1b4
+    u8 padding_0x1b5[3];
+    nw4r::lyt::Pane* charaPane; //0x1b8
+    nw4r::lyt::Pane* charaShadow0Pane; //0x1bc
+    nw4r::lyt::Pane* charaShadow1Pane; //0x1c0
+    nw4r::lyt::Pane* lightPane; //0x1c4
+    Kart::Player* player; // 0x1c8
 }; //total size 0x1cc
+size_assert(CtrlRace2DMapCharacter, 0x1cc);
 
 class CtrlRace2DMapBossObj : public CtrlRace2DMapObject {
     CtrlRace2DMapBossObj(); //807ea9ec

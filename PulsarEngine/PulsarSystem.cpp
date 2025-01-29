@@ -10,6 +10,7 @@
 #include <Gamemodes/OnlineTT/OnlineTT.hpp>
 #include <Settings/Settings.hpp>
 #include <Config.hpp>
+#include <UI/ExtendedTeamSelect/ExtendedTeamManager.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
 #include <core/egg/DVD/DvdRipper.hpp>
 namespace Pulsar {
@@ -27,6 +28,7 @@ void System::CreateSystem() {
     }
     else system = new System();
     System::sInstance = system;
+    UI::ExtendedTeamManager::CreateInstance(new UI::ExtendedTeamManager());
     ConfigFile& conf = ConfigFile::LoadConfig();
     system->Init(conf);
     prev->BecomeCurrentHeap();
@@ -127,6 +129,7 @@ void System::UpdateContext() {
     bool isOTT = false;
     bool isOTTOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_OTT && mode != MODE_VS_RACE && mode != MODE_TIME_TRIAL;
     bool isMiiHeads = settings.GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_MII);
+    bool isExtendedTeams = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_EXTENDEDTEAMS) == EXTENDEDTEAMS_ENABLED;
 
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
     Network::Mgr& netMgr = this->netMgr;
@@ -185,6 +188,7 @@ void System::UpdateContext() {
                 isItemBoxRepsawnFast = newContext & (1 << PULSAR_ITEMBOXRESPAWN);
                 IsTransmissionInside = newContext & (1 << PULSAR_TRANSMISSIONINSIDE);
                 IsTransmissionOutside = newContext & (1 << PULSAR_TRANSMISSIONOUTSIDE);
+                isExtendedTeams = newContext & (1 << PULSAR_EXTENDEDTEAMS);
                 if (isOTT) {
                     isUMTs = newContext & (1 << PULSAR_UMTS);
                     isFeather &= newContext & (1 << PULSAR_FEATHER);
@@ -209,7 +213,7 @@ void System::UpdateContext() {
         context |= (is200 << PULSAR_200) | (is200Online << PULSAR_200_WW) | (isFeather << PULSAR_FEATHER) | (isUMTs << PULSAR_UMTS) | (isMegaTC << PULSAR_MEGATC) | (isOTT << PULSAR_MODE_OTT) | (isOTTOnline << PULSAR_MODE_OTT) | (isKO << PULSAR_MODE_KO)
         | (isCharRestrictLight << PULSAR_CHARRESTRICTLIGHT) | (isCharRestrictMid << PULSAR_CHARRESTRICTMID) | (isCharRestrictHeavy << PULSAR_CHARRESTRICTHEAVY) | (isKartRestrictKart << PULSAR_KARTRESTRICT) | (isKartRestrictBike << PULSAR_BIKERESTRICT) | (isChangeCombo << PULSAR_CHANGECOMBO)
         | (is500 << PULSAR_500) | (isThunderCloud << PULSAR_THUNDERCLOUD) | (isItemModeRandom << PULSAR_ITEMMODERANDOM) | (isItemModeBlast << PULSAR_ITEMMODEBLAST) | (isItemModeNone << PULSAR_ITEMMODENONE) | (isRegs << PULSAR_REGS) | (isKOFinal << PULSAR_KOFINAL) 
-        | (isItemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN) | (IsTransmissionInside << PULSAR_TRANSMISSIONINSIDE) | (IsTransmissionOutside << PULSAR_TRANSMISSIONOUTSIDE);
+        | (isItemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN) | (IsTransmissionInside << PULSAR_TRANSMISSIONINSIDE) | (IsTransmissionOutside << PULSAR_TRANSMISSIONOUTSIDE) | (isExtendedTeams << PULSAR_EXTENDEDTEAMS);
     }
     this->context = context;
 
