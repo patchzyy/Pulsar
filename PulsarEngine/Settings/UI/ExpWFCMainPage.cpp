@@ -116,6 +116,10 @@ void ExpWFCModeSel::OnActivatePatch() {
     page->ottButton.manipulator.inaccessible = isHidden;
     page->twoHundredButton.isHidden = isHidden;
     page->twoHundredButton.manipulator.inaccessible = isHidden;
+
+    page->battleButton.isHidden = true;
+    page->battleButton.manipulator.inaccessible = true;
+
     page->nextPage = PAGE_NONE;
     PushButton* button = &page->vsButton;
     u32 bmgId = UI::BMG_RACE_WITH11P;
