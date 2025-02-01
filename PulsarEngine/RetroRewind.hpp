@@ -8,6 +8,8 @@ extern u32 FPSPatchHook;
 extern u32 ItemBoxHook;
 extern u32 DCHook;
 extern u32 OTTFixHook;
+extern u32 MaxWeightHook;
+
 
 namespace RetroRewind {
 class System : public Pulsar::System {

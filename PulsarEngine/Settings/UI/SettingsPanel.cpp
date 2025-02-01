@@ -319,24 +319,14 @@ void SettingsPanel::SaveSettings(bool writeFile) {
 
 void SettingsPanel::OnBackPress(u32 hudSlotId) {
     PushButton& okButton = *this->externControls[0];
-    okButton.SelectFocus();
-    if(this->prevPageId == PAGE_WFC_MAIN) {
-        this->SaveSettings(true);
-        Pages::Menu::ChangeSectionById(SECTION_P1_WIFI, okButton);
-    } else {        
-        this->LoadPrevMenuAndSaveSettings(okButton);
-    }
+    okButton.SelectFocus();      
+    this->LoadPrevMenuAndSaveSettings(okButton);
 }
 
 void SettingsPanel::OnSaveButtonClick(PushButton& button, u32 hudSlotId) {
     PushButton& okButton = *this->externControls[0];
-    okButton.SelectFocus();
-    if(this->prevPageId == PAGE_WFC_MAIN) {
-        this->SaveSettings(true);
-        Pages::Menu::ChangeSectionById(SECTION_P1_WIFI, okButton);
-    } else {        
-        this->LoadPrevMenuAndSaveSettings(button);
-    }
+    okButton.SelectFocus();      
+    this->LoadPrevMenuAndSaveSettings(button);
 }
 
 void SettingsPanel::OnRightButtonClick(PushButton& button, u32 hudSlotId) {

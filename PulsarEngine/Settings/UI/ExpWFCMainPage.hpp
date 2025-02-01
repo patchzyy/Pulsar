@@ -26,18 +26,21 @@ public:
 
 class ExpWFCModeSel : public Pages::WFCModeSelect {
 public:
-    ExpWFCModeSel() : lastClickedButton(0) {
+    ExpWFCModeSel() : lastClickedButton(0), region(0xA) {
         this->onButtonSelectHandler.ptmf = &ExpWFCModeSel::OnModeButtonSelect;
         this->onModeButtonClickHandler.ptmf = &ExpWFCModeSel::OnModeButtonClick;
     }
-    static void InitOTTButton(ExpWFCModeSel& self);
+    static void InitButton(ExpWFCModeSel& self);
     static void OnActivatePatch();
-private:
+public:
     void OnModeButtonSelect(PushButton& modeButton, u32 hudSlotId); //8064c718
     void OnModeButtonClick(PushButton& PushButton, u32 r5);
     PushButton ottButton;
+    PushButton twoHundredButton;
     u32 lastClickedButton;
+    u32 region;
     static const u32 ottButtonId = 4;
+    static const u32 twoHundredButtonId = 5;
 };
 }//namespace UI
 }//namespace Pulsar

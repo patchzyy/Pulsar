@@ -83,13 +83,39 @@ end:
 kmCall(0x80828EDC, GetItemBoxRespawn);
 
 void ItemBoxPatch() {
+  bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
   bool isFastRespawn = Pulsar::System::sInstance->IsContext(Pulsar::PULSAR_ITEMBOXRESPAWN) ? Pulsar::ITEMBOX_DEFAULTRESPAWN : Pulsar::ITEMBOX_FASTRESPAWN;
   ItemBoxHook = 0x00;
-  if (isFastRespawn == Pulsar::ITEMBOX_DEFAULTRESPAWN) {
+  if (isFastRespawn == Pulsar::ITEMBOX_DEFAULTRESPAWN || is200) {
     ItemBoxHook = 0x00FF0100;
   }
 }
 static PageLoadHook PatchItemBox(ItemBoxPatch);
+
+asmFunc GetMaxWeight() {
+    ASM(
+loc_0x0:
+  lfs	      f1, 0x0014 (r28);
+  lis       r12, 0x8000;
+  lbz       r12, 0x120C(r12);
+  cmpwi     r12, 0;
+  beq       end;
+  lfs       f1, 0x0(r28);
+
+end:
+  blr;
+    )
+}
+kmCall(0x8057083C, GetMaxWeight);
+
+void MaxWeightPatch() {
+  bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
+  MaxWeightHook = 0x00;
+  if (is200) {
+    MaxWeightHook = 0x00FF0100;
+  }
+}
+static PageLoadHook PatchMaxWeight(MaxWeightPatch);
 
 //No Disconnect from being Idle [Bully]
 asmFunc GetNoDC() {

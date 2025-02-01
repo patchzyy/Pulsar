@@ -27,6 +27,10 @@ size_assert(Collision, 0x5c);
 
 class Obj {
 public:
+    bool IsExpired() const {
+        // Adjust this condition as needed (here we assume an item is expired when duration is 0)
+        return (duration == 0);
+    }
     Obj(); //8079d8bc
 
     class CalcWorldCB : public ModelCalcBase, public EmptyModelCalcParent, public g3d::ICalcWorldCallback {

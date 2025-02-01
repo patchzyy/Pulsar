@@ -33,7 +33,7 @@ kmWrite32(0x8064a61c, 0x60000000); //nop initControlGroup
 
 kmWrite24(0x808998b3, 'PUL'); //WifiMemberConfirmButton -> PULiMemberConfirmButton
 void ExpVR::OnInit() {
-    this->InitControlGroup(0x11);
+    this->InitControlGroup(0x12);
     VR::OnInit();
     bool hideSettings = false;
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
@@ -49,8 +49,8 @@ void ExpVR::OnInit() {
         }
     }
 
-    this->AddControl(5, settingsButton, 0);
-    this->settingsButton.Load(UI::buttonFolder, "SettingsVR", "SettingsVR", 1, 0, hideSettings);
+    this->AddControl(0x11, settingsButton, 0);
+    this->settingsButton.Load(UI::buttonFolder, "SettingsVR", "Settings", 1, 0, hideSettings);
     this->settingsButton.buttonId = 5;
     this->settingsButton.SetOnClickHandler(this->onSettingsClick, 0);
     this->settingsButton.SetOnSelectHandler(this->onButtonSelectHandler);

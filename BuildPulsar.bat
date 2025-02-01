@@ -1,4 +1,3 @@
-```bash
 @echo off
 SETLOCAL EnableDelayedExpansion
 cls
@@ -29,56 +28,70 @@ SET "CC=D:\Source\Common\cw\mwcceppc.exe"
 SET "RIIVO=C:\Users\ZachPL\AppData\Roaming\Dolphin Emulator\Load\Riivolution\RetroRewind6"
 SET "CFLAGS=-I- -i %ENGINE% -i %GAMESOURCE% -i %PULSAR% -opt all -inline auto -enum int -proc gekko -fp hard -sdata 0 -sdata2 0 -maxerrors 1 -func_align 4 %cwDWARF%"
 
+:: Create build directory if it doesn't exist
+if not exist "build" mkdir build
+
 :: Ensure the CodeWarrior path exists
 if not exist "%CC%" (
     echo Error: CodeWarrior path not found. Please set the correct path for CC.
     exit /b 1
 )
 
-:: Ensure the necessary directories exist
-if not exist "build" (
-    mkdir build
-    if %ErrorLevel% neq 0 (
-        echo Error: Failed to create build directory.
-        exit /b 1
-    )
-)
+:: Collect .cpp files and check if they need rebuilding
+SET OBJECTS=
+SET NEED_REBUILD=0
 
-:: Collect .cpp files
-SET CPPFILES=
-for /R %PULSAR% %%f in (*.cpp) do (
-    SET "CPPFILES=!CPPFILES! %%f"
-)
-
-:: Compile kamek.cpp
+:: Always rebuild kamek.cpp as it's critical
 echo Compiling kamek.cpp...
 %CC% %CFLAGS% -c -o "build/kamek.o" "%ENGINE%\kamek.cpp"
 if %ErrorLevel% neq 0 (
     echo Error: Failed to compile kamek.cpp.
     exit /b 1
 )
+SET "OBJECTS=build/kamek.o"
 
-:: Compile each .cpp file and add to OBJECTS list
-SET OBJECTS=
-FOR %%H IN (%CPPFILES%) DO (
-    echo Compiling %%H...
-    %CC% %CFLAGS% %DEFINE% -c -o "build/%%~nH.o" "%%H"
-    if %ErrorLevel% neq 0 (
-        echo Error: Failed to compile %%H.
-        exit /b 1
+:: Check and compile each .cpp file only if needed
+for /R %PULSAR% %%f in (*.cpp) do (
+    SET "NEED_REBUILD=0"
+    SET "OBJ_FILE=build\%%~nf.o"
+    
+    :: Check if .o file exists
+    if not exist "!OBJ_FILE!" (
+        SET "NEED_REBUILD=1"
+    ) else (
+        :: Compare timestamps
+        for %%A in ("%%f") do set "CPP_TIME=%%~tA"
+        for %%B in ("!OBJ_FILE!") do set "OBJ_TIME=%%~tB"
+        
+        if "!CPP_TIME!" gtr "!OBJ_TIME!" (
+            SET "NEED_REBUILD=1"
+        )
     )
-    SET "OBJECTS=!OBJECTS! build/%%~nH.o"
+    
+    :: Rebuild if needed
+    if !NEED_REBUILD! equ 1 (
+        echo Compiling %%f...
+        %CC% %CFLAGS% %DEFINE% -c -o "!OBJ_FILE!" "%%f"
+        if !ErrorLevel! neq 0 (
+            echo Error: Failed to compile %%f.
+            exit /b 1
+        )
+    ) else (
+        echo Skipping %%f ^(not modified^)
+    )
+    
+    SET "OBJECTS=!OBJECTS! !OBJ_FILE!"
 )
 
 :: Linking
 echo Linking... %time%
-".\KamekLinker\Kamek.exe" "build/kamek.o" %OBJECTS% %debug% -dynamic -externals="%GAMESOURCE%/symbols.txt" -externals="%GAMESOURCE%/AntiCheat.txt" -versions="%GAMESOURCE%/versions.txt" -output-combined=build\Code.pul
+".\KamekLinker\Kamek.exe" %OBJECTS% %debug% -dynamic -externals="%GAMESOURCE%/symbols.txt" -externals="%GAMESOURCE%/AntiCheat.txt" -versions="%GAMESOURCE%/versions.txt" -output-combined=build\Code.pul
 if %ErrorLevel% neq 0 (
     echo Error: Linking failed.
     exit /b 1
 )
 
-:: Copy output to Riivolution folder
+:: Copy output to Riivolution folder if defined
 if defined RIIVO (
     echo Copying binaries to %RIIVO%\Binaries...
     xcopy /Y build\*.pul "%RIIVO%\Binaries" /i /q
@@ -88,15 +101,6 @@ if defined RIIVO (
     ) else (
         echo Binaries copied successfully.
     )
-)
-
-:: Clear .o files after build
-echo Cleaning up .o files after build...
-del /q build\*.o
-if %ErrorLevel% neq 0 (
-    echo Warning: Failed to delete .o files after build.
-) else (
-    echo .o files deleted successfully.
 )
 
 echo Build completed successfully.

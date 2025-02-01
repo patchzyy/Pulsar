@@ -41,13 +41,14 @@ Kart::Stats* ApplySpeedModifier(KartId kartId, CharacterId characterId) {
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
     const RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
     SpeedModConv speedModConv;
+    bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
     speedModConv.kmpValue = (KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->speedMod << 16);
     if(speedModConv.speedMod == 0.0f) speedModConv.speedMod = 1.0f;
     float factor = 1.0f;
-    if (System::sInstance->IsContext(PULSAR_200) && System::sInstance->IsContext(Pulsar::PULSAR_500)){
+    if (is200 && System::sInstance->IsContext(Pulsar::PULSAR_500)){
         factor = 2.66f;
     }
-    else if (System::sInstance->IsContext(PULSAR_200)){
+    else if (is200){
         factor = speedFactor;
     }
     else if (RetroRewind::System::Is500cc() && gameMode == MODE_PRIVATE_VS || RetroRewind::System::Is500cc() && gameMode == MODE_VS_RACE || RetroRewind::System::Is500cc() && gameMode == MODE_PUBLIC_VS){
@@ -55,6 +56,9 @@ Kart::Stats* ApplySpeedModifier(KartId kartId, CharacterId characterId) {
     }
     else if (RetroRewind::System::Is500cc() && gameMode == MODE_BATTLE || RetroRewind::System::Is500cc() && gameMode == MODE_PUBLIC_BATTLE || RetroRewind::System::Is500cc() && gameMode == MODE_PRIVATE_BATTLE){
         factor = 1.214;
+    }
+    else if (System::sInstance->IsContext(PULSAR_MODE_OTT) && gameMode == MODE_PUBLIC_VS) {
+        factor = 1.0f;
     }
     factor *= speedModConv.speedMod;
 

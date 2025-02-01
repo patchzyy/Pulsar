@@ -40,7 +40,10 @@ public:
 }; //0x20
 
 class EntityManager : public EGG::Disposer {
-
+    public:
+        u8 playerCount;
+        u8 unknown_0x1[0x3];
+        Entity* players;
     struct Sub {
         float unknown_0x0;
         u8 entityIdx;
