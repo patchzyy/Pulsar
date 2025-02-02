@@ -213,7 +213,6 @@ int hook_QR2Startup(u32 id) {
 
 void StartRequestTask(void* arg) {
     if (isHookedRequest) {
-        
         playerCntSB = ServerBrowserNewA(
             DWC::MatchControl::sInstance->gameName,
             DWC::MatchControl::sInstance->gameName,
@@ -271,10 +270,21 @@ void hook_Section_calc(Section* _this) {
     hookLocalTimer += 1.0f / 60.0f;
     _this->UpdateLayers();
 
-    if (hasQR2Initialized && !isHookedRequest && hasRKNetRequestFinished && hookLocalTimer >= 5.0f && SectionMgr::sInstance->curSection->pages[Pages::Globe::id]) {
+    if (hasQR2Initialized
+    && !isHookedRequest
+    && hasRKNetRequestFinished
+    && hookLocalTimer >= 5.0f
+    && SectionMgr::sInstance->curSection->pages[Pages::Globe::id]
+    && DWC::MatchControl::sInstance)
+    {
         isHookedRequest = true;
         hookLocalTimer = 0.0f;
         Pulsar::System::sInstance->taskThread->Request(StartRequestTask, nullptr, 0);
+    }
+
+    if (!SectionMgr::sInstance->curSection->pages[Pages::Globe::id]) {
+        isHookedRequest = false;
+        hasRKNetRequestFinished = true;
     }
 }
 
@@ -284,19 +294,19 @@ void hook_ServerBrowserThink(ServerBrowser sb) {
     }
 }
 
-kmCall(0x800d0584, hook_QR2Startup);
-kmCall(0x800d413c, hook_QR2Startup);
-kmCall(0x800d5484, hook_QR2Startup);
-kmCall(0x800d56bc, hook_QR2Startup);
-kmCall(0x800d605c, hook_QR2Startup);
-kmCall(0x800d62c0, hook_QR2Startup);
+// kmCall(0x800d0584, hook_QR2Startup);
+// kmCall(0x800d413c, hook_QR2Startup);
+// kmCall(0x800d5484, hook_QR2Startup);
+// kmCall(0x800d56bc, hook_QR2Startup);
+// kmCall(0x800d605c, hook_QR2Startup);
+// kmCall(0x800d62c0, hook_QR2Startup);
 
-kmCall(0x800db908, hook_ServerBrowserLimitUpdateA);
-kmCall(0x80658be8, hook_DWC_SetReportLevel);
-kmCall(0x800d5390, hook_ServerBrowserNewA);
-kmCall(0x800d573c, hook_ServerBrowserNewA);
-kmCall(0x800d5f74, hook_ServerBrowserNewA);
-kmCall(0x800d6208, hook_ServerBrowserNewA);
-kmCall(0x800e435c, hook_ServerBrowserNewA);
-kmCall(0x800d8384, hook_ServerBrowserThink);
-kmCall(0x80622514, hook_Section_calc);
+// kmCall(0x800db908, hook_ServerBrowserLimitUpdateA);
+// kmCall(0x80658be8, hook_DWC_SetReportLevel);
+// kmCall(0x800d5390, hook_ServerBrowserNewA);
+// kmCall(0x800d573c, hook_ServerBrowserNewA);
+// kmCall(0x800d5f74, hook_ServerBrowserNewA);
+// kmCall(0x800d6208, hook_ServerBrowserNewA);
+// kmCall(0x800e435c, hook_ServerBrowserNewA);
+// kmCall(0x800d8384, hook_ServerBrowserThink);
+// kmCall(0x80622514, hook_Section_calc);
