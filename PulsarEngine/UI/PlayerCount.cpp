@@ -271,7 +271,7 @@ void hook_Section_calc(Section* _this) {
     hookLocalTimer += 1.0f / 60.0f;
     _this->UpdateLayers();
 
-    if (hasQR2Initialized && !isHookedRequest && hasRKNetRequestFinished && hookLocalTimer >= 5.0f) {
+    if (hasQR2Initialized && !isHookedRequest && hasRKNetRequestFinished && hookLocalTimer >= 5.0f && SectionMgr::sInstance->curSection->pages[Pages::Globe::id]) {
         isHookedRequest = true;
         hookLocalTimer = 0.0f;
         Pulsar::System::sInstance->taskThread->Request(StartRequestTask, nullptr, 0);

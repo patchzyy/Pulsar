@@ -194,8 +194,10 @@ void ExpWFCModeSel::BeforeControlUpdate() {
     int num150cc, num200cc, numOTT, numRegular;
     PlayerCount::GetNumbers(num150cc, num200cc, numOTT, numRegular);
 
+    Pages::GlobeSearch* globeSearch = SectionMgr::sInstance->curSection->Get<Pages::GlobeSearch>();
+
     Text::Info info;
-    if (s_displayPlayerCount) {
+    if (s_displayPlayerCount && globeSearch->searchType == 1) {
         int numRetroRewindPlayers = num150cc + num200cc + numOTT;
                 
         info.intToPass[0] = numOTT;
