@@ -69,6 +69,7 @@ public:
     void InitSettings(const u16* totalTrophyCount) const;
     void UpdateContext();
     static void UpdateContextWrapper();
+    static void ClearOttContext();
 protected:
     //Virtual
     virtual void AfterInit() {};

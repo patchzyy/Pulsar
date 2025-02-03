@@ -145,30 +145,14 @@ void NoDCPatch() {
 }
 static PageLoadHook PatchNoDC(NoDCPatch);
 
-asmFunc ItemVanish() {
-    ASM(
-        nofralloc;
-loc_0x0:
-  lfs f0, 0x0(r31);
-  fcmpo cr0, f1, f0;
-  lis r12, 0x8000;
-  lbz r12, 0x120A(r12);
-  cmpwi cr7, r12, 0;
-  beqlr cr7;
-  cmpwi r0, 0xA;
-
-end:
-  blr;
-    )
-}
-kmCall(0x8079F748, ItemVanish);
-
-void OTTPatch() {
-  OTTFixHook = 0x00;
+extern "C" void ItemVanish(unsigned int r0, unsigned int r12) {
   if (Pulsar::System::sInstance->IsContext(Pulsar::PULSAR_MODE_OTT)) {
-      OTTFixHook = 0x00FF0100;
+    if(r12 == 0) return;
+    volatile unsigned int cmp = (r0 == 10);
+    (void)cmp;
+    return;
   }
 }
-static PageLoadHook PatchOTT(OTTPatch);
+kmCall(0x8079F748, ItemVanish);
 
 } // namespace RetroRewind

@@ -49,6 +49,7 @@ public:
     // void BeforeControlUpdate() override;
     static void InitButton(ExpWFCModeSel& self);
     static void OnActivatePatch();
+    static void ClearModeContexts();
 public:
     void OnModeButtonSelect(PushButton& modeButton, u32 hudSlotId); //8064c718
     void OnModeButtonClick(PushButton& PushButton, u32 r5);

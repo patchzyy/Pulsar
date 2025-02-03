@@ -106,7 +106,7 @@ void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
 }
 kmCall(0x8064c294, ExpWFCModeSel::InitButton);
 
-void ClearModeContexts() {
+void ExpWFCModeSel::ClearModeContexts() {
     const u32 modeContexts[] = {
         PULSAR_MODE_OTT,
         PULSAR_200_WW,

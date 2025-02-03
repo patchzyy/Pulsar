@@ -78,7 +78,7 @@ void System::Init(const ConfigFile& conf) {
     }
 
     //Track blocking 
-    u32 trackBlocking = this->info.GetTrackBlocking();
+    u32 trackBlocking = 32;
     this->netMgr.lastTracks = new PulsarId[trackBlocking];
     for(int i = 0; i < trackBlocking; ++i) this->netMgr.lastTracks[i] = PULSARID_NONE;
     const BMGHeader* const confBMG = &conf.GetSection<PulBMG>().header;
@@ -125,9 +125,9 @@ void System::UpdateContext() {
     bool isHAW = false;
     bool isKO = false;
     bool isOTT = false;
-    bool isOTTOnline = this->IsContext(PULSAR_MODE_OTT) || (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_OTT && mode != MODE_VS_RACE && mode != MODE_TIME_TRIAL);
+    bool isOTTOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_OTT && mode == MODE_PUBLIC_VS;
     bool isMiiHeads = settings.GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_MII);
-    bool is200Online = this->IsContext(PULSAR_200_WW) || (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_200 && mode != MODE_VS_RACE && mode != MODE_TIME_TRIAL);
+    bool is200Online = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_200 && mode == MODE_PUBLIC_VS;
 
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
     Network::Mgr& netMgr = this->netMgr;
@@ -256,6 +256,16 @@ void System::UpdateContextWrapper() {
 }
 
 static Pulsar::Settings::Hook UpdateContext(System::UpdateContextWrapper);
+
+void System::ClearOttContext()
+{
+    bool isOTTEnabled = Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_OFFLINE);
+    if (!isOTTEnabled) {
+        sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+    }
+}
+
+static Pulsar::Settings::Hook UpdateOTTContext(System::ClearOttContext);
 
 s32 System::OnSceneEnter(Random& random) {
     System* self = System::sInstance;

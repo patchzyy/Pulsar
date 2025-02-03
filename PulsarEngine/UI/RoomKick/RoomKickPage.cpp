@@ -88,6 +88,7 @@ void RoomKickPage::BeforeControlUpdate() {
 
     for(int remIdx = idx; remIdx < 12; ++remIdx) {
         this->miis[remIdx].isHidden = false; // Change to true if you don't want to display empty slots
+        this->miis[remIdx].manipulator.inaccessible = true;
         this->miis[remIdx].SetPicturePane("chara", "no_linkmii");
         this->miis[remIdx].SetPicturePane("chara_shadow", "no_linkmii");
         this->miis[remIdx].SetPicturePane("chara_c_down", "no_linkmii");

@@ -38,32 +38,10 @@ void ExpVR::OnInit() {
     bool hideSettings = false;
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
     const System* system = System::sInstance;
-    
-    // Hide settings in regionals for 200cc and OnlineTT
-    if ((controller->roomType == RKNet::ROOMTYPE_VS_REGIONAL) || 
-        (controller->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL)) {
-        bool is200Online = Settings::Mgr::Get().GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_200;
-        bool isOTTOnline = Settings::Mgr::Get().GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_OTT;
-        if (is200Online || isOTTOnline) {
-            hideSettings = true;
-        }
-    }
-
-    this->AddControl(0x11, settingsButton, 0);
-    this->settingsButton.Load(UI::buttonFolder, "SettingsVR", "Settings", 1, 0, hideSettings);
-    this->settingsButton.buttonId = 5;
-    this->settingsButton.SetOnClickHandler(this->onSettingsClick, 0);
-    this->settingsButton.SetOnSelectHandler(this->onButtonSelectHandler);
-    this->settingsButton.isHidden = hideSettings;
-    this->topSettingsPage = SettingsPanel::id;
 
     const Section* curSection = SectionMgr::sInstance->curSection;
     Pages::SELECTStageMgr* selectStageMgr = curSection->Get<Pages::SELECTStageMgr>();
     CountDown* timer = &selectStageMgr->countdown;
-
-    // Share timer with settings panel
-    SettingsPanel* settingsPanel = ExpSection::GetSection()->GetPulPage<SettingsPanel>();
-    settingsPanel->timer = timer;
 
     bool isKOd = false;
     if(system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating) isKOd = true;
@@ -79,6 +57,17 @@ void ExpVR::OnInit() {
     this->changeComboButton.isHidden = isKOd;
     this->changeComboButton.Load(UI::buttonFolder, "PULiMemberConfirmButton", "Change", 1, 0, isKOd);
     this->changeComboButton.SetOnClickHandler(this->onChangeComboClick, 0);
+
+    this->AddControl(0x11, settingsButton, 0);
+    this->settingsButton.Load(UI::buttonFolder, "SettingsVR", "Settings", 1, 0, hideSettings);
+    this->settingsButton.buttonId = 5;
+    this->settingsButton.SetOnClickHandler(this->onSettingsClick, 0);
+    this->settingsButton.SetOnSelectHandler(this->onButtonSelectHandler);
+    this->topSettingsPage = SettingsPanel::id;
+
+    // Share timer with settings panel
+    SettingsPanel* settingsPanel = ExpSection::GetSection()->GetPulPage<SettingsPanel>();
+    settingsPanel->timer = timer;
 
     Pages::CharacterSelect* charPage = curSection->Get<Pages::CharacterSelect>();
     charPage->timer = timer;
@@ -204,7 +193,6 @@ void ExpVR::ExtOnButtonSelect(PushButton& button, u32 hudSlotId) {
         u32 bmgId = BMG_SETTINGS_BOTTOM + 1;
         if(this->topSettingsPage == PAGE_VS_TEAMS_VIEW) bmgId += 1;
         else if(this->topSettingsPage == PAGE_BATTLE_MODE_SELECT) bmgId += 2;
-        this->ctrlMenuBottomMessage.SetMessage(bmgId, 0);
     }
     else {
         this->OnButtonClick(button, hudSlotId);

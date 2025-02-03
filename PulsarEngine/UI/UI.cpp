@@ -74,6 +74,7 @@ void ExpSection::CreatePulPages() {
         case SECTION_P2_WIFI_FROOM_BALLOON_VOTING: //0x66
         case SECTION_P2_WIFI_FROOM_COIN_VOTING:    //0x67
             this->CreateAndInitPage(*this, SettingsPanel::id);
+            break;
 
         case SECTION_P1_WIFI_VS: //0x68
         case SECTION_P2_WIFI_VS: //0x69
