@@ -46,6 +46,7 @@ enum Context {
     PULSAR_ITEMMODERANDOM,
     PULSAR_ITEMMODEBLAST,
     PULSAR_ITEMMODENONE,
+    PULSAR_ITEMRAIN,
     PULSAR_REGS,
     PULSAR_CHANGECOMBO,
     PULSAR_ITEMBOXRESPAWN,
@@ -68,6 +69,7 @@ public:
     void InitSettings(const u16* totalTrophyCount) const;
     void UpdateContext();
     static void UpdateContextWrapper();
+    static void ClearOttContext();
 protected:
     //Virtual
     virtual void AfterInit() {};

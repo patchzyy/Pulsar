@@ -183,9 +183,10 @@ static void DecideCC(ExpSELECTHandler& handler) {
     const RKNet::RoomType roomType = controller->roomType;
     u8 ccClass = 1; //1 100, 2 150, 3 mirror
     bool is200 = (roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL) && System::sInstance->IsContext(PULSAR_200_WW) ? WWMODE_200 : WWMODE_DEFAULT;
+    bool isOTT = (roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL) && System::sInstance->IsContext(PULSAR_MODE_OTT) ? WWMODE_OTT : WWMODE_DEFAULT;
     if (roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL ||
-    roomType == RKNet::ROOMTYPE_VS_WW || roomType == RKNet::ROOMTYPE_JOINING_WW || 
-    (roomType == RKNet::ROOMTYPE_FROOM_HOST && ccSetting == HOSTSETTING_CC_NORMAL)) {
+    roomType == RKNet::ROOMTYPE_VS_WW || roomType == RKNet::ROOMTYPE_JOINING_WW ||
+    isOTT || (roomType == RKNet::ROOMTYPE_FROOM_HOST && ccSetting == HOSTSETTING_CC_NORMAL)) {
         Random random;
         const u32 result = random.NextLimited(100); //25
         System* system = System::sInstance;

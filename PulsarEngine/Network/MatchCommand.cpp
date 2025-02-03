@@ -2,12 +2,11 @@
 #include <MarioKartWii/UI/Ctrl/UIControl.hpp>
 #include <Network/MatchCommand.hpp>
 #include <PulsarSystem.hpp>
+#include <Settings/Settings.hpp>
+#include <Network/RoomKey.hpp>
 
 namespace Pulsar {
 namespace Network {
-
-// Define a hardcoded room key
-static const u32 HARD_CODED_ROOM_KEY = 0x12345678;
 
 ResvPacket::ResvPacket(const DWC::Reservation& src) {
     memcpy(this, &src, sizeof(DWC::Reservation));

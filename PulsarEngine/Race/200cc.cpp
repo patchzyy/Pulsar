@@ -5,6 +5,7 @@
 #include <Race/200ccParams.hpp>
 #include <PulsarSystem.hpp>
 #include <RetroRewind.hpp>
+#include <MarioKartWii/RKNet/RKNetController.hpp>
 
 //Unoptimized code which is mostly a port of Stebler's version which itself comes from CTGP's, speed factor is in the LapSpeedModifier code
 
@@ -13,7 +14,8 @@ namespace Pulsar {
 namespace Race {
 
 static void CannonExitSpeed() {
-    const float ratio = System::sInstance->IsContext(PULSAR_200) ? cannonExit : 1.0f;
+    bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
+    const float ratio = is200 ? cannonExit : 1.0f;
     register Kart::Movement* kartMovement;
     asm(mr kartMovement, r30;);
     kartMovement->engineSpeed = kartMovement->baseSpeed * ratio;
@@ -23,7 +25,8 @@ kmCall(0x805850c8, CannonExitSpeed);
 void EnableBrakeDrifting(Input::ControllerHolder& controllerHolder) {
     const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
     const GameMode mode = scenario.settings.gamemode;
-    if(System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc()
+    bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
+    if(is200 || RetroRewind::System::Is500cc()
     || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
     && mode != MODE_TIME_TRIAL && !System::sInstance->IsContext(PULSAR_MODE_OTT))) {
         const ControllerType controllerType = controllerHolder.curController->GetType();
@@ -67,7 +70,8 @@ kmCall(0x80521828, FixGhostBrakeDrifting);
 bool IsBrakeDrifting(const Kart::Status& status) {
     const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
     const GameMode mode = scenario.settings.gamemode;
-    if(System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc()
+    bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
+    if(is200 || RetroRewind::System::Is500cc()
     || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
     && mode != MODE_TIME_TRIAL)) {
         u32 bitfield0 = status.bitfield0;
@@ -114,7 +118,8 @@ static int BrakeEffectBikes(Effects::Player& effects) {
     const Kart::Player* kartPlayer = effects.kartPlayer;
     const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
     const GameMode mode = scenario.settings.gamemode;
-    if(System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc()
+    bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
+    if(is200 || RetroRewind::System::Is500cc()
     || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
     && mode != MODE_TIME_TRIAL)){
         if(IsBrakeDrifting(*kartPlayer->pointers.kartStatus)) effects.CreateAndUpdateEffectsByIdxVelocity(effects.bikeDriftEffects, 25, 26, 1);
@@ -129,7 +134,8 @@ static int BrakeEffectKarts(Effects::Player& effects) {
     Kart::Player* kartPlayer = effects.kartPlayer;
     const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
     const GameMode mode = scenario.settings.gamemode;
-    if(System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc()
+    bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
+    if(is200 || RetroRewind::System::Is500cc()
     || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
     && mode != MODE_TIME_TRIAL)){
         if(IsBrakeDrifting(*kartPlayer->pointers.kartStatus)) effects.CreateAndUpdateEffectsByIdxVelocity(effects.kartDriftEffects, 34, 36, 1);
@@ -141,7 +147,8 @@ kmCall(0x8069804c, BrakeEffectKarts);
 
 
 static void FastFallingBody(Kart::Status& status, Kart::Physics& physics) { //weird thing 0x96 padding byte used
-    if(System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc()){
+    bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
+    if(is200 || RetroRewind::System::Is500cc()){
         if((status.airtime >= 2) && (!status.bool_0x96 || (status.airtime > 19))) {
             Input::ControllerHolder& controllerHolder = status.link->GetControllerHolder();
             float input = controllerHolder.inputStates[0].stick.z <= 0.0f ? 0.0f :
@@ -157,7 +164,8 @@ kmCall(0x805967a4, FastFallingBody);
 kmWrite32(0x8059739c, 0x38A10014); //addi r5, sp, 0x14 to align with the Vec3 on the stack
 static Kart::WheelPhysicsHolder& FastFallingWheels(Kart::Sub& sub, u8 wheelIdx, Vec3& gravityVector) { //weird thing 0x96 status
     float gravity = -1.3f;
-    if(System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc()){
+    bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
+    if(is200 || RetroRewind::System::Is500cc()){
         Kart::Status* status = sub.kartStatus;
         if(status->airtime == 0) status->bool_0x96 = ((status->bitfield0 & 0x80) != 0) ? true : false;
         else if((status->airtime >= 2) && (!status->bool_0x96 || (status->airtime > 19))) {

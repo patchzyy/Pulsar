@@ -246,7 +246,7 @@ public:
     static void Exec() { DoFuncsHook::Exec(raceFrameHooks); }
 };
 
-/*
+
 class SectionLoadHook {
 private:
     typedef void (Func)();
@@ -267,7 +267,7 @@ public:
             p->func();
     }
 };
-*/
+
 
 //REL has NOT loaded yet, so do NOT do anything with REL addr, it will not work
 class BootHook {
