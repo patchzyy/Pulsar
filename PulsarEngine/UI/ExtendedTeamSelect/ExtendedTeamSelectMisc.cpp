@@ -4,11 +4,14 @@
 #include <core/nw4r/lyt/ArcResourceAccessor.hpp>
 #include <MarioKartWii/RKNet/RKNetController.hpp>
 #include <MarioKartWii/RKNet/ROOM.hpp>
+#include <MarioKartWii/UI/Page/Leaderboard/GPVSLeaderboardUpdate.hpp>
 #include <MarioKartWii/UI/Page/Other/SELECTStageMgr.hpp>
 #include <MarioKartWii/UI/Page/Other/VR.hpp>
 #include <MarioKartWii/UI/Page/Other/Votes.hpp>
+#include <MarioKartWii/UI/Page/Other/WifiVSResults.hpp>
 #include <MarioKartWii/UI/Ctrl/CtrlRace/CtrlRace2DMap.hpp>
 #include <MarioKartWii/UI/Ctrl/CtrlRace/CtrlRaceBalloon.hpp>
+#include <MarioKartWii/Race/RaceInfo/RaceInfo.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -24,8 +27,6 @@ void PrepareOnlinePages(Pages::FriendRoomWaiting* _this) {
         _this->AddPageLayer(PAGE_CHARACTER_SELECT, 0);
     }
 }
-
-kmWrite32(0x8064be64, 0x38000000 + PULPAGE_EXTENDEDTEAMSELECT); // Patch regional button for easier debug
 kmWriteNop(0x805de76c); // Remove the call that opens the character selection screen
 kmCall(0x805dddb0, PrepareOnlinePages);
 
@@ -73,14 +74,9 @@ void RecvRoomPacket(UnkFriendRoomManager* _this, u8 playerId, u8 myAid, RKNet::R
 kmCall(0x805db0f8, RecvRoomPacket);
 kmCall(0x805db1dc, RecvRoomPacket);
 
-bool menuShouldPatchExtendedTeamsUI() {
-    RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
-    return System::sInstance->IsContext(PULSAR_EXTENDEDTEAMS) && Racedata::sInstance->menusScenario.settings.gamemode == MODE_PRIVATE_VS && (roomType == RKNet::ROOMTYPE_FROOM_HOST || roomType == RKNet::ROOMTYPE_FROOM_NONHOST); 
-}
-
 void VotingVRPage_SetControlState(Pages::VR* _this, u32 idx, u32 playerId, Team team, u32 type, bool isLocalPlayer) {
     _this->FillVRControl(idx, playerId, team, type, isLocalPlayer);
-    if (menuShouldPatchExtendedTeamsUI()) {
+    if (ExtendedTeamManager::IsActivated()) {
         Pages::SELECTStageMgr* selectStageMgr = SectionMgr::sInstance->curSection->Get<Pages::SELECTStageMgr>();
         u8 aid = selectStageMgr->infos[idx].aid;
         u8 playerIdOnConsole = selectStageMgr->infos[idx].hudSlotid;
@@ -94,7 +90,7 @@ kmCall(0x8064a9f0, VotingVRPage_SetControlState);
 
 bool PageVote_FillVoteControl(Pages::Vote* _this, u32 playerId) {
     bool res = _this->FillVoteControl(playerId);
-    if (menuShouldPatchExtendedTeamsUI() && res) {
+    if (ExtendedTeamManager::IsActivated() && res) {
         Pages::SELECTStageMgr* selectStageMgr = SectionMgr::sInstance->curSection->Get<Pages::SELECTStageMgr>();
         u8 aid = selectStageMgr->infos[playerId].aid;
         u8 playerIdOnConsole = selectStageMgr->infos[playerId].hudSlotid;
@@ -111,29 +107,60 @@ kmCall(0x80643b3c, PageVote_FillVoteControl);
 
 void CtrlRace2DMapCharacter_CalcTransform(CtrlRace2DMapCharacter* _this, const Vec3& kartPosition, Vec2& dest, u32 r6) {
     _this->CalculatePosition(kartPosition, dest, r6);
-    if (menuShouldPatchExtendedTeamsUI()) {
-        //_this->animator.GetAnimationGroupById(1).PlayAnimationAtFrameAndDisable(1, 0.0f); // shadow::red
-        u8 r, g, b;
-        ExtendedTeamSelect::GetTeamColor(ExtendedTeamManager::sInstance->GetPlayerTeam(_this->playerId), r, g, b);
-
-        _this->SetPaneVisibility("chara_shadow_0_0", true);
-        _this->SetPaneVisibility("chara_shadow_0_1", true);
-        nw4r::lyt::Material* mat1 = _this->layout.GetPaneByName("chara_shadow_0_0")->GetMaterial();
-        nw4r::lyt::Material* mat2 = _this->layout.GetPaneByName("chara_shadow_0_1")->GetMaterial();
-
-        for (int i = 0; i < 2; i++) {
-            mat1->tevColours[i].r = mat2->tevColours[i].r = r;
-            mat1->tevColours[i].g = mat2->tevColours[i].g = g;
-            mat1->tevColours[i].b = mat2->tevColours[i].b = b;
-            mat1->tevColours[i].a = mat2->tevColours[i].a = 255;
+    RacedataScenario& menuScenario = Racedata::sInstance->menusScenario;
+    RKNet::Controller* controller = RKNet::Controller::sInstance;
+    if (ExtendedTeamManager::IsActivated()) {
+        RKNet::Controller* controller = RKNet::Controller::sInstance;
+        ExtendedTeamID selfTeams[2] = { TEAM_COUNT, TEAM_COUNT };
+        for (int i = 0; i < menuScenario.playerCount; i++) {
+            if (menuScenario.players[i].playerType == PLAYER_REAL_LOCAL && menuScenario.players[i].hudSlotId == 0) {
+                selfTeams[0] = ExtendedTeamManager::sInstance->GetPlayerTeam(i);
+                if (controller) {
+                    RKNet::ControllerSub& currentSub = controller->subs[controller->currentSub];
+                    selfTeams[0] = ExtendedTeamManager::sInstance->GetPlayerTeamByAID(currentSub.localAid, 0);
+                }
+            } else if (menuScenario.players[i].playerType == PLAYER_REAL_LOCAL && menuScenario.players[i].hudSlotId == 1) {
+                selfTeams[1] = ExtendedTeamManager::sInstance->GetPlayerTeam(i);
+                if (controller) {
+                    RKNet::ControllerSub& currentSub = controller->subs[controller->currentSub];
+                    selfTeams[1] = ExtendedTeamManager::sInstance->GetPlayerTeamByAID(currentSub.localAid, 1);
+                }
+            }
         }
 
-        // TODO: If self team, make the character icon non-transparent and appear on top of others
+        ExtendedTeamID playerTeam = ExtendedTeamManager::sInstance->GetPlayerTeam(_this->playerId);
+        if (playerTeam == selfTeams[0] || playerTeam == selfTeams[1]) {
+            //_this->animator.GetAnimationGroupById(1).PlayAnimationAtFrameAndDisable(1, 0.0f); // shadow::red
+            u8 r, g, b;
+            ExtendedTeamSelect::GetTeamColor(ExtendedTeamManager::sInstance->GetPlayerTeam(_this->playerId), r, g, b);
+
+            _this->SetPaneVisibility("chara_shadow_0_0", true);
+            _this->SetPaneVisibility("chara_shadow_0_1", true);
+            nw4r::lyt::Material* mat1 = _this->layout.GetPaneByName("chara_shadow_0_0")->GetMaterial();
+            nw4r::lyt::Material* mat2 = _this->layout.GetPaneByName("chara_shadow_0_1")->GetMaterial();
+
+            for (int i = 0; i < 2; i++) {
+                mat1->tevColours[i].r = mat2->tevColours[i].r = r;
+                mat1->tevColours[i].g = mat2->tevColours[i].g = g;
+                mat1->tevColours[i].b = mat2->tevColours[i].b = b;
+                mat1->tevColours[i].a = mat2->tevColours[i].a = 255;
+            }
+
+            _this->charaPane->alpha = 255;
+            _this->charaShadow0Pane->alpha = 255;
+            _this->charaShadow1Pane->alpha = 255;
+
+            const int playerCount = Racedata::sInstance->racesScenario.playerCount;
+            float z = 10.0 + ((playerCount - Raceinfo::sInstance->players[_this->playerId]->position) * 0.1);
+
+            _this->zIdx = 20;
+            _this->pane->trans.z = 20.0;
+        }
     }
 }
 
 void CtrlRace2DMapCharacter_PlayAnimationAtFrameAndDisable(AnimationGroup* _this, u32 id, float frame) {
-    if (menuShouldPatchExtendedTeamsUI()) {
+    if (ExtendedTeamManager::IsActivated()) {
         _this->isActive = false;
     } else {
         _this->PlayAnimationAtFrameAndDisable(id, frame);
@@ -146,18 +173,18 @@ kmCall(0x807eb9d4, CtrlRace2DMapCharacter_PlayAnimationAtFrameAndDisable);
 
 void CtrlRaceNameBalloon_refresh(CtrlRaceNameBalloon* _this, u8 playerId) {
     _this->UpdateInfo(playerId);
-    if (menuShouldPatchExtendedTeamsUI()) {
+    if (ExtendedTeamManager::IsActivated()) {
         //_this->animator.GetAnimationGroupById(1).PlayAnimationAtFrameAndDisable(1, 0.0f); // shadow::red
         u8 r, g, b;
         ExtendedTeamSelect::GetTeamColor(ExtendedTeamManager::sInstance->GetPlayerTeam(playerId), r, g, b);
         nw4r::lyt::TextBox* characterName = (nw4r::lyt::TextBox*)_this->layout.GetPaneByName("chara_name");
 
-        characterName->color1[0] = characterName->color1[1] = nw4r::ut::Color(r, g, b, 255);
+        characterName->color1[0] = nw4r::ut::Color(r, g, b, 255);
     }
 }
 
 void CtrlRaceNameBalloon_PlayAnimationAtFrameAndDisable(AnimationGroup* _this, u32 id, float frame) {
-    if (menuShouldPatchExtendedTeamsUI()) {
+    if (ExtendedTeamManager::IsActivated()) {
         _this->isActive = false;
     } else {
         _this->PlayAnimationAtFrameAndDisable(id, frame);
@@ -168,24 +195,87 @@ kmCall(0x807f0c48, CtrlRaceNameBalloon_refresh);
 kmCall(0x807f00f8, CtrlRaceNameBalloon_PlayAnimationAtFrameAndDisable);
 kmCall(0x807efe5c, CtrlRaceNameBalloon_PlayAnimationAtFrameAndDisable);
 
-void CtrlRaceResult_FillResult(CtrlRaceResult* _this, u8 position, u8 playerId) {
-    _this->Fill(position, playerId);
-    if (true) {
-        _this->SetPaneVisibility("team_color_c", true);
-        _this->SetPaneVisibility("select_base", true);
+void GPVSLeaderboardUpdate_hookSetupEntries(Pages::GPVSLeaderboardUpdate* _this) {
+    _this->FillRows();
+    if (_this->pageId == PAGE_GPVS_LEADERBOARD_UPDATE && ExtendedTeamManager::IsActivated()) {
+        for (int i = 0; i < _this->GetRowCount(); i++) {
+            u8 playerId = Raceinfo::sInstance->playerIdInEachPosition[i];
+            CtrlRaceResult* result = _this->results[i];
 
+            nw4r::lyt::Material* mat;
+            nw4r::lyt::Pane* pane;
+            if (Racedata::sInstance->racesScenario.players[playerId].playerType == PLAYER_REAL_LOCAL) {
+                // result->animator.GetAnimationGroupById(4).PlayAnimationAtFrame(4, 0.0f);
+                pane = result->layout.GetPaneByName("select_base");
+                mat = pane->GetMaterial();
+                pane->alpha = 255;
+            } else {
+                pane = result->layout.GetPaneByName("team_color_c");
+                mat = pane->GetMaterial();
+                pane->alpha = 200;
+            }
+
+            pane->flag |= 1;
+
+            u8 r, g, b;
+            ExtendedTeamSelect::GetTeamColor(ExtendedTeamManager::sInstance->GetPlayerTeam(playerId), r, g, b);
+            for (int i = 0; i < 2; i++) {
+                mat->tevColours[i].r = r;
+                mat->tevColours[i].g = g;
+                mat->tevColours[i].b = b;
+                mat->tevColours[i].a = 255;
+            }
+        }
+    }
+}
+
+kmCall(0x8085bfc8, GPVSLeaderboardUpdate_hookSetupEntries);
+
+
+void CtrlRaceResult_InitPatchAnimation(AnimationGroup* _this, u32 id, float frame) {
+    if (ExtendedTeamManager::IsActivated()) {
+        _this->isActive = false;
+    } else {
+        _this->PlayAnimationAtFrame(id, frame);
+    }
+}
+
+void CtrlRaceResult_CalcSkipAnimation(AnimationGroup* _this, u32 id, float frame) {
+    if (!ExtendedTeamManager::IsActivated()) {
+        _this->PlayAnimationAtFrame(id, frame);
+    }
+}
+
+kmCall(0x807f6318, CtrlRaceResult_CalcSkipAnimation);
+kmCall(0x807f6410, CtrlRaceResult_CalcSkipAnimation);
+kmCall(0x807f63a4, CtrlRaceResult_CalcSkipAnimation);
+kmCall(0x807f4f74, CtrlRaceResult_InitPatchAnimation);
+kmCall(0x807f4f8c, CtrlRaceResult_InitPatchAnimation);
+
+void WifiAwardResultItem_fillPlayerResult(Pages::WifiAwardResultItem* _this, u8 playerIdx, bool isTeamVS, int localPlayerCount) {
+    _this->FillResult(playerIdx, isTeamVS, localPlayerCount);
+
+    if (ExtendedTeamManager::IsActivated()) {
+        nw4r::lyt::Pane* pane, *pane2;
         nw4r::lyt::Material* mat;
-        if (Racedata::sInstance->racesScenario.players[playerId].playerType == PLAYER_REAL_LOCAL) {
-            //_this->animator.GetAnimationGroupById(4).PlayAnimationAtFrame(4, 0.0f);
-            mat = _this->layout.GetPaneByName("select_base")->GetMaterial();
+
+        if (Racedata::sInstance->racesScenario.players[playerIdx].playerType == PLAYER_REAL_LOCAL) {
+            pane = _this->layout.GetPaneByName("p_color_r");
+            pane2 = _this->layout.GetPaneByName("p_color_null");
+            mat = pane->GetMaterial();
+
+            _this->SetPaneVisibility("team_color_c", false);
+            _this->SetPaneVisibility("p_color_null", true);
         } else {
-            
-            mat = _this->layout.GetPaneByName("select_base")->GetMaterial();
+            pane = _this->layout.GetPaneByName("team_color_c");
+            mat = pane->GetMaterial();
+
+            _this->SetPaneVisibility("p_color_r", false);
+            _this->SetPaneVisibility("p_color_null", false);
         }
 
         u8 r, g, b;
-        ExtendedTeamSelect::GetTeamColor((ExtendedTeamID)(playerId % 6), r, g, b);
-
+        ExtendedTeamSelect::GetTeamColor(ExtendedTeamManager::sInstance->GetPlayerTeam(playerIdx), r, g, b);
         for (int i = 0; i < 2; i++) {
             mat->tevColours[i].r = r;
             mat->tevColours[i].g = g;
@@ -193,35 +283,121 @@ void CtrlRaceResult_FillResult(CtrlRaceResult* _this, u8 position, u8 playerId) 
             mat->tevColours[i].a = 255;
         }
 
-        AnimationGroup& animGroup = _this->animator.GetAnimationGroupById(4);
-        OS::Report("Setting color %02x%02x%02x for Player %02d (%d %d %.1f)\n", r, g, b, playerId, animGroup.curAnimation, animGroup.isActive, animGroup.curFrame);
+        pane->alpha = 255;
+        pane->flag |= 1;
+
+        if (pane2) {
+            pane2->alpha = 255;
+            pane2->flag |= 1;
+        }
     }
 }
 
-void CtrlRaceResult_PlayAnimationAtFrame(AnimationGroup* _this, u32 id, float frame) {
-    if (true) {
+kmCall(0x806466f4, WifiAwardResultItem_fillPlayerResult);
+kmCall(0x80646728, WifiAwardResultItem_fillPlayerResult);
+
+void WiFiVSResults_InitPatchAnimation(AnimationGroup* _this, u32 id, float frame) {
+    if (ExtendedTeamManager::IsActivated()) {
         _this->isActive = false;
     } else {
         _this->PlayAnimationAtFrame(id, frame);
     }
 }
 
-kmCall(0x8085c8cc, CtrlRaceResult_FillResult);
-kmCall(0x8085cbd8, CtrlRaceResult_FillResult);
-kmCall(0x8085d2fc, CtrlRaceResult_FillResult);
+void WiFiVSResults_CalcSkipAnimation(AnimationGroup* _this, u32 id, float frame) {
+    if (!ExtendedTeamManager::IsActivated()) {
+        _this->PlayAnimationAtFrame(id, frame);
+    }
+}
 
-kmCall(0x807f63f8, CtrlRaceResult_PlayAnimationAtFrame);
-kmCall(0x807f63a4, CtrlRaceResult_PlayAnimationAtFrame);
-kmCall(0x807f6378, CtrlRaceResult_PlayAnimationAtFrame);
-kmCall(0x807f4f8c, CtrlRaceResult_PlayAnimationAtFrame);
+struct TeamScore {
+    ExtendedTeamID team;
+    int score;
+    bool present;
 
-kmCall(0x807f63c0, CtrlRaceResult_PlayAnimationAtFrame);
-kmCall(0x807f6410, CtrlRaceResult_PlayAnimationAtFrame);
-kmCall(0x807f6318, CtrlRaceResult_PlayAnimationAtFrame);
-kmCall(0x807f4f74, CtrlRaceResult_PlayAnimationAtFrame);
+    TeamScore() : team(TEAM_COUNT), score(0), present(false) {}
+    TeamScore(ExtendedTeamID team) : team(team), score(0), present(false) {}
+};
+
+static int sort_by_score(const void* a, const void* b) {
+    return ((TeamScore*)b)->score - ((TeamScore*)a)->score;
+}
+
+void WiFiVSResults_setCongratulationText(Pages::WiFiVSResults* _this) {
+    _this->SetCongratulationUIAndSound();
+    
+    if (ExtendedTeamManager::IsActivated()) {
+        RacedataScenario& scenario = Racedata::sInstance->menusScenario;
+
+        int teamCount = 0;
+        TeamScore scores[TEAM_COUNT];
+        for (int i = 0; i < TEAM_COUNT; i++) {
+            scores[i].team = (ExtendedTeamID)i;
+        }
+    
+        for (int i = 0; i < scenario.playerCount; i++) {
+            ExtendedTeamID team = ExtendedTeamManager::sInstance->GetPlayerTeam(i);
+            if (!scores[team].present) {
+                teamCount++;
+                scores[team].present = true;
+            }
+    
+            scores[team].score += scenario.players[i].score;
+        }
+    
+        qsort(scores, TEAM_COUNT, sizeof(TeamScore), sort_by_score);
+    
+        Text::Info info;
+        info.bmgToPass[0] = BMG_EXTENDEDTEAMS_TEAM_NAME + scores[0].team + (scores[0].score == scores[1].score);
+    
+        _this->congratulations.SetMessage(BMG_EXTENDEDTEAMS_WINNER, &info);
+    }
+}
+
+kmCall(0x80646128, WiFiVSResults_setCongratulationText);
+
+kmCall(0x80645fe0, WiFiVSResults_InitPatchAnimation);
+kmCall(0x80645ff8, WiFiVSResults_InitPatchAnimation);
+kmCall(0x80646010, WiFiVSResults_InitPatchAnimation);
+kmCall(0x80645a8c, WiFiVSResults_CalcSkipAnimation);
+kmCall(0x80645a74, WiFiVSResults_CalcSkipAnimation);
+kmCall(0x80645a58, WiFiVSResults_CalcSkipAnimation);
+kmCall(0x80645a38, WiFiVSResults_CalcSkipAnimation);
+kmCall(0x80645b0c, WiFiVSResults_CalcSkipAnimation);
+kmCall(0x80645b28, WiFiVSResults_CalcSkipAnimation);
+kmCall(0x80645b74, WiFiVSResults_CalcSkipAnimation);
+kmCall(0x80645bac, WiFiVSResults_CalcSkipAnimation);
+
+/*
+
+(0) Loop
+    (0) Loop
+(1) Player
+    (0) Player
+    (1) NetOther
+(2) PlayerColorOn
+    (0) PlayerColorOn
+    (1) PlayerColorOff
+(3) PlayerColorType
+    (0) PlayerColor1P
+    (1) PlayerColor2P
+    (2) PlayerColor3P
+    (3) PlayerColor4P
+    (4) PlayerColorRed
+    (5) PlayerColorBlue
+(4) CPUColorType
+    (0) CPUColorOff
+    (1) CPUColorRed
+    (2) CPUColorBlue
+(5) PlayerFlash
+    (0) FlashPlayer,
+    (1) FlashNetOther
+
+*/
 
 } // namespace UI
 } // namespace Pulsar
+
 
 
 asmFunc InstantFinish() {

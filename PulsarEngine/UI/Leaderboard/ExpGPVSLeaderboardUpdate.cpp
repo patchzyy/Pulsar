@@ -1,5 +1,6 @@
 #include <UI/Leaderboard/ExpGPVSLeaderboardUpdate.hpp>
 #include <UI/Leaderboard/LeaderboardDisplay.hpp>
+#include <UI/ExtendedTeamSelect/ExtendedTeamManager.hpp>
 #include <Settings/Settings.hpp>
 
 namespace Pulsar {
@@ -25,6 +26,29 @@ void ExpGPVSLeaderboardUpdate::BeforeEntranceAnimations() {
     }
 
     fillLeaderboardResults(GetRowCount(), this->results);
+}
+
+PageId ExpGPVSLeaderboardUpdate::GetNextPage() const {
+    PageId nextPageId = Pages::GPVSLeaderboardUpdate::GetNextPage();
+    if (ExtendedTeamManager::IsActivated() && nextPageId == PAGE_GPVS_TOTAL_LEADERBOARDS) {
+        RacedataScenario &scenario = Racedata::sInstance->racesScenario;
+        int numPlayerPerTeam[TEAM_COUNT] = {0};
+
+        for (int i = 0; i < scenario.playerCount; i++) {
+            ExtendedTeamID team = ExtendedTeamManager::sInstance->GetPlayerTeam(i);
+            numPlayerPerTeam[team]++;
+        }
+
+        for (int i = 0; i < TEAM_COUNT; i++) {
+            if (numPlayerPerTeam[i] > 2) {
+                return static_cast<PageId>(PULPAGE_EXTENDEDTEAMS_RESULT_TOTAL_IRREGULAR);
+            }
+        }
+
+        return static_cast<PageId>(PULPAGE_EXTENDEDTEAMS_RESULT_TOTAL);
+    }
+
+    return nextPageId;
 }
 
 }

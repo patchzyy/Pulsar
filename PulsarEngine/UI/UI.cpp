@@ -18,6 +18,8 @@
 //Pulsar Custom Pages:
 #include <UI/TeamSelect/TeamSelect.hpp>
 #include <UI/ExtendedTeamSelect/ExtendedTeamSelect.hpp>
+#include <UI/ExtendedTeamSelect/Result/ExtendedTeamResultTotal.hpp>
+#include <UI/ExtendedTeamSelect/Result/ExtendedTeamResultIrregularTotal.hpp>
 #include <AutoTrackSelect/AutoVote.hpp>
 #include <AutoTrackSelect/ChooseNextTrack.hpp>
 #include <Gamemodes/KO/KORaceEndPage.hpp>
@@ -48,8 +50,6 @@ void ExpSection::CreatePulPages() {
 
     const System* system = System::sInstance;
     switch(this->sectionId) {
-
-
         case SECTION_GP:                          //0x1e
         case SECTION_TT:                          //0x1f
         case SECTION_P1VS:                        //0x20
@@ -63,6 +63,10 @@ void ExpSection::CreatePulPages() {
             if(system->IsContext(PULSAR_MODE_OTT)) {
                 this->CreateAndInitPage(*this, PAGE_TT_SPLITS);
                 Pages::RaceHUD::sInstance->nextPageId = PAGE_TT_SPLITS;
+            }
+            if (system->IsContext(PULSAR_EXTENDEDTEAMS)) {
+                this->CreateAndInitPage(*this, PULPAGE_EXTENDEDTEAMS_RESULT_TOTAL);
+                this->CreateAndInitPage(*this, PULPAGE_EXTENDEDTEAMS_RESULT_TOTAL_IRREGULAR);
             }
             break;
             //case SECTION_P1_WIFI_FROOM_VS_VOTING:      //0x60
@@ -87,6 +91,10 @@ void ExpSection::CreatePulPages() {
             if(system->IsContext(PULSAR_MODE_KO)) {
                 this->CreateAndInitPage(*this, KO::RaceEndPage::id);
                 this->CreateAndInitPage(*this, KO::WinnerPage::id);
+            }
+            if (system->IsContext(PULSAR_EXTENDEDTEAMS)) {
+                this->CreateAndInitPage(*this, PULPAGE_EXTENDEDTEAMS_RESULT_TOTAL);
+                this->CreateAndInitPage(*this, PULPAGE_EXTENDEDTEAMS_RESULT_TOTAL_IRREGULAR);
             }
             // if(system->IsContext(PULSAR_HAW)) {
             //     if(SectionMgr::sInstance->sectionParams->onlineParams.currentRaceNumber != System::sInstance->netMgr.racesPerGP) this->CreateAndInitPage(*this, ChooseNextTrack::id);
@@ -215,6 +223,12 @@ void ExpSection::CreateAndInitPage(ExpSection& self, u32 id) {
             break;
         case ExtendedTeamSelect::id:
             page = new ExtendedTeamSelect;
+            break;
+        case ExtendedTeamResultTotal::id:
+            page = new ExtendedTeamResultTotal;
+            break;
+        case ExtendedTeamResultIrregularTotal::id:
+            page = new ExtendedTeamResultIrregularTotal;
             break;
         default:
             page = self.CreatePageById(initId);

@@ -2,7 +2,10 @@
 #define __EXTENDED_TEAMSELECT_HPP__
 
 #include <UI/UI.hpp>
+#include <PulsarSystem.hpp>
 #include <MarioKartwii/UI/Ctrl/CountDown.hpp>
+#include <MarioKartWii/RKNet/RKNetController.hpp>
+#include <MarioKartWii/RKNet/ROOM.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -120,19 +123,26 @@ public:
         this->status = status;
     }
 
+    static bool IsActivated() {
+        RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
+        return System::sInstance->IsContext(PULSAR_EXTENDEDTEAMS) && Racedata::sInstance->menusScenario.settings.gamemode == MODE_PRIVATE_VS && (roomType == RKNet::ROOMTYPE_FROOM_HOST || roomType == RKNet::ROOMTYPE_FROOM_NONHOST);
+    }
+
 private:
 
     bool AreAllOtherPlayersActive(u8 localAid);
     bool AreAllOtherPlayersDone(u8 localAid);
 
     ExtendedTeamPlayer players[12];
-    CountDown waitingTimer;
-    CountDown lastUpdateTimer;
 
     bool isHost;
     bool hasSentStartRacePacket;
 
     Status status;
+
+public:
+    CountDown waitingTimer;
+    CountDown lastUpdateTimer;
 };
 
 } // namespace UI

@@ -77,7 +77,6 @@ void ExtendedTeamSelect::BeforeEntranceAnimations() {
 
 void ExtendedTeamSelect::OnResume() {
     MenuInteractable::OnResume();
-    OS::Report("ExtendedTeamSelect::OnResume\n");
 
     RKNet::Controller* controller = RKNet::Controller::sInstance;
     RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
@@ -96,8 +95,8 @@ void ExtendedTeamSelect::BeforeControlUpdate() {
     friendRoomManager->unknownStruct.Update();
     this->manager->Update();
 
-    this->busySymbol.isHidden = !this->isHost || !this->manager->IsWaitingStatus();
-    this->startRaceButton.isHidden = !this->isHost || !friendRoomManager->friendRoomIsEnding || this->manager->IsWaitingStatus();
+    this->busySymbol.isHidden = this->isHost && !this->manager->IsWaitingStatus();
+    this->startRaceButton.isHidden = !this->busySymbol.isHidden || !friendRoomManager->friendRoomIsEnding;
     this->startRaceButton.manipulator.inaccessible = !this->isHost || !friendRoomManager->friendRoomIsEnding || this->manager->IsWaitingStatus();
 
     if (this->manager->IsDoneStatus())
@@ -107,6 +106,20 @@ void ExtendedTeamSelect::BeforeControlUpdate() {
     RKNet::ControllerSub& sub = controller->subs[0];
     if(sub.connectionUserDatas[sub.localAid].playersAtConsole == 0)
         sub = controller->subs[1];
+
+    ExtendedTeamID savedTeams[12][2]; // [aid][playerOnAid]
+    for (int i = 0; i < 12; i++) {
+        savedTeams[i][0] = this->manager->GetPlayerTeamByAID(i, 0);
+        savedTeams[i][1] = this->manager->GetPlayerTeamByAID(i, 1);
+
+        if (savedTeams[i][0] == TEAM_COUNT) {
+            savedTeams[i][0] = (ExtendedTeamID)(i % TEAM_COUNT);
+        }
+
+        if (savedTeams[i][1] == TEAM_COUNT) {
+            savedTeams[i][1] = (ExtendedTeamID)(i % TEAM_COUNT);
+        }
+    }
 
     int count = 0;
     for (u8 aid = 0; aid < 12; aid++) {
@@ -119,11 +132,11 @@ void ExtendedTeamSelect::BeforeControlUpdate() {
 
                 this->teamPlayerControl[count].SetMiiPane("chara_icon", *this->miiGroup, id, 2);
                 this->teamPlayerControl[count].SetMiiPane("chara_icon_sha", *this->miiGroup, id, 2);
-                this->teamPlayerControl[count].SetTextBoxMessage("mii_name", 0x251d, &textInfo);
+                this->teamPlayerControl[count].SetTextBoxMessage("mii_name", BMG_MII_NAME, &textInfo);
 
+                this->UpdatePlayerTeam(count, savedTeams[aid][playerOnAid]);
                 this->manager->SetPlayerIndexes(count, id, aid, playerOnAid);
-                this->UpdatePlayerTeam(count, this->manager->GetPlayerTeam(count));
-
+                
                 this->teamPlayerControl[count].isHidden = false;
                 this->teamPlayerArrows[count].isHidden = !this->isHost;
                 this->teamPlayerArrows[count].manipulator.inaccessible = !this->isHost;
@@ -263,6 +276,8 @@ void ExtendedTeamSelect::OnStartRaceClick(PushButton& button, u32 hudSlotId) {
         if (this->isHost) {
             this->manager->SendStartRacePacket();
             this->manager->SetStatusExternal(ExtendedTeamManager::STATUS_WAITING_POST);
+            this->manager->waitingTimer.SetInitial(2.0f);
+            this->manager->waitingTimer.isActive = true;
         } else {
             this->manager->SendAckStartRacePacket();
         }
@@ -317,53 +332,63 @@ const void ExtendedTeamSelect::ChangeVRButtonColors(LayoutUIControl& button, Ext
     u8 r, g, b;
     ExtendedTeamSelect::GetTeamColor(team, r, g, b);
     
-    teamColor1->tevColours[0].r = teamColor2->tevColours[0].r = r;
-    teamColor1->tevColours[0].g = teamColor2->tevColours[0].g = g;
-    teamColor1->tevColours[0].b = teamColor2->tevColours[0].b = b;
-    teamColor1->tevColours[0].a = teamColor2->tevColours[0].a = 255;
-    teamColor1->tevColours[1].r = teamColor2->tevColours[1].r = r;
-    teamColor1->tevColours[1].g = teamColor2->tevColours[1].g = g;
-    teamColor1->tevColours[1].b = teamColor2->tevColours[1].b = b;
-    teamColor1->tevColours[1].a = teamColor2->tevColours[1].a = 255;
+    for (int i = 0; i < 2; i++) {
+        teamColor1->tevColours[i].r = teamColor2->tevColours[i].r = r;
+        teamColor1->tevColours[i].g = teamColor2->tevColours[i].g = g;
+        teamColor1->tevColours[i].b = teamColor2->tevColours[i].b = b;
+        teamColor1->tevColours[i].a = teamColor2->tevColours[i].a = 255;
+    }
 }
 
+struct InternalTeamColor {
+    u8 color[3];
+    u8 text1[3]; // Lighter color
+    u8 text2[3]; // Darker color
+};
+
+static const InternalTeamColor TEAM_COLORS[TEAM_COUNT] = {
+    { // TEAM_RED
+        { 255, 0, 0 },
+        { 230, 70, 0 },
+        { 180, 30, 0 }
+    },
+    { // TEAM_ORANGE
+        { 255, 165, 0 },
+        { 255, 165, 0 },
+        { 255, 165, 0 }
+    },
+    { // TEAM_YELLOW
+        { 255, 255, 0 },
+        { 255, 255, 0 },
+        { 255, 255, 0 }
+    },
+    { // TEAM_GREEN
+        { 0, 255, 0 },
+        { 0, 255, 0 },
+        { 0, 255, 0 }
+    },
+    { // TEAM_BLUE
+        { 0, 128, 255 },
+        { 0, 180, 255 },
+        { 80, 80, 255 }
+    },
+    { // TEAM_PURPLE
+        { 128, 0, 128 },
+        { 128, 0, 128 },
+        { 128, 0, 128 }
+
+    }
+};
+
 void ExtendedTeamSelect::GetTeamColor(ExtendedTeamID team, u8& r, u8& g, u8& b) {
-    switch (team) {
-        case TEAM_RED:
-            r = 255;
-            g = 0;
-            b = 0;
-            break;
-        case TEAM_ORANGE:
-            r = 255;
-            g = 165;
-            b = 0;
-            break;
-        case TEAM_YELLOW:
-            r = 255;
-            g = 255;
-            b = 0;
-            break;
-        case TEAM_GREEN:
-            r = 0;
-            g = 255;
-            b = 0;
-            break;
-        case TEAM_BLUE:
-            r = 0;
-            g = 0;
-            b = 255;
-            break;
-        case TEAM_PURPLE:
-            r = 128;
-            g = 0;
-            b = 128;
-            break;
-        default:
-            r = 0;
-            g = 0;
-            b = 0;
-            break;
+    if (team >= TEAM_COUNT) {
+        r = 0;
+        g = 0;
+        b = 0;
+    } else {
+        r = TEAM_COLORS[team].color[0];
+        g = TEAM_COLORS[team].color[1];
+        b = TEAM_COLORS[team].color[2];
     }
 }
 

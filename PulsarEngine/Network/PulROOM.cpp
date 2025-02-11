@@ -44,7 +44,7 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
         packetHolder->packetSize = sizeof(PulROOM); //this has been changed by copy so it's safe to do this
         const Settings::Mgr& settings = Settings::Mgr::Get();
 
-        const u8 koSetting = settings.GetSettingValue(Settings::SETTINGSTYPE_KO, SETTINGKO_ENABLED);
+        u8 koSetting = settings.GetSettingValue(Settings::SETTINGSTYPE_KO, SETTINGKO_ENABLED);
         const u8 ottOnline = settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_ONLINE);
         const u8 charRestrictLight = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_CHARSELECT) == CHAR_LIGHTONLY;
         const u8 charRestrictMid = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_CHARSELECT) == CHAR_MEDIUMONLY;
@@ -61,6 +61,10 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
         const u8 transmissionInside = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_FORCETRANSMISSION) == HOSTSETTING_FORCE_TRANSMISSION_INSIDE;
         const u8 transmissionOutside = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_FORCETRANSMISSION) == HOSTSETTING_FORCE_TRANSMISSION_OUTSIDE;
         const u8 extendedTeams = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_EXTENDEDTEAMS) == EXTENDEDTEAMS_ENABLED;
+
+        if (extendedTeams) {
+            koSetting = KOSETTING_DISABLED;
+        }
 
         destPacket->hostSystemContext |= (ottOnline != OTTSETTING_OFFLINE_DISABLED) << PULSAR_MODE_OTT // ott
             | (ottOnline == OTTSETTING_ONLINE_FEATHER) << PULSAR_FEATHER // ott feather

@@ -1,7 +1,5 @@
 #include <UI/ExtendedTeamSelect/ExtendedTeamManager.hpp>
 #include <MarioKartWii/UI/Page/Other/FriendRoom.hpp>
-#include <MarioKartWii/RKNet/RKNetController.hpp>
-#include <MarioKartWii/RKNet/ROOM.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -164,7 +162,7 @@ void ExtendedTeamManager::Update() {
         if (status == STATUS_NONE) {
             if (friendRoomManager->friendRoomIsEnding) {
                 status = STATUS_WAITING_PRE;
-                this->waitingTimer.SetInitial(3.0f);
+                this->waitingTimer.SetInitial(5.0f);
                 this->waitingTimer.isActive = true;
             }
         } else if (status == STATUS_WAITING_PRE) {

@@ -5,7 +5,6 @@
 #include <MarioKartWii/UI/Ctrl/CtrlRace/CtrlRaceResult.hpp>
 #include <UI/UI.hpp>
 #include <UI/ToggleControls.hpp>
-
 #include <UI/ExtendedTeamSelect/ExtendedTeamManager.hpp>
 
 namespace Pulsar {

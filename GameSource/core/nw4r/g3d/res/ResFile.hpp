@@ -63,6 +63,7 @@ public:
     u32 GetResAnmShpNumEntries() const; //8004ce90
     ResTex GetResTex(int idx) const; //8004c5d0
     ResTex GetResTex(u32 idx) const; //8004c670
+    ResTex GetResTex(const char* name) const; //8004c4e0
     u32 GetResTexNumEntries() const; //8004c710
 
 };
