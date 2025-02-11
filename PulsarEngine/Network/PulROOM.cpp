@@ -60,6 +60,7 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
         const u8 itemBoxRepsawnFast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_ITEMBOXRESPAWN) == ITEMBOX_FASTRESPAWN;
         const u8 transmissionInside = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_FORCETRANSMISSION) == HOSTSETTING_FORCE_TRANSMISSION_INSIDE;
         const u8 transmissionOutside = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_FORCETRANSMISSION) == HOSTSETTING_FORCE_TRANSMISSION_OUTSIDE;
+        const u8 itemModeRain = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_ITEMRAIN;
         const u8 extendedTeams = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_EXTENDEDTEAMS) == EXTENDEDTEAMS_ENABLED;
 
         if (extendedTeams) {
@@ -88,6 +89,7 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
             | itemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN
             | transmissionInside << PULSAR_TRANSMISSIONINSIDE
             | transmissionOutside << PULSAR_TRANSMISSIONOUTSIDE
+            | itemModeRain << PULSAR_ITEMRAIN
             | extendedTeams << PULSAR_EXTENDEDTEAMS;
 
         u8 raceCount;

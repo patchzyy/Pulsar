@@ -3,6 +3,7 @@
 #include <Settings/Settings.hpp>
 #include <RetroRewind.hpp>
 #include <MarioKartWii/Race/RaceInfo/RaceInfo.hpp>
+#include <MarioKartWii/RKNet/RKNetController.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -11,7 +12,7 @@ const s8 CtrlRaceInputViewer::DPAD_HOLD_FOR_N_FRAMES = 10;
 
 void CtrlRaceInputViewer::Init() {
     char name[32];
-    bool isBrakedriftToggled = System::sInstance->IsContext(PULSAR_200);
+    bool isBrakedriftToggled = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
     RacedataScenario& raceScenario = Racedata::sInstance->racesScenario;
     
     for (int i = 0; i < (int)DpadState_Count; ++i) {
@@ -111,7 +112,7 @@ void CtrlRaceInputViewer::OnUpdate() {
             setTrigger(Trigger_R, R ? TriggerState_Pressed : TriggerState_Off);
             setStick(stick);
 
-            bool isBrakedriftToggled = System::sInstance->IsContext(PULSAR_200) || RetroRewind::System::Is500cc();
+            bool isBrakedriftToggled = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW || RetroRewind::System::Is500cc();
             if (isBrakedriftToggled) {
                 bool BD = input->buttonActions & 0x2;
                 setTrigger(Trigger_BD, BD ? TriggerState_Pressed : TriggerState_Off);

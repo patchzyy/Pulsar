@@ -3,31 +3,16 @@
 #include <PulsarSystem.hpp>
 #include <Settings/Settings.hpp>
 #include <Network/WiiLink.hpp>
+#include <Network/Network.hpp>
 
 namespace Pulsar {
 namespace Network {
 //Region Patch (Leseratte)
 
-static u32 region = 0x0A;
-
-static void PatchRegionNumber() {
-    bool is200 = System::sInstance->IsContext(PULSAR_200_WW) ? WWMODE_200 : WWMODE_DEFAULT;
-    bool isOTT = System::sInstance->IsContext(PULSAR_MODE_OTT) ? WWMODE_OTT : WWMODE_DEFAULT;
-    if (isOTT == WWMODE_OTT) {
-        region = 0x0B;
-    } else if (is200 == WWMODE_200) {
-        region = 0x0C;
-    } else if (is200 == WWMODE_DEFAULT && isOTT == WWMODE_DEFAULT) {
-        region = 0x0A;
-    }
-}
-PageLoadHook RegionNumberPatch(PatchRegionNumber);
-Settings::Hook RegionNumberPatch2(PatchRegionNumber);
-
 static void PatchLoginRegion() {
-    WWFC_CUSTOM_REGION = region;
+    WWFC_CUSTOM_REGION = System::sInstance->netMgr.region;
     char path[0x9];
-    snprintf(path, 0x9, "%08d", region + 100000);
+    snprintf(path, 0x9, "%08d", System::sInstance->netMgr.region + 100000);
     for(int i = 0; i < 8; ++i) {
         DWC::loginRegion[i] = path[i];
     }
@@ -42,7 +27,7 @@ BootHook LoginRegion(PatchLoginRegion, 2);
 
 int PatchRegion(char* path, u32 len, const char* fmt, const char* mode) {
     const Info& info = System::sInstance->GetInfo();
-    return snprintf(path, len, fmt, mode, region);
+    return snprintf(path, len, fmt, mode, System::sInstance->netMgr.region);
 }
 kmCall(0x8065921c, PatchRegion);
 kmCall(0x80659270, PatchRegion);
@@ -55,7 +40,7 @@ kmCall(0x80659788, PatchRegion);
 static int GetFriendsSearchType(int curType, u32 regionId) {
     register u8 friendRegionId;
     asm(mr friendRegionId, r0;);
-    if(region != friendRegionId) return curType;
+    if(System::sInstance->netMgr.region != friendRegionId) return curType;
     else if(curType == 7) return 6;
     else return 9;
 }
@@ -65,7 +50,7 @@ kmBranch(0x8065a088, GetFriendsSearchType);
 
 
 static u32 PatchRKNetControllerRegion() {
-    return region;
+    return System::sInstance->netMgr.region;
 }
 kmCall(0x80653640, PatchRKNetControllerRegion);
 kmWrite32(0x80653644, 0x7c651b78);

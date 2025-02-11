@@ -1,9 +1,12 @@
 #include <RetroRewind.hpp>
 #include <MarioKartWii/Archive/ArchiveMgr.hpp>
 #include <MarioKartWii/RKNet/RKNetController.hpp>
+#include <core/rvl/os/OS.hpp>
+#include <BinVerifier.hpp>
 
 namespace RetroRewind {
-void *GetCustomKartParam(ArchiveMgr *archive, ArchiveSource type, const char *name, u32 *length){
+
+void *GetCustomKartParam(ArchiveMgr *archive, ArchiveSource type, const char *name, u32 *length) {
     bool insideAll = Pulsar::HOSTSETTING_FORCE_TRANSMISSION_DEFAULT;
     bool outsideAll = Pulsar::HOSTSETTING_FORCE_TRANSMISSION_DEFAULT;
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
@@ -32,6 +35,7 @@ void *GetCustomKartParam(ArchiveMgr *archive, ArchiveSource type, const char *na
             name="kartParamOut.bin";
         }
     }
+    AntiCheat::VerifyBinFile(name);
     return archive->GetFile(type, name, length);
 }
 kmCall(0x80591a30, GetCustomKartParam);
@@ -77,12 +81,13 @@ void *GetCustomItemSlot(ArchiveMgr *archive, ArchiveSource type, const char *nam
     {
         name="ItemSlotBlast.bin";
     }
+    AntiCheat::VerifyBinFile(name);
     return archive->GetFile(type, name, length);
-
 }
 kmCall(0x807bb128, GetCustomItemSlot);
 kmCall(0x807bb030, GetCustomItemSlot);
 kmCall(0x807bb200, GetCustomItemSlot);
 kmCall(0x807bb53c, GetCustomItemSlot);
 kmCall(0x807bbb58, GetCustomItemSlot);
-}
+
+} // namespace RetroRewind

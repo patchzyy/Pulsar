@@ -17,6 +17,7 @@
 
 //Pulsar Custom Pages:
 #include <UI/TeamSelect/TeamSelect.hpp>
+#include <UI/RoomKick/RoomKickPage.hpp>
 #include <UI/ExtendedTeamSelect/ExtendedTeamSelect.hpp>
 #include <UI/ExtendedTeamSelect/Result/ExtendedTeamResultTotal.hpp>
 #include <UI/ExtendedTeamSelect/Result/ExtendedTeamResultIrregularTotal.hpp>
@@ -69,14 +70,16 @@ void ExpSection::CreatePulPages() {
                 this->CreateAndInitPage(*this, PULPAGE_EXTENDEDTEAMS_RESULT_TOTAL_IRREGULAR);
             }
             break;
-            //case SECTION_P1_WIFI_FROOM_VS_VOTING:      //0x60
-            //case SECTION_P1_WIFI_FROOM_TEAMVS_VOTING:  //0x61
-            //case SECTION_P1_WIFI_FROOM_BALLOON_VOTING: //0x62
-            //case SECTION_P1_WIFI_FROOM_COIN_VOTING:    //0x63
-            //case SECTION_P2_WIFI_FROOM_VS_VOTING:      //0x64
-            //case SECTION_P2_WIFI_FROOM_TEAMVS_VOTING:  //0x65
-            //case SECTION_P2_WIFI_FROOM_BALLOON_VOTING: //0x66
-            //case SECTION_P2_WIFI_FROOM_COIN_VOTING:    //0x67
+        case SECTION_P1_WIFI_FROOM_VS_VOTING:      //0x60
+        case SECTION_P1_WIFI_FROOM_TEAMVS_VOTING:  //0x61
+        case SECTION_P1_WIFI_FROOM_BALLOON_VOTING: //0x62
+        case SECTION_P1_WIFI_FROOM_COIN_VOTING:    //0x63
+        case SECTION_P2_WIFI_FROOM_VS_VOTING:      //0x64
+        case SECTION_P2_WIFI_FROOM_TEAMVS_VOTING:  //0x65
+        case SECTION_P2_WIFI_FROOM_BALLOON_VOTING: //0x66
+        case SECTION_P2_WIFI_FROOM_COIN_VOTING:    //0x67
+            this->CreateAndInitPage(*this, SettingsPanel::id);
+            break;
 
         case SECTION_P1_WIFI_VS: //0x68
         case SECTION_P2_WIFI_VS: //0x69
@@ -124,6 +127,7 @@ void ExpSection::CreatePulPages() {
         case SECTION_P2_WIFI:                    //0x5b
         case SECTION_P2_WIFI_FROM_FROOM_RACE:    //0x5c
         case SECTION_OPTIONS:                    //0x8c
+        case SECTION_P1_WIFI_VS_VOTING:          //0x60
             this->CreateAndInitPage(*this, SettingsPanel::id);
     }
     if(this->hasAutoVote) {
@@ -132,7 +136,7 @@ void ExpSection::CreatePulPages() {
         this->CreateAndInitPage(*this, PAGE_SELECT_STAGE_MGR);
     }
     if(this->Get<ExpFroom>() != nullptr) {
-        //can also put it as part of the case froom of createandinitpage
+        this->CreateAndInitPage(*this, RoomKickPage::id);
         this->CreateAndInitPage(*this, PULPAGE_TEAMSELECT); 
         this->CreateAndInitPage(*this, PULPAGE_EXTENDEDTEAMSELECT); 
     }
@@ -210,6 +214,9 @@ void ExpSection::CreateAndInitPage(ExpSection& self, u32 id) {
             break;
         case TeamSelect::id:
             page = new TeamSelect;
+            break;
+        case RoomKickPage::id:
+            page = new RoomKickPage;
             break;
         case KO::RaceEndPage::id:
             initId = KO::RaceEndPage::fakeId;

@@ -60,3 +60,11 @@ PulsarPackCreator/Executable/Pulsar Pack Creator.dll.config
 # AntiCheat
 PulsarEngine/AntiCheat.cpp
 PulsarEngine/AntiCheat.hpp
+PulsarEngine/Hashes.hpp
+PulsarEngine/HashUtils.hpp
+PulsarEngine/HashUtils.cpp
+PulsarEngine/CourseVerifier.cpp
+PulsarEngine/BinVerifier.hpp
+PulsarEngine/BinVerifier.cpp
+PulsarEngine/StaticRVerifier.cpp
+GameSource/AntiCheat.txt

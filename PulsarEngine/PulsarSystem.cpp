@@ -80,7 +80,7 @@ void System::Init(const ConfigFile& conf) {
     }
 
     //Track blocking 
-    u32 trackBlocking = this->info.GetTrackBlocking();
+    u32 trackBlocking = 32;
     this->netMgr.lastTracks = new PulsarId[trackBlocking];
     for(int i = 0; i < trackBlocking; ++i) this->netMgr.lastTracks[i] = PULSARID_NONE;
     const BMGHeader* const confBMG = &conf.GetSection<PulBMG>().header;
@@ -127,8 +127,9 @@ void System::UpdateContext() {
     bool isHAW = false;
     bool isKO = false;
     bool isOTT = false;
-    bool isOTTOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_OTT && mode != MODE_VS_RACE && mode != MODE_TIME_TRIAL;
+    bool isOTTOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_OTT && mode == MODE_PUBLIC_VS;
     bool isMiiHeads = settings.GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_MII);
+    bool is200Online = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_200 && mode == MODE_PUBLIC_VS;
     bool isExtendedTeams = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_EXTENDEDTEAMS) == EXTENDEDTEAMS_ENABLED;
 
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
@@ -136,7 +137,6 @@ void System::UpdateContext() {
     const u32 sceneId = GameScene::GetCurrent()->id;
 
     bool is200 = racedataSettings.engineClass == CC_100 && this->info.Has200cc();
-    bool is200Online = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_200 && mode != MODE_VS_RACE && mode != MODE_TIME_TRIAL;
     bool is500 = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, HOSTSETTING_CC_500);
     bool isKOFinal = settings.GetSettingValue(Settings::SETTINGSTYPE_KO, SETTINGKO_FINAL) == KOSETTING_FINAL_ALWAYS;
     bool isCharRestrictLight = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_CHARSELECT) == CHAR_LIGHTONLY;
@@ -148,6 +148,10 @@ void System::UpdateContext() {
     bool isItemModeRandom = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_RANDOM;
     bool isItemModeBlast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_BLAST;
     bool isItemModeNone = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_NONE;
+    bool isItemModeRain = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_ITEMRAIN && 
+                         (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || 
+                          RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || 
+                          mode == MODE_VS_RACE);
     bool isRegs = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_REGS);
     bool isChangeCombo = settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_ALLOWCHANGECOMBO) == OTTSETTING_COMBO_ENABLED;
     bool isItemBoxRepsawnFast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_ITEMBOXRESPAWN) == ITEMBOX_FASTRESPAWN;
@@ -176,13 +180,14 @@ void System::UpdateContext() {
                 isItemModeRandom = newContext & (1 << PULSAR_ITEMMODERANDOM);
                 isItemModeBlast = newContext & (1 << PULSAR_ITEMMODEBLAST);
                 isItemModeNone = newContext & (1 << PULSAR_ITEMMODENONE);
+                isItemModeRain = newContext & (1 << PULSAR_ITEMRAIN);
                 isRegs = newContext & (1 << PULSAR_REGS);
                 is500 = newContext & (1 << PULSAR_500);
-                is200Online = newContext & (1 << PULSAR_200_WW);
+                is200Online |= newContext & (1 << PULSAR_200_WW);
                 isHAW = newContext & (1 << PULSAR_HAW);
                 isKO = newContext & (1 << PULSAR_MODE_KO);
                 isOTT = newContext & (1 << PULSAR_MODE_OTT);
-                isOTTOnline = newContext & (1 << PULSAR_MODE_OTT);
+                isOTTOnline |= newContext & (1 << PULSAR_MODE_OTT);
                 isMiiHeads = newContext & (1 << PULSAR_MIIHEADS);
                 isThunderCloud = newContext & (1 << PULSAR_THUNDERCLOUD);
                 isItemBoxRepsawnFast = newContext & (1 << PULSAR_ITEMBOXRESPAWN);
@@ -208,14 +213,27 @@ void System::UpdateContext() {
     }
     this->netMgr.hostContext = newContext;
 
-    u32 context = (isCT << PULSAR_CT) | (isHAW << PULSAR_HAW) | (isMiiHeads << PULSAR_MIIHEADS);
-    if(isCT) { //contexts that should only exist when CTs are on
-        context |= (is200 << PULSAR_200) | (is200Online << PULSAR_200_WW) | (isFeather << PULSAR_FEATHER) | (isUMTs << PULSAR_UMTS) | (isMegaTC << PULSAR_MEGATC) | (isOTT << PULSAR_MODE_OTT) | (isOTTOnline << PULSAR_MODE_OTT) | (isKO << PULSAR_MODE_KO)
-        | (isCharRestrictLight << PULSAR_CHARRESTRICTLIGHT) | (isCharRestrictMid << PULSAR_CHARRESTRICTMID) | (isCharRestrictHeavy << PULSAR_CHARRESTRICTHEAVY) | (isKartRestrictKart << PULSAR_KARTRESTRICT) | (isKartRestrictBike << PULSAR_BIKERESTRICT) | (isChangeCombo << PULSAR_CHANGECOMBO)
-        | (is500 << PULSAR_500) | (isThunderCloud << PULSAR_THUNDERCLOUD) | (isItemModeRandom << PULSAR_ITEMMODERANDOM) | (isItemModeBlast << PULSAR_ITEMMODEBLAST) | (isItemModeNone << PULSAR_ITEMMODENONE) | (isRegs << PULSAR_REGS) | (isKOFinal << PULSAR_KOFINAL) 
-        | (isItemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN) | (IsTransmissionInside << PULSAR_TRANSMISSIONINSIDE) | (IsTransmissionOutside << PULSAR_TRANSMISSIONOUTSIDE) | (isExtendedTeams << PULSAR_EXTENDEDTEAMS);
+    // First clear everything except 200_WW and OTTOnline bits
+    u32 preserved = this->context & ((1 << PULSAR_200_WW) | (1 << PULSAR_MODE_OTT));
+    
+    // Set the new context value
+    u32 newContextValue = (isCT << PULSAR_CT) | (isHAW << PULSAR_HAW) | (isMiiHeads << PULSAR_MIIHEADS);
+    if(isCT) {
+        newContextValue |= (is200 << PULSAR_200) | (isFeather << PULSAR_FEATHER) | 
+                          (isUMTs << PULSAR_UMTS) | (isMegaTC << PULSAR_MEGATC) | (isOTT << PULSAR_MODE_OTT) | 
+                          (isKO << PULSAR_MODE_KO) |
+                          (isCharRestrictLight << PULSAR_CHARRESTRICTLIGHT) | (isCharRestrictMid << PULSAR_CHARRESTRICTMID) | 
+                          (isCharRestrictHeavy << PULSAR_CHARRESTRICTHEAVY) | (isKartRestrictKart << PULSAR_KARTRESTRICT) | 
+                          (isKartRestrictBike << PULSAR_BIKERESTRICT) | (isChangeCombo << PULSAR_CHANGECOMBO) |
+                          (is500 << PULSAR_500) | (isThunderCloud << PULSAR_THUNDERCLOUD) | 
+                          (isItemModeRandom << PULSAR_ITEMMODERANDOM) | (isItemModeBlast << PULSAR_ITEMMODEBLAST) | 
+                          (isItemModeNone << PULSAR_ITEMMODENONE) | (isRegs << PULSAR_REGS) | (isKOFinal << PULSAR_KOFINAL) |
+                          (isItemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN) | (IsTransmissionInside << PULSAR_TRANSMISSIONINSIDE) | 
+                          (IsTransmissionOutside << PULSAR_TRANSMISSIONOUTSIDE) | (isItemModeRain << PULSAR_ITEMRAIN);
     }
-    this->context = context;
+    
+    // Combine the new context with preserved bits
+    this->context = newContextValue | preserved;
 
     //Create temp instances if needed:
     /*
@@ -242,6 +260,16 @@ void System::UpdateContextWrapper() {
 }
 
 static Pulsar::Settings::Hook UpdateContext(System::UpdateContextWrapper);
+
+void System::ClearOttContext()
+{
+    bool isOTTEnabled = Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_OFFLINE);
+    if (!isOTTEnabled) {
+        sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+    }
+}
+
+static Pulsar::Settings::Hook UpdateOTTContext(System::ClearOttContext);
 
 s32 System::OnSceneEnter(Random& random) {
     System* self = System::sInstance;

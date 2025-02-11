@@ -83,13 +83,39 @@ end:
 kmCall(0x80828EDC, GetItemBoxRespawn);
 
 void ItemBoxPatch() {
+  bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
   bool isFastRespawn = Pulsar::System::sInstance->IsContext(Pulsar::PULSAR_ITEMBOXRESPAWN) ? Pulsar::ITEMBOX_DEFAULTRESPAWN : Pulsar::ITEMBOX_FASTRESPAWN;
   ItemBoxHook = 0x00;
-  if (isFastRespawn == Pulsar::ITEMBOX_DEFAULTRESPAWN) {
+  if (isFastRespawn == Pulsar::ITEMBOX_DEFAULTRESPAWN || is200) {
     ItemBoxHook = 0x00FF0100;
   }
 }
 static PageLoadHook PatchItemBox(ItemBoxPatch);
+
+asmFunc GetMaxWeight() {
+    ASM(
+loc_0x0:
+  lfs	      f1, 0x0014 (r28);
+  lis       r12, 0x8000;
+  lbz       r12, 0x120C(r12);
+  cmpwi     r12, 0;
+  beq       end;
+  lfs       f1, 0x0(r28);
+
+end:
+  blr;
+    )
+}
+kmCall(0x8057083C, GetMaxWeight);
+
+void MaxWeightPatch() {
+  bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
+  MaxWeightHook = 0x00;
+  if (is200) {
+    MaxWeightHook = 0x00FF0100;
+  }
+}
+static PageLoadHook PatchMaxWeight(MaxWeightPatch);
 
 //No Disconnect from being Idle [Bully]
 asmFunc GetNoDC() {
@@ -119,51 +145,14 @@ void NoDCPatch() {
 }
 static PageLoadHook PatchNoDC(NoDCPatch);
 
-asmFunc ItemVanish() {
-    ASM(
-        nofralloc;
-loc_0x0:
-  lfs f0, 0x0(r31);
-  fcmpo cr0, f1, f0;
-  lis r12, 0x8000;
-  lbz r12, 0x120A(r12);
-  cmpwi cr7, r12, 0;
-  beqlr cr7;
-  cmpwi r0, 0xA;
-
-end:
-  blr;
-    )
-}
-kmCall(0x8079F748, ItemVanish);
-
-void OTTPatch() {
-  OTTFixHook = 0x00;
+extern "C" void ItemVanish(unsigned int r0, unsigned int r12) {
   if (Pulsar::System::sInstance->IsContext(Pulsar::PULSAR_MODE_OTT)) {
-      OTTFixHook = 0x00FF0100;
+    if(r12 == 0) return;
+    volatile unsigned int cmp = (r0 == 10);
+    (void)cmp;
+    return;
   }
 }
-static PageLoadHook PatchOTT(OTTPatch);
-
-//Simple Cheat code crash [Cats4Life]
-void CodeCrash() {
-    if(DolphinCheat == 0x00000001) Pulsar::Debug::FatalError("Please disable all cheat codes.");
-    else if(AntiCheat1 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
-    else if(AntiCheat2 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
-    else if(AntiCheat3 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
-    else if(AntiCheat4 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
-    else if(AntiCheat5 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
-    else if(AntiCheat6 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
-    else if(AntiCheat7 != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please check your codehandler.");
-    else if(MainDolCheat != 0x00000000000000000000000000000000) Pulsar::Debug::FatalError("Please disable all cheat codes.");
-    
-}
-static PageLoadHook CRASH_HOOK(CodeCrash);
-
-//GeckoLoader Patch [Toadette Hack Fan]
-void GeckoLoader() {
-    if(GeckoLoader1 != 0x00000000) Pulsar::Debug::FatalError("Please reinstall the distribution.");
-}
-BootHook GECKOLOADERDETECTION(GeckoLoader, 2);
+kmCall(0x8079F748, ItemVanish);
 
 } // namespace RetroRewind

@@ -102,7 +102,7 @@ s32 HandleGroundFeatherCollision(const Kart::Collision& collision) {
     }
     return -1;
 }
-kmWritePointer(0x808b54e8, HandleGroundFeatherCollision);
+//kmWritePointer(0x808b54e8, HandleGroundFeatherCollision);
 
 static u32 ConditionalBlooperTimer(u32 timer) {
     if(System::sInstance->IsContext(PULSAR_FEATHER)) timer = 0;
@@ -146,7 +146,7 @@ void ConditionalObjProperties(Item::ObjProperties* dest, const Item::ObjProperti
         dest->canFallOnTheGround2 = true;
     }
 }
-kmCall(0x80790bc4, ConditionalObjProperties);
+//kmCall(0x80790bc4, ConditionalObjProperties);
 
 //Kept as is because it's almost never used and that guarantees ghost sync
 kmWrite32(0x808b5c24, 0x42AA0000); //increases min, max speed of jump pad type 0x7 as well as its vertical velocity
