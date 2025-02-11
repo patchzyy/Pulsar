@@ -368,7 +368,7 @@ static const InternalTeamColor TEAM_COLORS[TEAM_COUNT] = {
         { 0, 255, 0 }
     },
     { // TEAM_BLUE
-        { 0, 128, 255 },
+        { 0, 64, 255 },
         { 0, 180, 255 },
         { 80, 80, 255 }
     },

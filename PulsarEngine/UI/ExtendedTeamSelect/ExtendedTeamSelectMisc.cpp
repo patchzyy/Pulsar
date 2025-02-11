@@ -178,8 +178,13 @@ void CtrlRaceNameBalloon_refresh(CtrlRaceNameBalloon* _this, u8 playerId) {
         u8 r, g, b;
         ExtendedTeamSelect::GetTeamColor(ExtendedTeamManager::sInstance->GetPlayerTeam(playerId), r, g, b);
         nw4r::lyt::TextBox* characterName = (nw4r::lyt::TextBox*)_this->layout.GetPaneByName("chara_name");
+        nw4r::lyt::Material* mat = characterName->GetMaterial();
 
         characterName->color1[0] = nw4r::ut::Color(r, g, b, 255);
+        
+        mat->tevColours[1].r = 255;
+        mat->tevColours[1].g = 255;
+        mat->tevColours[1].b = 255;
     }
 }
 
@@ -368,44 +373,13 @@ kmCall(0x80645b28, WiFiVSResults_CalcSkipAnimation);
 kmCall(0x80645b74, WiFiVSResults_CalcSkipAnimation);
 kmCall(0x80645bac, WiFiVSResults_CalcSkipAnimation);
 
-/*
 
-(0) Loop
-    (0) Loop
-(1) Player
-    (0) Player
-    (1) NetOther
-(2) PlayerColorOn
-    (0) PlayerColorOn
-    (1) PlayerColorOff
-(3) PlayerColorType
-    (0) PlayerColor1P
-    (1) PlayerColor2P
-    (2) PlayerColor3P
-    (3) PlayerColor4P
-    (4) PlayerColorRed
-    (5) PlayerColorBlue
-(4) CPUColorType
-    (0) CPUColorOff
-    (1) CPUColorRed
-    (2) CPUColorBlue
-(5) PlayerFlash
-    (0) FlashPlayer,
-    (1) FlashNetOther
+// void patch_HUDColor_SetVtxColor(nw4r::lyt::Pane* _this, u32 idx, nw4r::ut::Color color) {
+//     OS::Report("Setting color for pane %p, idx %08x, color %3d %3d %3d %3d\n", _this, idx, color.r, color.g, color.b, color.a);
+//     return _this->SetVtxColor(idx, color);
+// }
 
-*/
+// kmCall(0x807ec1dc, patch_HUDColor_SetVtxColor);
 
 } // namespace UI
 } // namespace Pulsar
-
-
-
-asmFunc InstantFinish() {
-    ASM(
-  lis       r12, 0x3;
-  ori       r12, r12, 0x387;
-  stw       r12, 0x24(r30);
-  lha       r3, 0x24(r30);
-    )
-}
-kmCall(0x80535508, InstantFinish);
