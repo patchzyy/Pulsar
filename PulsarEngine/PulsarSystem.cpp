@@ -229,7 +229,7 @@ void System::UpdateContext() {
                           (isItemModeRandom << PULSAR_ITEMMODERANDOM) | (isItemModeBlast << PULSAR_ITEMMODEBLAST) | 
                           (isItemModeNone << PULSAR_ITEMMODENONE) | (isRegs << PULSAR_REGS) | (isKOFinal << PULSAR_KOFINAL) |
                           (isItemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN) | (IsTransmissionInside << PULSAR_TRANSMISSIONINSIDE) | 
-                          (IsTransmissionOutside << PULSAR_TRANSMISSIONOUTSIDE) | (isItemModeRain << PULSAR_ITEMRAIN);
+                          (IsTransmissionOutside << PULSAR_TRANSMISSIONOUTSIDE) | (isItemModeRain << PULSAR_ITEMRAIN) | (isExtendedTeams << PULSAR_EXTENDEDTEAMS);
     }
     
     // Combine the new context with preserved bits
