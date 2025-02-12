@@ -115,9 +115,14 @@ void CorrectRoomStartButton(Pages::Globe::MessageWindow& control, u32 bmgId, Tex
         const u32 hostContext = System::sInstance->netMgr.hostContext;
         const bool isOTT = hostContext & (1 << PULSAR_MODE_OTT);
         const bool isKO = hostContext & (1 << PULSAR_MODE_KO);
+        const bool isExtendedTeam = hostContext & (1 << PULSAR_EXTENDEDTEAMS);
         if (isOTT || isKO) {
             const bool isTeam = bmgId == BMG_PLAY_TEAM_GP;
             bmgId = (BMG_PLAY_OTT - 1) + isOTT + isKO * 2 + isTeam * 3;
+        }
+
+        if (isExtendedTeam) {
+            bmgId = BMG_EXTENDEDTEAMS_PLAY;
         }
     }
     control.SetMessage(bmgId, info);

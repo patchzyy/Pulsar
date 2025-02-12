@@ -10,6 +10,7 @@
 #include <Gamemodes/OnlineTT/OnlineTT.hpp>
 #include <Settings/Settings.hpp>
 #include <Config.hpp>
+#include <UI/ExtendedTeamSelect/ExtendedTeamManager.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
 #include <core/egg/DVD/DvdRipper.hpp>
 namespace Pulsar {
@@ -27,6 +28,7 @@ void System::CreateSystem() {
     }
     else system = new System();
     System::sInstance = system;
+    UI::ExtendedTeamManager::CreateInstance(new UI::ExtendedTeamManager());
     ConfigFile& conf = ConfigFile::LoadConfig();
     system->Init(conf);
     prev->BecomeCurrentHeap();
@@ -128,6 +130,7 @@ void System::UpdateContext() {
     bool isOTTOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_OTT && mode == MODE_PUBLIC_VS;
     bool isMiiHeads = settings.GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_MII);
     bool is200Online = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_200 && mode == MODE_PUBLIC_VS;
+    bool isExtendedTeams = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_EXTENDEDTEAMS) == EXTENDEDTEAMS_ENABLED;
 
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
     Network::Mgr& netMgr = this->netMgr;
@@ -190,6 +193,7 @@ void System::UpdateContext() {
                 isItemBoxRepsawnFast = newContext & (1 << PULSAR_ITEMBOXRESPAWN);
                 IsTransmissionInside = newContext & (1 << PULSAR_TRANSMISSIONINSIDE);
                 IsTransmissionOutside = newContext & (1 << PULSAR_TRANSMISSIONOUTSIDE);
+                isExtendedTeams = newContext & (1 << PULSAR_EXTENDEDTEAMS);
                 if (isOTT) {
                     isUMTs = newContext & (1 << PULSAR_UMTS);
                     isFeather &= newContext & (1 << PULSAR_FEATHER);
@@ -225,7 +229,7 @@ void System::UpdateContext() {
                           (isItemModeRandom << PULSAR_ITEMMODERANDOM) | (isItemModeBlast << PULSAR_ITEMMODEBLAST) | 
                           (isItemModeNone << PULSAR_ITEMMODENONE) | (isRegs << PULSAR_REGS) | (isKOFinal << PULSAR_KOFINAL) |
                           (isItemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN) | (IsTransmissionInside << PULSAR_TRANSMISSIONINSIDE) | 
-                          (IsTransmissionOutside << PULSAR_TRANSMISSIONOUTSIDE) | (isItemModeRain << PULSAR_ITEMRAIN);
+                          (IsTransmissionOutside << PULSAR_TRANSMISSIONOUTSIDE) | (isItemModeRain << PULSAR_ITEMRAIN) | (isExtendedTeams << PULSAR_EXTENDEDTEAMS);
     }
     
     // Combine the new context with preserved bits

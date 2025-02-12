@@ -55,6 +55,9 @@ struct PulROOM : public     RKNet::ROOMPacket {
     //Generic ROOM settings
     u32 hostSystemContext; //System's context but with just gamemodes taken from the settings
     u8 raceCount;
+
+    // Extended Team settings
+    u8 extendedTeams[6]; // 4 bits per AID, they encode the team ID (4 * 12 = 48 bits = 6 bytes)
 };
 
 enum SELECTComboStatus {
