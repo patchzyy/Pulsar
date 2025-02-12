@@ -19,7 +19,7 @@ void CtrlRaceResultExtendedTeams::InitSelf() {
 
     RacedataScenario& scenario = Racedata::sInstance->menusScenario;
     for (int i = 0; i < scenario.playerCount; i++) {
-        if (playerCount >= 2)
+        if (playerCount >= 6)
             break;
 
         if (ExtendedTeamManager::sInstance->GetPlayerTeam(i) == this->teamId) {
@@ -39,14 +39,14 @@ void CtrlRaceResultExtendedTeams::InitSelf() {
     }
 
     qsort(this->players, playerCount, sizeof(CtrlRaceResultTeam::Player), (int (*)(const void*, const void*))CtrlRaceResultTeam::ComparePlayers);
-    for (int i = playerCount; i < 2; i++) {
+    for (int i = playerCount; i < 6; i++) {
         this->players[i].playerIdx = -1;
         this->players[i].battleScore = 0;
         this->players[i].prevBattleScore = 0;
     }
 
     int rank = 0;
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 6; i++) {
         if (this->players[i].playerIdx == -1) {
             this->items[i].isHidden = true;
             continue;
@@ -121,7 +121,7 @@ void CtrlRaceResultExtendedTeams::OnUpdate() {
         return;
     }
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 6; i++) {
         if (this->players[i].playerIdx != -1) {
             u32 score = this->players[i].battleScore;
             if (score - this->players[i].prevBattleScore > 0.0) {
@@ -166,7 +166,7 @@ void CtrlRaceResultExtendedTeams::Load(ExtendedTeamID teamID, int numTeams, int 
     ControlLoader selfLoader(this);
     selfLoader.Load("result", "ExtendedTeamResult", variant, nullptr);
 
-    this->InitControlGroup(3);
+    this->InitControlGroup(6 + 1);
 
     const char* anims[] = {
         "Loop", "Loop", nullptr,
@@ -175,7 +175,7 @@ void CtrlRaceResultExtendedTeams::Load(ExtendedTeamID teamID, int numTeams, int 
         nullptr
     };
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 6; i++) {
         snprintf(variant, 20, "BlueRed%d", i);
         this->AddControl(i, &this->items[i]);
 
@@ -212,7 +212,7 @@ void CtrlRaceResultExtendedTeams::Load(ExtendedTeamID teamID, int numTeams, int 
     }
 
     this->resultTeamPoint = new LayoutUIControl();
-    this->AddControl(2, this->resultTeamPoint);
+    this->AddControl(6, this->resultTeamPoint);
 
     const char* teamPointAnims[] = {
         "team", "blue", "red", nullptr,
@@ -237,8 +237,8 @@ void CtrlRaceResultExtendedTeams::Load(ExtendedTeamID teamID, int numTeams, int 
 }
 
 bool CtrlRaceResultExtendedTeams::IsResultAnimDone() const {
-    for (int i = 0; i < 2; i++) {
-        if (this->players[i].battleScore - this->players[i].prevBattleScore > 0.0) {
+    for (int i = 0; i < 6; i++) {
+        if ((this->players[i].playerIdx != -1) && (this->players[i].battleScore - this->players[i].prevBattleScore > 0.0)) {
             return true;
         }
     }

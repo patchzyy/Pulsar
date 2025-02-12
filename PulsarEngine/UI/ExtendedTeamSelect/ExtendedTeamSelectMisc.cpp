@@ -11,6 +11,7 @@
 #include <MarioKartWii/UI/Page/Other/WifiVSResults.hpp>
 #include <MarioKartWii/UI/Ctrl/CtrlRace/CtrlRace2DMap.hpp>
 #include <MarioKartWii/UI/Ctrl/CtrlRace/CtrlRaceBalloon.hpp>
+#include <MarioKartWii/UI/Ctrl/CtrlRace/CtrlRaceRankNum.hpp>
 #include <MarioKartWii/Race/RaceInfo/RaceInfo.hpp>
 
 namespace Pulsar {
@@ -185,6 +186,10 @@ void CtrlRaceNameBalloon_refresh(CtrlRaceNameBalloon* _this, u8 playerId) {
         mat->tevColours[1].r = 255;
         mat->tevColours[1].g = 255;
         mat->tevColours[1].b = 255;
+
+        for (int i = 0; i < 4; i++) {
+            _this->layout.GetPaneByName("line")->SetVtxColor(i, nw4r::ut::Color(r, g, b, 255));
+        }
     }
 }
 
@@ -203,7 +208,7 @@ kmCall(0x807efe5c, CtrlRaceNameBalloon_PlayAnimationAtFrameAndDisable);
 void GPVSLeaderboardUpdate_hookSetupEntries(Pages::GPVSLeaderboardUpdate* _this) {
     _this->FillRows();
     if (_this->pageId == PAGE_GPVS_LEADERBOARD_UPDATE && ExtendedTeamManager::IsActivated()) {
-        for (int i = 0; i < _this->GetRowCount(); i++) {
+        for (u8 i = 0; i < _this->GetRowCount(); i++) {
             u8 playerId = Raceinfo::sInstance->playerIdInEachPosition[i];
             CtrlRaceResult* result = _this->results[i];
 
@@ -353,9 +358,9 @@ void WiFiVSResults_setCongratulationText(Pages::WiFiVSResults* _this) {
         qsort(scores, TEAM_COUNT, sizeof(TeamScore), sort_by_score);
     
         Text::Info info;
-        info.bmgToPass[0] = BMG_EXTENDEDTEAMS_TEAM_NAME + scores[0].team + (scores[0].score == scores[1].score);
+        info.bmgToPass[0] = BMG_EXTENDEDTEAMS_TEAM_NAME + scores[0].team;
     
-        _this->congratulations.SetMessage(BMG_EXTENDEDTEAMS_WINNER, &info);
+        _this->congratulations.SetMessage(BMG_EXTENDEDTEAMS_WINNER + (scores[0].score == scores[1].score), &info);
     }
 }
 
@@ -373,13 +378,58 @@ kmCall(0x80645b28, WiFiVSResults_CalcSkipAnimation);
 kmCall(0x80645b74, WiFiVSResults_CalcSkipAnimation);
 kmCall(0x80645bac, WiFiVSResults_CalcSkipAnimation);
 
+// static u8 s_lastExtendedTeamPlayerId = 0;
+
+// u32 patch_GetHudIdFromPlayerId(Racedata* _this, u8 hudSlotId) {
+//     s_lastExtendedTeamPlayerId = _this->GetPlayerIdOfLocalPlayer(hudSlotId);
+//     return _this->GetPlayerIdOfLocalPlayer(hudSlotId);
+// }
 
 // void patch_HUDColor_SetVtxColor(nw4r::lyt::Pane* _this, u32 idx, nw4r::ut::Color color) {
-//     OS::Report("Setting color for pane %p, idx %08x, color %3d %3d %3d %3d\n", _this, idx, color.r, color.g, color.b, color.a);
+    
+//     if (ExtendedTeamManager::IsActivated()) {
+//         u8 r, g, b;
+//         ExtendedTeamSelect::GetTeamColor(ExtendedTeamManager::sInstance->GetPlayerTeam(s_lastExtendedTeamPlayerId), r, g, b);
+
+//         color.r = r;
+//         color.g = g;
+//         color.b = b;
+
+//         if (idx > 1) {
+//             u32 uVar11 = r + 40;
+//             u32 uVar6 = 0xff;
+//             if (uVar11 < 0xff) {
+//                 uVar6 = uVar11;
+//             }
+    
+//             u32 uVar7 = g + 130;
+//             uVar11 = 0xff;
+//             if (uVar7 < 0xff) {
+//                 uVar11 = uVar7;
+//             }
+    
+//             u32 uVar8 = 0xff;
+//             uVar7 = b + 130;
+    
+//             if (uVar7 < 0xff) {
+//                 uVar8 = uVar7;
+//             }
+
+//             color.rgba = (uVar6 << 24) | (uVar11 << 16) | (uVar8 << 8) | color.a;
+//         }
+//     }
+
 //     return _this->SetVtxColor(idx, color);
 // }
 
 // kmCall(0x807ec1dc, patch_HUDColor_SetVtxColor);
+
+// u8 patch_CtrlRaceRankNum_SetVtxColor(CtrlRaceRankNum* _this) {
+//     _this->HudSlotColorEnable("position", true);
+//     return _this->GetPlayerId();
+// }
+
+// kmCall(0x807f4974, patch_CtrlRaceRankNum_SetVtxColor);
 
 } // namespace UI
 } // namespace Pulsar

@@ -71,7 +71,7 @@ void ExtendedTeamResultIrregularTotal::FillRows() {
 
     qsort(scores, TEAM_COUNT, sizeof(TeamScore), sort_by_score);
 
-    for (int i = teamCount; i < 12; i++) {
+    for (int i = teamCount; i < this->GetRowCount(); i++) {
         this->results[i]->isHidden = true;
     }
      

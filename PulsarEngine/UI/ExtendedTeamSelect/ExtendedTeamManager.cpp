@@ -16,7 +16,6 @@ ExtendedTeamManager::ExtendedTeamManager() {
     }
 
     this->isHost = false;
-    this->hasSentStartRacePacket = false;
     this->status = STATUS_NONE;
 }
 
@@ -190,6 +189,13 @@ void ExtendedTeamManager::Update() {
 
     this->lastUpdateTimer.Update();
     this->waitingTimer.Update();
+}
+
+void ExtendedTeamManager::Reset() {
+    this->status = STATUS_NONE;
+    this->isHost = false;
+    this->lastUpdateTimer.isActive = false;
+    this->waitingTimer.isActive = false;
 }
 
 } // namespace UI

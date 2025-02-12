@@ -90,6 +90,7 @@ public:
     void SendAckStartRacePacket();  // Non-Host
 
     void Update();
+    void Reset();
 
     bool IsWaitingStatus() {
         return this->status == STATUS_WAITING_PRE || this->status == STATUS_WAITING_POST;
@@ -135,14 +136,12 @@ private:
 
     ExtendedTeamPlayer players[12];
 
-    bool isHost;
-    bool hasSentStartRacePacket;
-
-    Status status;
-
-public:
     CountDown waitingTimer;
     CountDown lastUpdateTimer;
+
+    bool isHost;
+
+    Status status;
 };
 
 } // namespace UI

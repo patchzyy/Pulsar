@@ -6,6 +6,7 @@
 #include <UI/TeamSelect/TeamSelect.hpp>
 #include <UI/UI.hpp>
 #include <Settings/UI/ExpWFCMainPage.hpp>
+#include <UI/ExtendedTeamSelect/ExtendedTeamManager.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -58,6 +59,7 @@ void ExpFroom::OnActivate() {
     ExpWFCModeSel::ClearModeContexts();
     System::sInstance->netMgr.region = 0x0A;
     FriendRoom::OnActivate();
+    ExtendedTeamManager::sInstance->Reset();
 }
 
 void ExpFroom::OnSettingsButtonClick(PushButton& button, u32 hudSlotId) {

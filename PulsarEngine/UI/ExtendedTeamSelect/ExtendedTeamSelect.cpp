@@ -207,7 +207,6 @@ UIControl* ExtendedTeamSelect::CreateControl(u32 id) {
         this->AddControl(count, this->startRaceButton, 0);
         this->startRaceButton.Load("button", "ExtendedTeamButton", "ExtendedTeamButton", 1, 0, false);
         this->startRaceButton.buttonId = 1;
-        this->startRaceButton.SelectInitial(0);
         this->startRaceButton.SetOnClickHandler(this->onStartRaceClickHandler, 0);
         this->startRaceButton.SetOnSelectHandler(this->onStartRaceSelectHandler);
         return &this->startRaceButton;
@@ -246,6 +245,10 @@ UIControl* ExtendedTeamSelect::CreateControl(u32 id) {
         this->teamPlayerArrows[idx].SetOnClickHandler(this->onArrowClickHandler, 0);
         this->teamPlayerArrows[idx].SetOnSelectHandler(this->onArrowSelectHandler);
 
+        if (id == TEAM_ENTRY_ARROW_0) {
+            this->teamPlayerArrows[idx].SelectInitial(0);
+        }
+
         // Rotate left-side arrows
         if (idx % 2 == 0) {
             this->teamPlayerArrows[idx].layout.layout.rootPane->rotate.z = -180.0f;
@@ -276,8 +279,6 @@ void ExtendedTeamSelect::OnStartRaceClick(PushButton& button, u32 hudSlotId) {
         if (this->isHost) {
             this->manager->SendStartRacePacket();
             this->manager->SetStatusExternal(ExtendedTeamManager::STATUS_WAITING_POST);
-            this->manager->waitingTimer.SetInitial(2.0f);
-            this->manager->waitingTimer.isActive = true;
         } else {
             this->manager->SendAckStartRacePacket();
         }

@@ -17,9 +17,9 @@ public:
     bool IsResultAnimDone() const;
 
     ExtendedTeamID teamId;
-    CtrlRaceResultTeam::Player players[2];
+    CtrlRaceResultTeam::Player players[6];
 
-    LayoutUIControl items[2];
+    LayoutUIControl items[6];
     LayoutUIControl* resultTeamPoint;
 
     Text::Info textInfo;
