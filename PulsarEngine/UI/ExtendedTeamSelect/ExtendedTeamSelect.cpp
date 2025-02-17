@@ -92,7 +92,7 @@ void ExtendedTeamSelect::OnResume() {
 
 void ExtendedTeamSelect::BeforeControlUpdate() {
     Pages::FriendRoomManager *friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
-    friendRoomManager->unknownStruct.Update();
+    friendRoomManager->networkManager.Update();
     this->manager->Update();
 
     this->busySymbol.isHidden = this->isHost && !this->manager->IsWaitingStatus();
@@ -168,6 +168,13 @@ void ExtendedTeamSelect::BeforeControlUpdate() {
         messageBox->SetMessageWindowText(BMG_DISCONNECTED_FROM_OTHER_PLAYERS);
         this->AddPageLayer(Pages::MessageBox::id, 0);
         this->shouldDisconnect = true;
+    }
+}
+
+void ExtendedTeamSelect::AfterControlUpdate() {
+    if (this->isHost && this->manager->IsDoneStatus()) {
+        this->nextPageId = PAGE_CHARACTER_SELECT;
+        this->EndStateAnimated(0, this->startRaceButton.GetAnimationFrameSize());
     }
 }
 
@@ -273,14 +280,15 @@ void ExtendedTeamSelect::OnStartRaceClick(PushButton& button, u32 hudSlotId) {
     Pages::FriendRoomManager *friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
 
     if (friendRoomManager->friendRoomIsEnding) {
-        this->nextPageId = PAGE_CHARACTER_SELECT;
-        this->EndStateAnimated(0, this->startRaceButton.GetAnimationFrameSize());
-
         if (this->isHost) {
             this->manager->SendStartRacePacket();
-            this->manager->SetStatusExternal(ExtendedTeamManager::STATUS_WAITING_POST);
+            if (this->manager->IsSelectingStatus()) {
+                this->manager->SetStatusExternal(ExtendedTeamManager::STATUS_WAITING_POST);
+            }
         } else {
             this->manager->SendAckStartRacePacket();
+            this->nextPageId = PAGE_CHARACTER_SELECT;
+            this->EndStateAnimated(0, this->startRaceButton.GetAnimationFrameSize());
         }
 
         friendRoomWaiting->countdown.SetInitial(20.0f);

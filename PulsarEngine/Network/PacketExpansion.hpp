@@ -57,7 +57,7 @@ struct PulROOM : public     RKNet::ROOMPacket {
     u8 raceCount;
 
     // Extended Team settings
-    u8 extendedTeams[6]; // 4 bits per AID, they encode the team ID (4 * 12 = 48 bits = 6 bytes)
+    u8 extendedTeams[6]; // 4 bits per PlayerIDX, they encode the team ID (4 * 12 = 48 bits = 6 bytes)
 };
 
 enum SELECTComboStatus {

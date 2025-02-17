@@ -59,7 +59,7 @@ void SetBroadcastROOMPacket(RKNet::ROOMHandler* _this, u32 pkt) {
         }
     }
 
-    friendRoomBackPage->lastSentPacket = *(RKNet::ROOMPacket*)&pkt;
+    friendRoomBackPage->networkManager.lastSentPacket = *(RKNet::ROOMPacket*)&pkt;
 }
 
 kmWriteNop(0x805dce38); // friendRoomBackPage->lastSentPacket = packet;
@@ -72,7 +72,7 @@ void RecvRoomPacket(UnkFriendRoomManager* _this, u8 playerId, u8 myAid, RKNet::R
 
     _this->HandleROOMPacket(playerId, myAid, packet);
 }
-kmCall(0x805db0f8, RecvRoomPacket);
+// kmCall(0x805db0f8, RecvRoomPacket);
 kmCall(0x805db1dc, RecvRoomPacket);
 
 void VotingVRPage_SetControlState(Pages::VR* _this, u32 idx, u32 playerId, Team team, u32 type, bool isLocalPlayer) {
@@ -105,6 +105,15 @@ bool PageVote_FillVoteControl(Pages::Vote* _this, u32 playerId) {
 }
 
 kmCall(0x80643b3c, PageVote_FillVoteControl);
+
+void SELECTStageMgr_PrepareRace(Pages::SELECTStageMgr* _this) {
+    _this->PrepareRace();
+    if (ExtendedTeamManager::IsActivated()) {
+        ExtendedTeamManager::sInstance->VotePageSync();
+    }
+}
+
+kmCall(0x80643ce8, SELECTStageMgr_PrepareRace);
 
 void CtrlRace2DMapCharacter_CalcTransform(CtrlRace2DMapCharacter* _this, const Vec3& kartPosition, Vec2& dest, u32 r6) {
     _this->CalculatePosition(kartPosition, dest, r6);

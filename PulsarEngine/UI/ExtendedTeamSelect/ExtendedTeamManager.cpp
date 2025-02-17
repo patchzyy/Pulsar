@@ -1,5 +1,6 @@
 #include <UI/ExtendedTeamSelect/ExtendedTeamManager.hpp>
 #include <MarioKartWii/UI/Page/Other/FriendRoom.hpp>
+#include <MarioKartWii/UI/Page/Other/SELECTStageMgr.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -7,14 +8,7 @@ namespace UI {
 ExtendedTeamManager* ExtendedTeamManager::sInstance = nullptr;
 
 ExtendedTeamManager::ExtendedTeamManager() {
-    for (int i = 0; i < 12; i++) {
-        this->players[i].idx = 0xFF;
-        this->players[i].miiIdx = 0xFF;
-        this->players[i].aid = 0xFF;
-        this->players[i].playerIdOnConsole = 0xFF;
-        this->players[i].team = static_cast<ExtendedTeamID>(i % TEAM_COUNT);
-    }
-
+    this->ResetPlayers();
     this->isHost = false;
     this->status = STATUS_NONE;
 }
@@ -48,10 +42,15 @@ void ExtendedTeamManager::SendStartRacePacket() {
             }
         }
 
-        friendRoomManager->lastSentPacket = packet;
-        friendRoomManager->localAid = sub->localAid;
+        friendRoomManager->networkManager.lastSentPacket = packet;
+        friendRoomManager->networkManager.localAid = sub->localAid;
 
-        this->status = STATUS_WAITING_POST;
+        if (this->status == STATUS_SELECTING) {
+            this->waitingTimer.SetInitial(2.5f);
+            this->waitingTimer.isActive = true;
+
+            this->status = STATUS_WAITING_POST;
+        }
     }
 }
 
@@ -74,8 +73,8 @@ void ExtendedTeamManager::SendUpdateTeamsPacket() {
             }
         }
 
-        friendRoomManager->lastSentPacket = packet;
-        friendRoomManager->localAid = sub->localAid;
+        friendRoomManager->networkManager.lastSentPacket = packet;
+        friendRoomManager->networkManager.localAid = sub->localAid;
     }
 }
 
@@ -93,8 +92,8 @@ void ExtendedTeamManager::SendPingPacket() {
 
     RKNet::ROOMHandler::sInstance->toSendPackets[sub->hostAid] = packet;
 
-    friendRoomManager->lastSentPacket = packet;
-    friendRoomManager->localAid = sub->localAid;
+    friendRoomManager->networkManager.lastSentPacket = packet;
+    friendRoomManager->networkManager.localAid = sub->localAid;
 }
 
 void ExtendedTeamManager::SendAckStartRacePacket() {
@@ -111,13 +110,13 @@ void ExtendedTeamManager::SendAckStartRacePacket() {
 
     RKNet::ROOMHandler::sInstance->toSendPackets[sub->hostAid] = packet;
 
-    friendRoomManager->lastSentPacket = packet;
-    friendRoomManager->localAid = sub->localAid;
+    friendRoomManager->networkManager.lastSentPacket = packet;
+    friendRoomManager->networkManager.localAid = sub->localAid;
 }
 
 bool ExtendedTeamManager::AreAllOtherPlayersActive(u8 localAid) {
     for (int i = 0; i < 12; i++) {
-        if (this->players[i].idx != 0xFF && this->players[i].aid != localAid && !this->players[i].active) {
+        if (this->players[i].playerIdx != 0xFF && this->players[i].aid != localAid && !this->players[i].active) {
             return false;
         }
     }
@@ -126,7 +125,7 @@ bool ExtendedTeamManager::AreAllOtherPlayersActive(u8 localAid) {
 
 bool ExtendedTeamManager::AreAllOtherPlayersDone(u8 localAid) {
     for (int i = 0; i < 12; i++) {
-        if (this->players[i].idx != 0xFF && this->players[i].aid != localAid && !this->players[i].done) {
+        if (this->players[i].playerIdx != 0xFF && this->players[i].aid != localAid && !this->players[i].done) {
             return false;
         }
     }
@@ -138,18 +137,18 @@ void ExtendedTeamManager::Update() {
     this->isHost = RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST;
     u8 localAid = RKNet::Controller::sInstance->subs[RKNet::Controller::sInstance->currentSub].localAid;
     if (!this->isHost) {
-        if (status == STATUS_NONE) {
+        if (this->status == STATUS_NONE) {
             if (friendRoomManager->friendRoomIsEnding) {
-                status = STATUS_SELECTING;
+                this->status = STATUS_SELECTING;
             }
-        } else if (status == STATUS_SELECTING) {
+        } else if (this->status == STATUS_SELECTING) {
             if (!this->lastUpdateTimer.isActive) {
                 this->lastUpdateTimer.SetInitial(0.666f);
                 this->lastUpdateTimer.isActive = true;
 
                 this->SendPingPacket();
             }
-        } else if (status == STATUS_DONE) {
+        } else if (this->status == STATUS_DONE) {
             if (!this->lastUpdateTimer.isActive) {
                 this->lastUpdateTimer.SetInitial(0.666f);
                 this->lastUpdateTimer.isActive = true;
@@ -158,31 +157,38 @@ void ExtendedTeamManager::Update() {
             }
         }
     } else {
-        if (status == STATUS_NONE) {
+        if (this->status == STATUS_NONE) {
             if (friendRoomManager->friendRoomIsEnding) {
-                status = STATUS_WAITING_PRE;
+                this->status = STATUS_WAITING_PRE;
                 this->waitingTimer.SetInitial(5.0f);
                 this->waitingTimer.isActive = true;
             }
-        } else if (status == STATUS_WAITING_PRE) {
+        } else if (this->status == STATUS_WAITING_PRE) {
             if (!this->waitingTimer.isActive) {
-                status = STATUS_SELECTING;
+                this->status = STATUS_SELECTING;
             } else {
                 if (this->AreAllOtherPlayersActive(localAid)) {
-                    status = STATUS_SELECTING;
+                    this->status = STATUS_SELECTING;
                     this->waitingTimer.isActive = false;
                 }
             }
-        } else if (status == STATUS_SELECTING) {
+        } else if (this->status == STATUS_SELECTING) {
             // ...
-        } else if (status == STATUS_WAITING_POST) {
+        } else if (this->status == STATUS_WAITING_POST) {
             if (!this->waitingTimer.isActive) {
-                status = STATUS_DONE;
+                this->status = STATUS_DONE;
             } else {
                 if (this->AreAllOtherPlayersDone(localAid)) {
-                    status = STATUS_DONE;
+                    this->status = STATUS_DONE;
                     this->waitingTimer.isActive = false;
                 }
+            }
+
+            if (!this->lastUpdateTimer.isActive) {
+                this->lastUpdateTimer.SetInitial(0.666f);
+                this->lastUpdateTimer.isActive = true;
+
+                this->SendStartRacePacket();
             }
         }
     }
@@ -191,11 +197,67 @@ void ExtendedTeamManager::Update() {
     this->waitingTimer.Update();
 }
 
+void ExtendedTeamManager::VotePageSync() {
+    ExtendedTeamPlayer newPlayers[12];
+    for (int i = 0; i < 12; i++) {
+        newPlayers[i].playerIdx = 0xFF;
+        newPlayers[i].miiIdx = 0xFF;
+        newPlayers[i].aid = 0xFF;
+        newPlayers[i].playerIdOnConsole = 0xFF;
+        newPlayers[i].team = static_cast<ExtendedTeamID>(i % TEAM_COUNT);
+    }
+
+    Pages::SELECTStageMgr* voteMgr = SectionMgr::sInstance->curSection->Get<Pages::SELECTStageMgr>();
+    RKNet::Controller* controller = RKNet::Controller::sInstance;
+
+    for (int i = 0; i < 12; i++) {
+        u8 aid = controller->aidsBelongingToPlayerIds[i];
+        if (aid == 0xFF) {
+            continue;
+        }
+    
+        u8 localPlayerId;
+        if (i < 1) {
+            localPlayerId = 0;
+        } else {
+            u8 aid2P = controller->aidsBelongingToPlayerIds[i - 1];
+            if (aid != aid2P) {
+                localPlayerId = 0;
+            } else {
+                localPlayerId = 1;
+            }
+        }
+
+        for (int j = 0; j < 12; j++) {
+            if (voteMgr->infos[j].aid == aid && voteMgr->infos[j].hudSlotid == localPlayerId) {
+                newPlayers[i].playerIdx = i;
+                newPlayers[i].miiIdx = aid * 2 + localPlayerId;
+                newPlayers[i].aid = aid;
+                newPlayers[i].playerIdOnConsole = localPlayerId;
+                newPlayers[i].team = this->GetPlayerTeamByAID(aid, localPlayerId);
+                break;
+            }
+        }
+    }
+
+    memcpy(this->players, newPlayers, sizeof(ExtendedTeamPlayer) * 12);
+}
+
 void ExtendedTeamManager::Reset() {
     this->status = STATUS_NONE;
     this->isHost = false;
     this->lastUpdateTimer.isActive = false;
     this->waitingTimer.isActive = false;
+}
+
+void ExtendedTeamManager::ResetPlayers() {
+    for (int i = 0; i < 12; i++) {
+        this->players[i].playerIdx = 0xFF;
+        this->players[i].miiIdx = 0xFF;
+        this->players[i].aid = 0xFF;
+        this->players[i].playerIdOnConsole = 0xFF;
+        this->players[i].team = static_cast<ExtendedTeamID>(i % TEAM_COUNT);
+    }
 }
 
 } // namespace UI

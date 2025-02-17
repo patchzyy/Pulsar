@@ -20,7 +20,7 @@ enum ExtendedTeamID {
     TEAM_COUNT
 };
 struct ExtendedTeamPlayer {
-    u32 idx;
+    u32 playerIdx;
     u32 miiIdx;
     u32 aid;
     u32 playerIdOnConsole;
@@ -57,14 +57,23 @@ public:
     }
 
     void SetPlayerIndexes(u32 idx, u32 miiIdx, u32 aid, u32 playerIdOnConsole) {
-        this->players[idx].idx = idx;
+        this->players[idx].playerIdx = idx;
         this->players[idx].miiIdx = miiIdx;
         this->players[idx].aid = aid;
         this->players[idx].playerIdOnConsole = playerIdOnConsole;
     }
 
-    ExtendedTeamID GetPlayerTeam(u32 idx) {
+    ExtendedTeamID GetPlayerTeamDeprecated(u32 idx) {
         return this->players[idx].team;
+    }
+
+    ExtendedTeamID GetPlayerTeam(u32 idx) {
+        for (int i = 0; i < 12; i++) {
+            if (this->players[i].playerIdx == idx) {
+                return this->players[i].team;
+            }
+        }
+        return TEAM_COUNT;
     }
 
     ExtendedTeamID GetPlayerTeamByAID(u8 aid, u8 playerIdOnConsole) {
@@ -91,6 +100,13 @@ public:
 
     void Update();
     void Reset();
+    void ResetPlayers();
+
+    void VotePageSync();
+
+    Status GetStatus() {
+        return this->status;
+    }
 
     bool IsWaitingStatus() {
         return this->status == STATUS_WAITING_PRE || this->status == STATUS_WAITING_POST;
@@ -136,12 +152,13 @@ private:
 
     ExtendedTeamPlayer players[12];
 
-    CountDown waitingTimer;
-    CountDown lastUpdateTimer;
-
     bool isHost;
 
     Status status;
+
+public:
+    CountDown waitingTimer;
+    CountDown lastUpdateTimer;
 };
 
 } // namespace UI

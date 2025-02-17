@@ -19,6 +19,7 @@ public:
     void OnInit() override;
     void BeforeEntranceAnimations() override;
     void BeforeControlUpdate() override;
+    void AfterControlUpdate() override;
     void OnResume() override;
 
     int GetActivePlayerBitfield() const override;

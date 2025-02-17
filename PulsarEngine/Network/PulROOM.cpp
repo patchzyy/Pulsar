@@ -130,7 +130,7 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
 
         memset(destPacket->extendedTeams, 0xff, sizeof(destPacket->extendedTeams));
         for (int i = 0; i < 12; ++i) {
-            if (playerInfo[i].idx >= 12)
+            if (playerInfo[i].playerIdx >= 12)
                 continue;
 
             const u8 byte = i / 2;
@@ -194,7 +194,7 @@ static void AfterROOMReception(const RKNet::PacketHolder<PulROOM>* packetHolder,
         }
 
         // Extended Team VS start
-        if (isExtendedTeams && src.message == 0) {
+        if (isExtendedTeams) {
             HandleExtendedTeamUpdates(src);
         }
     }
