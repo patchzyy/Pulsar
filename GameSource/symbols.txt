@@ -155,6 +155,7 @@ DWC_SetReportLevel = 0x800cd060
 DWCi_SBCallback = 0x800e31c0
 DWC_ProcessFriendsMatch = 0x800d115c
 GetLastErrorEx__3DWCFPUiPQ23DWC9ErrorType = 0x800ccb64
+CreateFriendKey__3DWCFPCQ23DWC11AccUserData = 0x800ec6bc
 
 #GS
 GSIAvailableCheckThink__2GSFv = 0x800f3a20
@@ -934,6 +935,7 @@ CreateSectionPages__7SectionF9SectionId = 0x8062c3a4
 AddInitialLayers__7SectionF9SectionId = 0x80630094
 RemoveTopLayerPage__7SectionFv = 0x80623288
 UpdateLayers__7SectionFv = 0x80623068
+Update__7SectionFv = 0x806224f8
 
 #RKSYSRequester
 NotifyNewLicenseContent__14RKSYSRequesterFv = 0x80621410
@@ -2031,7 +2033,6 @@ OTTFixHook = 0x80001208
 MaxWeightHook = 0x8000120A
 beginFrame= 0x8020fe24
 
-# eppe FC code fix
 sInstance__Q25RKNet11USERHandler = 0x809c2108
 saveFcAndCountryHookExit__Fv = 0x806513e4
 saveFcAndCountryInLiveHookExit__Fv = 0x8060a2b4
@@ -2040,6 +2041,7 @@ displayFcAndCountryInResultFillNameHookExit__Fv = 0x807f5300
 displayFcAndCountryInResultFillTimeHookExit__Fv = 0x807f5968
 MD5Digest__FPCUcUiPUc = 0x800f0e08
 MD5Digest = 0x800f0e08
+MD5Update = 0x800f0264
 PicturePaneExists__15LayoutUIControlFPCc = 0x8063e328
 
 #VotePage
@@ -2130,3 +2132,4 @@ GetTotalItemCount__Q24Item9ObjHolderCFv = 0x807974ac
 Sqrt__Q23EGG4MathFf = 0x8022f80c
 PrepareButton__Q25Pages5YesNoFUiUiPQ24Text4InfoUiRC39PtmfHolder_2A<4Page,v,Ui,R10PushButton> = 0x80652604
 IsLocal__Q24Kart4LinkCFv = 0x80590650
+GetCupNameBMGId__FUi = 0x80833638
