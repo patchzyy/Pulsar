@@ -30,6 +30,8 @@ public:
     //Cup Functions
     int GetTotalCupCount() const { return ctsCupCount + HasRegs() * 8; } //good
     int GetCtsTrackCount() const { return ctsCupCount * 4; } //used by random, good, but also by settings and path
+    int GetRetroTrackCount() const { return 44* 4; }
+    int GetCTTrackCount() const { return 16 * 4; }
     int GetEffectiveTrackCount() const { return (definedCTsCupCount + HasRegs() * 8) * 4; } //settings and froom msgs
     void ToggleCTs(bool enabled);
     static void SetLayout();

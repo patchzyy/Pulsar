@@ -113,7 +113,7 @@ void System::InitIO(IOType type) const {
 void System::InitSettings(const u16* totalTrophyCount) const {
     Settings::Mgr* settings = new (this->heap) Settings::Mgr;
     char path[IOS::ipcMaxPath];
-    snprintf(path, IOS::ipcMaxPath, "%s/%s", this->GetModFolder(), "Settings.pul");
+    snprintf(path, IOS::ipcMaxPath, "%s/%s", this->GetModFolder(), "RRSettings.pul");
     settings->Init(totalTrophyCount, path); //params
     Settings::Mgr::sInstance = settings;
 }
@@ -148,11 +148,11 @@ void System::UpdateContext() {
     bool isItemModeRandom = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_RANDOM;
     bool isItemModeBlast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_BLAST;
     bool isItemModeNone = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_NONE;
-    bool isItemModeRain = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_ITEMRAIN && 
-                         (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || 
-                          RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || 
-                          mode == MODE_VS_RACE);
-    bool isRegs = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_REGS);
+    bool isTrackSelectionRegs = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_REGS;
+    bool isTrackSelectionRetros = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS && mode != MODE_PUBLIC_VS;
+    bool isTrackSelectionCts = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS && mode != MODE_PUBLIC_VS;
+    bool isTrackSelectionRetrosOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS && mode == MODE_PUBLIC_VS;
+    bool isTrackSelectionCtsOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS && mode == MODE_PUBLIC_VS;
     bool isChangeCombo = settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_ALLOWCHANGECOMBO) == OTTSETTING_COMBO_ENABLED;
     bool isItemBoxRepsawnFast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_ITEMBOXRESPAWN) == ITEMBOX_FASTRESPAWN;
     bool IsTransmissionInside = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_FORCETRANSMISSION) == HOSTSETTING_FORCE_TRANSMISSION_INSIDE;
@@ -180,8 +180,11 @@ void System::UpdateContext() {
                 isItemModeRandom = newContext & (1 << PULSAR_ITEMMODERANDOM);
                 isItemModeBlast = newContext & (1 << PULSAR_ITEMMODEBLAST);
                 isItemModeNone = newContext & (1 << PULSAR_ITEMMODENONE);
-                isItemModeRain = newContext & (1 << PULSAR_ITEMRAIN);
-                isRegs = newContext & (1 << PULSAR_REGS);
+                isTrackSelectionRegs = newContext & (1 << PULSAR_REGS);
+                isTrackSelectionRetros = newContext & (1 << PULSAR_RETROS);
+                isTrackSelectionCts = newContext & (1 << PULSAR_CTS);
+                isTrackSelectionCtsOnline |= newContext & (1 << PULSAR_CTS);
+                isTrackSelectionRetrosOnline |= newContext & (1 << PULSAR_RETROS);
                 is500 = newContext & (1 << PULSAR_500);
                 is200Online |= newContext & (1 << PULSAR_200_WW);
                 isHAW = newContext & (1 << PULSAR_HAW);
@@ -213,8 +216,7 @@ void System::UpdateContext() {
     }
     this->netMgr.hostContext = newContext;
 
-    // First clear everything except 200_WW and OTTOnline bits
-    u32 preserved = this->context & ((1 << PULSAR_200_WW) | (1 << PULSAR_MODE_OTT));
+    u32 preserved = this->context & ((1 << PULSAR_200_WW) | (1 << PULSAR_MODE_OTT) | (1 << PULSAR_CT) | (1 << PULSAR_RETROS));
     
     // Set the new context value
     u32 newContextValue = (isCT << PULSAR_CT) | (isHAW << PULSAR_HAW) | (isMiiHeads << PULSAR_MIIHEADS);
@@ -227,9 +229,10 @@ void System::UpdateContext() {
                           (isKartRestrictBike << PULSAR_BIKERESTRICT) | (isChangeCombo << PULSAR_CHANGECOMBO) |
                           (is500 << PULSAR_500) | (isThunderCloud << PULSAR_THUNDERCLOUD) | 
                           (isItemModeRandom << PULSAR_ITEMMODERANDOM) | (isItemModeBlast << PULSAR_ITEMMODEBLAST) | 
-                          (isItemModeNone << PULSAR_ITEMMODENONE) | (isRegs << PULSAR_REGS) | (isKOFinal << PULSAR_KOFINAL) |
+                          (isItemModeNone << PULSAR_ITEMMODENONE) | (isTrackSelectionRegs << PULSAR_REGS) | (isKOFinal << PULSAR_KOFINAL) |
                           (isItemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN) | (IsTransmissionInside << PULSAR_TRANSMISSIONINSIDE) | 
-                          (IsTransmissionOutside << PULSAR_TRANSMISSIONOUTSIDE) | (isItemModeRain << PULSAR_ITEMRAIN) | (isExtendedTeams << PULSAR_EXTENDEDTEAMS);
+                          (IsTransmissionOutside << PULSAR_TRANSMISSIONOUTSIDE) | (isExtendedTeams << PULSAR_EXTENDEDTEAMS)
+                          | (isTrackSelectionRetros << PULSAR_RETROS) | (isTrackSelectionCts << PULSAR_CTS);
     }
     
     // Combine the new context with preserved bits

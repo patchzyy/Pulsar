@@ -17,16 +17,10 @@ kmWrite32(0x80895CE8, 0x00FF00FF);
 kmWrite32(0x80895CEC, 0x00FF0046);
 
 //No Sun Filter [Anarion]
-kmWrite8(0x8025739F, 0x00);
-kmWrite8(0x80256F7F, 0x00);
 kmWrite8(0x802575DF, 0x00);
-kmWrite8(0x802572BF, 0x00);
 
 //Remove Background Blur [Davidevgen]
 kmWrite32(0x80258184, 0x30);
-kmWrite32(0x80257E64, 0x30);
-kmWrite32(0x80257B24, 0x30);
-kmWrite32(0x80257F44, 0x30);
 
 //Anti Online Item Delimiters [Ro]
 asmFunc GetItemDelimiterShock() {
@@ -154,7 +148,7 @@ kmWrite16(0x8085C322, 0x00007530);
 kmWrite16(0x8085C32A, 0x00007530);
 
 //Mushroom Glitch Fix [Vabold]
-kmWrite8(0x807BA077, 0x00000000);
+kmWrite8(0x807BA077, 0x00);
 
 //Allow WFC on Wiimmfi Patched ISOs
 kmWrite32(0x800EE3A0, 0x2C030000);
@@ -163,7 +157,7 @@ kmWrite32(0x800ECAAC, 0x7C7E1B78);
 //Ultra Uncut [MrBean35000vr + Chadderz]
 asmFunc GetUltraUncut() {
     ASM(
-        nofralloc;
+      nofralloc;
 loc_0x0:
   lbz       r3, 0x1C(r29);
   cmplwi    r3, 0x1;
@@ -172,9 +166,29 @@ loc_0x0:
 
 loc_0x10:
   cmplw     r30, r0;
+  blr;
     )
 }
 kmCall(0x8053511C, GetUltraUncut);
+
+//Anti Lag Start [Ro]
+extern "C" void sInstance__8Racedata(void*);
+asmFunc AntiLagStart(){
+    ASM(
+      nofralloc;
+loc_0x0:
+  lwz r12, sInstance__8Racedata@l(r30);
+  lwz r12, 0xB70(r12);
+  cmpwi r12, 0x7;
+  blt- loc_0x14;
+  li r3, 0x1;
+
+loc_0x14:
+  cmpwi r3, 0x0;
+  blr;
+  )
+}
+kmCall(0x80533430, AntiLagStart);
 
 //VR System Changes [MrBean35000vr]
 //Multiply VR difference by 2 [Winner]

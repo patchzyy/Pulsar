@@ -43,6 +43,8 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
     if(destPacket->messageType == 1 && sub.localAid == sub.hostAid) {
         packetHolder->packetSize = sizeof(PulROOM); //this has been changed by copy so it's safe to do this
         const Settings::Mgr& settings = Settings::Mgr::Get();
+        const RacedataSettings& racedataSettings = Racedata::sInstance->menusScenario.settings;
+        const GameMode mode = racedataSettings.gamemode;
 
         u8 koSetting = settings.GetSettingValue(Settings::SETTINGSTYPE_KO, SETTINGKO_ENABLED);
         const u8 ottOnline = settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_ONLINE);
@@ -54,7 +56,9 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
         const u8 itemModeRandom = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_RANDOM;
         const u8 itemModeBlast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_BLAST;
         const u8 itemModeNone = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_NONE;
-        const u8 RegOnly = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_REGS);
+        const u8 RegOnly = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_REGS;
+        const u8 RetroOnly = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS && mode != MODE_PUBLIC_VS;
+        const u8 CtsOnly = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS && mode != MODE_PUBLIC_VS;
         const u8 koFinal = settings.GetSettingValue(Settings::SETTINGSTYPE_KO, SETTINGKO_FINAL) == KOSETTING_FINAL_ALWAYS;
         const u8 changeCombo = settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_ALLOWCHANGECOMBO) == OTTSETTING_COMBO_ENABLED;
         const u8 itemBoxRepsawnFast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_ITEMBOXRESPAWN) == ITEMBOX_FASTRESPAWN;
@@ -86,6 +90,8 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
             | settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_CC) << PULSAR_500
             | settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_HOSTWINS) << PULSAR_HAW
             | RegOnly << PULSAR_REGS
+            | RetroOnly << PULSAR_RETROS
+            | CtsOnly << PULSAR_CTS
             | itemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN
             | transmissionInside << PULSAR_TRANSMISSIONINSIDE
             | transmissionOutside << PULSAR_TRANSMISSIONOUTSIDE
