@@ -33,9 +33,12 @@ enum PulPageId {
     PULPAGE_KORACEEND,
     PULPAGE_KOWINNER,
     PULPAGE_SETTINGS,
+    PULPAGE_EXTENDEDTEAMSELECT,
+    PULPAGE_EXTENDEDTEAMS_RESULT_TOTAL,
+    PULPAGE_EXTENDEDTEAMS_RESULT_TOTAL_IRREGULAR,
 
 
-    PULPAGE_MAX = PULPAGE_SETTINGS - PULPAGE_INITIAL + 1
+    PULPAGE_MAX = PULPAGE_EXTENDEDTEAMS_RESULT_TOTAL_IRREGULAR - PULPAGE_INITIAL + 1
 };
 
 class ExpSection : public Section { //u32 id -> either a standard pageId but can also be a PulPageId
@@ -74,6 +77,8 @@ enum BMG {
     BMG_PLEASE_WAIT_A_MOMENT = 0x401,
     BMG_SAVED_GHOST = 0x45b,
     BMG_FINISH = 0x4b5,
+    BMG_SCORE_PTS = 0x521,
+    BMG_SCORE_POINTS = 0x523,
     BMG_DISPLAY_TIME = 0x578,
     BMG_YES = 0x7d2,
     BMG_NO = 0x7d3,
@@ -95,6 +100,7 @@ enum BMG {
     BMG_GP_BLANK = 0xd36,
 
     BMG_CHOOSE_GHOST_DATA = 0xd4f,
+    BMG_DISCONNECTED_FROM_OTHER_PLAYERS = 0xfb2,
     BMG_PLAY_GP = 0x100e,
     BMG_PLAY_TEAM_GP = 0x100f,
     BMG_RATING = 0x106a, //vr/br value + "rating" under
@@ -154,17 +160,28 @@ enum BMG {
     BMG_ROOM_DENY = 0x284b,
     BMG_TOO_MANY_DENIES = 0x284c,
 
-    //OTT
+    //OTT RR
     BMG_OTT_WW_BOTTOM = 0x2850,
     BMG_OTT_BUTTON = 0x2851,
     BMG_OTT_PLAYING = 0x2852,
     BMG_OTT_TITLE_TEXT = 0x2853,
     BMG_OTT_TIME_DIFF = 0x2854,
 
-    //200cc
+    //200cc RR
     BMG_200_TITLE_TEXT = 0x2855,
     BMG_200_WW_BOTTOM = 0x2856,
     BMG_200_BUTTON = 0x2857,
+
+    //OTT CT
+    BMG_OTT_BUTTON_CT = 0x2858,
+    BMG_OTT_TITLE_TEXT_CT = 0x2859,
+
+    //200cc CT
+    BMG_200_TITLE_TEXT_CT = 0x285a,
+    BMG_200_BUTTON_CT = 0x285b,
+
+    BMG_TITLE_TEXT_CT = 0x285c,
+    BMG_CT_BUTTON = 0x285d,
 
     //KO
     BMG_KO_OUT = 0x2860,
@@ -209,6 +226,13 @@ enum BMG {
     BMG_SCROLLER_SETTINGS = 0x3700,
     BMG_USERSETTINGSOFFSET = 0x60000, //user settings therefore start at 0x53000 for radi osettings, 0x53700 for scrollers
 
+    // Custom texts (extended teams, explanations, etc..)
+    BMG_EXTENDEDTEAMS_EXPLANATION = 0x83337,
+    BMG_EXTENDEDTEAMS_NONHOST_TITLE = 0x83338,
+    BMG_EXTENDEDTEAMS_IRREGULAR_WARNING = 0x8333A,
+    BMG_EXTENDEDTEAMS_TEAM_NAME = 0x83340,
+    BMG_EXTENDEDTEAMS_WINNER = 0x83350,
+    BMG_EXTENDEDTEAMS_PLAY = 0x83352,
 };
 
 const char controlFolder[] = "control";

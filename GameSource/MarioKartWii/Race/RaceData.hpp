@@ -59,7 +59,7 @@ public:
     u16 score; //0xda
     u8 unknown_0xdc[2]; //0xdc
     s16 gpHiddenScore; //0xde
-    u8 unknown_0xe0;
+    u8 gpRank;
     u8 prevFinishPos; //0xe1
     u8 finishPos; //0xe2
     u8 unknown_0xe3;

@@ -76,10 +76,11 @@ void ExpWFCModeSel::OnInit() {
     // this->manipulatorManager.SetGlobalHandler(START_PRESS, this->onStartPress, false, false);
 }
 
-void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
-    self.InitControlGroup(7);
+u32 Pulsar::UI::ExpWFCModeSel::lastClickedButton = 0;
 
-    self.region = 0x0B;  // Store region in the page class instead
+void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
+    self.InitControlGroup(10);
+
     self.AddControl(5, self.ottButton, 0);
     self.ottButton.Load(UI::buttonFolder, "PULOTTButton", "PULOTTButton", 1, 0, 0);
     self.ottButton.buttonId = ottButtonId;
@@ -92,6 +93,27 @@ void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
     self.twoHundredButton.SetMessage(BMG_200_BUTTON);
     self.twoHundredButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.twoHundredButton.SetOnSelectHandler(self.onButtonSelectHandler);
+
+    self.AddControl(7, self.ctButton, 0);
+    self.ctButton.Load(UI::buttonFolder, "PULCTButton", "PULCTButton", 1, 0, 0);
+    self.ctButton.buttonId = ctButtonId;
+    self.ctButton.SetMessage(BMG_CT_BUTTON);
+    self.ctButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
+    self.ctButton.SetOnSelectHandler(self.onButtonSelectHandler);
+
+    self.AddControl(8, self.ottButtonCT, 0);
+    self.ottButtonCT.Load(UI::buttonFolder, "PULCTOTTButton", "PULCTOTTButton", 1, 0, 0);
+    self.ottButtonCT.buttonId = ottButtonIdCT;
+    self.ottButtonCT.SetMessage(BMG_OTT_BUTTON_CT);
+    self.ottButtonCT.SetOnClickHandler(self.onModeButtonClickHandler, 0);
+    self.ottButtonCT.SetOnSelectHandler(self.onButtonSelectHandler);
+
+    self.AddControl(9, self.twoHundredButtonCT, 0);
+    self.twoHundredButtonCT.Load(UI::buttonFolder, "PULCT200Button", "PULCT200Button", 1, 0, 0);
+    self.twoHundredButtonCT.buttonId = twoHundredButtonIdCT;
+    self.twoHundredButtonCT.SetMessage(BMG_200_BUTTON_CT);
+    self.twoHundredButtonCT.SetOnClickHandler(self.onModeButtonClickHandler, 0);
+    self.twoHundredButtonCT.SetOnSelectHandler(self.onButtonSelectHandler);
     
     Text::Info info;
     RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
@@ -103,11 +125,16 @@ void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
     info.intToPass[0] = vr;
     self.ottButton.SetTextBoxMessage("go", BMG_RATING, &info);
     self.twoHundredButton.SetTextBoxMessage("go", BMG_RATING, &info);
+    self.ctButton.SetTextBoxMessage("go", BMG_RATING, &info);
+    self.ottButtonCT.SetTextBoxMessage("go", BMG_RATING, &info);
+    self.twoHundredButtonCT.SetTextBoxMessage("go", BMG_RATING, &info);
 }
 kmCall(0x8064c294, ExpWFCModeSel::InitButton);
 
 void ExpWFCModeSel::ClearModeContexts() {
     const u32 modeContexts[] = {
+        PULSAR_RETROS,
+        PULSAR_CTS,
         PULSAR_MODE_OTT,
         PULSAR_200_WW,
     };
@@ -124,14 +151,31 @@ void ExpWFCModeSel::OnModeButtonClick(PushButton& modeButton, u32 hudSlotId) {
     ClearModeContexts();
     
     if (id == ottButtonId) {
-        System::sInstance->netMgr.region = 0x0B;
+        System::sInstance->context |= (1 << PULSAR_RETROS);
         System::sInstance->context |= (1 << PULSAR_MODE_OTT);
+        System::sInstance->netMgr.region = 0x0B;
     }
     else if (id == twoHundredButtonId) {
-        System::sInstance->netMgr.region = 0x0C;
+        System::sInstance->context |= (1 << PULSAR_RETROS);
         System::sInstance->context |= (1 << PULSAR_200_WW);
+        System::sInstance->netMgr.region = 0x0C;
+    }
+    else if (id == ctButtonId) {
+        System::sInstance->context |= (1 << PULSAR_CTS);
+        System::sInstance->netMgr.region = 0x14;
+    }
+    else if (id == ottButtonIdCT) {
+        System::sInstance->context |= (1 << PULSAR_CTS);
+        System::sInstance->context |= (1 << PULSAR_MODE_OTT);
+        System::sInstance->netMgr.region = 0x15;
+    }
+    else if (id == twoHundredButtonIdCT) {
+        System::sInstance->context |= (1 << PULSAR_CTS);
+        System::sInstance->context |= (1 << PULSAR_200_WW);
+        System::sInstance->netMgr.region = 0x16;
     }
     else {
+        System::sInstance->context |= (1 << PULSAR_RETROS);
         System::sInstance->netMgr.region = 0x0A;
     }
 
@@ -145,10 +189,24 @@ void ExpWFCModeSel::OnActivatePatch() {
     register Pages::GlobeSearch* search;
     asm(mr search, r30;);
     const bool isHidden = search->searchType == 1 ? false : true; //make the button visible if continental was clicked
+    
+    // Reset game mode if worldwide is selected
+    if (isHidden) {
+        ClearModeContexts();
+        System::sInstance->netMgr.region = 0x0A;
+        page->lastClickedButton = 0; // Reset to VS button
+    }
+    
     page->ottButton.isHidden = isHidden;
     page->ottButton.manipulator.inaccessible = isHidden;
     page->twoHundredButton.isHidden = isHidden;
     page->twoHundredButton.manipulator.inaccessible = isHidden;
+    page->ctButton.isHidden = isHidden;
+    page->ctButton.manipulator.inaccessible = isHidden;
+    page->ottButtonCT.isHidden = isHidden;
+    page->ottButtonCT.manipulator.inaccessible = isHidden;
+    page->twoHundredButtonCT.isHidden = isHidden;
+    page->twoHundredButtonCT.manipulator.inaccessible = isHidden;
 
     page->battleButton.isHidden = true;
     page->battleButton.manipulator.inaccessible = true;
@@ -156,16 +214,32 @@ void ExpWFCModeSel::OnActivatePatch() {
     page->nextPage = PAGE_NONE;
     PushButton* button = &page->vsButton;
     u32 bmgId = UI::BMG_RACE_WITH11P;
+    page->lastClickedButton = 0;
 
     // Determine which button should be selected based on current context
-    if(System::sInstance->IsContext(PULSAR_MODE_OTT)) {
+    if(System::sInstance->IsContext(PULSAR_MODE_OTT) && System::sInstance->IsContext(PULSAR_RETROS)) {
         page->lastClickedButton = ottButtonId;
         button = &page->ottButton;
         bmgId = UI::BMG_OTT_WW_BOTTOM;
     }
-    else if(System::sInstance->IsContext(PULSAR_200_WW)) {
+    else if(System::sInstance->IsContext(PULSAR_200_WW) && System::sInstance->IsContext(PULSAR_RETROS)) {
         page->lastClickedButton = twoHundredButtonId;
         button = &page->twoHundredButton;
+        bmgId = UI::BMG_200_WW_BOTTOM;
+    }
+    else if (System::sInstance->IsContext(PULSAR_CTS) && !System::sInstance->IsContext(PULSAR_MODE_OTT) && !System::sInstance->IsContext(PULSAR_200_WW)) {
+        page->lastClickedButton = ctButtonId;
+        button = &page->ctButton;
+        bmgId = UI::BMG_RACE_WITH11P;
+    }
+    else if(System::sInstance->IsContext(PULSAR_MODE_OTT) && System::sInstance->IsContext(PULSAR_CTS)) {
+        page->lastClickedButton = ottButtonIdCT;
+        button = &page->ottButtonCT;
+        bmgId = UI::BMG_OTT_WW_BOTTOM;
+    }
+    else if(System::sInstance->IsContext(PULSAR_200_WW) && System::sInstance->IsContext(PULSAR_CTS)) {
+        page->lastClickedButton = twoHundredButtonIdCT;
+        button = &page->twoHundredButtonCT;
         bmgId = UI::BMG_200_WW_BOTTOM;
     }
     else if(page->lastClickedButton == 2) {
@@ -185,6 +259,16 @@ void ExpWFCModeSel::OnModeButtonSelect(PushButton& modeButton, u32 hudSlotId) {
     else if(modeButton.buttonId == twoHundredButtonId) {
         this->bottomText.SetMessage(BMG_200_WW_BOTTOM);
     }
+    else if(modeButton.buttonId == ctButtonId) {
+        this->bottomText.SetMessage(BMG_RACE_WITH11P);
+    }
+    else if(modeButton.buttonId == ottButtonIdCT) {
+        this->bottomText.SetMessage(BMG_OTT_WW_BOTTOM);
+    }
+    else if(modeButton.buttonId == twoHundredButtonIdCT) {
+        this->bottomText.SetMessage(BMG_200_WW_BOTTOM);
+    }
+    
     else WFCModeSelect::OnModeButtonSelect(modeButton, hudSlotId);
 }
 

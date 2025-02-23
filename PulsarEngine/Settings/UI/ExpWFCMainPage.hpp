@@ -38,7 +38,7 @@ public:
 
 class ExpWFCModeSel : public Pages::WFCModeSelect {
 public:
-    ExpWFCModeSel() : lastClickedButton(0), region(0xA) {
+    ExpWFCModeSel() : region(0xA) {
         this->onButtonSelectHandler.ptmf = &ExpWFCModeSel::OnModeButtonSelect;
         this->onModeButtonClickHandler.ptmf = &ExpWFCModeSel::OnModeButtonClick;
 
@@ -61,10 +61,16 @@ public:
 
     PushButton ottButton;
     PushButton twoHundredButton;
-    u32 lastClickedButton;
+    PushButton ctButton;
+    PushButton ottButtonCT;
+    PushButton twoHundredButtonCT;
+    static u32 lastClickedButton;
     u32 region;
     static const u32 ottButtonId = 4;
     static const u32 twoHundredButtonId = 5;
+    static const u32 ctButtonId = 6;
+    static const u32 ottButtonIdCT = 7;
+    static const u32 twoHundredButtonIdCT = 8;
 };
 }//namespace UI
 }//namespace Pulsar

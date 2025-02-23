@@ -2,9 +2,11 @@
 #include <MarioKartWii/3D/GlobeMgr.hpp>
 #include <PulsarSystem.hpp>
 #include <Settings/UI/ExpFroomPage.hpp>
+#include <Settings/Settings.hpp>
 #include <UI/TeamSelect/TeamSelect.hpp>
 #include <UI/UI.hpp>
 #include <Settings/UI/ExpWFCMainPage.hpp>
+#include <UI/ExtendedTeamSelect/ExtendedTeamManager.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -57,6 +59,7 @@ void ExpFroom::OnActivate() {
     ExpWFCModeSel::ClearModeContexts();
     System::sInstance->netMgr.region = 0x0A;
     FriendRoom::OnActivate();
+    ExtendedTeamManager::sInstance->Reset();
 }
 
 void ExpFroom::OnSettingsButtonClick(PushButton& button, u32 hudSlotId) {
@@ -67,7 +70,11 @@ void ExpFroom::OnSettingsButtonClick(PushButton& button, u32 hudSlotId) {
 
 void ExpFroom::OnTeamsButtonClick(PushButton& button, u32 hudSlotId) {
     this->areControlsHidden = true;
-    this->AddPageLayer(static_cast<PageId>(PULPAGE_TEAMSELECT), 0);
+    if (Settings::Mgr::Get().GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_EXTENDEDTEAMS) == EXTENDEDTEAMS_ENABLED) {
+        this->AddPageLayer(static_cast<PageId>(PULPAGE_EXTENDEDTEAMSELECT), 0);
+    } else {
+        this->AddPageLayer(static_cast<PageId>(PULPAGE_TEAMSELECT), 0);
+    }
 }
 
 void ExpFroom::OnKickButtonClick(PushButton& button, u32 hudSlotId) {
