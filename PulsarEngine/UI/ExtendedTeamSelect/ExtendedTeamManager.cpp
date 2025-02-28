@@ -11,6 +11,7 @@ ExtendedTeamManager::ExtendedTeamManager() {
     this->ResetPlayers();
     this->isHost = false;
     this->status = STATUS_NONE;
+    this->hasFriendRoomStarted = false;
 }
 
 void ExtendedTeamManager::CreateInstance(ExtendedTeamManager* obj) {
@@ -138,7 +139,7 @@ void ExtendedTeamManager::Update() {
     u8 localAid = RKNet::Controller::sInstance->subs[RKNet::Controller::sInstance->currentSub].localAid;
     if (!this->isHost) {
         if (this->status == STATUS_NONE) {
-            if (friendRoomManager->friendRoomIsEnding) {
+            if (this->hasFriendRoomStarted) {
                 this->status = STATUS_SELECTING;
             }
         } else if (this->status == STATUS_SELECTING) {
@@ -158,7 +159,7 @@ void ExtendedTeamManager::Update() {
         }
     } else {
         if (this->status == STATUS_NONE) {
-            if (friendRoomManager->friendRoomIsEnding) {
+            if (this->hasFriendRoomStarted) {
                 this->status = STATUS_WAITING_PRE;
                 this->waitingTimer.SetInitial(5.0f);
                 this->waitingTimer.isActive = true;
@@ -248,6 +249,7 @@ void ExtendedTeamManager::Reset() {
     this->isHost = false;
     this->lastUpdateTimer.isActive = false;
     this->waitingTimer.isActive = false;
+    this->hasFriendRoomStarted = false;
 }
 
 void ExtendedTeamManager::ResetPlayers() {

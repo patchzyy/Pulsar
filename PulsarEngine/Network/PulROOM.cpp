@@ -124,6 +124,10 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
         }
         destPacket->raceCount = raceCount;
         ConvertROOMPacketToData(*destPacket);
+
+        if (extendedTeams) {
+            UI::ExtendedTeamManager::sInstance->hasFriendRoomStarted = true;
+        }
     }
 
     // if we're starting a Extended Team VS or we're the host updating the teams, write the new teams to the packet
@@ -202,6 +206,7 @@ static void AfterROOMReception(const RKNet::PacketHolder<PulROOM>* packetHolder,
         // Extended Team VS start
         if (isExtendedTeams) {
             HandleExtendedTeamUpdates(src);
+            UI::ExtendedTeamManager::sInstance->hasFriendRoomStarted = true;
         }
     }
 
