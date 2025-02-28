@@ -3,10 +3,19 @@
 namespace Dolphin {
 
 static s32 s_dolphinFD = -1;
+static bool s_isEmulator = false;
+static bool s_isEmulatorChecked = false;
 
 int OpenDolphin() {
     if(s_dolphinFD < 0) {
         s_dolphinFD = IOS::Open("/dev/dolphin", IOS::MODE_NONE);
+        if (s_dolphinFD < 0) {
+            s_isEmulator = false;
+        } else {
+            s_isEmulator = true;
+        }
+
+        s_isEmulatorChecked = true;
     }
 
     return s_dolphinFD;
@@ -22,7 +31,11 @@ int CloseDolphin() {
 }
 
 bool IsEmulator() {
-    return OpenDolphin() >= 0;
+    if (!s_isEmulatorChecked) {
+        OpenDolphin();
+    }
+
+    return s_isEmulator;
 }
 
 bool GetElapsedTime(u32& elapsedTime) {
