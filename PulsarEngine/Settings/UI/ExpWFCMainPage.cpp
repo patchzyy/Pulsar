@@ -64,7 +64,7 @@ void ExpWFCMain::ExtOnButtonSelect(PushButton& button, u32 hudSlotId) {
 
 //         Text::Info info;
 //         info.intToPass[0] = vr;
-//         this->regionalButton.SetTextBoxMessage("go", BMG_RATING, &info);
+//         this->regionalButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
 //     }
 // }
 
@@ -84,6 +84,7 @@ void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
     self.AddControl(5, self.ottButton, 0);
     self.ottButton.Load(UI::buttonFolder, "PULOTTButton", "PULOTTButton", 1, 0, 0);
     self.ottButton.buttonId = ottButtonId;
+    self.ottButton.SetMessage(BMG_OTT_BUTTON);
     self.ottButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.ottButton.SetOnSelectHandler(self.onButtonSelectHandler);
 
@@ -123,11 +124,11 @@ void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
         vr = license.vr.points;
     }
     info.intToPass[0] = vr;
-    self.ottButton.SetTextBoxMessage("go", BMG_RATING, &info);
-    self.twoHundredButton.SetTextBoxMessage("go", BMG_RATING, &info);
-    self.ctButton.SetTextBoxMessage("go", BMG_RATING, &info);
-    self.ottButtonCT.SetTextBoxMessage("go", BMG_RATING, &info);
-    self.twoHundredButtonCT.SetTextBoxMessage("go", BMG_RATING, &info);
+    self.ottButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
+    self.twoHundredButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
+    self.ctButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
+    self.ottButtonCT.SetTextBoxMessage("go", BMG_VR_RATING, &info);
+    self.twoHundredButtonCT.SetTextBoxMessage("go", BMG_VR_RATING, &info);
 }
 kmCall(0x8064c294, ExpWFCModeSel::InitButton);
 
@@ -210,6 +211,17 @@ void ExpWFCModeSel::OnActivatePatch() {
 
     page->battleButton.isHidden = true;
     page->battleButton.manipulator.inaccessible = true;
+    
+    Text::Info info;
+    RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
+    u32 vr = 0;
+    if(rksysMgr->curLicenseId >= 0) {
+        RKSYS::LicenseMgr& license = rksysMgr->licenses[rksysMgr->curLicenseId];
+        vr = license.vr.points;
+    }
+    info.intToPass[0] = vr;
+    page->vsButton.SetMessage(BMG_RETRO_BUTTON);
+    page->vsButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
 
     page->nextPage = PAGE_NONE;
     PushButton* button = &page->vsButton;
@@ -302,9 +314,9 @@ void ExpWFCModeSel::OnModeButtonSelect(PushButton& modeButton, u32 hudSlotId) {
 //         }
 
 //         info.intToPass[0] = vr;
-//         this->ottButton.SetTextBoxMessage("go", Pulsar::UI::BMG_RATING, &info);
-//         this->twoHundredButton.SetTextBoxMessage("go", Pulsar::UI::BMG_RATING, &info);
-//         this->vsButton.SetTextBoxMessage("go", Pulsar::UI::BMG_RATING, &info);
+//         this->ottButton.SetTextBoxMessage("go", Pulsar::UI::BMG_VR_RATING, &info);
+//         this->twoHundredButton.SetTextBoxMessage("go", Pulsar::UI::BMG_VR_RATING, &info);
+//         this->vsButton.SetTextBoxMessage("go", Pulsar::UI::BMG_VR_RATING, &info);
 //     }
 // }
 

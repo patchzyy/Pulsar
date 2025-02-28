@@ -44,11 +44,53 @@ winningCourse(PULSARID_NONE), selectedCourse(PULSARID_FIRSTREG), lastSelectedCup
 
     memcpy(mainTracks, &rawCups.tracks, sizeof(Track) * ctsCount);
     memcpy(variants, (reinterpret_cast<const u8*>(&rawCups.tracks) + sizeof(Track) * ctsCount), sizeof(Variant) * rawCups.totalVariantCount);
-    memcpy(alphabeticalArray, reinterpret_cast<const u8*>(&rawCups.tracks) + sizeof(Track) * ctsCount, sizeof(u16) * ctsCount);
+    
+    // First 176 tracks remain in original order
+    for (int i = 0; i < 176; ++i) {
+        alphabeticalArray[i] = i;
+        invertedAlphabeticalArray[i] = i;
+    }
+    
+    // Copy the original alphabetical array for the last 64 tracks
+    const u16* originalAlphabeticalArray = reinterpret_cast<const u16*>(reinterpret_cast<const u8*>(&rawCups.tracks) + sizeof(Track) * ctsCount);
+    
+    // Create a temporary array for sorting the last 64 tracks
+    u16 lastTrackIndices[64];
+    for (int i = 0; i < 64; ++i) {
+        lastTrackIndices[i] = i + 176;  // Initialize with sequential indices 176-239
+    }
+    
+    // Sort the last 64 tracks based on their position in the original alphabetical array
+    for (int i = 0; i < 64; ++i) {
+        for (int j = i + 1; j < 64; ++j) {
+            u16 iPos = 0xFFFF;
+            u16 jPos = 0xFFFF;
+            
+            // Find positions in original array
+            for (int k = 0; k < ctsCount; ++k) {
+                if (originalAlphabeticalArray[k] == lastTrackIndices[i]) iPos = k;
+                if (originalAlphabeticalArray[k] == lastTrackIndices[j]) jPos = k;
+            }
+            
+            // Swap if needed to maintain alphabetical order
+            if (iPos > jPos) {
+                u16 temp = lastTrackIndices[i];
+                lastTrackIndices[i] = lastTrackIndices[j];
+                lastTrackIndices[j] = temp;
+            }
+        }
+    }
+    
+    // Apply the sorted indices to the alphabetical array
+    for (int i = 0; i < 64; ++i) {
+        alphabeticalArray[176 + i] = lastTrackIndices[i];
+    }
 
     u16 cumulativeVarCount = 0;
     for (int i = 0; i < ctsCount; ++i) {
-        invertedAlphabeticalArray[alphabeticalArray[i]] = i;
+        if (i >= 176) {
+            invertedAlphabeticalArray[alphabeticalArray[i]] = i;
+        }
         variantsOffs[i] = cumulativeVarCount * sizeof(Variant);
         cumulativeVarCount += mainTracks[i].variantCount;
     }
@@ -159,7 +201,9 @@ void CupsConfig::ToggleCTs(bool enabled) {
 }
 
 void CupsConfig::SetLayout() {
+    CupsConfig::sInstance->isAlphabeticalLayout = Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_MENU, SETTINGMENU_RADIO_LAYOUT) == MENUSETTING_LAYOUT_ALPHABETICAL;
 }
+Settings::Hook CTLayout(CupsConfig::SetLayout);
 
 void CupsConfig::GetExpertPath(char* dest, PulsarId id, TTMode mode) const {
     if (this->IsReg(id)) {

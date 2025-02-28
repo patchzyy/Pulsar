@@ -154,6 +154,10 @@ kmWrite8(0x807BA077, 0x00);
 kmWrite32(0x800EE3A0, 0x2C030000);
 kmWrite32(0x800ECAAC, 0x7C7E1B78);
 
+//Rename Online Mode Buttons [Toadette Hack Fan]
+kmWrite8(0x80899ACA, 0x00000058);
+kmWrite8(0x80899AF7, 0x00000058);
+
 //Ultra Uncut [MrBean35000vr + Chadderz]
 asmFunc GetUltraUncut() {
     ASM(
