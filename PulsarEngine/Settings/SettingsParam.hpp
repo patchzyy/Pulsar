@@ -89,6 +89,7 @@ enum RRettings {
     SETTINGRR_RADIO_HARDAI = 1,
     SETTINGRR_RADIO_BRAKEDRIFT = 2,
     SETTINGRR_RADIO_EXTENDEDTEAMS = 3,
+    SETTINGRR_RADIO_FOV = 4,
     SETTINGRR_SCROLLER_WWMODE = 0 + 6,
 };
 
@@ -272,6 +273,12 @@ enum BrakeDrift {
 enum ExtendedTeams {
     EXTENDEDTEAMS_DISABLED,
     EXTENDEDTEAMS_ENABLED
+};
+
+enum FOVChange {
+    FOV_CHANGE_DEFAULT,
+    FOV_CHANGE_16_9,
+    FOV_CHANGE_4_3
 };
 
 enum WWMode {

@@ -2,6 +2,8 @@
 #include <MarioKartWii/UI/Ctrl/CtrlRace/CtrlRaceWifi.hpp>
 #include <MarioKartWii/UI/Page/Other/Title.hpp>
 #include <MarioKartWii/UI/Page/Other/Message.hpp>
+#include <MarioKartWii/Kart/KartLink.hpp>
+#include <Settings/Settings.hpp>
 #include <MarioKartWii/RKSYS/RKSYSMgr.hpp>
 #include <MarioKartWii/GlobalFunctions.hpp>
 #include <PulsarSystem.hpp>
@@ -132,6 +134,40 @@ u8 ModifyCheckRankings() {
 kmCall(0x8085b4bc, ModifyCheckRankings);
 kmPatchExitPoint(ModifyCheckRankings, 0x8085bbe0);
 
+static bool s_hasSavedCameraParams = false;
+static CameraParamBin s_savedCameraParams;
+CameraParamBin* GetKartParamCamera(u32 weight, u32 screenCount) {
+    CameraParamBin* cameraParam = Kart::Link::GetCameraParamBin(weight, screenCount);
+    if (cameraParam != nullptr && !s_hasSavedCameraParams) {
+        s_savedCameraParams = *cameraParam;
+        s_hasSavedCameraParams = true;
+    }
+
+    FOVChange fovChange = static_cast<FOVChange>(Settings::Mgr::Get().GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_FOV));
+    if (fovChange != FOV_CHANGE_DEFAULT) {
+        if (fovChange == FOV_CHANGE_16_9) {
+            for (int i = 0; i < 9; ++i) {
+                s_savedCameraParams.camerasParam[i][0] = cameraParam->camerasParam[i][1];
+                s_savedCameraParams.camerasParam[i][1] = cameraParam->camerasParam[i][1];
+                s_savedCameraParams.camerasParam[i][2] = cameraParam->camerasParam[i][3];
+                s_savedCameraParams.camerasParam[i][3] = cameraParam->camerasParam[i][3];
+            }
+        } else if (fovChange == FOV_CHANGE_4_3) {
+            for (int i = 0; i < 9; ++i) {
+                s_savedCameraParams.camerasParam[i][0] = cameraParam->camerasParam[i][0];
+                s_savedCameraParams.camerasParam[i][1] = cameraParam->camerasParam[i][0];
+                s_savedCameraParams.camerasParam[i][2] = cameraParam->camerasParam[i][2];
+                s_savedCameraParams.camerasParam[i][3] = cameraParam->camerasParam[i][2];
+            }
+        }
+
+        return &s_savedCameraParams;
+    }
+
+    return cameraParam;
+}
+
+kmCall(0x805a20d4, GetKartParamCamera);
 
 }//namespace UI
 }//namespace Pulsar
