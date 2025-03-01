@@ -73,6 +73,8 @@ void ExtendedTeamSelect::BeforeEntranceAnimations() {
     this->miiGroup = &friendRoomManager->miiGroup;
 
     this->shouldDisconnect = false;
+
+    this->teamPlayerArrows[0].SelectInitial(0);
 }
 
 void ExtendedTeamSelect::OnResume() {
