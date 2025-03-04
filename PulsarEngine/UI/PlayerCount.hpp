@@ -13,7 +13,11 @@
 
 namespace PlayerCount {
 
-void GetNumbers(int& n150cc, int& n200c, int& nOtt, int& nRegular);
+void GetNumbersRR(int& n150cc, int& n200c, int& nOtt);
+void GetNumbersCT(int& n150cc, int& n200c, int& nOtt);
+void GetNumbersRegular(int& nRegular);
+void GetNumbersTotal(int& nTotal);
+void GetNumbersOthers(int& nOthers);
 
 }
 

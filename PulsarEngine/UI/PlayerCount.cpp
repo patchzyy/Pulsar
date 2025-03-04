@@ -83,6 +83,11 @@ void SBServerEnumKeys(SBServer server, SBServerKeyEnumFn KeyFn,
 
 void getRegionParamsFromString(const char* region, char* outputRegion, u32& outputRegionID) {
 
+    if (strcmp(region, "vs") == 0) {
+        outputRegionID = 0x13371337;
+        return;
+    }
+
     char value[32];
     strncpy(value, region, 32);
 
@@ -105,34 +110,51 @@ static bool isHookedRequest = false;
 static float hookLocalTimer = 0.0f;
 static bool hasRKNetRequestFinished = true;
 
-static int numPlayersRegular = 0;
-static int numPlayers200cc = 0;
-static int numPlayers150cc = 0;
-static int numPlayersOTT = 0;
+static int RR_numPlayersRegular = 0;
 
-void PlayerCount::GetNumbers(int& n150cc, int& n200c, int& nOtt, int& nRegular) {
-    n150cc = numPlayers150cc;
-    n200c = numPlayers200cc;
-    nOtt = numPlayersOTT;
-    nRegular = numPlayersRegular;
+static int RR_numPlayers200cc = 0;
+static int RR_numPlayers150cc = 0;
+static int RR_numPlayersOTT = 0;
+
+static int CT_numPlayers200cc = 0;
+static int CT_numPlayers150cc = 0;
+static int CT_numPlayersOTT = 0;
+
+static int RR_numPlayersOthers = 0;
+static int RR_numPlayersTotal = 0;
+
+void PlayerCount::GetNumbersRR(int& n150cc, int& n200c, int& nOtt) {
+    n150cc = RR_numPlayers150cc;
+    n200c = RR_numPlayers200cc;
+    nOtt = RR_numPlayersOTT;
 }
 
-void hookedCallback(ServerBrowser sb, SBCallbackReason reason,
-                                      SBServer server, void* instance) {
-    
-    DWCi_SBCallback(sb, reason, server, instance);
-    if (reason == sbc_updatecomplete) {
-        hasRKNetRequestFinished = true;
-    }
+void PlayerCount::GetNumbersCT(int& n150cc, int& n200c, int& nOtt) {
+    n150cc = CT_numPlayers150cc;
+    n200c = CT_numPlayers200cc;
+    nOtt = CT_numPlayersOTT;
+}
+
+void PlayerCount::GetNumbersRegular(int& nRegular) {
+    nRegular = RR_numPlayersRegular;
+}
+
+void PlayerCount::GetNumbersTotal(int& nTotal) {
+    nTotal = RR_numPlayersTotal;
+}
+
+void PlayerCount::GetNumbersOthers(int& nOthers) {
+    nOthers = RR_numPlayersOthers;
 }
 
 void sbCallback(ServerBrowser sb, SBCallbackReason reason,
                                       SBServer server, void* instance) {
     if (reason == sbc_updatecomplete) {
-        int local150cc = 0;
-        int local200cc = 0;
-        int localOTT = 0;
-        int localRegular = 0;
+        int totalPlayers = 0;
+        int numElse = 0;
+        int numRegs = 0;
+        int RR_local150cc = 0, RR_local200cc = 0, RR_localOTT = 0;
+        int CT_local150cc = 0, CT_local200cc = 0, CT_localOTT = 0;
         for (int i = 0; i < ServerBrowserCount(sb); i++) {
             SBServer server = ServerBrowserGetServer(sb, i);
             
@@ -143,30 +165,41 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
             getRegionParamsFromString(rk, region, regionID);
 
             int numplayers = SBServerGetIntValueA(server, "numplayers", -1) + 1;
-
-            int numRegs = 0, num150 = 0, num200 = 0, numOTT = 0;
-            if (strstr(region, "vs") && regionID == 0x0A) {
-                num150 += numplayers;
-            } else if (strstr(region, "vs") && regionID == 0x0C) {
-                num200 += numplayers;
-            } else if (strstr(region, "vs") && regionID == 0x0B) {
-                numOTT += numplayers;
-            } else if (strstr(region, "vs") && regionID == 0xffffffff) {
-                numRegs += numplayers;
+            if (strstr(region, "vs")) {
+                if (regionID == 0x0A) {
+                    RR_local150cc += numplayers;
+                } else if (regionID == 0x0C) {
+                    RR_local200cc += numplayers;
+                } else if (regionID == 0x0B) {
+                    RR_localOTT += numplayers;
+                } else if(regionID == 0x14) {
+                    CT_local150cc += numplayers;
+                } else if(regionID == 0x16) {
+                    CT_local200cc += numplayers;
+                } else if(regionID == 0x15) {
+                    CT_localOTT += numplayers;
+                } else if (regionID == 0x13371337) {
+                    numRegs += numplayers;
+                } else {
+                    numElse += numplayers;
+                }
             }
 
-            local150cc += num150;
-            local200cc += num200;
-            localOTT += numOTT;
-            localRegular += numRegs;
+            totalPlayers += numplayers;
         } 
 
-        numPlayers150cc = local150cc;
-        numPlayers200cc = local200cc;
-        numPlayersOTT = localOTT;
-        numPlayersRegular = localRegular;
+        RR_numPlayers150cc = RR_local150cc;
+        RR_numPlayers200cc = RR_local200cc;
+        RR_numPlayersOTT = RR_localOTT;
 
-        OS::Report("150cc: %d, 200cc: %d, OTT: %d, Regular: %d\n", local150cc, local200cc, localOTT, localRegular);
+        CT_numPlayers150cc = CT_local150cc;
+        CT_numPlayers200cc = CT_local200cc;
+        CT_numPlayersOTT = CT_localOTT;
+
+        RR_numPlayersRegular = numRegs;
+
+        RR_numPlayersTotal = totalPlayers;
+        RR_numPlayersOthers = numElse;
 
         isHookedRequest = false;
 
@@ -191,8 +224,6 @@ static const u8 basicFields[] = {0x08, 0x0a, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
 bool hasQR2Initialized = false;
 int hook_QR2Startup(u32 id) {
     int res = DWCi_QR2Startup(id);
-    
-    OS::Report("============================= QRSTARTUP2 %12d %d =============================\n", id, res);
 
     qr2_register_keyA(0x32, "dwc_pid");
     qr2_register_keyA(0x33, "dwc_mtype");
@@ -229,15 +260,6 @@ void StartRequestTask(void* arg) {
     }
 }
 
-ServerBrowser hook_ServerBrowserNewA(const char* queryForGamename,
-                               const char* queryFromGamename,
-                               const char* queryFromKey,
-                               int queryFromVersion, int maxConcUpdates,
-                               int queryVersion, bool lanBrowse,
-                               ServerBrowserCallback callback, void* instance) {
-    return ServerBrowserNewA(queryForGamename, queryFromGamename, queryFromKey, queryFromVersion, maxConcUpdates, queryVersion, lanBrowse, hookedCallback, instance);
-}
-
 int hook_ServerBrowserLimitUpdateA(ServerBrowser sb, bool async,
                                  bool disconnectOnComplete,
                                  const unsigned char* basicFields,
@@ -260,6 +282,11 @@ int hook_ServerBrowserLimitUpdateA(ServerBrowser sb, bool async,
     );
 
     return res;
+}
+
+void hook_ServerBrowserFree(ServerBrowser sb) {
+    hasRKNetRequestFinished = true;
+    ServerBrowserFree(sb);
 }
 
 void hook_DWC_SetReportLevel(u32 level) {
@@ -288,25 +315,16 @@ void hook_Section_calc(Section* _this) {
     }
 }
 
-void hook_ServerBrowserThink(ServerBrowser sb) {
-    if (!isHookedRequest) {
-        ServerBrowserThink(sb);
-    }
-}
+kmCall(0x800d0584, hook_QR2Startup);
+kmCall(0x800d413c, hook_QR2Startup);
+kmCall(0x800d5484, hook_QR2Startup);
+kmCall(0x800d56bc, hook_QR2Startup);
+kmCall(0x800d605c, hook_QR2Startup);
+kmCall(0x800d62c0, hook_QR2Startup);
 
-// kmCall(0x800d0584, hook_QR2Startup);
-// kmCall(0x800d413c, hook_QR2Startup);
-// kmCall(0x800d5484, hook_QR2Startup);
-// kmCall(0x800d56bc, hook_QR2Startup);
-// kmCall(0x800d605c, hook_QR2Startup);
-// kmCall(0x800d62c0, hook_QR2Startup);
-
-// kmCall(0x800db908, hook_ServerBrowserLimitUpdateA);
-// kmCall(0x80658be8, hook_DWC_SetReportLevel);
-// kmCall(0x800d5390, hook_ServerBrowserNewA);
-// kmCall(0x800d573c, hook_ServerBrowserNewA);
-// kmCall(0x800d5f74, hook_ServerBrowserNewA);
-// kmCall(0x800d6208, hook_ServerBrowserNewA);
-// kmCall(0x800e435c, hook_ServerBrowserNewA);
-// kmCall(0x800d8384, hook_ServerBrowserThink);
-// kmCall(0x80622514, hook_Section_calc);
+kmCall(0x800db908, hook_ServerBrowserLimitUpdateA);
+kmCall(0x800d1058, hook_ServerBrowserFree);
+kmCall(0x800d839c, hook_ServerBrowserFree);
+kmCall(0x800db46c, hook_ServerBrowserFree);
+kmCall(0x80658be8, hook_DWC_SetReportLevel);
+kmCall(0x80622514, hook_Section_calc);

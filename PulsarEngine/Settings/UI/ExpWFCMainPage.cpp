@@ -2,7 +2,7 @@
 #include <MarioKartWii/RKSYS/RKSYSMgr.hpp>
 #include <Settings/UI/ExpWFCMainPage.hpp>
 #include <UI/UI.hpp>
-// #include <UI/PlayerCount.hpp>
+#include <UI/PlayerCount.hpp>
 #include <PulsarSystem.hpp>
 
 namespace Pulsar {
@@ -14,7 +14,7 @@ kmWrite24(0x80899a36, 'PUL'); //8064ba38
 kmWrite24(0x80899a5B, 'PUL'); //8064ba90
 
 void ExpWFCMain::OnInit() {
-    this->InitControlGroup(6); //5 controls usually + settings button
+    this->InitControlGroup(7); //5 controls usually + settings button + player count
     WFCMainMenu::OnInit();
     this->AddControl(5, settingsButton, 0);
 
@@ -22,6 +22,10 @@ void ExpWFCMain::OnInit() {
     this->settingsButton.buttonId = 5;
     this->settingsButton.SetOnClickHandler(this->onSettingsClick, 0);
     this->settingsButton.SetOnSelectHandler(this->onButtonSelectHandler);
+
+    this->AddControl(6, playerCount, 0);
+    ControlLoader loader(&this->playerCount);
+    loader.Load(UI::buttonFolder, "VRButton", "VRButton", nullptr);
 
     this->topSettingsPage = SettingsPanel::id;
 
@@ -44,29 +48,22 @@ void ExpWFCMain::ExtOnButtonSelect(PushButton& button, u32 hudSlotId) {
     else this->OnButtonSelect(button, hudSlotId);
 }
 
-// void ExpWFCMain::BeforeControlUpdate() {
-//     WFCMainMenu::BeforeControlUpdate();
+void ExpWFCMain::BeforeControlUpdate() {
+    WFCMainMenu::BeforeControlUpdate();
 
-//     int num150cc, num200cc, numOTT, numRegular;
-//     PlayerCount::GetNumbers(num150cc, num200cc, numOTT, numRegular);
+    int RR_num150cc, RR_num200cc, RR_numOTT;
+    int CT_num150cc, CT_num200cc, CT_numOTT;
+    int numOthers, numRegulars;
 
-//     if (s_displayPlayerCount) {
-//         Text::Info info;
-//         info.intToPass[0] = num150cc + num200cc + numOTT;
-//         this->regionalButton.SetTextBoxMessage("go", BMG_PLAYER_COUNT, &info);
-//     } else {
-//         RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
-//         u32 vr = 0;
-//         if(rksysMgr->curLicenseId >= 0) {
-//             RKSYS::LicenseMgr& license = rksysMgr->licenses[rksysMgr->curLicenseId];
-//             vr = license.vr.points;
-//         }
+    PlayerCount::GetNumbersRR(RR_num150cc, RR_num200cc, RR_numOTT);
+    PlayerCount::GetNumbersCT(CT_num150cc, CT_num200cc, CT_numOTT);
+    PlayerCount::GetNumbersRegular(numRegulars);
+    PlayerCount::GetNumbersOthers(numOthers);
 
-//         Text::Info info;
-//         info.intToPass[0] = vr;
-//         this->regionalButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
-//     }
-// }
+    Text::Info info;
+    info.intToPass[0] = RR_numOTT + RR_num200cc + RR_num150cc + CT_num150cc + CT_num200cc + CT_numOTT + numOthers + numRegulars;
+    this->playerCount.SetTextBoxMessage("go", BMG_PLAYER_COUNT, &info);
+}
 
 //ExpWFCModeSel
 kmWrite32(0x8064c284, 0x38800001); //distance func
@@ -79,7 +76,7 @@ void ExpWFCModeSel::OnInit() {
 u32 Pulsar::UI::ExpWFCModeSel::lastClickedButton = 0;
 
 void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
-    self.InitControlGroup(10);
+    self.InitControlGroup(11);
 
     self.AddControl(5, self.ottButton, 0);
     self.ottButton.Load(UI::buttonFolder, "PULOTTButton", "PULOTTButton", 1, 0, 0);
@@ -115,6 +112,10 @@ void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
     self.twoHundredButtonCT.SetMessage(BMG_200_BUTTON_CT);
     self.twoHundredButtonCT.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.twoHundredButtonCT.SetOnSelectHandler(self.onButtonSelectHandler);
+
+    self.AddControl(10, self.vrButton, 0);
+    ControlLoader loader(&self.vrButton);
+    loader.Load(UI::buttonFolder, "VRButton", "VRButton", nullptr);
     
     Text::Info info;
     RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
@@ -284,41 +285,52 @@ void ExpWFCModeSel::OnModeButtonSelect(PushButton& modeButton, u32 hudSlotId) {
     else WFCModeSelect::OnModeButtonSelect(modeButton, hudSlotId);
 }
 
-// void ExpWFCModeSel::BeforeControlUpdate() {
-//     WFCModeSelect::BeforeControlUpdate();
+void ExpWFCModeSel::BeforeControlUpdate() {
+    WFCModeSelect::BeforeControlUpdate();
 
-//     int num150cc, num200cc, numOTT, numRegular;
-//     PlayerCount::GetNumbers(num150cc, num200cc, numOTT, numRegular);
+    int numRegulars;
+    int RR_num150cc, RR_num200cc, RR_numOTT;
+    int CT_num150cc, CT_num200cc, CT_numOTT;
+    PlayerCount::GetNumbersRR(RR_num150cc, RR_num200cc, RR_numOTT);
+    PlayerCount::GetNumbersCT(CT_num150cc, CT_num200cc, CT_numOTT);
+    PlayerCount::GetNumbersRegular(numRegulars);
 
-//     Pages::GlobeSearch* globeSearch = SectionMgr::sInstance->curSection->Get<Pages::GlobeSearch>();
+    Pages::GlobeSearch* globeSearch = SectionMgr::sInstance->curSection->Get<Pages::GlobeSearch>();
 
-//     Text::Info info;
-//     if (s_displayPlayerCount && globeSearch->searchType == 1) {
-//         int numRetroRewindPlayers = num150cc + num200cc + numOTT;
-                
-//         info.intToPass[0] = numOTT;
-//         this->ottButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
+    Text::Info info;
+    if (globeSearch->searchType == 1) {  
+        info.intToPass[0] = RR_numOTT;
+        this->ottButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
 
-//         info.intToPass[0] = num200cc;
-//         this->twoHundredButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
+        info.intToPass[0] = RR_num200cc;
+        this->twoHundredButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
 
-//         info.intToPass[0] = num150cc;
-//         this->vsButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
-    
-//     } else {
-//         RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
-//         u32 vr = 0;
-//         if(rksysMgr->curLicenseId >= 0) {
-//             RKSYS::LicenseMgr& license = rksysMgr->licenses[rksysMgr->curLicenseId];
-//             vr = license.vr.points;
-//         }
+        info.intToPass[0] = RR_num150cc;
+        this->vsButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
+        
+        info.intToPass[0] = CT_numOTT;
+        this->ottButtonCT.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
 
-//         info.intToPass[0] = vr;
-//         this->ottButton.SetTextBoxMessage("go", Pulsar::UI::BMG_VR_RATING, &info);
-//         this->twoHundredButton.SetTextBoxMessage("go", Pulsar::UI::BMG_VR_RATING, &info);
-//         this->vsButton.SetTextBoxMessage("go", Pulsar::UI::BMG_VR_RATING, &info);
-//     }
-// }
+        info.intToPass[0] = CT_num200cc;
+        this->twoHundredButtonCT.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
+
+        info.intToPass[0] = CT_num150cc;
+        this->ctButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
+    } else {
+        info.intToPass[0] = numRegulars;
+        this->vsButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
+    }
+
+    RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
+    u32 vr = 0;
+    if(rksysMgr->curLicenseId >= 0) {
+        RKSYS::LicenseMgr& license = rksysMgr->licenses[rksysMgr->curLicenseId];
+        vr = license.vr.points;
+    }
+
+    info.intToPass[0] = vr;
+    this->vrButton.SetTextBoxMessage("go", Pulsar::UI::BMG_VR_RATING, &info);
+}
 
 } // namespace UI
 } // namespace Pulsar
