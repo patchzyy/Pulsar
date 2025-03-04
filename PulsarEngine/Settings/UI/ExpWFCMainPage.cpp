@@ -53,15 +53,14 @@ void ExpWFCMain::BeforeControlUpdate() {
 
     int RR_num150cc, RR_num200cc, RR_numOTT;
     int CT_num150cc, CT_num200cc, CT_numOTT;
-    int numOthers, numRegulars;
+    int numRegulars;
 
     PlayerCount::GetNumbersRR(RR_num150cc, RR_num200cc, RR_numOTT);
     PlayerCount::GetNumbersCT(CT_num150cc, CT_num200cc, CT_numOTT);
     PlayerCount::GetNumbersRegular(numRegulars);
-    PlayerCount::GetNumbersOthers(numOthers);
 
     Text::Info info;
-    info.intToPass[0] = RR_numOTT + RR_num200cc + RR_num150cc + CT_num150cc + CT_num200cc + CT_numOTT + numOthers + numRegulars;
+    info.intToPass[0] = RR_numOTT + RR_num200cc + RR_num150cc + CT_num150cc + CT_num200cc + CT_numOTT + numRegulars;
     this->playerCount.SetTextBoxMessage("go", BMG_PLAYER_COUNT, &info);
 }
 
