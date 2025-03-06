@@ -33,7 +33,11 @@ static void EditLdb(CtrlRaceResult* result, u8 playerId) {
                 bmgId = UI::BMG_KO_OUT;
                 color = 0xff0000c0;
             }
-            else {
+            if (koStatus == DISCONNECTED) {
+                bmgId = UI::BMG_KO_TIE;
+                color = 0xff0f00c0;
+            }
+            if (koStatus == TIE) {
                 bmgId = UI::BMG_KO_TIE;
                 color = 0xff00f0c0;
             }

@@ -11,19 +11,35 @@
 namespace Pulsar {
 namespace Network {
 
-static const ut::Color colors[5] = { 0xffff00ff, 0x00ff00ff, 0xffa000ff, 0x00ffffff, 0x00a0ffff };
+static const ut::Color colors[5] = { 0xffff00ff, 0x00ff00ff, 0xffa000ff, 0x00ffffff, 0x0050ffff };
 
 ut::Color GetFriendColor(u32 friendIdx) {
     RKNet::SearchType type = RKNet::Controller::sInstance->GetFriendSearchType(friendIdx);
     const ut::Color* color = &colors[0];
-    bool isOTT = System::sInstance->IsContext(PULSAR_MODE_OTT) ? OTTSETTING_ONLINE_DISABLED : OTTSETTING_ONLINE_NORMAL;
+    
+    // Get the friend's region
+    u8 friendRegion = 0;
+    const RKNet::Friend* friendData = &RKNet::Controller::sInstance->friends[friendIdx];
+    if (friendData) {
+        friendRegion = friendData->statusData.regionId;
+    }
+    
+    // Check if friend is in one of the special regions (0x14, 0x15, 0x16)
+    bool isSpecialRegion = (friendRegion == 0x14 || friendRegion == 0x15 || friendRegion == 0x16);
+    
     switch(type) {
-        case RKNet::SEARCH_TYPE_VS_WW: return color[0];
-        case RKNet::SEARCH_TYPE_BT_WW: return color[2];
-        case RKNet::SEARCH_TYPE_BT_REGIONAL: return color[3];
+        case RKNet::SEARCH_TYPE_VS_WW: 
+            return color[0];
+        case RKNet::SEARCH_TYPE_BT_WW: 
+            return color[2];
+        case RKNet::SEARCH_TYPE_BT_REGIONAL: 
+            return color[3];
         case RKNet::SEARCH_TYPE_VS_REGIONAL:
-            if(System::sInstance->netMgr.statusDatas[friendIdx] == (isOTT == OTTSETTING_ONLINE_NORMAL)) return color[4];
-            else return color[1];
+            if (isSpecialRegion) {
+                return color[4];
+            } else {
+                return color[1];
+            }
         default:
             return *color;
     }
@@ -206,7 +222,21 @@ void SetGlobeMsgColor(Pages::Globe::MessageWindow& msg, ut::Color color) {
 void GlobeMsgColor(Pages::Globe::MessageWindow& msg, u32 bmgId, Text::Info* info) {
     register Pages::Globe* globe;
     asm(mr globe, r31;);
-    if(System::sInstance->netMgr.statusDatas[globe->selFriendIdx] == true) bmgId = UI::BMG_OTT_PLAYING;
+    
+    // Get the friend's region
+    u8 friendRegion = 0;
+    const RKNet::Friend* friendData = &RKNet::Controller::sInstance->friends[globe->selFriendIdx];
+    if (friendData) {
+        friendRegion = friendData->statusData.regionId;
+    }
+    
+    // Set appropriate BMG based on region
+    if (friendRegion == 0x15 || friendRegion == 0xB) {
+        bmgId = UI::BMG_OTT_PLAYING;
+    } else if (friendRegion == 0x16 || friendRegion == 0xC) {
+        bmgId = UI::BMG_200_PLAYING;
+    }
+
     msg.SetMessage(bmgId, info);
     ut::Color color;
     if(globe->curSelFriendStatus >= 0x15 && globe->curSelFriendStatus <= 0x18) color = GetFriendColor(globe->selFriendIdx);

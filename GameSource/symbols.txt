@@ -2062,3 +2062,16 @@ HandleSelect__18RadioButtonControlFUiUi = 0x806062d8
 HandleClick__18RadioButtonControlFUiUi = 0x80606620
 HandleDeselect__13UpDownControlFUiUi = 0x8063f7c4
 PrepareButton__Q25Pages5YesNoFUiUiPQ24Text4InfoUiRC39PtmfHolder_2A<4Page,v,Ui,R10PushButton> = 0x80652604
+
+GetCameraParamBin__Q24Kart4LinkFUiUi = 0x805927d4
+mbstowcs = 0x8000f078
+Init__16RacedataScenarioFPC16RacedataScenario = 0x8052fb90
+Update__Q25RKNet9PacketMgrFv = 0x80653728
+
+#SC 
+SCGetProductSN = 0x801b2460
+SCGetProductCode = 0x801b2424
+
+#Comp
+Comp_encodeSZS = 0x802156ac
+ItemRainHook = 0x80000B24

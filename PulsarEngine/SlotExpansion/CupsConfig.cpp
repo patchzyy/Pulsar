@@ -51,18 +51,18 @@ winningCourse(PULSARID_NONE), selectedCourse(PULSARID_FIRSTREG), lastSelectedCup
         invertedAlphabeticalArray[i] = i;
     }
     
-    // Copy the original alphabetical array for the last 64 tracks
+    // Copy the original alphabetical array for the last 80 tracks
     const u16* originalAlphabeticalArray = reinterpret_cast<const u16*>(reinterpret_cast<const u8*>(&rawCups.tracks) + sizeof(Track) * ctsCount);
     
-    // Create a temporary array for sorting the last 64 tracks
-    u16 lastTrackIndices[64];
-    for (int i = 0; i < 64; ++i) {
+    // Create a temporary array for sorting the last 80 tracks
+    u16 lastTrackIndices[80];
+    for (int i = 0; i < 80; ++i) {
         lastTrackIndices[i] = i + 176;  // Initialize with sequential indices 176-239
     }
     
-    // Sort the last 64 tracks based on their position in the original alphabetical array
-    for (int i = 0; i < 64; ++i) {
-        for (int j = i + 1; j < 64; ++j) {
+    // Sort the last 80 tracks based on their position in the original alphabetical array
+    for (int i = 0; i < 80; ++i) {
+        for (int j = i + 1; j < 80; ++j) {
             u16 iPos = 0xFFFF;
             u16 jPos = 0xFFFF;
             
@@ -82,7 +82,7 @@ winningCourse(PULSARID_NONE), selectedCourse(PULSARID_FIRSTREG), lastSelectedCup
     }
     
     // Apply the sorted indices to the alphabetical array
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < 80; ++i) {
         alphabeticalArray[176 + i] = lastTrackIndices[i];
     }
 
@@ -228,16 +228,16 @@ PulsarId CupsConfig::RandomizeTrack() const {
         if (System::sInstance->IsContext(PULSAR_REGS)) isRegsOnly = TRACKSELECTION_REGS;
     }
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
-        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS) isRetroOnly = TRACKSELECTION_RETROS;
-        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS) isCTOnly = TRACKSELECTION_CTS;
-        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_REGS) isRegsOnly = TRACKSELECTION_REGS;
+        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS) isRetroOnly = TRACKSELECTION_RETROS;
+        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS) isCTOnly = TRACKSELECTION_CTS;
+        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_REGS) isRegsOnly = TRACKSELECTION_REGS;
     }
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) {
-       if (Pulsar::UI::ExpWFCModeSel::lastClickedButton == Pulsar::UI::ExpWFCModeSel::ottButtonId || Pulsar::UI::ExpWFCModeSel::lastClickedButton == Pulsar::UI::ExpWFCModeSel::twoHundredButtonId || Pulsar::UI::ExpWFCModeSel::lastClickedButton == 1 || Pulsar::UI::ExpWFCModeSel::lastClickedButton == 0) isRetroOnly = TRACKSELECTION_RETROS;
-       if (Pulsar::UI::ExpWFCModeSel::lastClickedButton == Pulsar::UI::ExpWFCModeSel::ctButtonId || Pulsar::UI::ExpWFCModeSel::lastClickedButton == Pulsar::UI::ExpWFCModeSel::ottButtonIdCT || Pulsar::UI::ExpWFCModeSel::lastClickedButton == Pulsar::UI::ExpWFCModeSel::twoHundredButtonIdCT) isCTOnly = TRACKSELECTION_CTS;
+       if (System::sInstance->netMgr.region == 0x0A || System::sInstance->netMgr.region == 0x0B || System::sInstance->netMgr.region == 0x0C) isRetroOnly = TRACKSELECTION_RETROS;
+       if (System::sInstance->netMgr.region == 0x14 || System::sInstance->netMgr.region == 0x15 || System::sInstance->netMgr.region == 0x16) isCTOnly = TRACKSELECTION_CTS;
     }
     if (isRetroOnly == TRACKSELECTION_RETROS && isRegsOnly != TRACKSELECTION_REGS) pulsarId = random.NextLimited(176) + 0x100;
-    else if (isCTOnly == TRACKSELECTION_CTS && isRegsOnly != TRACKSELECTION_REGS) pulsarId = random.NextLimited(64) + 0x100 + 176;
+    else if (isCTOnly == TRACKSELECTION_CTS && isRegsOnly != TRACKSELECTION_REGS) pulsarId = random.NextLimited(80) + 0x100 + 176;
     else if (isRegsOnly == TRACKSELECTION_REGS) pulsarId = random.NextLimited(32);
     else if (this->HasRegs()) {
         pulsarId = random.NextLimited(this->GetCtsTrackCount() + 32);
@@ -272,13 +272,13 @@ PulsarCupId CupsConfig::GetNextCupId(PulsarCupId pulsarId, s32 direction) const 
         if (System::sInstance->IsContext(PULSAR_REGS)) isRegsOnly = TRACKSELECTION_REGS;
     }
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
-        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS) isRetroOnly = TRACKSELECTION_RETROS;
-        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS) isCTOnly = TRACKSELECTION_CTS;
-        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_REGS) isRegsOnly = TRACKSELECTION_REGS;
+        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS) isRetroOnly = TRACKSELECTION_RETROS;
+        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS) isCTOnly = TRACKSELECTION_CTS;
+        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_REGS) isRegsOnly = TRACKSELECTION_REGS;
     }
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) {
-       if (Pulsar::UI::ExpWFCModeSel::lastClickedButton == Pulsar::UI::ExpWFCModeSel::ottButtonId || Pulsar::UI::ExpWFCModeSel::lastClickedButton == Pulsar::UI::ExpWFCModeSel::twoHundredButtonId || Pulsar::UI::ExpWFCModeSel::lastClickedButton == 1 || Pulsar::UI::ExpWFCModeSel::lastClickedButton == 0) isRetroOnly = TRACKSELECTION_RETROS;
-       if (Pulsar::UI::ExpWFCModeSel::lastClickedButton == Pulsar::UI::ExpWFCModeSel::ctButtonId || Pulsar::UI::ExpWFCModeSel::lastClickedButton == Pulsar::UI::ExpWFCModeSel::ottButtonIdCT || Pulsar::UI::ExpWFCModeSel::lastClickedButton == Pulsar::UI::ExpWFCModeSel::twoHundredButtonIdCT) isCTOnly = TRACKSELECTION_CTS;
+       if (System::sInstance->netMgr.region == 0x0A || System::sInstance->netMgr.region == 0x0B || System::sInstance->netMgr.region == 0x0C) isRetroOnly = TRACKSELECTION_RETROS;
+       if (System::sInstance->netMgr.region == 0x14 || System::sInstance->netMgr.region == 0x15 || System::sInstance->netMgr.region == 0x16) isCTOnly = TRACKSELECTION_CTS;
     }
     if (isRetroOnly == TRACKSELECTION_RETROS && isRegsOnly != TRACKSELECTION_REGS) {
         const u32 countRetro = 44;
@@ -287,7 +287,7 @@ PulsarCupId CupsConfig::GetNextCupId(PulsarCupId pulsarId, s32 direction) const 
         if(!this->hasRegs && nextIdxRetro < 8) return static_cast<PulsarCupId>(nextIdxRetro + countRetro + 0x38);
         return ConvertCup_IdxToPulsarId(nextIdxRetro);
     } else if (isCTOnly == TRACKSELECTION_CTS && isRegsOnly != TRACKSELECTION_REGS) {
-        const u32 countCT = 16;
+        const u32 countCT = 20;
         const u32 lastCupIndex = this->GetTotalCupCount() - 1;
         const u32 startIdx = 52;
         const u32 nextIdxCT = startIdx + ((idx - startIdx + direction + countCT) % countCT);

@@ -104,7 +104,7 @@ public:
     virtual void vf_0x48(); //0x48 8051b3c4
     virtual int GetScreenCount(); //0x4c 8051aa4c
     virtual int vf_0x50(); //0x50 8051b7a0
-    virtual bool isPaused(); //0x54 8051b8d4 also updates stuff it it is paused in racescene
+    virtual bool isPaused() const; //0x54 8051b8d4 also updates stuff it it is paused in racescene
     virtual void vf_0x58(); //0x58 8051aa54
     virtual void vf_0x5c(); //0x5c 8051b9d0
 

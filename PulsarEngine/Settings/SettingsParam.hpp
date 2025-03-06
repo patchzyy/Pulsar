@@ -12,10 +12,10 @@ namespace Settings {
 class Params {
 public:
     static const int pulsarPageCount = 5;
-    static const int userPageCount = 3;
+    static const int userPageCount = 2;
     static const int pageCount = pulsarPageCount + userPageCount;
 
-    static const int maxRadioCount = 6; // per page, due to space
+    static const int maxRadioCount = 8; // per page, due to space
     static const int maxScrollerCount = 5; // per page, due to space
 
     // Pulsar and User
@@ -37,8 +37,7 @@ enum Type {
 // If you want to add settings to your packs, they go in this enum, and GetUserSettingValue should be used to obtain the value of a given setting
 enum UserType {
     SETTINGSTYPE_RR,
-    SETTINGSTYPE_RR2,
-    SETTINGSTYPE_RR3,
+    SETTINGSTYPE_RRHOST,
 };
 
 } // namespace Settings
@@ -49,7 +48,7 @@ enum MenuSettings {
     SETTINGMENU_RADIO_FASTMENUS = 0,
     SETTINGMENU_RADIO_LAYOUT = 1,
     SETTINGMENU_RADIO_MUSIC = 2,
-    SETTINGMENU_SCROLL_BOOT = 0 + 6
+    SETTINGMENU_SCROLL_BOOT = 0 + 8
 };
 
 enum RaceSettings {
@@ -58,15 +57,14 @@ enum RaceSettings {
     SETTINGRACE_RADIO_BATTLE,
     SETTINGRACE_RADIO_BLUES,
     SETTINGRACE_RADIO_SOM,
-    SETTINGRACE_SCROLL_SOM = 0 + 6
+    SETTINGRACE_SCROLL_SOM = 0 + 8
 };
 
 enum HostSettings {
     SETTINGHOST_RADIO_HOSTWINS = 0,
     SETTINGHOST_RADIO_CC = 1,
     SETTINGHOST_ALLOW_MIIHEADS = 2,
-    SETTINGHOST_RADIO_FORCETRANSMISSION = 3,
-    SETTINGHOST_SCROLL_GP_RACES = 0 + 6
+    SETTINGHOST_SCROLL_GP_RACES = 0 + 8
 };
 
 enum OTTSettings {
@@ -80,34 +78,31 @@ enum OTTSettings {
 enum KOSettings {
     SETTINGKO_ENABLED = 0,
     SETTINGKO_FINAL = 1,
-    SETTINGKO_KOPERRACE = 0 + 6,
-    SETTINGKO_RACESPERKO = 1 + 6
+    SETTINGKO_KOPERRACE = 0 + 8,
+    SETTINGKO_RACESPERKO = 1 + 8
 };
 
 enum RRettings {
     SETTINGRR_RADIO_TRANSMISSION = 0,
     SETTINGRR_RADIO_HARDAI = 1,
     SETTINGRR_RADIO_BRAKEDRIFT = 2,
-    SETTINGRR_RADIO_EXTENDEDTEAMS = 3,
-    SETTINGRR_RADIO_FOV = 4,
-    SETTINGRR_SCROLLER_WWMODE = 0 + 6,
+    SETTINGRR_RADIO_FOV = 3,
+    SETTINGRR_RADIO_CTMUSIC = 4,
+    SETTIGNRR_RADIO_FPS = 5,
+    SETTINGRR_RADIO_INPUTDISPLAY = 6,
+    SETTINGRR_RADIO_RANDOMBUTTON = 7,
+    SETTINGRR_SCROLLER_WWMODE = 0 + 8,
 };
 
-enum RR2Settings {
-    SETTINGRR2_RADIO_CTMUSIC = 0,
-    SETTINGRR2_RADIO_TIMES = 1,
-    SETTIGNRR2_RADIO_FPS = 2,
-    SETTINGRR2_RADIO_INPUTDISPLAY = 3,
-    SETTINGRR2_RADIO_RANDOMBUTTON = 4,
-};
-
-enum RR3Settings {
+enum RRHostSettings {
     SETTINGRR3_RADIO_KARTSELECT = 0,
     SETTINGRR3_RADIO_CHARSELECT = 1,
     SETTINGRR3_RADIO_ITEMBOXRESPAWN = 2,
     SETTINGRR3_RADIO_THUNDERCLOUD = 3,
-    SETTINGRR3_SCROLLER_ITEMMODE = 0 + 6,
-    SETTINGRR3_SCROLLER_TRACKSELECTION = 1 + 6
+    SETTINGRR3_RADIO_EXTENDEDTEAMS = 4,
+    SETTINGRR3_RADIO_FORCETRANSMISSION = 5,
+    SETTINGRR3_SCROLLER_ITEMMODE = 0 + 8,
+    SETTINGRR3_SCROLLER_TRACKSELECTION = 1 + 8
 };
 
 // MENU SETTINGS
