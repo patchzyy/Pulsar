@@ -114,7 +114,7 @@ void CtrlRaceInputViewer::OnUpdate() {
 
             bool isBrakedriftToggled = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW || RetroRewind::System::Is500cc();
             if (isBrakedriftToggled) {
-                bool BD = input->buttonActions & 0x2;
+                bool BD = input->buttonActions & 0x10;
                 setTrigger(Trigger_BD, BD ? TriggerState_Pressed : TriggerState_Off);
             }
         }
