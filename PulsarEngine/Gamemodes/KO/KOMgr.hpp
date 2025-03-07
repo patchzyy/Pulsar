@@ -15,6 +15,7 @@ enum Status {
     NORMAL,
     TIE,
     KOD,
+    DISCONNECTED
 };
 
 class Mgr {
@@ -90,12 +91,24 @@ public:
         return GetAidStatus(aid, hudslotId) == KOD;
     }
 
+    bool IsDisconnectedAid(u8 aid, u8 hudslotId) const {
+        return GetAidStatus(aid, hudslotId) == DISCONNECTED;
+    }
+
     bool IsKOdPlayerId(u8 playerId) const {
         return GetPlayerStatus(playerId) == KOD;
     }
 
+    bool IsDisconnectedPlayerId(u8 playerId) const {
+        return GetPlayerStatus(playerId) == DISCONNECTED;
+    }
+
     void SetKOd(u8 playerId) { 
         this->SetStatus(playerId, KOD); 
+    }
+
+    void SetDisconnected(u8 playerId) { 
+        this->SetStatus(playerId, DISCONNECTED); 
     }
 
     void SetTie(u8 playerId, u8 playerId2) {

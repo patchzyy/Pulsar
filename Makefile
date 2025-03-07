@@ -1,0 +1,47 @@
+CC := C:/Users/ZachPL/Documents/Source/Common/cw/mwcceppc.exe
+ENGINE := ./KamekInclude
+GAMESOURCE := ./GameSource
+PULSAR := ./PulsarEngine
+RIIVO := "C:/Users/ZachPL/AppData/Roaming/Dolphin Emulator/Load/Riivolution/RetroRewind6"
+CFLAGS := -I- -i $(ENGINE) -i $(GAMESOURCE) -i $(PULSAR) -opt all -inline auto -enum int -proc gekko -fp hard -sdata 0 -sdata2 0 -maxerrors 1 -func_align 4
+KAMEK := ./KamekLinker/Kamek.exe
+EXTERNALS := -externals=$(GAMESOURCE)/symbols.txt -externals=$(GAMESOURCE)/AntiCheat.txt -versions=$(GAMESOURCE)/versions.txt
+
+SRCS := $(shell find $(PULSAR) -type f -name "*.cpp")
+OBJS := $(patsubst $(PULSAR)/%.cpp, build/%.o, $(SRCS))
+
+all: build force_link
+
+.PHONY: all force_link
+
+test:
+	@echo "$(SRCS)"
+
+build:
+	@mkdir -p build
+
+build/kamek.o: $(ENGINE)/kamek.cpp | build
+	@$(CC) $(CFLAGS) -c -o $@ $<
+
+build/%.o: $(PULSAR)/%.cpp | build
+	@echo Compiling $<...
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) -c -o $@ $<
+
+force_link: build/kamek.o $(OBJS)
+	@echo Linking...
+	@$(KAMEK) $^ -dynamic $(EXTERNALS) -output-combined=build/Code.pul
+
+install: force_link
+	@echo Copying binaries to $(RIIVO)/Binaries...
+	@mkdir -p $(RIIVO)/Binaries
+	@cp build/Code.pul $(RIIVO)/Binaries
+
+installCT: force_link
+	@echo Copying binaries to $(RIIVO)/CT/Binaries...
+	@mkdir -p $(RIIVO)/CT/Binaries
+	@cp build/Code.pul $(RIIVO)/CT/Binaries
+
+clean:
+	@echo Cleaning...
+	@rm -rf build

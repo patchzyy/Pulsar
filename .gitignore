@@ -68,3 +68,6 @@ PulsarEngine/BinVerifier.hpp
 PulsarEngine/BinVerifier.cpp
 PulsarEngine/StaticRVerifier.cpp
 GameSource/AntiCheat.txt
+PulsarEngine/Dolphin/DolphinTimer.hpp
+PulsarEngine/Dolphin/DolphinTimer.cpp
+PulsarEngine/Dolphin/DolphinIOS.cpp

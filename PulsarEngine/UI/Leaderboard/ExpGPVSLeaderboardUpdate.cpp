@@ -15,11 +15,7 @@ void ExpGPVSLeaderboardUpdate::OnUpdate() {
 
 // Apply old toggle logic, set default display type
 void ExpGPVSLeaderboardUpdate::BeforeEntranceAnimations() {
-    if(static_cast<Pulsar::Times>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_TIMES)) == Pulsar::TIMES_DISABLED) {
-        setLeaderboardDisplayType(LEADERBOARD_DISPLAY_NAMES);
-    } else if(static_cast<Pulsar::Times>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_TIMES)) == Pulsar::TIMES_ENABLED) {
-        setLeaderboardDisplayType(LEADERBOARD_DISPLAY_TIMES);
-    }
+    setLeaderboardDisplayType(LEADERBOARD_DISPLAY_NAMES);
 
     if (System::sInstance->IsContext(PULSAR_MODE_OTT)) {
         setLeaderboardDisplayType(LEADERBOARD_DISPLAY_TIMES);

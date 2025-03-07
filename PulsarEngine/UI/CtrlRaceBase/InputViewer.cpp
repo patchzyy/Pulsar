@@ -122,7 +122,7 @@ void CtrlRaceInputViewer::OnUpdate() {
 }
 
 u32 CtrlRaceInputViewer::Count() {
-    if(static_cast<Pulsar::InputDisplay>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_INPUTDISPLAY)) == Pulsar::INPUTDISPLAY_ENABLED) {
+    if(static_cast<Pulsar::InputDisplay>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_INPUTDISPLAY)) == Pulsar::INPUTDISPLAY_ENABLED) {
         const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
         u32 localPlayerCount = scenario.localPlayerCount;
         const SectionId sectionId = SectionMgr::sInstance->curSection->sectionId;

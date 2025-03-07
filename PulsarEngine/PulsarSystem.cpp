@@ -13,6 +13,8 @@
 #include <UI/ExtendedTeamSelect/ExtendedTeamManager.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
 #include <core/egg/DVD/DvdRipper.hpp>
+#include <MarioKartWii/UI/Page/Other/FriendList.hpp>
+
 namespace Pulsar {
 
 System* System::sInstance = nullptr;
@@ -130,7 +132,7 @@ void System::UpdateContext() {
     bool isOTTOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_OTT && mode == MODE_PUBLIC_VS;
     bool isMiiHeads = settings.GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_MII);
     bool is200Online = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_SCROLLER_WWMODE) == WWMODE_200 && mode == MODE_PUBLIC_VS;
-    bool isExtendedTeams = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_EXTENDEDTEAMS) == EXTENDEDTEAMS_ENABLED;
+    bool isExtendedTeams = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_EXTENDEDTEAMS) == EXTENDEDTEAMS_ENABLED;
 
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
     Network::Mgr& netMgr = this->netMgr;
@@ -139,24 +141,25 @@ void System::UpdateContext() {
     bool is200 = racedataSettings.engineClass == CC_100 && this->info.Has200cc();
     bool is500 = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, HOSTSETTING_CC_500);
     bool isKOFinal = settings.GetSettingValue(Settings::SETTINGSTYPE_KO, SETTINGKO_FINAL) == KOSETTING_FINAL_ALWAYS;
-    bool isCharRestrictLight = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_CHARSELECT) == CHAR_LIGHTONLY;
-    bool isCharRestrictMid = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_CHARSELECT) == CHAR_MEDIUMONLY;
-    bool isCharRestrictHeavy = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_CHARSELECT) == CHAR_HEAVYONLY;
-    bool isKartRestrictKart = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_KARTSELECT) == KART_KARTONLY;
-    bool isKartRestrictBike = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_KARTSELECT) == KART_BIKEONLY;
-    bool isThunderCloud = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_THUNDERCLOUD);
-    bool isItemModeRandom = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_RANDOM;
-    bool isItemModeBlast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_BLAST;
-    bool isItemModeNone = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_NONE;
-    bool isTrackSelectionRegs = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_REGS;
-    bool isTrackSelectionRetros = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS && mode != MODE_PUBLIC_VS;
-    bool isTrackSelectionCts = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS && mode != MODE_PUBLIC_VS;
-    bool isTrackSelectionRetrosOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS && mode == MODE_PUBLIC_VS;
-    bool isTrackSelectionCtsOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS && mode == MODE_PUBLIC_VS;
+    bool isCharRestrictLight = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_CHARSELECT) == CHAR_LIGHTONLY;
+    bool isCharRestrictMid = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_CHARSELECT) == CHAR_MEDIUMONLY;
+    bool isCharRestrictHeavy = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_CHARSELECT) == CHAR_HEAVYONLY;
+    bool isKartRestrictKart = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_KARTSELECT) == KART_KARTONLY;
+    bool isKartRestrictBike = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_KARTSELECT) == KART_BIKEONLY;
+    bool isThunderCloud = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_THUNDERCLOUD);
+    bool isItemModeRandom = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_RANDOM;
+    bool isItemModeBlast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_BLAST;
+    bool isItemModeNone = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_NONE;
+    bool isItemModeRain = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_ITEMRAIN;
+    bool isTrackSelectionRegs = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_REGS;
+    bool isTrackSelectionRetros = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS && mode != MODE_PUBLIC_VS;
+    bool isTrackSelectionCts = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS && mode != MODE_PUBLIC_VS;
+    bool isTrackSelectionRetrosOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS && mode == MODE_PUBLIC_VS;
+    bool isTrackSelectionCtsOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS && mode == MODE_PUBLIC_VS;
     bool isChangeCombo = settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_ALLOWCHANGECOMBO) == OTTSETTING_COMBO_ENABLED;
-    bool isItemBoxRepsawnFast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RR3, SETTINGRR3_RADIO_ITEMBOXRESPAWN) == ITEMBOX_FASTRESPAWN;
-    bool IsTransmissionInside = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_FORCETRANSMISSION) == HOSTSETTING_FORCE_TRANSMISSION_INSIDE;
-    bool IsTransmissionOutside = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_FORCETRANSMISSION) == HOSTSETTING_FORCE_TRANSMISSION_OUTSIDE;
+    bool isItemBoxRepsawnFast = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_ITEMBOXRESPAWN) == ITEMBOX_FASTRESPAWN;
+    bool IsTransmissionInside = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGRR3_RADIO_FORCETRANSMISSION) == HOSTSETTING_FORCE_TRANSMISSION_INSIDE;
+    bool IsTransmissionOutside = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGRR3_RADIO_FORCETRANSMISSION) == HOSTSETTING_FORCE_TRANSMISSION_OUTSIDE;
     bool isFeather = this->info.HasFeather();
     bool isUMTs = this->info.HasUMTs();
     bool isMegaTC = this->info.HasMegaTC();
@@ -180,6 +183,7 @@ void System::UpdateContext() {
                 isItemModeRandom = newContext & (1 << PULSAR_ITEMMODERANDOM);
                 isItemModeBlast = newContext & (1 << PULSAR_ITEMMODEBLAST);
                 isItemModeNone = newContext & (1 << PULSAR_ITEMMODENONE);
+                isItemModeRain = newContext & (1 << PULSAR_ITEMRAIN);
                 isTrackSelectionRegs = newContext & (1 << PULSAR_REGS);
                 isTrackSelectionRetros = newContext & (1 << PULSAR_RETROS);
                 isTrackSelectionCts = newContext & (1 << PULSAR_CTS);
@@ -232,11 +236,51 @@ void System::UpdateContext() {
                           (isItemModeNone << PULSAR_ITEMMODENONE) | (isTrackSelectionRegs << PULSAR_REGS) | (isKOFinal << PULSAR_KOFINAL) |
                           (isItemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN) | (IsTransmissionInside << PULSAR_TRANSMISSIONINSIDE) | 
                           (IsTransmissionOutside << PULSAR_TRANSMISSIONOUTSIDE) | (isExtendedTeams << PULSAR_EXTENDEDTEAMS)
-                          | (isTrackSelectionRetros << PULSAR_RETROS) | (isTrackSelectionCts << PULSAR_CTS);
+                          | (isTrackSelectionRetros << PULSAR_RETROS) | (isTrackSelectionCts << PULSAR_CTS) | (isItemModeRain << PULSAR_ITEMRAIN);
     }
     
     // Combine the new context with preserved bits
     this->context = newContextValue | preserved;
+
+    // Set contexts based on region
+    const u32 region = this->netMgr.region;
+    switch (region) {
+        case 0x0A:  // Regular retro tracks
+            this->context |= (1 << PULSAR_RETROS);
+            sInstance->context &= ~(1 << PULSAR_200_WW);
+            sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+            break;
+            
+        case 0x0B:  // OTT with retro tracks
+            this->context |= (1 << PULSAR_RETROS);
+            sInstance->context &= ~(1 << PULSAR_200_WW);
+            this->context |= (1 << PULSAR_MODE_OTT);
+            break;
+            
+        case 0x0C:  // 200cc with retro tracks
+            this->context |= (1 << PULSAR_RETROS);
+            this->context |= (1 << PULSAR_200_WW);
+            sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+            break;
+            
+        case 0x14:  // CT (Custom Tracks)
+            this->context |= (1 << PULSAR_CTS);
+            sInstance->context &= ~(1 << PULSAR_200_WW);
+            sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+            break;
+            
+        case 0x15:  // OTT with custom tracks
+            this->context |= (1 << PULSAR_CTS);
+            sInstance->context &= ~(1 << PULSAR_200_WW);
+            this->context |= (1 << PULSAR_MODE_OTT);
+            break;
+            
+        case 0x16:  // 200cc with custom tracks
+            this->context |= (1 << PULSAR_CTS);
+            this->context |= (1 << PULSAR_200_WW);
+            sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+            break;
+    }
 
     //Create temp instances if needed:
     /*
@@ -316,5 +360,13 @@ const char System::CommonAssets[] = "/CommonAssets.szs";
 const char System::breff[] = "/Effect/Pulsar.breff";
 const char System::breft[] = "/Effect/Pulsar.breft";
 const char* System::ttModeFolders[] ={ "150", "200", "150F", "200F" };
+
+void FriendSelectPage_joinFriend(Pages::FriendInfo* _this, u32 animDir, float animLength) {
+    Pulsar::System::sInstance->netMgr.region = RKNet::Controller::sInstance->friends[_this->selectedFriendIdx].statusData.regionId;
+    return _this->EndStateAnimated(animDir, animLength);
+}
+
+kmCall(0x805d686c, FriendSelectPage_joinFriend);
+kmCall(0x805d6754, FriendSelectPage_joinFriend);
 
 }//namespace Pulsar

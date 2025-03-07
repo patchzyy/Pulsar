@@ -40,9 +40,44 @@ kmCall(0x80659788, PatchRegion);
 static int GetFriendsSearchType(int curType, u32 regionId) {
     register u8 friendRegionId;
     asm(mr friendRegionId, r0;);
-    if(System::sInstance->netMgr.region != friendRegionId) return curType;
-    else if(curType == 7) return 6;
-    else return 9;
+    
+    // Define special regions that can join each other.
+    const u8 specialRegions[] = {0xA, 0xB, 0xC, 0x14, 0x15, 0x16};
+    const int specialRegionsCount = sizeof(specialRegions) / sizeof(specialRegions[0]);
+    
+    // Check if player's region is in special regions
+    bool playerInSpecial = false;
+    for (int i = 0; i < specialRegionsCount; i++) {
+        if (System::sInstance->netMgr.region == specialRegions[i]) {
+            playerInSpecial = true;
+            break;
+        }
+    }
+    
+    // Check if friend's region is in special regions
+    bool friendInSpecial = false;
+    for (int i = 0; i < specialRegionsCount; i++) {
+        if (friendRegionId == specialRegions[i]) {
+            friendInSpecial = true;
+            break;
+        }
+    }
+    
+    // Allow joining if both are in special regions
+    if (playerInSpecial && friendInSpecial) {
+        WWFC_CUSTOM_REGION = friendRegionId;
+        System::sInstance->netMgr.region = friendRegionId;
+        
+        // Return regional search type instead of worldwide
+        if (curType == 7) return 6;
+        else return 9;
+    }
+    else if (System::sInstance->netMgr.region == friendRegionId) {
+        if (curType == 7) return 6;
+        else return 9;
+    }
+    
+    return curType;
 }
 kmBranch(0x8065a03c, GetFriendsSearchType);
 kmBranch(0x8065a088, GetFriendsSearchType);

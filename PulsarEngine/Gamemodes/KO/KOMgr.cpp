@@ -130,14 +130,14 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, size_t nit
             const u8 aid = controller->aidsBelongingToPlayerIds[playerId];
             if(aid >= 12) continue;
             
-            if((1 << aid & sub.availableAids) == 0 && !self->IsKOdPlayerId(playerId)) {
-                self->SetKOd(playerId);
+            if((1 << aid & sub.availableAids) == 0) {
+                self->SetDisconnected(playerId);
                 ++disconnectedKOs;
             }
         }
 
         u8 theoreKOs = self->koPerRace - ((playerCount - self->koPerRace == 1) && self->alwaysFinal); //remove exactly 1KO from the count if always final is on and only 1 player would be left
-        s8 realKOCount = theoreKOs - disconnectedKOs; //DCd players have already been eliminated
+        s8 realKOCount = theoreKOs; //DCd players have already been eliminated
 
         const Raceinfo* raceinfo = Raceinfo::sInstance;
         bool hasTies = false;
@@ -209,7 +209,7 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, size_t nit
             }
 
             //Reset the scores if no ties AND more than 1 race per KO
-            if(realKOCount > 0 && self->racesPerKO > 1 && !hasTies) {
+            if(self->racesPerKO > 1 && !hasTies && (SectionMgr::sInstance->sectionParams->onlineParams.currentRaceNumber + 1) % self->racesPerKO == 0) {
                 for(int idx = 0; idx < 12; ++idx) {
                     scenario.players[idx].score = 0;
                     scenario.players[idx].previousScore = 0;
@@ -219,7 +219,7 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, size_t nit
             //KO players (positions for 1 race per KO, otherwise scores) 
             for(int idx = 0; idx < realKOCount; ++idx) {
                 u8 playerId;
-                u32 position = (playerCount - 1) - disconnectedKOs - idx;
+                u32 position = (playerCount - 1) - idx;
                 if(self->racesPerKO == 1) playerId = raceinfo->playerIdInEachPosition[position];
                 else playerId = playerArr[position].playerId;
                 if (self->racesPerKO > 1 && playerCount > 2) {
@@ -320,13 +320,13 @@ void Mgr::PatchAids(RKNet::ControllerSub& sub) const {
     for(u8 aid = 0; aid < 12; ++aid) {
 
         bool isConsoleOut = false;
-        const bool isMainOut = this->IsKOdAid(aid, 0);
+        const bool isMainOut = this->IsKOdAid(aid, 0) || this->IsDisconnectedAid(aid, 0);
         u8 aidPlayerCount = aid == localAid ? sub.localPlayerCount : sub.connectionUserDatas[aid].playersAtConsole;
 
 
         if(aidPlayerCount <= 1) isConsoleOut = isMainOut;
         else if(aidPlayerCount == 2) {
-            const bool isGuestOut = this->IsKOdAid(aid, 1);
+            const bool isGuestOut = this->IsKOdAid(aid, 1) || this->IsDisconnectedAid(aid, 1);
             if(isMainOut && isGuestOut) isConsoleOut = true;
             else if(isMainOut != isGuestOut) {
                 aidPlayerCount = 1;
@@ -387,7 +387,7 @@ PageId Mgr::KickPlayersOut(PageId defaultId) { //only called if KOMode
 
     Mgr* mgr = system->koMgr;
     RacedataScenario& scenario = Racedata::sInstance->racesScenario;
-    const bool isMainOut = mgr->IsKOdPlayerId(scenario.settings.hudPlayerIds[0]);
+    const bool isMainOut = mgr->IsKOdPlayerId(scenario.settings.hudPlayerIds[0]) || mgr->IsDisconnectedPlayerId(scenario.settings.hudPlayerIds[0]);
     if(system->nonTTGhostPlayersCount > 2) {
         if(scenario.localPlayerCount == 1) {
             const RKNet::Controller* controller = RKNet::Controller::sInstance;
@@ -398,7 +398,7 @@ PageId Mgr::KickPlayersOut(PageId defaultId) { //only called if KOMode
             }
         }
         else {
-            const bool isGuestOut = mgr->IsKOdPlayerId(scenario.settings.hudPlayerIds[1]);
+            const bool isGuestOut = mgr->IsKOdPlayerId(scenario.settings.hudPlayerIds[1]) || mgr->IsDisconnectedPlayerId(scenario.settings.hudPlayerIds[1]);
             if(isMainOut != isGuestOut) SectionMgr::sInstance->sectionParams->localPlayerCount = 1;
             if(isMainOut && !isGuestOut) {
                 memcpy(&mgr->stats[0], &mgr->stats[1], sizeof(Mgr::Stats));

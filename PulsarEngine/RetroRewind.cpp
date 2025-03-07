@@ -59,7 +59,7 @@ void FPSPatch() {
   FPSPatchHook = 0x00;
   const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
   u32 localPlayerCount = scenario.localPlayerCount;
-  if (static_cast<Pulsar::FPS>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTIGNRR2_RADIO_FPS)) == Pulsar::FPS_HALF || localPlayerCount > 1) {
+  if (static_cast<Pulsar::FPS>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTIGNRR_RADIO_FPS)) == Pulsar::FPS_HALF || localPlayerCount > 1) {
       FPSPatchHook = 0x00FF0100;
   }
 }
@@ -146,6 +146,16 @@ void NoDCPatch() {
   }
 }
 static PageLoadHook PatchNoDC(NoDCPatch);
+
+void ItemRain() {
+  ItemRainHook = 0x00;
+  if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
+    if (Pulsar::System::sInstance->IsContext(Pulsar::PULSAR_ITEMRAIN)) {
+      ItemRainHook = 0x01;
+    }
+  }
+}
+static PageLoadHook PatchItemRain(ItemRain);
 
 extern "C" void ItemVanish(unsigned int r0, unsigned int r12) {
   if (Pulsar::System::sInstance->IsContext(Pulsar::PULSAR_MODE_OTT)) {
