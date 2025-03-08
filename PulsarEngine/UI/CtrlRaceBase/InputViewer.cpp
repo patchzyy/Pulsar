@@ -12,7 +12,10 @@ const s8 CtrlRaceInputViewer::DPAD_HOLD_FOR_N_FRAMES = 10;
 
 void CtrlRaceInputViewer::Init() {
     char name[32];
-    bool isBrakedriftToggled = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
+    const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
+    const GameMode mode = scenario.settings.gamemode;
+    bool isBrakedriftToggled = (Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW) || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
+    && mode != MODE_TIME_TRIAL && !System::sInstance->IsContext(PULSAR_MODE_OTT));
     RacedataScenario& raceScenario = Racedata::sInstance->racesScenario;
     
     for (int i = 0; i < (int)DpadState_Count; ++i) {
@@ -112,7 +115,10 @@ void CtrlRaceInputViewer::OnUpdate() {
             setTrigger(Trigger_R, R ? TriggerState_Pressed : TriggerState_Off);
             setStick(stick);
 
-            bool isBrakedriftToggled = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW || RetroRewind::System::Is500cc();
+            const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
+            const GameMode mode = scenario.settings.gamemode;
+            bool isBrakedriftToggled = (Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW) || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
+            && mode != MODE_TIME_TRIAL && !System::sInstance->IsContext(PULSAR_MODE_OTT));
             if (isBrakedriftToggled) {
                 bool BD = input->buttonActions & 0x10;
                 setTrigger(Trigger_BD, BD ? TriggerState_Pressed : TriggerState_Off);
