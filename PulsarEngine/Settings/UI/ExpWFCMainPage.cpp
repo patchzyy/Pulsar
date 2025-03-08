@@ -62,6 +62,10 @@ void ExpWFCMain::BeforeControlUpdate() {
     Text::Info info;
     info.intToPass[0] = RR_numOTT + RR_num200cc + RR_num150cc + CT_num150cc + CT_num200cc + CT_numOTT + numRegulars;
     this->playerCount.SetTextBoxMessage("go", BMG_PLAYER_COUNT, &info);
+
+    if (!Dolphin::IsEmulator()) {
+        this->playerCount.isHidden = true;
+    }
 }
 
 //ExpWFCModeSel
@@ -329,6 +333,15 @@ void ExpWFCModeSel::BeforeControlUpdate() {
 
     info.intToPass[0] = vr;
     this->vrButton.SetTextBoxMessage("go", Pulsar::UI::BMG_VR_RATING, &info);
+
+    if (!Dolphin::IsEmulator()) {
+        this->vsButton.SetPaneVisibility("capsul_null", true);
+        this->ottButton.SetPaneVisibility("capsul_null", true);
+        this->twoHundredButton.SetPaneVisibility("capsul_null", true);
+        this->ctButton.SetPaneVisibility("capsul_null", true);
+        this->ottButtonCT.SetPaneVisibility("capsul_null", true);
+        this->twoHundredButtonCT.SetPaneVisibility("capsul_null", true);
+    }
 }
 
 } // namespace UI
