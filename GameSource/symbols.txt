@@ -2075,3 +2075,4 @@ SCGetProductCode = 0x801b2424
 #Comp
 Comp_encodeSZS = 0x802156ac
 ItemRainHook = 0x80000B24
+current_time = 0x800f24c8

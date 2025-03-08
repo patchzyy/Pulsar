@@ -55,7 +55,23 @@ bool GetElapsedTime(u32& elapsedTime) {
         &request) >= 0;
 }
 
-// bool GetVersion(char* version, u32 length);
+bool GetVersion(char* version, u32 length) {
+    if (OpenDolphin() < 0) {
+        return false;
+    }
+
+    IOS::IOCtlvRequest request;
+    request.address = version;
+    request.size = length;
+
+    return IOS::IOCtlv(
+        s_dolphinFD,
+        (IOS::IOCtlType)IOCTL_DOLPHIN_GET_VERSION,
+        0,
+        1,
+        &request) >= 0;
+}
+
 // bool GetSpeedLimit(u32& speedLimit);
 // bool SetSpeedLimit(u32& speedLimit);
 // bool GetCPUSpeed(u32& cpuSpeed);
