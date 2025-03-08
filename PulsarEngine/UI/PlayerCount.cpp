@@ -294,8 +294,11 @@ void hook_DWC_SetReportLevel(u32 level) {
 }
 
 void hook_Section_calc(Section* _this) {
-    hookLocalTimer += 1.0f / 60.0f;
     _this->UpdateLayers();
+    if (!Dolphin::IsEmulator())
+        return;
+
+    hookLocalTimer += 1.0f / 60.0f;
 
     if (hasQR2Initialized
     && !isHookedRequest

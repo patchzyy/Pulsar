@@ -10,6 +10,7 @@
 #include <core/rvl/DWC/DWCMatch.hpp>
 #include <core/GS/GSAvailable.hpp>
 #include <MarioKartWii/RKSYS/RKSYSMgr.hpp>
+#include <Dolphin/DolphinIOS.hpp>
 
 namespace PlayerCount {
 
