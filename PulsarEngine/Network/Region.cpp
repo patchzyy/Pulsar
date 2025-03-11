@@ -4,6 +4,7 @@
 #include <Settings/Settings.hpp>
 #include <Network/WiiLink.hpp>
 #include <Network/Network.hpp>
+#include <MarioKartWii/RKNet/RKNetController.hpp>
 
 namespace Pulsar {
 namespace Network {
@@ -40,44 +41,16 @@ kmCall(0x80659788, PatchRegion);
 static int GetFriendsSearchType(int curType, u32 regionId) {
     register u8 friendRegionId;
     asm(mr friendRegionId, r0;);
-    
-    // Define special regions that can join each other.
-    const u8 specialRegions[] = {0xA, 0xB, 0xC, 0x14, 0x15, 0x16};
-    const int specialRegionsCount = sizeof(specialRegions) / sizeof(specialRegions[0]);
-    
-    // Check if player's region is in special regions
-    bool playerInSpecial = false;
-    for (int i = 0; i < specialRegionsCount; i++) {
-        if (System::sInstance->netMgr.region == specialRegions[i]) {
-            playerInSpecial = true;
-            break;
-        }
-    }
-    
-    // Check if friend's region is in special regions
-    bool friendInSpecial = false;
-    for (int i = 0; i < specialRegionsCount; i++) {
-        if (friendRegionId == specialRegions[i]) {
-            friendInSpecial = true;
-            break;
-        }
-    }
-    
-    // Allow joining if both are in special regions
-    if (playerInSpecial && friendInSpecial) {
-        WWFC_CUSTOM_REGION = friendRegionId;
-        System::sInstance->netMgr.region = friendRegionId;
-        
-        // Return regional search type instead of worldwide
+    if ((System::sInstance->netMgr.region == 0x0A || System::sInstance->netMgr.region == 0x0B || System::sInstance->netMgr.region == 0x0C ||
+        System::sInstance->netMgr.region == 0x14 || System::sInstance->netMgr.region == 0x15 || System::sInstance->netMgr.region == 0x16) ||
+        (friendRegionId == 0x0A || friendRegionId == 0x0B || friendRegionId == 0x0C ||
+        friendRegionId == 0x14 || friendRegionId == 0x15 || friendRegionId == 0x16)) {
         if (curType == 7) return 6;
-        else return 9;
+        return 9;
     }
-    else if (System::sInstance->netMgr.region == friendRegionId) {
-        if (curType == 7) return 6;
-        else return 9;
-    }
-    
-    return curType;
+    if (System::sInstance->netMgr.region != friendRegionId) return curType;
+    if (curType == 7) return 6;
+    return 9;
 }
 kmBranch(0x8065a03c, GetFriendsSearchType);
 kmBranch(0x8065a088, GetFriendsSearchType);

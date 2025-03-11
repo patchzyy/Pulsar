@@ -242,44 +242,46 @@ void System::UpdateContext() {
     // Combine the new context with preserved bits
     this->context = newContextValue | preserved;
 
-    // Set contexts based on region
+    // Set contexts based on region for regionals
     const u32 region = this->netMgr.region;
-    switch (region) {
-        case 0x0A:  // Regular retro tracks
-            this->context |= (1 << PULSAR_RETROS);
-            sInstance->context &= ~(1 << PULSAR_200_WW);
-            sInstance->context &= ~(1 << PULSAR_MODE_OTT);
-            break;
-            
-        case 0x0B:  // OTT with retro tracks
-            this->context |= (1 << PULSAR_RETROS);
-            sInstance->context &= ~(1 << PULSAR_200_WW);
-            this->context |= (1 << PULSAR_MODE_OTT);
-            break;
-            
-        case 0x0C:  // 200cc with retro tracks
-            this->context |= (1 << PULSAR_RETROS);
-            this->context |= (1 << PULSAR_200_WW);
-            sInstance->context &= ~(1 << PULSAR_MODE_OTT);
-            break;
-            
-        case 0x14:  // CT (Custom Tracks)
-            this->context |= (1 << PULSAR_CTS);
-            sInstance->context &= ~(1 << PULSAR_200_WW);
-            sInstance->context &= ~(1 << PULSAR_MODE_OTT);
-            break;
-            
-        case 0x15:  // OTT with custom tracks
-            this->context |= (1 << PULSAR_CTS);
-            sInstance->context &= ~(1 << PULSAR_200_WW);
-            this->context |= (1 << PULSAR_MODE_OTT);
-            break;
-            
-        case 0x16:  // 200cc with custom tracks
-            this->context |= (1 << PULSAR_CTS);
-            this->context |= (1 << PULSAR_200_WW);
-            sInstance->context &= ~(1 << PULSAR_MODE_OTT);
-            break;
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL) {
+        switch (region) {
+            case 0x0A:  // Regular retro tracks
+                this->context |= (1 << PULSAR_RETROS);
+                sInstance->context &= ~(1 << PULSAR_200_WW);
+                sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+                break;
+                
+            case 0x0B:  // OTT with retro tracks
+                this->context |= (1 << PULSAR_RETROS);
+                sInstance->context &= ~(1 << PULSAR_200_WW);
+                this->context |= (1 << PULSAR_MODE_OTT);
+                break;
+                
+            case 0x0C:  // 200cc with retro tracks
+                this->context |= (1 << PULSAR_RETROS);
+                this->context |= (1 << PULSAR_200_WW);
+                sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+                break;
+                
+            case 0x14:  // CT (Custom Tracks)
+                this->context |= (1 << PULSAR_CTS);
+                sInstance->context &= ~(1 << PULSAR_200_WW);
+                sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+                break;
+                
+            case 0x15:  // OTT with custom tracks
+                this->context |= (1 << PULSAR_CTS);
+                sInstance->context &= ~(1 << PULSAR_200_WW);
+                this->context |= (1 << PULSAR_MODE_OTT);
+                break;
+                
+            case 0x16:  // 200cc with custom tracks
+                this->context |= (1 << PULSAR_CTS);
+                this->context |= (1 << PULSAR_200_WW);
+                sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+                break;
+        }
     }
 
     //Create temp instances if needed:
@@ -356,7 +358,10 @@ kmWrite32(0x80549974, 0x38600001);
 kmRegionWrite32(0x80604094, 0x4800001c, 'E');
 
 //Retro Rewind Pack ID
-kmWrite32(0x800017D0, 0x291);
+kmWrite32(0x800017D0, 0x0A);
+
+//Retro Rewind Internal Version
+kmWrite32(0x800017D4, 0x00000002);
 
 const char System::pulsarString[] = "/Pulsar";
 const char System::CommonAssets[] = "/CommonAssets.szs";
