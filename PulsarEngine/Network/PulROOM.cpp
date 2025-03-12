@@ -103,19 +103,19 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
         if(koSetting == KOSETTING_ENABLED) raceCount = 0xFE;
         else switch(settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_SCROLL_GP_RACES)) {
             case(1):
-            raceCount = 7;
+            raceCount = 5;
             break;
         case(2):
-            raceCount = 11;
+            raceCount = 7;
             break;
         case(3):
-            raceCount = 23;
+            raceCount = 11;
             break;
         case(4):
-            raceCount = 31;
+            raceCount = 23;
             break;
         case(5):
-            raceCount = 63;
+            raceCount = 31;
             break;
         case(6):
             raceCount = 1;
