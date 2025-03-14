@@ -88,7 +88,7 @@ void RoomKickPage::BeforeControlUpdate() {
 
     for(int remIdx = idx; remIdx < 12; ++remIdx) {
         this->miis[remIdx].isHidden = false; // Change to true if you don't want to display empty slots
-        this->miis[remIdx].manipulator.inaccessible = true;
+        this->miis[remIdx].manipulator.inaccessible = false;
         this->miis[remIdx].SetPicturePane("chara", "no_linkmii");
         this->miis[remIdx].SetPicturePane("chara_shadow", "no_linkmii");
         this->miis[remIdx].SetPicturePane("chara_c_down", "no_linkmii");
@@ -165,8 +165,26 @@ void RoomKickPage::OnBackPress(u32 hudSlotId) {
 
 void RoomKickPage::OnYesNoClick(u32 choice, PushButton& button) {
     if (choice == 0) {
+        DWC::NodeInfo* nodes = DWC::MatchControl::sInstance->nodes;
+        for (int i = 0; i < 32; ++i) {
+            if (nodes[i].aid == this->aidIdx[this->selectedIdx]) {
+                this->kickedPIDs[this->kickedCount % 64] = nodes[i].pid;
+                ++this->kickedCount;
+                break;
+            }
+        }
+        
         DWC::CloseConnectionHard(this->aidIdx[this->selectedIdx]);
     }
+}
+
+void RoomKickPage::ClearKickHistory() {
+    this->kickedCount = 0;
+}
+
+u32* RoomKickPage::GetKickHistory(u32 &outCount) {
+    outCount = this->kickedCount;
+    return this->kickedPIDs;
 }
 
 void RoomKickPage::OnButtonClick(PushButton& button, u32 hudSlotId) {
