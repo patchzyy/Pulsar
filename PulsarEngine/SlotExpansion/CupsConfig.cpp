@@ -271,11 +271,6 @@ PulsarCupId CupsConfig::GetNextCupId(PulsarCupId pulsarId, s32 direction) const 
         if (System::sInstance->IsContext(PULSAR_CTS)) isCTOnly = TRACKSELECTION_CTS;
         if (System::sInstance->IsContext(PULSAR_REGS)) isRegsOnly = TRACKSELECTION_REGS;
     }
-    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
-        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS) isRetroOnly = TRACKSELECTION_RETROS;
-        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS) isCTOnly = TRACKSELECTION_CTS;
-        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_REGS) isRegsOnly = TRACKSELECTION_REGS;
-    }
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) {
        if (System::sInstance->netMgr.region == 0x0A || System::sInstance->netMgr.region == 0x0B || System::sInstance->netMgr.region == 0x0C) isRetroOnly = TRACKSELECTION_RETROS;
        if (System::sInstance->netMgr.region == 0x14 || System::sInstance->netMgr.region == 0x15 || System::sInstance->netMgr.region == 0x16) isCTOnly = TRACKSELECTION_CTS;
