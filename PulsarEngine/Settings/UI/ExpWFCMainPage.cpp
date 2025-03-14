@@ -64,7 +64,7 @@ void ExpWFCMain::BeforeControlUpdate() {
     this->playerCount.SetTextBoxMessage("go", BMG_PLAYER_COUNT, &info);
 
     if (!Dolphin::IsEmulator()) {
-        this->playerCount.isHidden = true;
+        this->playerCount.SetPaneVisibility("capsul_null", false);
     }
 }
 
@@ -156,33 +156,26 @@ void ExpWFCModeSel::OnModeButtonClick(PushButton& modeButton, u32 hudSlotId) {
     ClearModeContexts();
     
     if (id == ottButtonId) {
-        System::sInstance->context |= (1 << PULSAR_RETROS);
-        System::sInstance->context |= (1 << PULSAR_MODE_OTT);
         System::sInstance->netMgr.region = 0x0B;
     }
     else if (id == twoHundredButtonId) {
-        System::sInstance->context |= (1 << PULSAR_RETROS);
-        System::sInstance->context |= (1 << PULSAR_200_WW);
         System::sInstance->netMgr.region = 0x0C;
     }
     else if (id == ctButtonId) {
-        System::sInstance->context |= (1 << PULSAR_CTS);
         System::sInstance->netMgr.region = 0x14;
     }
     else if (id == ottButtonIdCT) {
-        System::sInstance->context |= (1 << PULSAR_CTS);
-        System::sInstance->context |= (1 << PULSAR_MODE_OTT);
         System::sInstance->netMgr.region = 0x15;
     }
     else if (id == twoHundredButtonIdCT) {
-        System::sInstance->context |= (1 << PULSAR_CTS);
-        System::sInstance->context |= (1 << PULSAR_200_WW);
         System::sInstance->netMgr.region = 0x16;
     }
     else {
-        System::sInstance->context |= (1 << PULSAR_RETROS);
         System::sInstance->netMgr.region = 0x0A;
     }
+
+    // Update contexts based on the region number
+    System::sInstance->UpdateContextWrapper();
 
     this->lastClickedButton = id;
     WFCModeSelect::OnModeButtonClick(modeButton, hudSlotId);
@@ -335,12 +328,12 @@ void ExpWFCModeSel::BeforeControlUpdate() {
     this->vrButton.SetTextBoxMessage("go", Pulsar::UI::BMG_VR_RATING, &info);
 
     if (!Dolphin::IsEmulator()) {
-        this->vsButton.SetPaneVisibility("capsul_null", true);
-        this->ottButton.SetPaneVisibility("capsul_null", true);
-        this->twoHundredButton.SetPaneVisibility("capsul_null", true);
-        this->ctButton.SetPaneVisibility("capsul_null", true);
-        this->ottButtonCT.SetPaneVisibility("capsul_null", true);
-        this->twoHundredButtonCT.SetPaneVisibility("capsul_null", true);
+        this->vsButton.SetPaneVisibility("capsul_null", false);
+        this->ottButton.SetPaneVisibility("capsul_null", false);
+        this->twoHundredButton.SetPaneVisibility("capsul_null", false);
+        this->ctButton.SetPaneVisibility("capsul_null", false);
+        this->ottButtonCT.SetPaneVisibility("capsul_null", false);
+        this->twoHundredButtonCT.SetPaneVisibility("capsul_null", false);
     }
 }
 

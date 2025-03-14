@@ -74,7 +74,7 @@ void ExpFroom::OnSettingsButtonClick(PushButton& button, u32 hudSlotId) {
 
 void ExpFroom::OnTeamsButtonClick(PushButton& button, u32 hudSlotId) {
     this->areControlsHidden = true;
-    if (true) {
+    if (Settings::Mgr::Get().GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_EXTENDEDTEAMS) == EXTENDEDTEAMS_ENABLED) {
         this->AddPageLayer(static_cast<PageId>(PULPAGE_EXTENDEDTEAMSELECT), 0);
     } else {
         this->AddPageLayer(static_cast<PageId>(PULPAGE_TEAMSELECT), 0);

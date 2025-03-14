@@ -2076,3 +2076,6 @@ SCGetProductCode = 0x801b2424
 Comp_encodeSZS = 0x802156ac
 ItemRainHook = 0x80000B24
 current_time = 0x800f24c8
+
+Update__8ElineMgrFv = 0x8052d888
+UpdateFromPrevRace__16RacedataScenarioFv = 0x8052f1e0
