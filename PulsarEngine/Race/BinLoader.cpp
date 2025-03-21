@@ -2,7 +2,7 @@
 #include <MarioKartWii/Archive/ArchiveMgr.hpp>
 #include <MarioKartWii/RKNet/RKNetController.hpp>
 #include <core/rvl/os/OS.hpp>
-#include <BinVerifier.hpp>
+#include <Security/BinVerifier.hpp>
 
 namespace RetroRewind {
 

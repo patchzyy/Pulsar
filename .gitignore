@@ -71,3 +71,12 @@ GameSource/AntiCheat.txt
 PulsarEngine/Dolphin/DolphinTimer.hpp
 PulsarEngine/Dolphin/DolphinTimer.cpp
 PulsarEngine/Dolphin/DolphinIOS.cpp
+PulsarEngine/Network/RoomKey.cpp
+PulsarEngine/Security/StaticRVerifier.cpp
+PulsarEngine/Security/HashUtils.hpp
+PulsarEngine/Security/HashUtils.cpp
+PulsarEngine/Security/Hashes.hpp
+PulsarEngine/Security/BinVerifier.hpp
+PulsarEngine/Security/BinVerifier.cpp
+PulsarEngine/Security/AntiCheat.hpp
+PulsarEngine/Security/AntiCheat.cpp

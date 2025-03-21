@@ -119,6 +119,14 @@ end:
 }
 kmCall(0x807A1A54, AntiItemColCrash);
 
+//Mii Outfit C Anti-Crash
+kmWrite8(0x8089089D, 0x00000062);
+kmWrite8(0x808908A9, 0x00000062);
+kmWrite8(0x808908E5, 0x00000062);
+kmWrite8(0x808908F1, 0x00000062);
+kmWrite8(0x8089092D, 0x00000062);
+kmWrite8(0x80890939, 0x00000062);
+
 //Allow All Vehicles in Battle Mode [Nameless, Scruffy]
 kmWrite32(0x80553F98, 0x3880000A);
 kmWrite32(0x8084FEF0, 0x48000044);
