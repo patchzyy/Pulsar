@@ -22,7 +22,7 @@ u8 Params::buttonsPerPagePerRow[Params::pageCount][Params::maxRadioCount] = //fi
     { 2, 2, 2, 2, 2, 0, 0, 0 }, //OTT
     { 2, 2, 0, 0, 0, 0, 0, 0 }, //KO
     { 4, 2, 2, 3, 2, 2, 2, 2 }, //RR1
-    { 3, 4, 2, 2, 2, 3, 0, 0 }, //RRHost
+    { 3, 4, 2, 2, 2, 4, 0, 0 }, //RRHost
 };
 
 u8 Params::optionsPerPagePerScroller[Params::pageCount][Params::maxScrollerCount] =

@@ -147,16 +147,6 @@ void NoDCPatch() {
 }
 static PageLoadHook PatchNoDC(NoDCPatch);
 
-void ItemRain() {
-  ItemRainHook = 0x00;
-  if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
-    if (Pulsar::System::sInstance->IsContext(Pulsar::PULSAR_ITEMRAIN)) {
-      ItemRainHook = 0x01;
-    }
-  }
-}
-static PageLoadHook PatchItemRain(ItemRain);
-
 extern "C" void ItemVanish(unsigned int r0, unsigned int r12) {
   if (Pulsar::System::sInstance->IsContext(Pulsar::PULSAR_MODE_OTT)) {
     if(r12 == 0) return;

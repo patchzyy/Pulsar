@@ -182,12 +182,6 @@ enum HostSettingMiiHeads {
     HOSTSETTING_ALLOW_MIIHEADS_DISABLED
 };
 
-enum HostSettingForceTransmission {
-    HOSTSETTING_FORCE_TRANSMISSION_DEFAULT,
-    HOSTSETTING_FORCE_TRANSMISSION_INSIDE,
-    HOSTSETTING_FORCE_TRANSMISSION_OUTSIDE
-};
-
 enum HostSettingGPRACES {
     HOSTSETTING_GP_RACES_4,
     HOSTSETTING_GP_RACES_8,
@@ -265,32 +259,15 @@ enum BrakeDrift {
     BRAKEDRIFT_ENABLED
 };
 
-enum ExtendedTeams {
-    EXTENDEDTEAMS_DISABLED,
-    EXTENDEDTEAMS_ENABLED
-};
-
 enum FOVChange {
     FOV_CHANGE_DEFAULT,
     FOV_CHANGE_16_9,
     FOV_CHANGE_4_3
 };
 
-enum WWMode {
-    WWMODE_DEFAULT,
-    WWMODE_OTT,
-    WWMODE_200
-};
-
-// RR2 Settings
 enum CTMusic {
     CTMUSIC_ENABLED,
     CTMUSIC_DISABLED
-};
-
-enum Times {
-    TIMES_DISABLED,
-    TIMES_ENABLED
 };
 
 enum FPS {
@@ -308,7 +285,7 @@ enum RandomButton {
     RANDOMBUTTON_DISABLED
 };
 
-// RR3 Settings
+// RRHost Settings
 enum KartRestriction {
     KART_DEFAULTSELECTION,
     KART_KARTONLY,
@@ -332,6 +309,18 @@ enum ThunderCloud {
     THUNDERCLOUD_NORMAL
 };
 
+enum ExtendedTeams {
+    EXTENDEDTEAMS_DISABLED,
+    EXTENDEDTEAMS_ENABLED
+};
+
+enum ForceTransmission {
+    FORCE_TRANSMISSION_DEFAULT,
+    FORCE_TRANSMISSION_INSIDE,
+    FORCE_TRANSMISSION_OUTSIDE,
+    FORCE_TRANSMISSION_VANILLA
+};
+
 enum ItemMode {
     GAMEMODE_DEFAULT,
     GAMEMODE_RANDOM,
@@ -345,6 +334,13 @@ enum TrackSelection {
     TRACKSELECTION_CTS,
     TRACKSELECTION_ALL,
     TRACKSELECTION_REGS
+};
+
+//Extra
+enum WWMode {
+    WWMODE_DEFAULT,
+    WWMODE_OTT,
+    WWMODE_200
 };
 
 } // namespace Pulsar

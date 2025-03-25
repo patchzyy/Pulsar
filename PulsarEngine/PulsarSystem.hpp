@@ -46,7 +46,6 @@ enum Context {
     PULSAR_ITEMMODERANDOM,
     PULSAR_ITEMMODEBLAST,
     PULSAR_ITEMMODENONE,
-    PULSAR_ITEMRAIN,
     PULSAR_REGS,
     PULSAR_RETROS,
     PULSAR_CTS,
@@ -54,8 +53,8 @@ enum Context {
     PULSAR_ITEMBOXRESPAWN,
     PULSAR_TRANSMISSIONINSIDE,
     PULSAR_TRANSMISSIONOUTSIDE,
+    PULSAR_TRANSMISSIONVANILLA,
     PULSAR_EXTENDEDTEAMS,
-    PULSAR_CONTEXT_COUNT,
 };
 
 
@@ -119,7 +118,7 @@ public:
     char modFolderName[IOS::ipcMaxFileName + 1]; //0xC
     u8 padding[2];
     Info info; //0x1c
-    u32 context;
+    u64 context;
 
 public:
     //Network variables only set when reading a ROOM packet that starts the GP; they are only ever used in UpdateState; no need to clear them as ROOM will reupdat ethem
