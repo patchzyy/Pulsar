@@ -45,10 +45,16 @@ kmCall(0x80799808, SetStartingItem);
 //From JoshuaMK, ported to C++ by Brawlbox and adapted as a setting
 static int MiiHeads(Racedata* racedata, u32 unused, u32 unused2, u8 id) {
     CharacterId charId = racedata->racesScenario.players[id].characterId;
-    if (System::sInstance->IsContext(PULSAR_MIIHEADS)) {
-        if (charId < MII_M) {
-            if (id == 0) charId = MII_M;
-            else if (RKNet::Controller::sInstance->connectionState != 0) charId = MII_M;
+    bool miiHeadFroom = HOSTSETTING_ALLOW_MIIHEADS_ENABLED;
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
+        miiHeadFroom = System::sInstance->IsContext(PULSAR_MIIHEADS) ? HOSTSETTING_ALLOW_MIIHEADS_ENABLED : HOSTSETTING_ALLOW_MIIHEADS_DISABLED;
+    }
+    if (Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_MII) == RACESETTING_MII_ENABLED) {
+        if (miiHeadFroom == HOSTSETTING_ALLOW_MIIHEADS_ENABLED) {
+            if (charId < MII_M) {
+                if (id == 0) charId = MII_M;
+                else if (RKNet::Controller::sInstance->connectionState != 0) charId = MII_M;
+            }
         }
     }
     return charId;
@@ -88,10 +94,7 @@ static void BattleGlitchEnable() {
 RaceFrameHook BattleGlitch(BattleGlitchEnable);
 
 static void DisplayTimesInsteadOfNames(CtrlRaceResult& result, u8 id) {
-    if(static_cast<Pulsar::Times>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_TIMES)) == Pulsar::TIMES_DISABLED)
     result.FillName(id);
-    if(static_cast<Pulsar::Times>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_TIMES)) == Pulsar::TIMES_ENABLED)
-    result.FillFinishTime(id);
 }
 kmCall(0x8085d460, DisplayTimesInsteadOfNames); //for WWs
 
@@ -130,14 +133,22 @@ kmWrite24(0x808A9C16, 'PUL'); //item_window_new -> item_window_PUL
 
 const char* ChangeItemWindowPane(ItemId id, u32 itemCount) {
     const bool feather = System::sInstance->IsContext(PULSAR_FEATHER);
-    const bool megaTC = System::sInstance->IsContext(PULSAR_MEGATC);
+    bool MegaTC = true;
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || 
+        RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
+        if (System::sInstance->IsContext(PULSAR_THUNDERCLOUD) == THUNDERCLOUD_NORMAL) {
+            MegaTC = false;
+        } else {
+            MegaTC = true;
+        }
+    }
     const char* paneName;
     if (id == BLOOPER && feather) {
         if (itemCount == 2) paneName = "feather_2";
         else if (itemCount == 3) paneName = "feather_3";
         else paneName = "feather";
     }
-    else if (id == THUNDER_CLOUD && megaTC) paneName = "megaTC";
+    else if (id == THUNDER_CLOUD && MegaTC && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW) paneName = "megaTC";
     else paneName = GetItemIconPaneName(id, itemCount);
     return paneName;
 }

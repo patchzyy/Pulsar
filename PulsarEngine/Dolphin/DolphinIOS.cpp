@@ -3,10 +3,19 @@
 namespace Dolphin {
 
 static s32 s_dolphinFD = -1;
+static bool s_isEmulator = false;
+static bool s_isEmulatorChecked = false;
 
 int OpenDolphin() {
     if(s_dolphinFD < 0) {
         s_dolphinFD = IOS::Open("/dev/dolphin", IOS::MODE_NONE);
+        if (s_dolphinFD < 0) {
+            s_isEmulator = false;
+        } else {
+            s_isEmulator = true;
+        }
+
+        s_isEmulatorChecked = true;
     }
 
     return s_dolphinFD;
@@ -22,7 +31,11 @@ int CloseDolphin() {
 }
 
 bool IsEmulator() {
-    return OpenDolphin() >= 0;
+    if (!s_isEmulatorChecked) {
+        OpenDolphin();
+    }
+
+    return s_isEmulator;
 }
 
 bool GetElapsedTime(u32& elapsedTime) {
@@ -42,7 +55,23 @@ bool GetElapsedTime(u32& elapsedTime) {
         &request) >= 0;
 }
 
-// bool GetVersion(char* version, u32 length);
+bool GetVersion(char* version, u32 length) {
+    if (OpenDolphin() < 0) {
+        return false;
+    }
+
+    IOS::IOCtlvRequest request;
+    request.address = version;
+    request.size = length;
+
+    return IOS::IOCtlv(
+        s_dolphinFD,
+        (IOS::IOCtlType)IOCTL_DOLPHIN_GET_VERSION,
+        0,
+        1,
+        &request) >= 0;
+}
+
 // bool GetSpeedLimit(u32& speedLimit);
 // bool SetSpeedLimit(u32& speedLimit);
 // bool GetCPUSpeed(u32& cpuSpeed);

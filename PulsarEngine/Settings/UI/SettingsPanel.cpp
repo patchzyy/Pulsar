@@ -93,7 +93,7 @@ void SettingsPanel::OnInit() {
             this->radioSettings[i][radioIdx] = settings.GetSettingValue(static_cast<Settings::Type>(i), radioIdx);
         }
         for(int scrollerIdx = 0; scrollerIdx < Settings::Params::scrollerCount[i]; ++scrollerIdx) {
-            this->scrollerSettings[i][scrollerIdx] = settings.GetSettingValue(static_cast<Settings::Type>(i), scrollerIdx + 6);
+            this->scrollerSettings[i][scrollerIdx] = settings.GetSettingValue(static_cast<Settings::Type>(i), scrollerIdx + 8);
         }
     }
     MenuInteractable::OnInit();
@@ -225,7 +225,7 @@ void SettingsPanel::OnActivate() {
         if (this->sheetIdx == Settings::SETTINGSTYPE_KO || 
             this->sheetIdx == Settings::SETTINGSTYPE_OTT ||
             this->sheetIdx == Settings::SETTINGSTYPE_HOST ||
-            this->sheetIdx == Settings::SETTINGSTYPE_RR3) {
+            this->sheetIdx == Settings::SETTINGSTYPE_RRHOST) {
             return;
         }
     }
@@ -349,7 +349,7 @@ void SettingsPanel::OnButtonClick(PushButton& button, u32 direction) {
         while (nextIdx == Settings::SETTINGSTYPE_KO || 
                nextIdx == Settings::SETTINGSTYPE_OTT ||
                nextIdx == Settings::SETTINGSTYPE_HOST ||
-               nextIdx == (Settings::SETTINGSTYPE_RR3 + Settings::Params::pulsarPageCount)) {
+               nextIdx == (Settings::SETTINGSTYPE_RRHOST + Settings::Params::pulsarPageCount)) {
             nextIdx = (nextIdx + direction + Settings::Params::pageCount) % Settings::Params::pageCount;
         }
     }

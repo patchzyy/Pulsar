@@ -1,3 +1,20 @@
+/**
+ * Direct port from mkw-sp Input Viewer
+ * 
+ * Licensed under MIT. (See LICENSE_mkw-sp)
+ * 
+ * Copyright 2021-2023 Pablo Stebler
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * 
+ *
+ * https://github.com/mkw-sp/mkw-sp/blob/main/payload/game/ui/ctrl/CtrlRaceInputDisplay.cc
+ */
+
 #include <MarioKartWii/Kart/KartManager.hpp>
 #include <UI/CtrlRaceBase/InputViewer.hpp>
 #include <Settings/Settings.hpp>
@@ -12,7 +29,10 @@ const s8 CtrlRaceInputViewer::DPAD_HOLD_FOR_N_FRAMES = 10;
 
 void CtrlRaceInputViewer::Init() {
     char name[32];
-    bool isBrakedriftToggled = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
+    const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
+    const GameMode mode = scenario.settings.gamemode;
+    bool isBrakedriftToggled = (Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW) || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
+    && mode != MODE_TIME_TRIAL && !System::sInstance->IsContext(PULSAR_MODE_OTT));
     RacedataScenario& raceScenario = Racedata::sInstance->racesScenario;
     
     for (int i = 0; i < (int)DpadState_Count; ++i) {
@@ -112,9 +132,12 @@ void CtrlRaceInputViewer::OnUpdate() {
             setTrigger(Trigger_R, R ? TriggerState_Pressed : TriggerState_Off);
             setStick(stick);
 
-            bool isBrakedriftToggled = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW || RetroRewind::System::Is500cc();
+            const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
+            const GameMode mode = scenario.settings.gamemode;
+            bool isBrakedriftToggled = (Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW) || (static_cast<Pulsar::BrakeDrift>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_BRAKEDRIFT)) == Pulsar::BRAKEDRIFT_ENABLED
+            && mode != MODE_TIME_TRIAL && !System::sInstance->IsContext(PULSAR_MODE_OTT));
             if (isBrakedriftToggled) {
-                bool BD = input->buttonActions & 0x2;
+                bool BD = input->buttonActions & 0x10;
                 setTrigger(Trigger_BD, BD ? TriggerState_Pressed : TriggerState_Off);
             }
         }
@@ -122,7 +145,7 @@ void CtrlRaceInputViewer::OnUpdate() {
 }
 
 u32 CtrlRaceInputViewer::Count() {
-    if(static_cast<Pulsar::InputDisplay>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTINGRR2_RADIO_INPUTDISPLAY)) == Pulsar::INPUTDISPLAY_ENABLED) {
+    if(static_cast<Pulsar::InputDisplay>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTINGRR_RADIO_INPUTDISPLAY)) == Pulsar::INPUTDISPLAY_ENABLED) {
         const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
         u32 localPlayerCount = scenario.localPlayerCount;
         const SectionId sectionId = SectionMgr::sInstance->curSection->sectionId;

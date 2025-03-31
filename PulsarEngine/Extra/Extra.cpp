@@ -119,6 +119,14 @@ end:
 }
 kmCall(0x807A1A54, AntiItemColCrash);
 
+//Mii Outfit C Anti-Crash
+kmWrite8(0x8089089D, 0x00000062);
+kmWrite8(0x808908A9, 0x00000062);
+kmWrite8(0x808908E5, 0x00000062);
+kmWrite8(0x808908F1, 0x00000062);
+kmWrite8(0x8089092D, 0x00000062);
+kmWrite8(0x80890939, 0x00000062);
+
 //Allow All Vehicles in Battle Mode [Nameless, Scruffy]
 kmWrite32(0x80553F98, 0x3880000A);
 kmWrite32(0x8084FEF0, 0x48000044);
@@ -153,6 +161,10 @@ kmWrite8(0x807BA077, 0x00);
 //Allow WFC on Wiimmfi Patched ISOs
 kmWrite32(0x800EE3A0, 0x2C030000);
 kmWrite32(0x800ECAAC, 0x7C7E1B78);
+
+//Rename Online Mode Buttons [Toadette Hack Fan]
+kmWrite8(0x80899ACA, 0x00000058);
+kmWrite8(0x80899AF7, 0x00000058);
 
 //Ultra Uncut [MrBean35000vr + Chadderz]
 asmFunc GetUltraUncut() {

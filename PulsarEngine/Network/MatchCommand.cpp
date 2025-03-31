@@ -4,6 +4,7 @@
 #include <PulsarSystem.hpp>
 #include <Settings/Settings.hpp>
 #include <Network/RoomKey.hpp>
+#include <UI/RoomKick/RoomKickPage.hpp>
 
 namespace Pulsar {
 namespace Network {
@@ -28,7 +29,7 @@ asmFunc MoveSize() { // Needed to get data size later
 }
 kmCall(0x800dc3bc, MoveSize);
 
-DWC::MatchCommand Process(DWC::MatchCommand type, const void* data, u32 dataSize) {
+DWC::MatchCommand Process(DWC::MatchCommand type, const void* data, u32 dataSize, u32 pid) {
     const RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
     const bool isCustom = roomType == RKNet::ROOMTYPE_FROOM_NONHOST || roomType == RKNet::ROOMTYPE_FROOM_HOST
         || roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL;
@@ -50,6 +51,19 @@ DWC::MatchCommand Process(DWC::MatchCommand type, const void* data, u32 dataSize
             if (packet->pulInfo.statusData != mgr.ownStatusData) {
                 denyType = DENY_TYPE_OTT;
                 type = DWC::MATCH_COMMAND_RESV_DENY;
+            }
+        }
+
+        UI::RoomKickPage* roomKick = SectionMgr::sInstance->curSection->Get<UI::RoomKickPage>();
+        if (roomKick) {
+            u32 bannedCount = 0;
+            u32* bannedPIDs = roomKick->GetKickHistory(bannedCount);
+            for (u32 i = 0; i < bannedCount; i++) {
+                if (bannedPIDs[i] == pid) {
+                    denyType = DENY_TYPE_KICK;
+                    type = DWC::MATCH_COMMAND_RESV_DENY;
+                    break;
+                }
             }
         }
     }
@@ -86,6 +100,7 @@ asmFunc ProcessWrapper() {
         nofralloc;
         mr r4, r31;
         mr r5, r25;
+        mr r6, r24;
         mflr r31;
         bl Process;
         mtlr r31;

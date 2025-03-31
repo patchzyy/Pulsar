@@ -160,6 +160,9 @@ enum BMG {
     BMG_ROOM_DENY = 0x284b,
     BMG_TOO_MANY_DENIES = 0x284c,
 
+    //RR
+    BMG_RETRO_BUTTON = 0x284d,
+
     //OTT RR
     BMG_OTT_WW_BOTTOM = 0x2850,
     BMG_OTT_BUTTON = 0x2851,
@@ -171,6 +174,7 @@ enum BMG {
     BMG_200_TITLE_TEXT = 0x2855,
     BMG_200_WW_BOTTOM = 0x2856,
     BMG_200_BUTTON = 0x2857,
+    BMG_200_PLAYING = 0x285f,
 
     //OTT CT
     BMG_OTT_BUTTON_CT = 0x2858,
@@ -182,6 +186,9 @@ enum BMG {
 
     BMG_TITLE_TEXT_CT = 0x285c,
     BMG_CT_BUTTON = 0x285d,
+
+    //VR Rating
+    BMG_VR_RATING = 0x285e,
 
     //KO
     BMG_KO_OUT = 0x2860,

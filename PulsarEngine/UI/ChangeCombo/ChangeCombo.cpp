@@ -45,11 +45,11 @@ void ExpVR::OnInit() {
 
     bool isKOd = false;
     if(system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating) isKOd = true;
-    if(system->IsContext(PULSAR_MODE_OTT) && system->IsContext(PULSAR_CHANGECOMBO) == OTTSETTING_COMBO_ENABLED) isKOd = true;
+    if(System::sInstance->IsContext(PULSAR_MODE_OTT) && system->IsContext(PULSAR_CHANGECOMBO) == OTTSETTING_COMBO_ENABLED) isKOd = true;
     if(System::sInstance->IsContext(PULSAR_MODE_OTT) && ((RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) || (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL))) isKOd = true;
 
     bool isRandomHidden = false;
-    if(Settings::Mgr::Get().GetUserSettingValue(Settings::SETTINGSTYPE_RR2, SETTINGRR2_RADIO_RANDOMBUTTON) == RANDOMBUTTON_DISABLED) isRandomHidden = true;
+    if(Settings::Mgr::Get().GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_RANDOMBUTTON) == RANDOMBUTTON_DISABLED) isRandomHidden = true;
     
     this->AddControl(0xF, this->randomComboButton, 0);
     this->randomComboButton.isHidden = isKOd || isRandomHidden;
@@ -60,6 +60,7 @@ void ExpVR::OnInit() {
     this->changeComboButton.isHidden = isKOd;
     this->changeComboButton.Load(UI::buttonFolder, "PULiMemberConfirmButton", "Change", 1, 0, isKOd);
     this->changeComboButton.SetOnClickHandler(this->onChangeComboClick, 0);
+    //this->changeComboButton.manipulator.SetAction(START_PRESS, this->changeComboButton.onClickHandlerObj, 0);
 
     this->AddControl(0x11, settingsButton, 0);
     this->settingsButton.Load(UI::buttonFolder, "SettingsVR", "Settings", 1, 0, hideSettings);
@@ -393,34 +394,68 @@ void ExpMultiKartSelect::BeforeControlUpdate() {
 }
 
 void DriftSelectBeforeControlUpdate(Pages::DriftSelect* driftSelect) {
-    ExpCharacterSelect* charSelect = SectionMgr::sInstance->curSection->Get<ExpCharacterSelect>();
+    SectionMgr* sectionMgr = SectionMgr::sInstance;
+    ExpCharacterSelect* charSelect = sectionMgr->curSection->Get<ExpCharacterSelect>();
     if(charSelect->rouletteCounter != -1 && driftSelect->currentState == 0x4) {
         driftSelect->controlsManipulatorManager.inaccessible = true;
-        PushButton* autoButton = driftSelect->controlGroup.GetControl<PushButton>(1);
-        PushButton* manualButton = driftSelect->controlGroup.GetControl<PushButton>(0);
-        autoButton->HandleDeselect(0, -1);
-        manualButton->HandleSelect(0, -1);
-        manualButton->Select(0);
-        manualButton->HandleClick(0, -1);
+        
+        // Get selected kart ID to determine if it's a kart or bike
+        KartId selectedKart = sectionMgr->sectionParams->karts[0];
+        
+        // Select auto drift for karts, manual drift for bikes
+        bool isKart = (selectedKart < STANDARD_BIKE_S);
+        PushButton* autoButton = driftSelect->controlGroup.GetControl<PushButton>(1); // Auto drift
+        PushButton* manualButton = driftSelect->controlGroup.GetControl<PushButton>(0); // Manual drift
+        
+        if (isKart) {
+            // For karts, select auto drift
+            manualButton->HandleDeselect(0, -1);
+            autoButton->HandleSelect(0, -1);
+            autoButton->Select(0);
+            autoButton->HandleClick(0, -1);
+        } else {
+            // For bikes, select manual drift
+            autoButton->HandleDeselect(0, -1);
+            manualButton->HandleSelect(0, -1);
+            manualButton->Select(0);
+            manualButton->HandleClick(0, -1);
+        }
+        
         charSelect->rouletteCounter = -1;
     }
 }
 kmWritePointer(0x808D9DF8, DriftSelectBeforeControlUpdate);
 
 void MultiDriftSelectBeforeControlUpdate(Pages::MultiDriftSelect* multiDriftSelect) {
-
     SectionMgr* sectionMgr = SectionMgr::sInstance;
     ExpCharacterSelect* charSelect = sectionMgr->curSection->Get<ExpCharacterSelect>();
     if(charSelect->rouletteCounter != -1 && multiDriftSelect->currentState == 0x4) {
         multiDriftSelect->controlsManipulatorManager.inaccessible = true;
+        
         for(int i = 0; i < sectionMgr->sectionParams->localPlayerCount; ++i) {
-            PushButton* autoButton = multiDriftSelect->externControls[0 + 2 * i];
-            PushButton* manualButton = multiDriftSelect->externControls[1 + 2 * i];
-            autoButton->HandleDeselect(i, -1);
-            manualButton->HandleSelect(i, -1);
-            manualButton->Select(i);
-            manualButton->HandleClick(i, -1);
+            // Get selected kart ID for this player
+            KartId selectedKart = sectionMgr->sectionParams->karts[i];
+            
+            // Select auto drift for karts, manual drift for bikes
+            bool isKart = (selectedKart < STANDARD_BIKE_S);
+            PushButton* autoButton = multiDriftSelect->externControls[0 + 2 * i]; // Auto drift
+            PushButton* manualButton = multiDriftSelect->externControls[1 + 2 * i]; // Manual drift
+            
+            if (isKart) {
+                // For karts, select auto drift
+                manualButton->HandleDeselect(i, -1);
+                autoButton->HandleSelect(i, -1);
+                autoButton->Select(i);
+                autoButton->HandleClick(i, -1);
+            } else {
+                // For bikes, select manual drift
+                autoButton->HandleDeselect(i, -1);
+                manualButton->HandleSelect(i, -1);
+                manualButton->Select(i);
+                manualButton->HandleClick(i, -1);
+            }
         }
+        
         charSelect->rouletteCounter = -1;
     }
 }

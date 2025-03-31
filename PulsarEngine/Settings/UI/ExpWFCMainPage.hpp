@@ -21,7 +21,7 @@ public:
         // this->onStartPress.ptmf = &ExpWFCMain::ExtOnStartPress;
     }
     void OnInit() override;
-    // void BeforeControlUpdate() override;
+    void BeforeControlUpdate() override;
 private:
     void OnSettingsButtonClick(PushButton& PushButton, u32 r5);
     void ExtOnButtonSelect(PushButton& pushButton, u32 hudSlotId);
@@ -32,6 +32,7 @@ private:
     PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onSettingsClick;
     // PtmfHolder_1A<ExpWFCMain, void, u32> onStartPress;
     PushButton settingsButton;
+    LayoutUIControl playerCount;
 public:
     PulPageId topSettingsPage;
 };
@@ -46,7 +47,7 @@ public:
         // this->onStartPress.ptmf = &ExpWFCModeSel::ExtOnStartPress;
     }
     void OnInit() override;
-    // void BeforeControlUpdate() override;
+    void BeforeControlUpdate() override;
     static void InitButton(ExpWFCModeSel& self);
     static void OnActivatePatch();
     static void ClearModeContexts();
@@ -64,6 +65,7 @@ public:
     PushButton ctButton;
     PushButton ottButtonCT;
     PushButton twoHundredButtonCT;
+    LayoutUIControl vrButton;
     static u32 lastClickedButton;
     u32 region;
     static const u32 ottButtonId = 4;

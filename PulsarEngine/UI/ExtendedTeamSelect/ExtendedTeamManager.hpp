@@ -108,6 +108,10 @@ public:
         return this->status;
     }
 
+    bool IsInactiveStatus() {
+        return this->status == STATUS_NONE;
+    }
+
     bool IsWaitingStatus() {
         return this->status == STATUS_WAITING_PRE || this->status == STATUS_WAITING_POST;
     }
@@ -159,6 +163,8 @@ private:
 public:
     CountDown waitingTimer;
     CountDown lastUpdateTimer;
+
+    u32 hasFriendRoomStarted;
 };
 
 } // namespace UI

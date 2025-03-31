@@ -59,7 +59,7 @@ void FPSPatch() {
   FPSPatchHook = 0x00;
   const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
   u32 localPlayerCount = scenario.localPlayerCount;
-  if (static_cast<Pulsar::FPS>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR2), Pulsar::SETTIGNRR2_RADIO_FPS)) == Pulsar::FPS_HALF || localPlayerCount > 1) {
+  if (static_cast<Pulsar::FPS>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTIGNRR_RADIO_FPS)) == Pulsar::FPS_HALF || localPlayerCount > 1) {
       FPSPatchHook = 0x00FF0100;
   }
 }

@@ -67,12 +67,14 @@ void ExtendedTeamSelect::BeforeEntranceAnimations() {
     this->isHost = RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST;
     this->instructionText.SetMessage(this->isHost ? BMG_TEAM_SELECT : BMG_EXTENDEDTEAMS_NONHOST_TITLE);
 
-    this->backButton.isHidden = friendRoomManager->friendRoomIsEnding;
-    this->backButton.manipulator.inaccessible = friendRoomManager->friendRoomIsEnding;
+    this->backButton.isHidden = this->manager->hasFriendRoomStarted;
+    this->backButton.manipulator.inaccessible = this->manager->hasFriendRoomStarted;
 
     this->miiGroup = &friendRoomManager->miiGroup;
 
     this->shouldDisconnect = false;
+
+    this->teamPlayerArrows[0].SelectInitial(0);
 }
 
 void ExtendedTeamSelect::OnResume() {
@@ -96,8 +98,8 @@ void ExtendedTeamSelect::BeforeControlUpdate() {
     this->manager->Update();
 
     this->busySymbol.isHidden = this->isHost && !this->manager->IsWaitingStatus();
-    this->startRaceButton.isHidden = !this->busySymbol.isHidden || !friendRoomManager->friendRoomIsEnding;
-    this->startRaceButton.manipulator.inaccessible = !this->isHost || !friendRoomManager->friendRoomIsEnding || this->manager->IsWaitingStatus();
+    this->startRaceButton.isHidden = !this->busySymbol.isHidden || !this->manager->hasFriendRoomStarted;
+    this->startRaceButton.manipulator.inaccessible = !this->busySymbol.isHidden || !this->manager->hasFriendRoomStarted;
 
     if (this->manager->IsDoneStatus())
         this->OnStartRaceClick(this->startRaceButton, 0);
@@ -279,7 +281,7 @@ void ExtendedTeamSelect::OnStartRaceClick(PushButton& button, u32 hudSlotId) {
     Pages::FriendRoomWaiting *friendRoomWaiting = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomWaiting>();
     Pages::FriendRoomManager *friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
 
-    if (friendRoomManager->friendRoomIsEnding) {
+    if (!this->manager->IsInactiveStatus()) {
         if (this->isHost) {
             this->manager->SendStartRacePacket();
             if (this->manager->IsSelectingStatus()) {
