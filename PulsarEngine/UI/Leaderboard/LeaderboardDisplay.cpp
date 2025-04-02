@@ -50,13 +50,21 @@ void fillLeaderboardResults(int count, CtrlRaceResult** results) {
                 results[i]->FillName(playerId);
             } else if(displayLeaderboardType == LEADERBOARD_DISPLAY_FC) {
                 if (playerId < 12) {
+                    u8 aid = RKNet::Controller::sInstance->aidsBelongingToPlayerIds[playerId];
                     u32 hudSlot = Racedata::sInstance->GetHudSlotId(playerId);
-                    u64 fc = RKNet::USERHandler::sInstance->receivedPackets[playerId].fc;
-
-                    // This is the local player, so we need to get the FC from the packet we send.
-                    if (hudSlot < 2 && !isSectionSpectatorLiveView(SectionMgr::sInstance->curSection->sectionId)) {
-                        fc = RKNet::USERHandler::sInstance->toSendPacket.fc;
+                    
+                    u32 pid = 0;
+                    for (int i = 0; i < 32; i++) {
+                        if (DWC::MatchControl::sInstance->nodes[i].aid == aid) {
+                            pid = DWC::MatchControl::sInstance->nodes[i].pid;
+                            break;
+                        }
                     }
+
+                    DWC::AccUserData dwcUserData;
+                    dwcUserData.gamecode = 'RMCJ';
+                    dwcUserData.gsProfileId = pid;
+                    u64 fc = DWC::CreateFriendKey(&dwcUserData);
 
                     u32 fcParts[3];
                     for (int j = 0; j < 3; ++j) {
