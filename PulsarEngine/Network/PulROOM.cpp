@@ -212,8 +212,9 @@ static void AfterROOMReception(const RKNet::PacketHolder<PulROOM>* packetHolder,
         }
     }
 
-    const bool isExtendedTeamsUpdatableMessage = (src.messageType == UI::ExtendedTeamManager::MSG_TYPE_UPDATE_TEAMS) || (src.messageType == UI::ExtendedTeamManager::MSG_TYPE_START_RACE);
-    if (isExtendedTeamsUpdatableMessage && !isHost && packetHolder->packetSize == sizeof(PulROOM)) {
+    if (((src.messageType == UI::ExtendedTeamManager::MSG_TYPE_UPDATE_TEAMS) || (src.messageType == UI::ExtendedTeamManager::MSG_TYPE_UPDATE_TEAMS)) &&
+        !isHost && 
+        packetHolder->packetSize == sizeof(PulROOM)) {
         HandleExtendedTeamUpdates(src);
     }
 
