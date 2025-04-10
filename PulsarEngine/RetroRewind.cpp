@@ -3,7 +3,7 @@
 #include <Settings/UI/SettingsPanel.hpp>
 #include <Settings/Settings.hpp>
 #include <MarioKartWii/RKNet/RKNetController.hpp>
-#include <RetroRewind.hpp>
+#include <Dolphin/DolphinIOS.hpp>
 
 namespace RetroRewind {
 Pulsar::System *System::Create() {
@@ -57,9 +57,10 @@ kmWrite32(0x8055422C, 0x48000044);
 
 void FPSPatch() {
   FPSPatchHook = 0x00;
+  bool isDolphin = Dolphin::IsEmulator();
   const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
   u32 localPlayerCount = scenario.localPlayerCount;
-  if (static_cast<Pulsar::FPS>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTIGNRR_RADIO_FPS)) == Pulsar::FPS_HALF || localPlayerCount > 1) {
+  if (static_cast<Pulsar::FPS>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTIGNRR_RADIO_FPS)) == Pulsar::FPS_HALF || localPlayerCount > 1 && !isDolphin) {
       FPSPatchHook = 0x00FF0100;
   }
 }

@@ -127,6 +127,23 @@ kmWrite8(0x808908F1, 0x00000062);
 kmWrite8(0x8089092D, 0x00000062);
 kmWrite8(0x80890939, 0x00000062);
 
+//Item Spam Anti-Freeze [???]
+asmFunc ItemSpamAntiFreeze() {
+    ASM (
+        loc_0x0:
+        lbz       r12, 0x1C(r27);
+        add       r12, r30, r12;
+        cmpwi     r12, 0xE0;
+        blt+      loc_0x18;
+        li        r0, 0;
+        stb       r0, 0x19(r27);
+        
+        loc_0x18:
+        lbz       r0, 0x19(r27);
+    )
+}
+kmCall(0x8065BBD4, ItemSpamAntiFreeze);
+
 //Allow All Vehicles in Battle Mode [Nameless, Scruffy]
 kmWrite32(0x80553F98, 0x3880000A);
 kmWrite32(0x8084FEF0, 0x48000044);

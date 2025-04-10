@@ -51,10 +51,10 @@ Kart::Stats* ApplySpeedModifier(KartId kartId, CharacterId characterId) {
     else if (is200){
         factor = speedFactor;
     }
-    else if (RetroRewind::System::Is500cc() && gameMode == MODE_PRIVATE_VS || RetroRewind::System::Is500cc() && gameMode == MODE_VS_RACE || RetroRewind::System::Is500cc() && gameMode == MODE_PUBLIC_VS){
+    else if (RetroRewind::System::Is500cc() && (gameMode == MODE_PRIVATE_VS || gameMode == MODE_VS_RACE || gameMode == MODE_PUBLIC_VS || gameMode == MODE_GRAND_PRIX)){
         factor = 3.0f;
     }
-    else if (RetroRewind::System::Is500cc() && gameMode == MODE_BATTLE || RetroRewind::System::Is500cc() && gameMode == MODE_PUBLIC_BATTLE || RetroRewind::System::Is500cc() && gameMode == MODE_PRIVATE_BATTLE){
+    else if (RetroRewind::System::Is500cc() && (gameMode == MODE_BATTLE || gameMode == MODE_PUBLIC_BATTLE || gameMode == MODE_PRIVATE_BATTLE)){
         factor = 1.214;
     }
     else if (System::sInstance->IsContext(PULSAR_MODE_OTT) && gameMode == MODE_PUBLIC_VS) {
