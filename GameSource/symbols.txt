@@ -2088,3 +2088,5 @@ KillFromOtherCollision__Q24Item3ObjFb = 0x807a6560
 UpdateTotalItemCountMinus30__Q24Item7ManagerFv = 0x80799a50
 GetBodyMatCol1__Q24Kart4LinkCFR4Vec3 = 0x80590c6c
 Sqrt__Q23EGG4MathFf = 0x8022f80c
+
+gpiAppendStringToBuffer__2GPFPPQ22GP10ConnectionPQ22GP7IBufferPCc = 0x800ff014
