@@ -4,8 +4,6 @@
 #ifndef _WIILINK_TYPES_
 #  define _WIILINK_TYPES_
 
-#  define PROD
-
 #  ifndef WWFC_DOMAIN
 
 #    ifdef PROD

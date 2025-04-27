@@ -290,7 +290,11 @@ void hook_ServerBrowserFree(ServerBrowser sb) {
 }
 
 void hook_DWC_SetReportLevel(u32 level) {
+#ifndef PROD
+    DWC_SetReportLevel(0xffffffff);
+#else
     DWC_SetReportLevel(level);
+#endif
 }
 
 void hook_Section_calc(Section* _this) {
