@@ -21,7 +21,7 @@ void ExtendedTeamResultIrregularTotal::OnInit() {
     this->AddControl(this->GetRowCount(), this->textMessage, 0);
     
     ControlLoader loader(&this->textMessage);
-    loader.Load("game_image", "ExtendedTeamMessage", "ExtendedTeamMessage", nullptr);
+    loader.Load("game_image", "ExpandedTeamMessage", "ExpandedTeamMessage", nullptr);
 
     this->textMessage.SetMessage(BMG_EXTENDEDTEAMS_IRREGULAR_WARNING, nullptr);
     this->textMessage.isHidden = false;

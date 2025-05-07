@@ -154,7 +154,7 @@ void CtrlRaceResultExtendedTeams::OnUpdate() {
 }
 
 const char* CtrlRaceResultExtendedTeams::GetClassName() const {
-    return "CtrlRaceResultExtendedTeams";
+    return "CtrlRaceResultExpandedTeams";
 }
 
 void CtrlRaceResultExtendedTeams::Load(ExtendedTeamID teamID, int numTeams, int teamIdx) {
@@ -164,7 +164,7 @@ void CtrlRaceResultExtendedTeams::Load(ExtendedTeamID teamID, int numTeams, int 
     snprintf(variant, 20, "ResultVSTeamNULL%d_%d", numTeams, teamIdx);
 
     ControlLoader selfLoader(this);
-    selfLoader.Load("result", "ExtendedTeamResult", variant, nullptr);
+    selfLoader.Load("result", "ExpandedTeamResult", variant, nullptr);
 
     this->InitControlGroup(6 + 1);
 

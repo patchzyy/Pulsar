@@ -195,10 +195,6 @@ void CtrlRaceNameBalloon_refresh(CtrlRaceNameBalloon* _this, u8 playerId) {
         mat->tevColours[1].r = 255;
         mat->tevColours[1].g = 255;
         mat->tevColours[1].b = 255;
-
-        for (int i = 0; i < 4; i++) {
-            _this->layout.GetPaneByName("line")->SetVtxColor(i, nw4r::ut::Color(r, g, b, 255));
-        }
     }
 }
 

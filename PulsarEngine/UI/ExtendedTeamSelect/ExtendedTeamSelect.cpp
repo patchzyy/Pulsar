@@ -214,7 +214,7 @@ UIControl* ExtendedTeamSelect::CreateControl(u32 id) {
         return &this->busySymbol;
     } else if (id == START_RACE_BUTTON) {
         this->AddControl(count, this->startRaceButton, 0);
-        this->startRaceButton.Load("button", "ExtendedTeamButton", "ExtendedTeamButton", 1, 0, false);
+        this->startRaceButton.Load("button", "ExpandedTeamButton", "ExpandedTeamButton", 1, 0, false);
         this->startRaceButton.buttonId = 1;
         this->startRaceButton.SetOnClickHandler(this->onStartRaceClickHandler, 0);
         this->startRaceButton.SetOnSelectHandler(this->onStartRaceSelectHandler);
@@ -234,7 +234,7 @@ UIControl* ExtendedTeamSelect::CreateControl(u32 id) {
         snprintf(variant, 16, "Member%02d", idx);
 
         ControlLoader loader(&this->teamPlayerControl[idx]);
-        loader.Load("button", "ExtendedTeamPlayerEntry", variant, anims);
+        loader.Load("button", "ExpandedTeamPlayerEntry", variant, anims);
 
         this->teamPlayerControl[idx].animator.GetAnimationGroupById(0).PlayAnimationAtFrame(0, 0.0f);
         this->teamPlayerControl[idx].animator.GetAnimationGroupById(1).PlayAnimationAtFrame(1, 0.0f);
@@ -249,7 +249,7 @@ UIControl* ExtendedTeamSelect::CreateControl(u32 id) {
         char variant[16];
         snprintf(variant, 16, "player%d", idx+1);
 
-        this->teamPlayerArrows[idx].Load(UI::buttonFolder, "ExtendedTeamPlayerArrow", variant, 1, 0, true);
+        this->teamPlayerArrows[idx].Load(UI::buttonFolder, "ExpandedTeamPlayerArrow", variant, 1, 0, true);
         this->teamPlayerArrows[idx].buttonId = 2 + idx;
         this->teamPlayerArrows[idx].SetOnClickHandler(this->onArrowClickHandler, 0);
         this->teamPlayerArrows[idx].SetOnSelectHandler(this->onArrowSelectHandler);
