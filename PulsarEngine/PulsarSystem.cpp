@@ -45,6 +45,11 @@ System::System() :
     koMgr(nullptr) {
 }
 
+bool IsNewChannel() {
+    // Signature written by the new launcher.
+    return *reinterpret_cast<u32*>(0x93400100) == 0xDEADBEEF;
+}
+
 void System::Init(const ConfigFile& conf) {
     IOType type = IOType_ISO;
     s32 ret = IO::OpenFix("file", IOS::MODE_NONE);
@@ -52,6 +57,9 @@ void System::Init(const ConfigFile& conf) {
     if(ret >= 0) {
         type = IOType_RIIVO;
         IOS::Close(ret);
+    }
+    else if (IsNewChannel()) {
+        type = IOType_SD;
     }
     else {
         ret = IO::OpenFix("/dev/dolphin", IOS::MODE_NONE);
