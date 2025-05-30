@@ -153,6 +153,7 @@ void System::UpdateContext() {
     bool isItemModeRain = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_ITEMRAIN;
     bool isTrackSelectionRegs = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_REGS;
     bool isTrackSelectionRetros = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS && mode != MODE_PUBLIC_VS;
+    bool isTrackSelectionAll = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_ALL && mode != MODE_PUBLIC_VS;
     bool isTrackSelectionCts = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS && mode != MODE_PUBLIC_VS;
     bool isTrackSelectionRetrosOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS && mode == MODE_PUBLIC_VS;
     bool isTrackSelectionCtsOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS && mode == MODE_PUBLIC_VS;
@@ -187,6 +188,7 @@ void System::UpdateContext() {
                 isTrackSelectionRegs = newContext & (1 << PULSAR_REGS);
                 isTrackSelectionRetros = newContext & (1 << PULSAR_RETROS);
                 isTrackSelectionCts = newContext & (1 << PULSAR_CTS);
+                isTrackSelectionAll = newContext & (1 << PULSAR_ALL);
                 isTrackSelectionCtsOnline |= newContext & (1 << PULSAR_CTS);
                 isTrackSelectionRetrosOnline |= newContext & (1 << PULSAR_RETROS);
                 is500 = newContext & (1 << PULSAR_500);
@@ -238,7 +240,8 @@ void System::UpdateContext() {
                           (static_cast<u64>(isKOFinal) << PULSAR_KOFINAL) | (static_cast<u64>(isItemBoxRepsawnFast) << PULSAR_ITEMBOXRESPAWN) | 
                           (static_cast<u64>(isTransmissionInside) << PULSAR_TRANSMISSIONINSIDE) | (static_cast<u64>(isTransmissionOutside) << PULSAR_TRANSMISSIONOUTSIDE) | 
                           (static_cast<u64>(isExtendedTeams) << PULSAR_EXTENDEDTEAMS) | (static_cast<u64>(isTrackSelectionRetros) << PULSAR_RETROS) | 
-                          (static_cast<u64>(isTrackSelectionCts) << PULSAR_CTS) | (static_cast<u64>(isTransmissionVanilla) << PULSAR_TRANSMISSIONVANILLA);
+                          (static_cast<u64>(isTrackSelectionCts) << PULSAR_CTS) | (static_cast<u64>(isTransmissionVanilla) << PULSAR_TRANSMISSIONVANILLA) |
+                          (static_cast<u64>(isTrackSelectionAll) << PULSAR_ALL);
     }
     
     // Combine the new context with preserved bits
@@ -363,7 +366,7 @@ kmRegionWrite32(0x80604094, 0x4800001c, 'E');
 kmWrite32(0x800017D0, 0x0A);
 
 //Retro Rewind Internal Version
-kmWrite32(0x800017D4, 6161);
+kmWrite32(0x800017D4, 618);
 
 const char System::pulsarString[] = "/Pulsar";
 const char System::CommonAssets[] = "/CommonAssets.szs";

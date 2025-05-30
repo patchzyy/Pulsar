@@ -1,6 +1,7 @@
 #include <kamek.hpp>
 #include <MarioKartWii/Archive/ArchiveMgr.hpp>
 #include <MarioKartWii/Scene/GameScene.hpp>
+#include <Settings/Settings.hpp>
 #include <PulsarSystem.hpp>
 
 namespace Pulsar {
@@ -13,9 +14,57 @@ void LoadAssetsFile(ArchiveFile* file, const char* path, EGG::Heap* decompressed
     const ArchiveMgr* archiveMgr = ArchiveMgr::sInstance;
     if(file == &archiveMgr->archivesHolders[ARCHIVE_HOLDER_UI]->archives[2]) {
         const char* fileType = "UI";
-        if(GameScene::GetCurrent()->id == SCENE_ID_RACE) fileType = "Race";
+        Pulsar::Language currentLanguage = static_cast<Pulsar::Language>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RRLANGUAGE), Pulsar::SETTINGRRLANGUAGE_LANGUAGE));
+        
+        bool isRaceScene = (GameScene::GetCurrent()->id == SCENE_ID_RACE);
+        const char* baseType = isRaceScene ? "Race" : "UI";
+        const char* langSuffix = "";
+        switch (currentLanguage) {
+            case Pulsar::LANGUAGE_JAPANESE:
+                langSuffix = "_JP";
+                break;
+            case Pulsar::LANGUAGE_FRENCH:
+                langSuffix = "_FR";
+                break;
+            case Pulsar::LANGUAGE_GERMAN:
+                langSuffix = "_DE";
+                break;
+            case Pulsar::LANGUAGE_DUTCH:
+                langSuffix = "_NL";
+                break;
+            case Pulsar::LANGUAGE_SPANISHUS:
+                langSuffix = "_SPUS";
+                break;
+            case Pulsar::LANGUAGE_SPANISHEU:
+                langSuffix = "_SPEU";
+                break;
+            case Pulsar::LANGUAGE_FINNISH:
+                langSuffix = "_FI";
+                break;
+            case Pulsar::LANGUAGE_ITALIAN:
+                langSuffix = "_IT";
+                break;
+            case Pulsar::LANGUAGE_KOREAN:
+                langSuffix = "_KR";
+                break;
+            case Pulsar::LANGUAGE_RUSSIAN:
+                langSuffix = "_RU";
+                break;
+            case Pulsar::LANGUAGE_TURKISH:
+                langSuffix = "_TR";
+                break;
+            case Pulsar::LANGUAGE_CZECH:
+                langSuffix = "_CZ";
+                break;
+            case Pulsar::LANGUAGE_ENGLISH:
+                langSuffix = "";
+                break;
+            default:
+                langSuffix = "";
+                break;
+        }
         char newPath[0x20];
-        snprintf(newPath, 0x20, "%sAssets.szs", fileType);
+        snprintf(newPath, 0x20, "%s%sAssets.szs", baseType, langSuffix);
         path = newPath;
     }
     else if(file == &archiveMgr->archivesHolders[ARCHIVE_HOLDER_COMMON]->archives[2]) path = System::CommonAssets;

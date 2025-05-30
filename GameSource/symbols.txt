@@ -2033,6 +2033,8 @@ ItemBoxHook = 0x80001204
 DCHook = 0x80001206
 OTTFixHook = 0x80001208
 MaxWeightHook = 0x8000120A
+PredictionHook = 0x80891B28
+BloomHook = 0x802575DF
 beginFrame= 0x8020fe24
 
 sInstance__Q25RKNet11USERHandler = 0x809c2108
@@ -2090,3 +2092,9 @@ GetBodyMatCol1__Q24Kart4LinkCFR4Vec3 = 0x80590c6c
 Sqrt__Q23EGG4MathFf = 0x8022f80c
 
 gpiAppendStringToBuffer__2GPFPPQ22GP10ConnectionPQ22GP7IBufferPCc = 0x800ff014
+
+#Language
+FontRename = 0x808904B2
+RaceRename = 0x80897ddf
+CommonRename = 0x80890491
+AwardRename = 0x80897dee
