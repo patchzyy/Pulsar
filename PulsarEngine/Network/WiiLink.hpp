@@ -4,13 +4,15 @@
 #ifndef _WIILINK_TYPES_
 #  define _WIILINK_TYPES_
 
-#  ifndef WWFC_DOMAIN
+# ifndef WWFC_DOMAIN
 
-#    ifdef PROD
-#      define WWFC_DOMAIN "rwfc.net"
-#    else
-#      define WWFC_DOMAIN "nwfc.wiinoma.com" // Points to localhost
-#    endif
+#  ifdef PROD
+#    define WWFC_DOMAIN "rwfc.net" // Production server
+#  elif defined(TEST)
+#    define WWFC_DOMAIN "zpltest.xyz" // Testing server
+#  else
+#    define WWFC_DOMAIN "nwfc.wiinoma.com" // Points to localhost
+#  endif
 
 #  endif
 
