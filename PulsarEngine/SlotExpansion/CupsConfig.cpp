@@ -222,25 +222,22 @@ PulsarId CupsConfig::RandomizeTrack() const {
     u32 isRetroOnly = TRACKSELECTION_ALL;
     u32 isCTOnly = TRACKSELECTION_ALL;
     u32 isRegsOnly = TRACKSELECTION_ALL;
-    u32 isAllTracks = TRACKSELECTION_ALL;
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
         if (System::sInstance->IsContext(PULSAR_RETROS)) isRetroOnly = TRACKSELECTION_RETROS;
         if (System::sInstance->IsContext(PULSAR_CTS)) isCTOnly = TRACKSELECTION_CTS;
         if (System::sInstance->IsContext(PULSAR_REGS)) isRegsOnly = TRACKSELECTION_REGS;
-        if (System::sInstance->IsContext(PULSAR_ALL)) isAllTracks = TRACKSELECTION_ALL;
     }
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
         if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS) isRetroOnly = TRACKSELECTION_RETROS;
         if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS) isCTOnly = TRACKSELECTION_CTS;
         if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_REGS) isRegsOnly = TRACKSELECTION_REGS;
-        if (settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_ALL) isAllTracks = TRACKSELECTION_ALL;
     }
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) {
        if (System::sInstance->netMgr.region == 0x0A || System::sInstance->netMgr.region == 0x0B || System::sInstance->netMgr.region == 0x0C) isRetroOnly = TRACKSELECTION_RETROS;
        if (System::sInstance->netMgr.region == 0x14 || System::sInstance->netMgr.region == 0x15 || System::sInstance->netMgr.region == 0x16) isCTOnly = TRACKSELECTION_CTS;
     }
-    if (isRetroOnly == TRACKSELECTION_RETROS && isRegsOnly != TRACKSELECTION_REGS && isAllTracks != TRACKSELECTION_ALL) pulsarId = random.NextLimited(176) + 0x100;
-    else if (isCTOnly == TRACKSELECTION_CTS && isRegsOnly != TRACKSELECTION_REGS && isAllTracks != TRACKSELECTION_ALL) pulsarId = random.NextLimited(80) + 0x100 + 176;
+    if (isRetroOnly == TRACKSELECTION_RETROS && isRegsOnly != TRACKSELECTION_REGS) pulsarId = random.NextLimited(176) + 0x100;
+    else if (isCTOnly == TRACKSELECTION_CTS && isRegsOnly != TRACKSELECTION_REGS) pulsarId = random.NextLimited(80) + 0x100 + 176;
     else if (isRegsOnly == TRACKSELECTION_REGS) pulsarId = random.NextLimited(32);
     else if (this->HasRegs()) {
         pulsarId = random.NextLimited(this->GetCtsTrackCount() + 32);
@@ -269,24 +266,22 @@ PulsarCupId CupsConfig::GetNextCupId(PulsarCupId pulsarId, s32 direction) const 
     u32 isRetroOnly = TRACKSELECTION_ALL;
     u32 isCTOnly = TRACKSELECTION_ALL;
     u32 isRegsOnly = TRACKSELECTION_ALL;
-    u32 isAllTracks = TRACKSELECTION_ALL;
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST) {
         if (System::sInstance->IsContext(PULSAR_RETROS)) isRetroOnly = TRACKSELECTION_RETROS;
         if (System::sInstance->IsContext(PULSAR_CTS)) isCTOnly = TRACKSELECTION_CTS;
         if (System::sInstance->IsContext(PULSAR_REGS)) isRegsOnly = TRACKSELECTION_REGS;
-        if (System::sInstance->IsContext(PULSAR_ALL)) isAllTracks = TRACKSELECTION_ALL;
     }
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) {
        if (System::sInstance->netMgr.region == 0x0A || System::sInstance->netMgr.region == 0x0B || System::sInstance->netMgr.region == 0x0C) isRetroOnly = TRACKSELECTION_RETROS;
        if (System::sInstance->netMgr.region == 0x14 || System::sInstance->netMgr.region == 0x15 || System::sInstance->netMgr.region == 0x16) isCTOnly = TRACKSELECTION_CTS;
     }
-    if (isRetroOnly == TRACKSELECTION_RETROS && isRegsOnly != TRACKSELECTION_REGS && isAllTracks != TRACKSELECTION_ALL) {
+    if (isRetroOnly == TRACKSELECTION_RETROS && isRegsOnly != TRACKSELECTION_REGS) {
         const u32 countRetro = 44;
         const u32 minRetro = countRetro < 8 ? 8 : 0;
         const u32 nextIdxRetro = ((idx + direction + countRetro) % countRetro) + minRetro;
         if(!this->hasRegs && nextIdxRetro < 8) return static_cast<PulsarCupId>(nextIdxRetro + countRetro + 0x38);
         return ConvertCup_IdxToPulsarId(nextIdxRetro);
-    } else if (isCTOnly == TRACKSELECTION_CTS && isRegsOnly != TRACKSELECTION_REGS && isAllTracks != TRACKSELECTION_ALL) {
+    } else if (isCTOnly == TRACKSELECTION_CTS && isRegsOnly != TRACKSELECTION_REGS) {
         const u32 countCT = 20;
         const u32 lastCupIndex = this->GetTotalCupCount() - 1;
         const u32 startIdx = 52;

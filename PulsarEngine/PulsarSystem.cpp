@@ -153,7 +153,6 @@ void System::UpdateContext() {
     bool isItemModeRain = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_ITEMMODE) == GAMEMODE_ITEMRAIN;
     bool isTrackSelectionRegs = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_REGS;
     bool isTrackSelectionRetros = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS && mode != MODE_PUBLIC_VS;
-    bool isTrackSelectionAll = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_ALL && mode != MODE_PUBLIC_VS;
     bool isTrackSelectionCts = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS && mode != MODE_PUBLIC_VS;
     bool isTrackSelectionRetrosOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_RETROS && mode == MODE_PUBLIC_VS;
     bool isTrackSelectionCtsOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_SCROLLER_TRACKSELECTION) == TRACKSELECTION_CTS && mode == MODE_PUBLIC_VS;
@@ -188,7 +187,6 @@ void System::UpdateContext() {
                 isTrackSelectionRegs = newContext & (1 << PULSAR_REGS);
                 isTrackSelectionRetros = newContext & (1 << PULSAR_RETROS);
                 isTrackSelectionCts = newContext & (1 << PULSAR_CTS);
-                isTrackSelectionAll = newContext & (1 << PULSAR_ALL);
                 isTrackSelectionCtsOnline |= newContext & (1 << PULSAR_CTS);
                 isTrackSelectionRetrosOnline |= newContext & (1 << PULSAR_RETROS);
                 is500 = newContext & (1 << PULSAR_500);
@@ -223,7 +221,7 @@ void System::UpdateContext() {
     }
     this->netMgr.hostContext = newContext;
 
-    u32 preserved = this->context & ((1 << PULSAR_200_WW) | (1 << PULSAR_MODE_OTT) | (1 << PULSAR_CT) | (1 << PULSAR_RETROS));
+    u32 preserved = this->context & ((1 << PULSAR_200_WW) | (1 << PULSAR_MODE_OTT));
     
     // Set the new context value
     u64 newContextValue = (static_cast<u64>(isCT) << PULSAR_CT) | (static_cast<u64>(isHAW) << PULSAR_HAW) | (static_cast<u64>(isMiiHeads) << PULSAR_MIIHEADS);
@@ -240,8 +238,7 @@ void System::UpdateContext() {
                           (static_cast<u64>(isKOFinal) << PULSAR_KOFINAL) | (static_cast<u64>(isItemBoxRepsawnFast) << PULSAR_ITEMBOXRESPAWN) | 
                           (static_cast<u64>(isTransmissionInside) << PULSAR_TRANSMISSIONINSIDE) | (static_cast<u64>(isTransmissionOutside) << PULSAR_TRANSMISSIONOUTSIDE) | 
                           (static_cast<u64>(isExtendedTeams) << PULSAR_EXTENDEDTEAMS) | (static_cast<u64>(isTrackSelectionRetros) << PULSAR_RETROS) | 
-                          (static_cast<u64>(isTrackSelectionCts) << PULSAR_CTS) | (static_cast<u64>(isTransmissionVanilla) << PULSAR_TRANSMISSIONVANILLA) |
-                          (static_cast<u64>(isTrackSelectionAll) << PULSAR_ALL);
+                          (static_cast<u64>(isTrackSelectionCts) << PULSAR_CTS) | (static_cast<u64>(isTransmissionVanilla) << PULSAR_TRANSMISSIONVANILLA);
     }
     
     // Combine the new context with preserved bits
