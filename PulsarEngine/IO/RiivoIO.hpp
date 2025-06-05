@@ -2,7 +2,7 @@
 #define _RIIVOIO_
 
 #include <kamek.hpp>
-#include <IO/IO.hpp>
+#include <IO/IOSIO.hpp>
 namespace Pulsar {
 
 const int riivoMaxPath = 1024;
@@ -99,13 +99,13 @@ enum RiivoError {
 };
 
 
-class RiivoIO : public IO {
+class RiivoIO : public IOSIO {
 
-    RiivoIO(IOType type, EGG::Heap* heap, EGG::TaskThread* taskThread) : IO(type, heap, taskThread) {}
+    RiivoIO(IOType type, EGG::Heap* heap, EGG::TaskThread* taskThread) : IOSIO(type, heap, taskThread) {}
 
     bool OpenFile(const char* path, u32 mode) override;
     bool CreateAndOpen(const char* path, u32 mode) override;
-    void GetCorrectPath(char* realPath, const char* path) const override;
+    void GetCorrectPath(char* realPath, const char* path) const;
     bool RenameFile(const char* oldPath, const char* newPath) const override { return false; }
 
     bool FolderExists(const char* path) const override;

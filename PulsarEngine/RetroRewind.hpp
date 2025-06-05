@@ -10,6 +10,12 @@ extern u32 ItemRainHook;
 extern u32 DCHook;
 extern u32 OTTFixHook;
 extern u32 MaxWeightHook;
+extern u32 PredictionHook;
+extern u32 BloomHook;
+extern u8 FontRename;
+extern u8 RaceRename;
+extern u8 CommonRename;
+extern u8 AwardRename;
 
 
 namespace RetroRewind {

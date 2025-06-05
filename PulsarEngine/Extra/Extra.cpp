@@ -16,9 +16,6 @@ kmWrite32(0x80895CE4, 0x00FF00FF);
 kmWrite32(0x80895CE8, 0x00FF00FF);
 kmWrite32(0x80895CEC, 0x00FF0046);
 
-//No Sun Filter [Anarion]
-kmWrite8(0x802575DF, 0x00);
-
 //Remove Background Blur [Davidevgen]
 kmWrite32(0x80258184, 0x30);
 
@@ -126,6 +123,23 @@ kmWrite8(0x808908E5, 0x00000062);
 kmWrite8(0x808908F1, 0x00000062);
 kmWrite8(0x8089092D, 0x00000062);
 kmWrite8(0x80890939, 0x00000062);
+
+//Item Spam Anti-Freeze [???]
+asmFunc ItemSpamAntiFreeze() {
+    ASM (
+        loc_0x0:
+        lbz       r12, 0x1C(r27);
+        add       r12, r30, r12;
+        cmpwi     r12, 0xE0;
+        blt+      loc_0x18;
+        li        r0, 0;
+        stb       r0, 0x19(r27);
+        
+        loc_0x18:
+        lbz       r0, 0x19(r27);
+    )
+}
+kmCall(0x8065BBD4, ItemSpamAntiFreeze);
 
 //Allow All Vehicles in Battle Mode [Nameless, Scruffy]
 kmWrite32(0x80553F98, 0x3880000A);

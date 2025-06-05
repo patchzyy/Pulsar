@@ -54,18 +54,21 @@ DWC::MatchCommand Process(DWC::MatchCommand type, const void* data, u32 dataSize
             }
         }
 
-        UI::RoomKickPage* roomKick = SectionMgr::sInstance->curSection->Get<UI::RoomKickPage>();
-        if (roomKick) {
-            u32 bannedCount = 0;
-            u32* bannedPIDs = roomKick->GetKickHistory(bannedCount);
-            for (u32 i = 0; i < bannedCount; i++) {
-                if (bannedPIDs[i] == pid) {
-                    denyType = DENY_TYPE_KICK;
-                    type = DWC::MATCH_COMMAND_RESV_DENY;
-                    break;
+        if (SectionMgr::sInstance && SectionMgr::sInstance->curSection) {
+            UI::RoomKickPage* roomKick = SectionMgr::sInstance->curSection->Get<UI::RoomKickPage>();
+            if (roomKick) {
+                u32 bannedCount = 0;
+                u32* bannedPIDs = roomKick->GetKickHistory(bannedCount);
+                for (u32 i = 0; i < bannedCount; i++) {
+                    if (bannedPIDs[i] == pid) {
+                        denyType = DENY_TYPE_KICK;
+                        type = DWC::MATCH_COMMAND_RESV_DENY;
+                        break;
+                    }
                 }
             }
         }
+
     }
     mgr.denyType = denyType;
     return type;

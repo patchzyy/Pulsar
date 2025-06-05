@@ -81,3 +81,5 @@ PulsarEngine/Security/BinVerifier.cpp
 PulsarEngine/Security/AntiCheat.hpp
 PulsarEngine/Security/AntiCheat.cpp
 PulsarEngine/Security/CourseVerifier.cpp
+
+.env

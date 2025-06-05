@@ -12,7 +12,7 @@ namespace Settings {
 class Params {
 public:
     static const int pulsarPageCount = 5;
-    static const int userPageCount = 2;
+    static const int userPageCount = 3;
     static const int pageCount = pulsarPageCount + userPageCount;
 
     static const int maxRadioCount = 8; // per page, due to space
@@ -38,6 +38,7 @@ enum Type {
 enum UserType {
     SETTINGSTYPE_RR,
     SETTINGSTYPE_RRHOST,
+    SETTINGSTYPE_RRLANGUAGE
 };
 
 } // namespace Settings
@@ -48,7 +49,8 @@ enum MenuSettings {
     SETTINGMENU_RADIO_FASTMENUS = 0,
     SETTINGMENU_RADIO_LAYOUT = 1,
     SETTINGMENU_RADIO_MUSIC = 2,
-    SETTINGMENU_SCROLL_BOOT = 0 + 8
+    SETTINGMENU_RADIO_PREDICTIONREMOVAL = 3,
+    SETTINGMENU_SCROLL_BOOT = 0 + 8,
 };
 
 enum RaceSettings {
@@ -57,6 +59,7 @@ enum RaceSettings {
     SETTINGRACE_RADIO_BATTLE,
     SETTINGRACE_RADIO_BLUES,
     SETTINGRACE_RADIO_SOM,
+    SETTINGRACE_RADIO_BLOOM,
     SETTINGRACE_SCROLL_SOM = 0 + 8
 };
 
@@ -105,6 +108,10 @@ enum RRHostSettings {
     SETTINGRR3_SCROLLER_TRACKSELECTION = 1 + 8
 };
 
+enum RRLanguageSettings {
+    SETTINGRRLANGUAGE_LANGUAGE = 0 + 8,
+};
+
 // MENU SETTINGS
 enum MenuSettingFastMenus {
     MENUSETTING_FASTMENUS_DISABLED = 0x0,
@@ -120,6 +127,11 @@ enum MenuSettingMusic {
     MENUSETTING_MUSIC_DEFAULT = 0x0,
     MENUSETTING_MUSIC_DISABLE_ALL = 0x1,
     MENUSETTING_MUSIC_DISABLE_RACE = 0x2
+};
+
+enum MenuSettingPredictionRemoval {
+    MENUSETTING_PREDICTIONREMOVAL_DISABLED = 0x0,
+    MENUSETTING_PREDICTIONREMOVAL_ENABLED = 0x1
 };
 
 enum MenuSettingBoot {
@@ -155,6 +167,11 @@ enum RaceSettingSOM {
     RACESETTING_SOM_LEFT = 0x0,
     RACESETTING_SOM_RIGHT = 0x1,
     RACESETTING_SOM_DISABLED = 0x2
+};
+
+enum RaceSettingBLOOM {
+    RACESETTING_BLOOM_DISABLED = 0x0,
+    RACESETTING_BLOOM_ENABLED = 0x1
 };
 
 enum RaceSettingSOMDigits {
@@ -333,7 +350,24 @@ enum TrackSelection {
     TRACKSELECTION_RETROS,
     TRACKSELECTION_CTS,
     TRACKSELECTION_ALL,
-    TRACKSELECTION_REGS
+    TRACKSELECTION_REGS,
+};
+
+// RR Language Settings
+enum Language {
+    LANGUAGE_ENGLISH,
+    LANGUAGE_JAPANESE,
+    LANGUAGE_FRENCH,
+    LANGUAGE_GERMAN,
+    LANGUAGE_DUTCH,
+    LANGUAGE_SPANISHUS,
+    LANGUAGE_SPANISHEU,
+    LANGUAGE_FINNISH,
+    LANGUAGE_ITALIAN,
+    LANGUAGE_KOREAN,
+    LANGUAGE_RUSSIAN,
+    LANGUAGE_TURKISH,
+    LANGUAGE_CZECH,
 };
 
 //Extra

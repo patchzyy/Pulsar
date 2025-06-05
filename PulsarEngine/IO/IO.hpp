@@ -14,7 +14,8 @@ typedef char FileName[255];
 enum IOType {
     IOType_RIIVO = 0,
     IOType_ISO = 1,
-    IOType_DOLPHIN = 2
+    IOType_DOLPHIN = 2,
+    IOType_SD = 3
 };
 
 enum FileMode {
@@ -40,7 +41,6 @@ public:
 
     virtual bool OpenFile(const char* path, u32 mode) = 0;
     virtual bool CreateAndOpen(const char* path, u32 mode) = 0;
-    virtual void GetCorrectPath(char* realPath, const char* path) const = 0;
     virtual bool RenameFile(const char* oldPath, const char* newPath) const = 0;
 
     virtual bool FolderExists(const char* path) const = 0;
@@ -51,19 +51,18 @@ public:
     static IO* CreateInstance(IOType type, EGG::Heap* heap, EGG::TaskThread* const taskThread);
     template<typename T>
     T* Alloc(u32 size) const { return EGG::Heap::alloc<T>(nw4r::ut::RoundUp(size, 0x20), 0x20, this->heap); }
-    s32 GetFileSize();
+    virtual s32 GetFileSize() = 0;
 
-    bool OpenFileDirectly(const char* path, u32 mode);
-    s32 Read(u32 size, void* bufferIn);
-    void Seek(u32 offset) { IOS::Seek(this->fd, offset, IOS::SEEK_START); }
-    s32 Write(u32 length, const void* buffer);
-    s32 Overwrite(u32 length, const void* buffer);
-    void Close();
+    virtual s32 Read(u32 size, void* bufferIn) = 0;
+    virtual void Seek(u32 offset) = 0;
+    virtual s32 Write(u32 length, const void* buffer) = 0;
+    virtual s32 Overwrite(u32 length, const void* buffer) = 0;
+    virtual void Close() = 0;
 
     const int GetFileCount() const { return this->fileCount; }
     const char* GetFolderName() const { return this->folderName; };
     //void RequestCreateFolder(const char* path); //up to 2 simultaneous
-    void CloseFolder();
+    virtual void CloseFolder() = 0;
     void PrintFullFilePath(char* path, const char* fileName) const {
         snprintf(path, IOS::ipcMaxPath, "%s/%s", &this->folderName, fileName);
     }
@@ -90,8 +89,7 @@ public:
     const IOType type;
 
 protected:
-    IO(IOType type, EGG::Heap* heap, EGG::TaskThread* taskThread) : type(type), fd(-1), heap(heap), taskThread(taskThread) {
-        filePath[0] = '\0';
+    IO(IOType type, EGG::Heap* heap, EGG::TaskThread* taskThread) : type(type), heap(heap), taskThread(taskThread) {
         folderName[0] = '\0';
     }
     void Bind(const char* path) { strncpy(this->folderName, path, IOS::ipcMaxPath); }
@@ -99,10 +97,6 @@ protected:
 
     EGG::Heap* heap;
     EGG::TaskThread* const taskThread;
-    bool isBusy;
-    s32 fd;
-    s32 fileSize;
-    char filePath[IOS::ipcMaxPath];
     char folderName[IOS::ipcMaxPath];
     u32 fileCount;
     IOS::IPCPath* fileNames;

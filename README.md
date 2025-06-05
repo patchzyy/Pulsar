@@ -80,6 +80,17 @@ Network:
 - Worldwides that work as on vanilla
 - The features that impact gameplay the most (200cc, UMTs, feather, mega TCs) can be turned off in the software when making your distribution. Pulsar can also be used as a base to add your own features. CTTP is such an example. The software only outputs the tracks and a config file, but the code binaries can be modified to fit your needs.
 
+# Building
+
+A makefile is available at the root of the repository. The `CFLAGS` environment variable can be defined to add additional arguments. The following switches are available to control the WFC domain to connect to.
+
+| Switch         | Domain           |
+| -------------- | ---------------- |
+| -DPROD         | rwfc.net         |
+| -DTEST         | zpltest.xyz      |
+| None Specified | nwfc.wiinoma.com |
+
+`CC` and `KAMEK` can both be set in a `.env` file to specify the location of your copy of mwcceppc and Kamek respectively.
 
 Credits:
 - Treeki for [Kamek](https://github.com/Treeki/Kamek/tree/master). The engine has been ever so slightly modified to create a new output format which combines the usual 4 binaries. 

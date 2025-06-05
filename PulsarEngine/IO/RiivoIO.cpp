@@ -7,7 +7,7 @@ namespace Pulsar {
 bool RiivoIO::OpenFile(const char* path, u32 mode) {
     RiivoMode riivoMode = this->GetRiivoMode(mode);
     this->GetCorrectPath(this->filePath, path);
-    return IO::OpenFileDirectly(this->filePath, riivoMode);
+    return IOSIO::OpenFileDirectly(this->filePath, riivoMode);
 }
 
 bool RiivoIO::CreateAndOpen(const char* path, u32 mode) {

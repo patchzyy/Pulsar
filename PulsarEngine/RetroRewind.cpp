@@ -1,9 +1,9 @@
-#include <MarioKartWii/Race/Racedata.hpp>
+#include <MarioKartWii/Race/RaceData.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
 #include <Settings/UI/SettingsPanel.hpp>
 #include <Settings/Settings.hpp>
 #include <MarioKartWii/RKNet/RKNetController.hpp>
-#include <RetroRewind.hpp>
+#include <Dolphin/DolphinIOS.hpp>
 
 namespace RetroRewind {
 Pulsar::System *System::Create() {
@@ -57,9 +57,10 @@ kmWrite32(0x8055422C, 0x48000044);
 
 void FPSPatch() {
   FPSPatchHook = 0x00;
+  bool isDolphin = Dolphin::IsEmulator();
   const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
   u32 localPlayerCount = scenario.localPlayerCount;
-  if (static_cast<Pulsar::FPS>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTIGNRR_RADIO_FPS)) == Pulsar::FPS_HALF || localPlayerCount > 1) {
+  if (static_cast<Pulsar::FPS>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR), Pulsar::SETTIGNRR_RADIO_FPS)) == Pulsar::FPS_HALF || localPlayerCount > 1 && !isDolphin) {
       FPSPatchHook = 0x00FF0100;
   }
 }
@@ -156,5 +157,13 @@ extern "C" void ItemVanish(unsigned int r0, unsigned int r12) {
   }
 }
 kmCall(0x8079F748, ItemVanish);
+
+void PredictionPatch() {
+  PredictionHook = 0x3dcccccd;
+  if (static_cast<Pulsar::MenuSettingPredictionRemoval>(Pulsar::Settings::Mgr::Get().GetSettingValue(static_cast<Pulsar::Settings::Type>(Pulsar::Settings::SETTINGSTYPE_MENU), Pulsar::SETTINGMENU_RADIO_PREDICTIONREMOVAL)) == Pulsar::MENUSETTING_PREDICTIONREMOVAL_ENABLED) {
+    PredictionHook = 0x3f800000;
+  }
+}
+static PageLoadHook PatchPrediction(PredictionPatch);
 
 } // namespace RetroRewind
