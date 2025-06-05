@@ -158,4 +158,12 @@ extern "C" void ItemVanish(unsigned int r0, unsigned int r12) {
 }
 kmCall(0x8079F748, ItemVanish);
 
+void PredictionPatch() {
+  PredictionHook = 0x3dcccccd;
+  if (static_cast<Pulsar::MenuSettingPredictionRemoval>(Pulsar::Settings::Mgr::Get().GetSettingValue(static_cast<Pulsar::Settings::Type>(Pulsar::Settings::SETTINGSTYPE_MENU), Pulsar::SETTINGMENU_RADIO_PREDICTIONREMOVAL)) == Pulsar::MENUSETTING_PREDICTIONREMOVAL_ENABLED) {
+    PredictionHook = 0x3f800000;
+  }
+}
+static PageLoadHook PatchPrediction(PredictionPatch);
+
 } // namespace RetroRewind

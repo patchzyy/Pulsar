@@ -229,7 +229,7 @@ void System::UpdateContext() {
     }
     this->netMgr.hostContext = newContext;
 
-    u32 preserved = this->context & ((1 << PULSAR_200_WW) | (1 << PULSAR_MODE_OTT) | (1 << PULSAR_CT) | (1 << PULSAR_RETROS));
+    u32 preserved = this->context & ((1 << PULSAR_200_WW) | (1 << PULSAR_MODE_OTT));
     
     // Set the new context value
     u64 newContextValue = (static_cast<u64>(isCT) << PULSAR_CT) | (static_cast<u64>(isHAW) << PULSAR_HAW) | (static_cast<u64>(isMiiHeads) << PULSAR_MIIHEADS);
@@ -371,7 +371,7 @@ kmRegionWrite32(0x80604094, 0x4800001c, 'E');
 kmWrite32(0x800017D0, 0x0A);
 
 //Retro Rewind Internal Version
-kmWrite32(0x800017D4, 6161);
+kmWrite32(0x800017D4, 618);
 
 const char System::pulsarString[] = "/Pulsar";
 const char System::CommonAssets[] = "/CommonAssets.szs";

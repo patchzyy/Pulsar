@@ -7,6 +7,7 @@
 #include <SlotExpansion/CupsConfig.hpp>
 #include <Network/PacketExpansion.hpp>
 #include <MarioKartWii/UI/Ctrl/CountDown.hpp>
+#include <core/System/SystemManager.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -225,7 +226,8 @@ void SettingsPanel::OnActivate() {
         if (this->sheetIdx == Settings::SETTINGSTYPE_KO || 
             this->sheetIdx == Settings::SETTINGSTYPE_OTT ||
             this->sheetIdx == Settings::SETTINGSTYPE_HOST ||
-            this->sheetIdx == Settings::SETTINGSTYPE_RRHOST) {
+            this->sheetIdx == Settings::SETTINGSTYPE_RRHOST ||
+            this->sheetIdx == Settings::SETTINGSTYPE_RRLANGUAGE) {
             return;
         }
     }
@@ -325,8 +327,28 @@ void SettingsPanel::OnBackPress(u32 hudSlotId) {
 
 void SettingsPanel::OnSaveButtonClick(PushButton& button, u32 hudSlotId) {
     PushButton& okButton = *this->externControls[0];
-    okButton.SelectFocus();      
-    this->LoadPrevMenuAndSaveSettings(button);
+    okButton.SelectFocus();
+    const u32 languagePageIdx = Settings::SETTINGSTYPE_RRLANGUAGE + Settings::Params::pulsarPageCount;
+    bool languageSettingsModified = false;
+    const Settings::Mgr& settings = Settings::Mgr::Get();
+    
+    if(!languageSettingsModified) {
+        for(int i = 0; i < Settings::Params::scrollerCount[languagePageIdx]; ++i) {
+            if(this->scrollerSettings[languagePageIdx][i] != 
+               settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRLANGUAGE, i + Settings::Params::maxRadioCount)) {
+                languageSettingsModified = true;
+                break;
+            }
+        }
+    }
+    
+    if(languageSettingsModified) {
+        this->SaveSettings(true);
+        Debug::LaunchSoftware();
+    }
+    else {
+        this->LoadPrevMenuAndSaveSettings(button);
+    }
 }
 
 void SettingsPanel::OnRightButtonClick(PushButton& button, u32 hudSlotId) {
@@ -349,7 +371,8 @@ void SettingsPanel::OnButtonClick(PushButton& button, u32 direction) {
         while (nextIdx == Settings::SETTINGSTYPE_KO || 
                nextIdx == Settings::SETTINGSTYPE_OTT ||
                nextIdx == Settings::SETTINGSTYPE_HOST ||
-               nextIdx == (Settings::SETTINGSTYPE_RRHOST + Settings::Params::pulsarPageCount)) {
+               nextIdx == (Settings::SETTINGSTYPE_RRHOST + Settings::Params::pulsarPageCount) ||
+               nextIdx == (Settings::SETTINGSTYPE_RRLANGUAGE + Settings::Params::pulsarPageCount)) {
             nextIdx = (nextIdx + direction + Settings::Params::pageCount) % Settings::Params::pageCount;
         }
     }

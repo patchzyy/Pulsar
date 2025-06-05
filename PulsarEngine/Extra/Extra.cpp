@@ -16,9 +16,6 @@ kmWrite32(0x80895CE4, 0x00FF00FF);
 kmWrite32(0x80895CE8, 0x00FF00FF);
 kmWrite32(0x80895CEC, 0x00FF0046);
 
-//No Sun Filter [Anarion]
-kmWrite8(0x802575DF, 0x00);
-
 //Remove Background Blur [Davidevgen]
 kmWrite32(0x80258184, 0x30);
 

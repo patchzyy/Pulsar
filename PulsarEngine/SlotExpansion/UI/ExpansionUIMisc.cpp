@@ -32,7 +32,51 @@ int GetTrackBMGId(PulsarId pulsarId, bool useCommonName) {
     u32 realId = CupsConfig::ConvertTrack_PulsarIdToRealId(pulsarId);
     if (CupsConfig::IsReg(pulsarId)) bmgId = realId > 32 ? BMG_BATTLE : BMG_REGS;
     else {
-        bmgId = BMG_TRACKS;
+        Pulsar::Language currentLanguage = static_cast<Pulsar::Language>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RRLANGUAGE), Pulsar::SETTINGRRLANGUAGE_LANGUAGE));
+        switch (currentLanguage) {
+            case Pulsar::LANGUAGE_JAPANESE:
+                bmgId = BMG_TRACKS + 0x1000;
+                break;
+            case Pulsar::LANGUAGE_FRENCH:
+                bmgId = BMG_TRACKS + 0x2000;
+                break;
+            case Pulsar::LANGUAGE_GERMAN:
+                bmgId = BMG_TRACKS + 0x3000;
+                break;
+            case Pulsar::LANGUAGE_DUTCH:
+                bmgId = BMG_TRACKS + 0x4000;
+                break;
+            case Pulsar::LANGUAGE_SPANISHUS:
+                bmgId = BMG_TRACKS + 0x5000;
+                break;
+            case Pulsar::LANGUAGE_SPANISHEU:
+                bmgId = BMG_TRACKS + 0x6000;
+                break;
+            case Pulsar::LANGUAGE_FINNISH:
+                bmgId = BMG_TRACKS + 0x7000;
+                break;
+            case Pulsar::LANGUAGE_ITALIAN:
+                bmgId = BMG_TRACKS + 0x8000;
+                break;
+            case Pulsar::LANGUAGE_KOREAN:
+                bmgId = BMG_TRACKS + 0x9000;
+                break;
+            case Pulsar::LANGUAGE_RUSSIAN:
+                bmgId = BMG_TRACKS + 0xA000;
+                break;
+            case Pulsar::LANGUAGE_TURKISH:
+                bmgId = BMG_TRACKS + 0xB000;
+                break;
+            case Pulsar::LANGUAGE_CZECH:
+                bmgId = BMG_TRACKS + 0xC000;
+                break;
+            case Pulsar::LANGUAGE_ENGLISH:
+                bmgId = BMG_TRACKS;
+                break;
+            default:
+                bmgId = BMG_TRACKS;
+                break;
+        }
         const CupsConfig* cupsConfig = CupsConfig::sInstance;
         u8 variantIdx;
         if (useCommonName) {
@@ -66,8 +110,9 @@ static void SetVSIntroBmgId(LayoutUIControl* trackName) {
     Text::Info info;
     info.bmgToPass[0] = bmgId;
     u32 authorId;
+    u32 languageFix = static_cast<Pulsar::Language>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RRLANGUAGE), Pulsar::SETTINGRRLANGUAGE_LANGUAGE)) * 0x1000;
     if (bmgId < BMG_TRACKS) authorId = BMG_NINTENDO;
-    else authorId = bmgId + BMG_AUTHORS - BMG_TRACKS;
+    authorId = bmgId + BMG_AUTHORS - BMG_TRACKS - languageFix;
     info.bmgToPass[1] = authorId;
     trackName->SetMessage(BMG_INFO_DISPLAY, &info);
 }
