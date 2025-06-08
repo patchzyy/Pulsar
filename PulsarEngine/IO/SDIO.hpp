@@ -5,6 +5,12 @@
 
 namespace Pulsar {
     
+#define O_RDONLY                0
+#define O_WRONLY                1
+#define O_RDWR                  2
+#define O_APPEND                0x0008
+#define O_CREAT                 0x0200
+
     struct file_struct {
         u32 filesize;
         u8 _unused[76];
