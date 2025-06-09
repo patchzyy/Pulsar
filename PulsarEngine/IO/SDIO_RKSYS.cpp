@@ -15,9 +15,14 @@ namespace Pulsar
         snprintf(path, pathlen, "/riivolution/save/RetroWFC/RMC%c/rksys.dat", GetRegion());
     }
 
+    bool useSDRKSYS()
+    {
+        return IsNewChannel() && NewChannel_UseSeparateSavegame() && IO::sInstance->type == IOType_SD;
+    }
+
     NandUtils::Result SDIO_ReadRKSYS(NandMgr* nm, void *buffer, u32 size, u32 offset, bool r7) // 8052c0b0
     {
-        if(IsNewChannel() && NewChannel_UseSeparateSavegame())
+        if(useSDRKSYS())
         {
             OS::Report("* SDIO_RKSYS: ReadRKSYS (size: %i offset: %i bool: %i)\n", size, offset, r7);
             bool res;
@@ -34,8 +39,6 @@ namespace Pulsar
             IO::sInstance->Read(size, buffer);
             IO::sInstance->Close();
 
-            OS::Report("* SDIO_RKSYS: ReadRKSYS done\n");
-
             return NandUtils::NAND_RESULT_OK;
         } else {
             asmVolatile(stwu sp, -0x00B0 (sp););
@@ -46,7 +49,7 @@ namespace Pulsar
 
     NandUtils::Result SDIO_CheckRKSYSLength(NandMgr* nm, u32 length) // 8052c20c
     {
-        if(IsNewChannel() && NewChannel_UseSeparateSavegame())
+        if(useSDRKSYS())
         {
             OS::Report("* SDIO_RKSYS: CheckRKSYSLength (length: %i)\n", length);
             bool res;
@@ -81,7 +84,7 @@ namespace Pulsar
 
     NandUtils::Result SDIO_WriteToRKSYS(NandMgr* nm, const void *buffer, u32 size, u32 offset, bool r7) // 8052c2d0
     {
-        if(IsNewChannel() && NewChannel_UseSeparateSavegame())
+        if(useSDRKSYS())
         {
             OS::Report("* SDIO_RKSYS: WriteToRKSYS (size: %i offset: %i bool: %i)\n", size, offset, r7);
             bool res;
@@ -110,8 +113,6 @@ namespace Pulsar
             OS::Report("* SDIO_RKSYS: WriteToRKSYS: wrote %i bytes\n", IO::sInstance->Write(size, buffer));
             IO::sInstance->Close();
 
-            OS::Report("* SDIO_RKSYS: WriteToRKSYS done\n");
-
             return NandUtils::NAND_RESULT_OK;
         } else {
             asmVolatile(stwu sp, -0x00B0 (sp););
@@ -123,13 +124,16 @@ namespace Pulsar
     
     NandUtils::Result SDIO_CreateRKSYS(NandMgr* nm, u32 length) // 8052c68c
     {
-        if(IsNewChannel() && NewChannel_UseSeparateSavegame())
+        if(useSDRKSYS())
         {
-            OS::Report("* SDIO_RKSYS: CreateRKSYS\n");
             bool res;
             char path[64];
             SDIO_RKSYS_path(path, sizeof(path));
-            res = IO::sInstance->CreateAndOpen(path, O_RDWR);
+
+            OS::Report("* SDIO_RKSYS: CreateRKSYS (%s)\n", path);
+
+            res = IO::sInstance->CreateAndOpen(path, O_CREAT);
+
             if(!res)
             {
                 OS::Report("* SDIO_RKSYS: CreateRKSYS: Failed to create or open RKSYS\n");
@@ -148,7 +152,7 @@ namespace Pulsar
 
     NandUtils::Result SDIO_DeleteRKSYS(NandMgr* nm, u32 length, bool r5) // 8052c7e4
     {
-        if(IsNewChannel() && NewChannel_UseSeparateSavegame())
+        if(useSDRKSYS())
         {
             OS::Report("* SDIO_RKSYS: DeleteRKSYS (length: %p/%i)\n", length, length);
             return NandUtils::NAND_RESULT_OK;

@@ -26,7 +26,7 @@ namespace Pulsar {
         u32 st_mode;
         u8 _unused2[76];
     };
-    
+
     // Should be in sync with the assertions in runtime-ext
     size_assert(file_struct, 80);
     size_assert(dir_struct, 836);
