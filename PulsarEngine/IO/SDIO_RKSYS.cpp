@@ -1,6 +1,7 @@
 #include <IO/SDIO_RKSYS.hpp>
 #include <PulsarSystem.hpp>
 #include <IO/SDIO.hpp>
+#include <RetroRewindChannel.hpp>
 
 namespace Pulsar
 {

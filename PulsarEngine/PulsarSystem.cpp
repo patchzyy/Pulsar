@@ -14,6 +14,7 @@
 #include <SlotExpansion/CupsConfig.hpp>
 #include <core/egg/DVD/DvdRipper.hpp>
 #include <MarioKartWii/UI/Page/Other/FriendList.hpp>
+#include <RetroRewindChannel.hpp>
 
 namespace Pulsar {
 
@@ -45,16 +46,6 @@ System::System() :
     koMgr(nullptr) {
 }
 
-bool IsNewChannel() {
-    // Signature written by the new launcher.
-    return *reinterpret_cast<u32*>(0x93400100) == 0xDEADBEEF;
-}
-
-bool NewChannel_UseSeparateSavegame() {
-    // Signature written by the new launcher.
-    return *reinterpret_cast<u8*>(0x93400104) & 0x1 == 1;
-}
-
 void System::Init(const ConfigFile& conf) {
     IOType type = IOType_ISO;
     s32 ret = IO::OpenFix("file", IOS::MODE_NONE);
@@ -65,6 +56,7 @@ void System::Init(const ConfigFile& conf) {
     }
     else if (IsNewChannel()) {
         type = IOType_SD;
+        NewChannel_SetLoadedFromRRFlag();
     }
     else {
         ret = IO::OpenFix("/dev/dolphin", IOS::MODE_NONE);
@@ -73,6 +65,7 @@ void System::Init(const ConfigFile& conf) {
             IOS::Close(ret);
         }
     }
+
     strncpy(this->modFolderName, conf.header.modFolderName, IOS::ipcMaxFileName);
     static char* pulMagic = reinterpret_cast<char*>(0x800017CC);
     strcpy(pulMagic, "PUL2");
@@ -102,6 +95,9 @@ void System::Init(const ConfigFile& conf) {
     this->rawBmg = EGG::Heap::alloc<BMGHeader>(confBMG->fileLength, 0x4, RootScene::sInstance->expHeapGroup.heaps[1]);
     memcpy(this->rawBmg, confBMG, confBMG->fileLength);
     this->customBmgs.Init(*this->rawBmg);
+
+    *((u32*)0x7654321) = -1;
+
     this->AfterInit();
 }
 
