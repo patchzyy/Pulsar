@@ -49,21 +49,24 @@ System::System() :
 void System::Init(const ConfigFile& conf) {
     IOType type = IOType_ISO;
     s32 ret = IO::OpenFix("file", IOS::MODE_NONE);
-
     if(ret >= 0) {
+        IOS::Close(ret);
+    }
+    s32 dolphin_ret = IO::OpenFix("/dev/dolphin", IOS::MODE_NONE);
+    if(dolphin_ret >= 0) {
+        IOS::Close(dolphin_ret);
+    }
+
+    if(ret >= 0 && dolphin_ret == -1) {
         type = IOType_RIIVO;
         IOS::Close(ret);
     }
-    else if (IsNewChannel()) {
-        type = IOType_SD;
+    else if (IsNewChannel() && dolphin_ret == -1) {
         NewChannel_SetLoadedFromRRFlag();
+        type = IOType_SD;
     }
-    else {
-        ret = IO::OpenFix("/dev/dolphin", IOS::MODE_NONE);
-        if(ret >= 0) {
-            type = IOType_DOLPHIN;
-            IOS::Close(ret);
-        }
+    else if(dolphin_ret != -1) {
+        type = IOType_DOLPHIN;
     }
 
     strncpy(this->modFolderName, conf.header.modFolderName, IOS::ipcMaxFileName);
@@ -95,8 +98,6 @@ void System::Init(const ConfigFile& conf) {
     this->rawBmg = EGG::Heap::alloc<BMGHeader>(confBMG->fileLength, 0x4, RootScene::sInstance->expHeapGroup.heaps[1]);
     memcpy(this->rawBmg, confBMG, confBMG->fileLength);
     this->customBmgs.Init(*this->rawBmg);
-
-    *((u32*)0x7654321) = -1;
 
     this->AfterInit();
 }

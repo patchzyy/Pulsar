@@ -13,23 +13,31 @@ namespace Pulsar
     /* Must be preallocated */
     void SDIO_RKSYS_path(char* path, u32 pathlen)
     {
-        snprintf(path, pathlen, "/riivolution/save/RetroWFC/RMC%c/rksys.dat", GetRegion());
+        if(IO::sInstance->type == IOType_DOLPHIN)
+        {
+            snprintf(path, pathlen, "/RetroRewind6/rksys-%c.dat", GetRegion());
+        } else {
+            snprintf(path, pathlen, "/riivolution/save/RetroWFC/RMC%c/rksys.dat", GetRegion());
+        }
     }
 
-    bool useSDRKSYS()
+
+
+    bool useRedirectedRKSYS()
     {
-        return IsNewChannel() && NewChannel_UseSeparateSavegame() && IO::sInstance->type == IOType_SD;
+        return IsNewChannel() && NewChannel_UseSeparateSavegame();
     }
 
     NandUtils::Result SDIO_ReadRKSYS(NandMgr* nm, void *buffer, u32 size, u32 offset, bool r7) // 8052c0b0
     {
-        if(useSDRKSYS())
+        if(useRedirectedRKSYS())
         {
             OS::Report("* SDIO_RKSYS: ReadRKSYS (size: %i offset: %i bool: %i)\n", size, offset, r7);
             bool res;
             char path[64];
             SDIO_RKSYS_path(path, sizeof(path));
-            res = IO::sInstance->OpenFile(path, O_RDONLY);
+            int mode = IO::sInstance->type == IOType_DOLPHIN ? FILE_MODE_READ : O_RDONLY;
+            res = IO::sInstance->OpenFile(path, mode);
             if(!res)
             {
                 OS::Report("* SDIO_RKSYS: ReadRKSYS: Failed to open RKSYS\n");
@@ -37,7 +45,7 @@ namespace Pulsar
             }
 
             IO::sInstance->Seek(offset);
-            IO::sInstance->Read(size, buffer);
+            OS::Report("* SDIO_RKSYS: ReadRKSYS: read %i bytes\n", IO::sInstance->Read(size, buffer));
             IO::sInstance->Close();
 
             return NandUtils::NAND_RESULT_OK;
@@ -50,13 +58,14 @@ namespace Pulsar
 
     NandUtils::Result SDIO_CheckRKSYSLength(NandMgr* nm, u32 length) // 8052c20c
     {
-        if(useSDRKSYS())
+        if(useRedirectedRKSYS())
         {
             OS::Report("* SDIO_RKSYS: CheckRKSYSLength (length: %i)\n", length);
             bool res;
             char path[64];
             SDIO_RKSYS_path(path, sizeof(path));
-            res = IO::sInstance->OpenFile(path, O_RDONLY);
+            int mode = IO::sInstance->type == IOType_DOLPHIN ? FILE_MODE_READ : O_RDONLY;
+            res = IO::sInstance->OpenFile(path, mode);
             if(!res)
             {
                 OS::Report("* SDIO_RKSYS: CheckRKSYSLength: Failed to open RKSYS\n");
@@ -85,13 +94,14 @@ namespace Pulsar
 
     NandUtils::Result SDIO_WriteToRKSYS(NandMgr* nm, const void *buffer, u32 size, u32 offset, bool r7) // 8052c2d0
     {
-        if(useSDRKSYS())
+        if(useRedirectedRKSYS())
         {
             OS::Report("* SDIO_RKSYS: WriteToRKSYS (size: %i offset: %i bool: %i)\n", size, offset, r7);
             bool res;
             char path[64];
             SDIO_RKSYS_path(path, sizeof(path));
-            res = IO::sInstance->OpenFile(path, O_RDWR);
+            int mode = IO::sInstance->type == IOType_DOLPHIN ? FILE_MODE_READ_WRITE : O_RDWR;
+            res = IO::sInstance->OpenFile(path, mode);
 
             if(!res)
             {
@@ -125,15 +135,16 @@ namespace Pulsar
     
     NandUtils::Result SDIO_CreateRKSYS(NandMgr* nm, u32 length) // 8052c68c
     {
-        if(useSDRKSYS())
+        if(useRedirectedRKSYS())
         {
             bool res;
             char path[64];
             SDIO_RKSYS_path(path, sizeof(path));
 
             OS::Report("* SDIO_RKSYS: CreateRKSYS (%s)\n", path);
+            int mode = IO::sInstance->type == IOType_DOLPHIN ? FILE_MODE_NONE : O_CREAT;
 
-            res = IO::sInstance->CreateAndOpen(path, O_CREAT);
+            res = IO::sInstance->CreateAndOpen(path, mode);
 
             if(!res)
             {
@@ -153,7 +164,7 @@ namespace Pulsar
 
     NandUtils::Result SDIO_DeleteRKSYS(NandMgr* nm, u32 length, bool r5) // 8052c7e4
     {
-        if(useSDRKSYS())
+        if(useRedirectedRKSYS())
         {
             OS::Report("* SDIO_RKSYS: DeleteRKSYS (length: %p/%i)\n", length, length);
             return NandUtils::NAND_RESULT_OK;
