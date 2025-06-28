@@ -82,13 +82,15 @@ Network:
 
 # Building
 
-A makefile is available at the root of the repository. The `CFLAGS` environment variable can be defined to add additional arguments. The following switches are available to control the WFC domain to connect to.
+A makefile is available at the root of the repository. The `CFLAGS` environment variable can be defined to add additional arguments. The following switches are available to control the WFC domain to connect to and the keys used.
 
 | Switch         | Domain           |
 | -------------- | ---------------- |
 | -DPROD         | rwfc.net         |
 | -DTEST         | zpltest.xyz      |
 | None Specified | nwfc.wiinoma.com |
+
+When using nwfc.wiinoma.com for a local testing server, the default key is used, which can be found [here](https://github.com/Retro-Rewind-Team/wfc-patcher-wii/blob/main/misc/private-key-DEFAULT.pem)
 
 `CC` and `KAMEK` can both be set in a `.env` file to specify the location of your copy of mwcceppc and Kamek respectively.
 
