@@ -326,29 +326,7 @@ void SettingsPanel::OnBackPress(u32 hudSlotId) {
 }
 
 void SettingsPanel::OnSaveButtonClick(PushButton& button, u32 hudSlotId) {
-    PushButton& okButton = *this->externControls[0];
-    okButton.SelectFocus();
-    const u32 languagePageIdx = Settings::SETTINGSTYPE_RRLANGUAGE + Settings::Params::pulsarPageCount;
-    bool languageSettingsModified = false;
-    const Settings::Mgr& settings = Settings::Mgr::Get();
-    
-    if(!languageSettingsModified) {
-        for(int i = 0; i < Settings::Params::scrollerCount[languagePageIdx]; ++i) {
-            if(this->scrollerSettings[languagePageIdx][i] != 
-               settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRLANGUAGE, i + Settings::Params::maxRadioCount)) {
-                languageSettingsModified = true;
-                break;
-            }
-        }
-    }
-    
-    if(languageSettingsModified) {
-        this->SaveSettings(true);
-        Debug::LaunchSoftware();
-    }
-    else {
-        this->LoadPrevMenuAndSaveSettings(button);
-    }
+    this->LoadPrevMenuAndSaveSettings(button);
 }
 
 void SettingsPanel::OnRightButtonClick(PushButton& button, u32 hudSlotId) {
