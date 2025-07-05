@@ -21,40 +21,40 @@ void LoadAssetsFile(ArchiveFile* file, const char* path, EGG::Heap* decompressed
         const char* langSuffix = "";
         switch (currentLanguage) {
             case Pulsar::LANGUAGE_JAPANESE:
-                langSuffix = "_JP";
+                langSuffix = "_J";
                 break;
             case Pulsar::LANGUAGE_FRENCH:
-                langSuffix = "_FR";
+                langSuffix = "_F";
                 break;
             case Pulsar::LANGUAGE_GERMAN:
-                langSuffix = "_DE";
+                langSuffix = "_G";
                 break;
             case Pulsar::LANGUAGE_DUTCH:
-                langSuffix = "_NL";
+                langSuffix = "_D";
                 break;
             case Pulsar::LANGUAGE_SPANISHUS:
-                langSuffix = "_SPUS";
+                langSuffix = "_AS";
                 break;
             case Pulsar::LANGUAGE_SPANISHEU:
-                langSuffix = "_SPEU";
+                langSuffix = "_ES";
                 break;
             case Pulsar::LANGUAGE_FINNISH:
                 langSuffix = "_FI";
                 break;
             case Pulsar::LANGUAGE_ITALIAN:
-                langSuffix = "_IT";
+                langSuffix = "_I";
                 break;
             case Pulsar::LANGUAGE_KOREAN:
-                langSuffix = "_KR";
+                langSuffix = "_K";
                 break;
             case Pulsar::LANGUAGE_RUSSIAN:
-                langSuffix = "_RU";
+                langSuffix = "_R";
                 break;
             case Pulsar::LANGUAGE_TURKISH:
-                langSuffix = "_TR";
+                langSuffix = "_T";
                 break;
             case Pulsar::LANGUAGE_CZECH:
-                langSuffix = "_CZ";
+                langSuffix = "_C";
                 break;
             case Pulsar::LANGUAGE_ENGLISH:
                 langSuffix = "";
@@ -64,7 +64,7 @@ void LoadAssetsFile(ArchiveFile* file, const char* path, EGG::Heap* decompressed
                 break;
         }
         char newPath[0x20];
-        snprintf(newPath, 0x20, "%s%sAssets.szs", baseType, langSuffix);
+        snprintf(newPath, 0x20, "%sAssets%s.szs", baseType, langSuffix);
         path = newPath;
     }
     else if(file == &archiveMgr->archivesHolders[ARCHIVE_HOLDER_COMMON]->archives[2]) path = System::CommonAssets;
