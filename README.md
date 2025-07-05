@@ -28,6 +28,7 @@ The following features are licensed under AGPLv3:
 - Player count calculation, display and feature implementation
 - Extended Team VS, UI changes, feature implementation, and all code associated
 - The specific Discord Rich Presence implementation used by Retro Rewind and code associated
+- Item Rain code found in ItemRain.cpp
 
 **NOTE:** You can ask to be fully exempted from these licensing constraints, feel free to contact the code author(s)
 
