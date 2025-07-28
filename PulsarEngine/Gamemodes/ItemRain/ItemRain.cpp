@@ -127,7 +127,7 @@ void SpawnItemRain() {
     if (!Pulsar::System::sInstance->IsContext(PULSAR_ITEMMODERAIN) && !Pulsar::System::sInstance->IsContext(PULSAR_ITEMMODESTORM)) return;
     if (Pulsar::System::sInstance->IsContext(PULSAR_MODE_OTT)) return;
     if (RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_FROOM_HOST && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_FROOM_NONHOST && 
-        RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_NONE) return;
+        RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_NONE && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_REGIONAL) return;
     if (mode == MODE_TIME_TRIAL) return;
     if (!Racedata::sInstance || !Raceinfo::sInstance || !Item::Manager::sInstance) return;
     if (!Raceinfo::sInstance->IsAtLeastStage(RACESTAGE_RACE)) return;

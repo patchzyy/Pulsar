@@ -24,8 +24,8 @@ ut::Color GetFriendColor(u32 friendIdx) {
         friendRegion = friendData->statusData.regionId;
     }
     
-    // Check if friend is in one of the special regions (0x14, 0x15, 0x16)
-    bool isSpecialRegion = (friendRegion == 0x14 || friendRegion == 0x15 || friendRegion == 0x16);
+    // Check if friend is in one of the special regions (0x14, 0x15, 0x16, 0x17)
+    bool isSpecialRegion = (friendRegion == 0x14 || friendRegion == 0x15 || friendRegion == 0x16 || friendRegion == 0x17);
     
     switch(type) {
         case RKNet::SEARCH_TYPE_VS_WW: 
@@ -235,6 +235,8 @@ void GlobeMsgColor(Pages::Globe::MessageWindow& msg, u32 bmgId, Text::Info* info
         bmgId = UI::BMG_OTT_PLAYING;
     } else if (friendRegion == 0x16 || friendRegion == 0xC) {
         bmgId = UI::BMG_200_PLAYING;
+    } else if (friendRegion == 0x17 || friendRegion == 0xD) {
+        bmgId = UI::BMG_ITEM_RAIN_PLAYING;
     }
 
     msg.SetMessage(bmgId, info);
@@ -246,11 +248,14 @@ void GlobeMsgColor(Pages::Globe::MessageWindow& msg, u32 bmgId, Text::Info* info
 kmCall(0x805e504c, GlobeMsgColor);
 
 void GlobeSearchTopMsg(CtrlMenuPageTitleText& title, u32 bmgId, Text::Info* info) {
-    if(System::sInstance->netMgr.region == 0x0B) bmgId = UI::BMG_OTT_TITLE_TEXT;
+    if(System::sInstance->netMgr.region == 0x0A) bmgId = UI::BMG_TITLE_TEXT_RT;
+    else if(System::sInstance->netMgr.region == 0x0B) bmgId = UI::BMG_OTT_TITLE_TEXT;
     else if(System::sInstance->netMgr.region == 0x0C) bmgId = UI::BMG_200_TITLE_TEXT;
+    else if(System::sInstance->netMgr.region == 0x0D) bmgId = UI::BMG_ITEM_RAIN_TITLE_TEXT;
     else if(System::sInstance->netMgr.region == 0x14) bmgId = UI::BMG_TITLE_TEXT_CT;
     else if(System::sInstance->netMgr.region == 0x15) bmgId = UI::BMG_OTT_TITLE_TEXT_CT;
     else if(System::sInstance->netMgr.region == 0x16) bmgId = UI::BMG_200_TITLE_TEXT_CT;
+    else if(System::sInstance->netMgr.region == 0x17) bmgId = UI::BMG_ITEM_RAIN_TITLE_TEXT_CT;
     title.SetMessage(bmgId, info);
 }
 kmCall(0x80608658, GlobeSearchTopMsg);

@@ -76,6 +76,8 @@ public:
     PushButton ctButton;
     PushButton ottButtonCT;
     PushButton twoHundredButtonCT;
+    PushButton itemRainButton;
+    PushButton itemRainButtonCT;
     LayoutUIControl vrButton;
     static u32 lastClickedButton;
     u32 region;
@@ -84,6 +86,8 @@ public:
     static const u32 ctButtonId = 6;
     static const u32 ottButtonIdCT = 7;
     static const u32 twoHundredButtonIdCT = 8;
+    static const u32 itemRainButtonId = 9;
+    static const u32 itemRainButtonIdCT = 10;
 };
 }//namespace UI
 }//namespace Pulsar

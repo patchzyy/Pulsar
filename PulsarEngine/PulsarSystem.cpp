@@ -237,6 +237,7 @@ void System::UpdateContext() {
     this->netMgr.hostContext2 = newContext2;
 
     u32 preserved = this->context & ((1 << PULSAR_200_WW) | (1 << PULSAR_MODE_OTT));
+    u32 preserved2 = this->context2 & (1 <<PULSAR_ITEMMODERAIN);
     
     // Set the new context value
     u32 newContextValue = (isCT) << PULSAR_CT | (isHAW) << PULSAR_HAW;
@@ -262,7 +263,7 @@ void System::UpdateContext() {
     
     // Combine the new context with preserved bits
     this->context = newContextValue | preserved;
-    this->context2 = newContextValue2;
+    this->context2 = newContextValue2 | preserved2;
 
     // Set contexts based on region for regionals
     const u32 region = this->netMgr.region;
@@ -272,17 +273,27 @@ void System::UpdateContext() {
                 this->context |= (1 << PULSAR_RETROS);
                 sInstance->context &= ~(1 << PULSAR_200_WW);
                 sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
                 break;
                 
             case 0x0B:  // OTT with retro tracks
                 this->context |= (1 << PULSAR_RETROS);
                 sInstance->context &= ~(1 << PULSAR_200_WW);
                 this->context |= (1 << PULSAR_MODE_OTT);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
                 break;
                 
             case 0x0C:  // 200cc with retro tracks
                 this->context |= (1 << PULSAR_RETROS);
                 this->context |= (1 << PULSAR_200_WW);
+                sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
+                break;
+            
+            case 0x0D:  // Item Rain with retro tracks
+                this->context |= (1 << PULSAR_RETROS);
+                this->context2 |= (1 << PULSAR_ITEMMODERAIN);
+                sInstance->context &= ~(1 << PULSAR_200_WW);
                 sInstance->context &= ~(1 << PULSAR_MODE_OTT);
                 break;
                 
@@ -290,17 +301,27 @@ void System::UpdateContext() {
                 this->context |= (1 << PULSAR_CTS);
                 sInstance->context &= ~(1 << PULSAR_200_WW);
                 sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
                 break;
                 
             case 0x15:  // OTT with custom tracks
                 this->context |= (1 << PULSAR_CTS);
                 sInstance->context &= ~(1 << PULSAR_200_WW);
                 this->context |= (1 << PULSAR_MODE_OTT);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
                 break;
                 
             case 0x16:  // 200cc with custom tracks
                 this->context |= (1 << PULSAR_CTS);
                 this->context |= (1 << PULSAR_200_WW);
+                sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
+                break;
+            
+            case 0x17:  // Item Rain with custom tracks
+                this->context |= (1 << PULSAR_CTS);
+                this->context2 |= (1 << PULSAR_ITEMMODERAIN);
+                sInstance->context &= ~(1 << PULSAR_200_WW);
                 sInstance->context &= ~(1 << PULSAR_MODE_OTT);
                 break;
         }

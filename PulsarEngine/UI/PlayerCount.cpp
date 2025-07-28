@@ -115,24 +115,28 @@ static int RR_numPlayersRegular = 0;
 static int RR_numPlayers200cc = 0;
 static int RR_numPlayers150cc = 0;
 static int RR_numPlayersOTT = 0;
+static int RR_numPlayersIR = 0;
 
 static int CT_numPlayers200cc = 0;
 static int CT_numPlayers150cc = 0;
 static int CT_numPlayersOTT = 0;
+static int CT_numPlayersIR = 0;
 
 static int RR_numPlayersOthers = 0;
 static int RR_numPlayersTotal = 0;
 
-void PlayerCount::GetNumbersRR(int& n150cc, int& n200c, int& nOtt) {
+void PlayerCount::GetNumbersRR(int& n150cc, int& n200c, int& nOtt, int& nIR) {
     n150cc = RR_numPlayers150cc;
     n200c = RR_numPlayers200cc;
     nOtt = RR_numPlayersOTT;
+    nIR = RR_numPlayersIR;
 }
 
-void PlayerCount::GetNumbersCT(int& n150cc, int& n200c, int& nOtt) {
+void PlayerCount::GetNumbersCT(int& n150cc, int& n200c, int& nOtt, int& nIR) {
     n150cc = CT_numPlayers150cc;
     n200c = CT_numPlayers200cc;
     nOtt = CT_numPlayersOTT;
+    nIR = CT_numPlayersIR;
 }
 
 void PlayerCount::GetNumbersRegular(int& nRegular) {
@@ -153,8 +157,8 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
         int totalPlayers = 0;
         int numElse = 0;
         int numRegs = 0;
-        int RR_local150cc = 0, RR_local200cc = 0, RR_localOTT = 0;
-        int CT_local150cc = 0, CT_local200cc = 0, CT_localOTT = 0;
+        int RR_local150cc = 0, RR_local200cc = 0, RR_localOTT = 0, RR_localIR = 0;
+        int CT_local150cc = 0, CT_local200cc = 0, CT_localOTT = 0, CT_localIR = 0;
         for (int i = 0; i < ServerBrowserCount(sb); i++) {
             SBServer server = ServerBrowserGetServer(sb, i);
             
@@ -172,12 +176,16 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
                     RR_local200cc += numplayers;
                 } else if (regionID == 0x0B) {
                     RR_localOTT += numplayers;
+                } else if (regionID == 0x0D) {
+                    RR_localIR += numplayers;
                 } else if(regionID == 0x14) {
                     CT_local150cc += numplayers;
                 } else if(regionID == 0x16) {
                     CT_local200cc += numplayers;
                 } else if(regionID == 0x15) {
                     CT_localOTT += numplayers;
+                } else if (regionID == 0x17) {
+                    CT_localIR += numplayers;
                 } else if (regionID == 0x13371337) {
                     numRegs += numplayers;
                 } else {
@@ -191,10 +199,12 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
         RR_numPlayers150cc = RR_local150cc;
         RR_numPlayers200cc = RR_local200cc;
         RR_numPlayersOTT = RR_localOTT;
+        RR_numPlayersIR = RR_localIR;
 
         CT_numPlayers150cc = CT_local150cc;
         CT_numPlayers200cc = CT_local200cc;
         CT_numPlayersOTT = CT_localOTT;
+        CT_numPlayersIR = CT_localIR;
 
         RR_numPlayersRegular = numRegs;
 

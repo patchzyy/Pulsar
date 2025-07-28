@@ -45,7 +45,15 @@ void ItemRainFix() {
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || 
         RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || 
         RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
-        if (Pulsar::System::sInstance->IsContext(PULSAR_ITEMMODESTORM) || Pulsar::System::sInstance->IsContext(PULSAR_ITEMMODERAIN)) {
+        if (Pulsar::System::sInstance->IsContext(PULSAR_ITEMMODESTORM)) {
+            ItemRainOnlineFixHook = 0x00FF0100;
+        }
+    }
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || 
+        RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || 
+        RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE ||
+        RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) {
+        if (Pulsar::System::sInstance->IsContext(PULSAR_ITEMMODERAIN)) {
             ItemRainOnlineFixHook = 0x00FF0100;
         }
     }
