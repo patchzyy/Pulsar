@@ -62,6 +62,7 @@ public:
     CharacterId randomizedCharIdx[2];
     CharacterId rolledCharIdx[2];
     s32 rouletteCounter;
+    s32 buttonCooldown;
 
 };
 

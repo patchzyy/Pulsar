@@ -244,6 +244,7 @@ ExpCharacterSelect::ExpCharacterSelect() : rouletteCounter(-1) {
 
 void ExpCharacterSelect::BeforeControlUpdate() {
     //CtrlMenuCharacterSelect::ButtonDriver* array = this->ctrlMenuCharSelect.driverButtonsArray;
+    
     const s32 roulette = this->rouletteCounter;
     bool charRestrictLight = Pulsar::CHAR_DEFAULTSELECTION;
     bool charRestrictMid = Pulsar::CHAR_DEFAULTSELECTION;
@@ -256,6 +257,9 @@ void ExpCharacterSelect::BeforeControlUpdate() {
     if(roulette > 0) {
         --this->rouletteCounter;
         this->controlsManipulatorManager.inaccessible = true;
+    }
+    if(this->buttonCooldown > 0) {
+        --this->buttonCooldown;
     }
     for(int hudId = 0; hudId < SectionMgr::sInstance->sectionParams->localPlayerCount; ++hudId) {
         CharacterId prevChar = this->rolledCharIdx[hudId];
@@ -281,7 +285,13 @@ void ExpCharacterSelect::BeforeControlUpdate() {
             //array[this->rolledCharIdx].HandleSelect(0, -1);
 
         }
-        else if(roulette == 0) this->ctrlMenuCharSelect.GetButtonDriver(randomizedCharIdx[hudId])->HandleClick(hudId, -1);
+        else if(roulette == 0) {
+            if(this->buttonCooldown == 0) {
+                this->ctrlMenuCharSelect.GetButtonDriver(randomizedCharIdx[hudId])->HandleClick(hudId, -1);
+                if(Settings::Mgr::Get().GetSettingValue(Settings::SETTINGSTYPE_MENU, SETTINGMENU_RADIO_FASTMENUS) == MENUSETTING_FASTMENUS_ENABLED) this->buttonCooldown = 30;
+                else this->buttonCooldown = 150;
+            }
+        }
     }
 
     //array[this->randomizedCharIdx].HandleClick(0, -1);
@@ -394,33 +404,9 @@ void ExpMultiKartSelect::BeforeControlUpdate() {
 }
 
 void DriftSelectBeforeControlUpdate(Pages::DriftSelect* driftSelect) {
-    SectionMgr* sectionMgr = SectionMgr::sInstance;
-    ExpCharacterSelect* charSelect = sectionMgr->curSection->Get<ExpCharacterSelect>();
+    ExpCharacterSelect* charSelect = SectionMgr::sInstance->curSection->Get<ExpCharacterSelect>();
     if(charSelect->rouletteCounter != -1 && driftSelect->currentState == 0x4) {
-        driftSelect->controlsManipulatorManager.inaccessible = true;
-        
-        // Get selected kart ID to determine if it's a kart or bike
-        KartId selectedKart = sectionMgr->sectionParams->karts[0];
-        
-        // Select auto drift for karts, manual drift for bikes
-        bool isKart = (selectedKart < STANDARD_BIKE_S);
-        PushButton* autoButton = driftSelect->controlGroup.GetControl<PushButton>(1); // Auto drift
-        PushButton* manualButton = driftSelect->controlGroup.GetControl<PushButton>(0); // Manual drift
-        
-        if (isKart) {
-            // For karts, select auto drift
-            manualButton->HandleDeselect(0, -1);
-            autoButton->HandleSelect(0, -1);
-            autoButton->Select(0);
-            autoButton->HandleClick(0, -1);
-        } else {
-            // For bikes, select manual drift
-            autoButton->HandleDeselect(0, -1);
-            manualButton->HandleSelect(0, -1);
-            manualButton->Select(0);
-            manualButton->HandleClick(0, -1);
-        }
-        
+        driftSelect->controlsManipulatorManager.inaccessible = false;
         charSelect->rouletteCounter = -1;
     }
 }
@@ -430,32 +416,7 @@ void MultiDriftSelectBeforeControlUpdate(Pages::MultiDriftSelect* multiDriftSele
     SectionMgr* sectionMgr = SectionMgr::sInstance;
     ExpCharacterSelect* charSelect = sectionMgr->curSection->Get<ExpCharacterSelect>();
     if(charSelect->rouletteCounter != -1 && multiDriftSelect->currentState == 0x4) {
-        multiDriftSelect->controlsManipulatorManager.inaccessible = true;
-        
-        for(int i = 0; i < sectionMgr->sectionParams->localPlayerCount; ++i) {
-            // Get selected kart ID for this player
-            KartId selectedKart = sectionMgr->sectionParams->karts[i];
-            
-            // Select auto drift for karts, manual drift for bikes
-            bool isKart = (selectedKart < STANDARD_BIKE_S);
-            PushButton* autoButton = multiDriftSelect->externControls[0 + 2 * i]; // Auto drift
-            PushButton* manualButton = multiDriftSelect->externControls[1 + 2 * i]; // Manual drift
-            
-            if (isKart) {
-                // For karts, select auto drift
-                manualButton->HandleDeselect(i, -1);
-                autoButton->HandleSelect(i, -1);
-                autoButton->Select(i);
-                autoButton->HandleClick(i, -1);
-            } else {
-                // For bikes, select manual drift
-                autoButton->HandleDeselect(i, -1);
-                manualButton->HandleSelect(i, -1);
-                manualButton->Select(i);
-                manualButton->HandleClick(i, -1);
-            }
-        }
-        
+        multiDriftSelect->controlsManipulatorManager.inaccessible = false;
         charSelect->rouletteCounter = -1;
     }
 }
