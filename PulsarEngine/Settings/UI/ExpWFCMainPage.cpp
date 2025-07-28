@@ -115,49 +115,49 @@ void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
     self.InitControlGroup(13);
 
     self.AddControl(5, self.ottButton, 0);
-    self.ottButton.Load(UI::buttonFolder, "PULOTTButton", "PULOTTButton", 1, 0, 0);
+    self.ottButton.Load(UI::buttonFolder, "XifiMenuModeSelect", "RTOTTButton", 1, 0, 0);
     self.ottButton.buttonId = ottButtonId;
     self.ottButton.SetMessage(BMG_OTT_BUTTON);
     self.ottButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.ottButton.SetOnSelectHandler(self.onButtonSelectHandler);
 
     self.AddControl(6, self.twoHundredButton, 0);
-    self.twoHundredButton.Load(UI::buttonFolder, "PUL200Button", "PUL200Button", 1, 0, 0);
+    self.twoHundredButton.Load(UI::buttonFolder, "XifiMenuModeSelect", "RT200Button", 1, 0, 0);
     self.twoHundredButton.buttonId = twoHundredButtonId;
     self.twoHundredButton.SetMessage(BMG_200_BUTTON);
     self.twoHundredButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.twoHundredButton.SetOnSelectHandler(self.onButtonSelectHandler);
 
     self.AddControl(7, self.ctButton, 0);
-    self.ctButton.Load(UI::buttonFolder, "PULCTButton", "PULCTButton", 1, 0, 0);
+    self.ctButton.Load(UI::buttonFolder, "XifiMenuModeSelect", "CTVSButton", 1, 0, 0);
     self.ctButton.buttonId = ctButtonId;
     self.ctButton.SetMessage(BMG_VS_BUTTON);
     self.ctButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.ctButton.SetOnSelectHandler(self.onButtonSelectHandler);
 
     self.AddControl(8, self.ottButtonCT, 0);
-    self.ottButtonCT.Load(UI::buttonFolder, "PULCTOTTButton", "PULCTOTTButton", 1, 0, 0);
+    self.ottButtonCT.Load(UI::buttonFolder, "XifiMenuModeSelect", "CTOTTButton", 1, 0, 0);
     self.ottButtonCT.buttonId = ottButtonIdCT;
     self.ottButtonCT.SetMessage(BMG_OTT_BUTTON);
     self.ottButtonCT.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.ottButtonCT.SetOnSelectHandler(self.onButtonSelectHandler);
 
     self.AddControl(9, self.twoHundredButtonCT, 0);
-    self.twoHundredButtonCT.Load(UI::buttonFolder, "PULCT200Button", "PULCT200Button", 1, 0, 0);
+    self.twoHundredButtonCT.Load(UI::buttonFolder, "XifiMenuModeSelect", "CT200Button", 1, 0, 0);
     self.twoHundredButtonCT.buttonId = twoHundredButtonIdCT;
     self.twoHundredButtonCT.SetMessage(BMG_200_BUTTON);
     self.twoHundredButtonCT.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.twoHundredButtonCT.SetOnSelectHandler(self.onButtonSelectHandler);
 
     self.AddControl(11, self.itemRainButton, 0);
-    self.itemRainButton.Load(UI::buttonFolder, "PULItemRainButton", "PULItemRainButton", 1, 0, 0);
+    self.itemRainButton.Load(UI::buttonFolder, "XifiMenuModeSelect", "RTItemRainButton", 1, 0, 0);
     self.itemRainButton.buttonId = itemRainButtonId;
     self.itemRainButton.SetMessage(BMG_ITEM_RAIN_BUTTON);
     self.itemRainButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.itemRainButton.SetOnSelectHandler(self.onButtonSelectHandler);
 
     self.AddControl(12, self.itemRainButtonCT, 0);
-    self.itemRainButtonCT.Load(UI::buttonFolder, "PULCTItemRainButton", "PULCTItemRainButton", 1, 0, 0);
+    self.itemRainButtonCT.Load(UI::buttonFolder, "XifiMenuModeSelect", "CTItemRainButton", 1, 0, 0);
     self.itemRainButtonCT.buttonId = itemRainButtonIdCT;
     self.itemRainButtonCT.SetMessage(BMG_ITEM_RAIN_BUTTON);
     self.itemRainButtonCT.SetOnClickHandler(self.onModeButtonClickHandler, 0);
