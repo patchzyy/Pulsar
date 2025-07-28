@@ -15,6 +15,10 @@ public:
     ExpWFCMain() {
         this->onSettingsClick.subject = this;
         this->onSettingsClick.ptmf = &ExpWFCMain::OnSettingsButtonClick;
+        this->onRetroClick.subject = this;
+        this->onRetroClick.ptmf = &ExpWFCMain::OnRetroButtonClick;
+        this->onCustomClick.subject = this;
+        this->onCustomClick.ptmf = &ExpWFCMain::OnCustomButtonClick;
         this->onButtonSelectHandler.ptmf = &ExpWFCMain::ExtOnButtonSelect;
 
         // this->onStartPress.subject = this;
@@ -25,16 +29,23 @@ public:
 private:
     void OnSettingsButtonClick(PushButton& PushButton, u32 r5);
     void ExtOnButtonSelect(PushButton& pushButton, u32 hudSlotId);
+    void OnRetroButtonClick(PushButton& PushButton, u32 hudSlotId);
+    void OnCustomButtonClick(PushButton& PushButton, u32 hudSlotId);
     // void ExtOnStartPress(u32 hudSlotId) {
     //     s_displayPlayerCount = !s_displayPlayerCount;
     // }
 
     PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onSettingsClick;
+    PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onRetroClick;
+    PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onCustomClick;
     // PtmfHolder_1A<ExpWFCMain, void, u32> onStartPress;
     PushButton settingsButton;
+    PushButton retroButton;
+    PushButton customButton;
     LayoutUIControl playerCount;
 public:
     PulPageId topSettingsPage;
+    static u32 lastClickedMainMenuButton; // 6 = retros, 7 = customs
 };
 
 class ExpWFCModeSel : public Pages::WFCModeSelect {

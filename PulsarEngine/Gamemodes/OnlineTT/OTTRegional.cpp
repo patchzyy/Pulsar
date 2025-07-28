@@ -246,11 +246,11 @@ void GlobeMsgColor(Pages::Globe::MessageWindow& msg, u32 bmgId, Text::Info* info
 kmCall(0x805e504c, GlobeMsgColor);
 
 void GlobeSearchTopMsg(CtrlMenuPageTitleText& title, u32 bmgId, Text::Info* info) {
-    if(System::sInstance->IsContext(PULSAR_MODE_OTT) == Pulsar::OTTSETTING_ONLINE_NORMAL && System::sInstance->IsContext(PULSAR_RETROS)) bmgId = UI::BMG_OTT_TITLE_TEXT;
-    else if(System::sInstance->IsContext(PULSAR_200_WW) == Pulsar::WWMODE_200 && System::sInstance->IsContext(PULSAR_RETROS)) bmgId = UI::BMG_200_TITLE_TEXT;
-    else if(System::sInstance->IsContext(PULSAR_CTS) && !System::sInstance->IsContext(PULSAR_MODE_OTT) && !System::sInstance->IsContext(PULSAR_200_WW)) bmgId = UI::BMG_TITLE_TEXT_CT;
-    else if(System::sInstance->IsContext(PULSAR_MODE_OTT) && System::sInstance->IsContext(PULSAR_CTS)) bmgId = UI::BMG_OTT_TITLE_TEXT_CT;
-    else if(System::sInstance->IsContext(PULSAR_200_WW) && System::sInstance->IsContext(PULSAR_CTS)) bmgId = UI::BMG_200_TITLE_TEXT_CT;
+    if(System::sInstance->netMgr.region == 0x0B) bmgId = UI::BMG_OTT_TITLE_TEXT;
+    else if(System::sInstance->netMgr.region == 0x0C) bmgId = UI::BMG_200_TITLE_TEXT;
+    else if(System::sInstance->netMgr.region == 0x14) bmgId = UI::BMG_TITLE_TEXT_CT;
+    else if(System::sInstance->netMgr.region == 0x15) bmgId = UI::BMG_OTT_TITLE_TEXT_CT;
+    else if(System::sInstance->netMgr.region == 0x16) bmgId = UI::BMG_200_TITLE_TEXT_CT;
     title.SetMessage(bmgId, info);
 }
 kmCall(0x80608658, GlobeSearchTopMsg);

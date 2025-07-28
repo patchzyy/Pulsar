@@ -162,6 +162,8 @@ enum BMG {
 
     //RR
     BMG_RETRO_BUTTON = 0x284d,
+    BMG_RETRO_MODES = 0x284e,
+    BMG_CUSTOM_MODES = 0x284f,
 
     //OTT RR
     BMG_OTT_WW_BOTTOM = 0x2850,

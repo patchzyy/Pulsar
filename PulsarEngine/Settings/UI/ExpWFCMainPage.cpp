@@ -14,7 +14,7 @@ kmWrite24(0x80899a36, 'PUL'); //8064ba38
 kmWrite24(0x80899a5B, 'PUL'); //8064ba90
 
 void ExpWFCMain::OnInit() {
-    this->InitControlGroup(7); //5 controls usually + settings button + player count
+    this->InitControlGroup(9); //5 controls usually + settings button + player count + retro and custom buttons
     WFCMainMenu::OnInit();
     this->AddControl(5, settingsButton, 0);
 
@@ -27,9 +27,42 @@ void ExpWFCMain::OnInit() {
     ControlLoader loader(&this->playerCount);
     loader.Load(UI::buttonFolder, "VRButton", "VRButton", nullptr);
 
+    this->AddControl(7, retroButton, 0);
+    this->retroButton.Load(UI::buttonFolder, "RetrosButton", "ButtonRetros", 1, 0, 0);
+    this->retroButton.buttonId = 6;
+    this->retroButton.SetMessage(BMG_RETRO_MODES);
+    this->retroButton.SetOnClickHandler(this->onRetroClick, 0);
+    this->retroButton.SetOnSelectHandler(this->onButtonSelectHandler);
+
+    this->AddControl(8, customButton, 0);
+    this->customButton.Load(UI::buttonFolder, "CustomsButton", "ButtonCustoms", 1, 0, 0);
+    this->customButton.buttonId = 7;
+    this->customButton.SetMessage(BMG_CUSTOM_MODES);
+    this->customButton.SetOnClickHandler(this->onCustomClick, 0);
+    this->customButton.SetOnSelectHandler(this->onButtonSelectHandler);
+
+    this->regionalButton.manipulator.inaccessible = true;
+    this->worldwideButton.manipulator.inaccessible = true;
+    this->regionalButton.isHidden = true;
+    this->worldwideButton.isHidden = true;
+
     this->topSettingsPage = SettingsPanel::id;
 
+    // Set retro button as default selected
+    this->retroButton.Select(0);
+
     // this->manipulatorManager.SetGlobalHandler(START_PRESS, this->onStartPress, false, false);
+}
+
+u32 Pulsar::UI::ExpWFCMain::lastClickedMainMenuButton = 6;
+void ExpWFCMain::OnRetroButtonClick(PushButton& pushButton, u32 hudSlotId) {
+    ExpWFCMain::lastClickedMainMenuButton = 6; // retros
+    this->OnRegionalButtonClick(pushButton, hudSlotId);
+}
+
+void ExpWFCMain::OnCustomButtonClick(PushButton& pushButton, u32 hudSlotId) {
+    ExpWFCMain::lastClickedMainMenuButton = 7; // customs
+    this->OnRegionalButtonClick(pushButton, hudSlotId);
 }
 
 void ExpWFCMain::OnSettingsButtonClick(PushButton& pushButton, u32 r5) {
@@ -195,6 +228,8 @@ void ExpWFCModeSel::OnActivatePatch() {
         page->lastClickedButton = 0; // Reset to VS button
     }
     
+    page->vsButton.isHidden = isHidden;
+    page->vsButton.manipulator.inaccessible = isHidden;
     page->ottButton.isHidden = isHidden;
     page->ottButton.manipulator.inaccessible = isHidden;
     page->twoHundredButton.isHidden = isHidden;
@@ -205,6 +240,29 @@ void ExpWFCModeSel::OnActivatePatch() {
     page->ottButtonCT.manipulator.inaccessible = isHidden;
     page->twoHundredButtonCT.isHidden = isHidden;
     page->twoHundredButtonCT.manipulator.inaccessible = isHidden;
+    
+    if (!isHidden) {
+        bool isRetrosMode = (ExpWFCMain::lastClickedMainMenuButton == 6);
+        
+        // Show retro buttons only in retros mode
+        page->vsButton.isHidden = !isRetrosMode;
+        page->vsButton.manipulator.inaccessible = !isRetrosMode;
+        page->ottButton.isHidden = !isRetrosMode;
+        page->ottButton.manipulator.inaccessible = !isRetrosMode;
+        page->twoHundredButton.isHidden = !isRetrosMode;
+        page->twoHundredButton.manipulator.inaccessible = !isRetrosMode;
+        
+        // Show custom buttons only in customs mode  
+        page->ctButton.isHidden = isRetrosMode;
+        page->ctButton.manipulator.inaccessible = isRetrosMode;
+        page->ottButtonCT.isHidden = isRetrosMode;
+        page->ottButtonCT.manipulator.inaccessible = isRetrosMode;
+        page->twoHundredButtonCT.isHidden = isRetrosMode;
+        page->twoHundredButtonCT.manipulator.inaccessible = isRetrosMode;
+        if (!isRetrosMode) {
+            page->ctButton.Select(0);
+        }
+    }
 
     page->battleButton.isHidden = true;
     page->battleButton.manipulator.inaccessible = true;

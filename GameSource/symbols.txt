@@ -1479,6 +1479,7 @@ OnActivate__Q25Pages11WFCMainMenuFv = 0x8064bc90
 OnButtonSelect__Q25Pages11WFCMainMenuFR10PushButtonUi = 0x8064bf4c
 GetNextPage__Q25Pages11WFCMainMenuCFv = 0x8064d688
 GetRuntimeTypeInfo__Q25Pages11WFCMainMenuCFv = 0x8064d690
+OnRegionalButtonClick__Q25Pages11WFCMainMenuFR10PushButtonUi = 0x8064bdc4
 
 #WFCModeSelect
 __ct__Q25Pages13WFCModeSelectFv = 0x8064bfd8
