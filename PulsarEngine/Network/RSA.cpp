@@ -32,13 +32,12 @@
 /**
  * a[] -= mod
  */
-static void SubMod(const RSAPublicKey* key, u32* a)
-{
+static void SubMod(const RSAPublicKey* key, u32* a) {
     s64 A = 0;
     u32 i;
     for (i = 0; i < RSANUMWORDS; ++i) {
-        A += (u64) a[i] - key->n[i];
-        a[i] = (u32) A;
+        A += (u64)a[i] - key->n[i];
+        a[i] = (u32)A;
         A >>= 32;
     }
 }
@@ -46,8 +45,7 @@ static void SubMod(const RSAPublicKey* key, u32* a)
 /**
  * Return a[] >= mod
  */
-static int GeMod(const RSAPublicKey* key, const u32* a)
-{
+static int GeMod(const RSAPublicKey* key, const u32* a) {
     u32 i;
     for (i = RSANUMWORDS; i;) {
         --i;
@@ -56,29 +54,28 @@ static int GeMod(const RSAPublicKey* key, const u32* a)
         if (a[i] > key->n[i])
             return 1;
     }
-    return 1; // equal
+    return 1;  // equal
 }
 
 /**
  * Montgomery c[] += a * b[] / R % mod
  */
 static void
-MontMulAdd(const RSAPublicKey* key, u32* c, const u32 a, const u32* b)
-{
-    u64 A = (u64) a * b[0] + c[0];
-    u32 d0 = (u32) A * key->n0inv;
-    u64 B = (u64) d0 * key->n[0] + (u32) A;
+MontMulAdd(const RSAPublicKey* key, u32* c, const u32 a, const u32* b) {
+    u64 A = (u64)a * b[0] + c[0];
+    u32 d0 = (u32)A * key->n0inv;
+    u64 B = (u64)d0 * key->n[0] + (u32)A;
     u32 i;
 
     for (i = 1; i < RSANUMWORDS; ++i) {
-        A = (A >> 32) + (u64) a * b[i] + c[i];
-        B = (B >> 32) + (u64) d0 * key->n[i] + (u32) A;
-        c[i - 1] = (u32) B;
+        A = (A >> 32) + (u64)a * b[i] + c[i];
+        B = (B >> 32) + (u64)d0 * key->n[i] + (u32)A;
+        c[i - 1] = (u32)B;
     }
 
     A = (A >> 32) + (B >> 32);
 
-    c[i - 1] = (u32) A;
+    c[i - 1] = (u32)A;
 
     if (A >> 32) {
         SubMod(key, c);
@@ -88,8 +85,7 @@ MontMulAdd(const RSAPublicKey* key, u32* c, const u32 a, const u32* b)
 /**
  * Montgomery c[] = a[] * b[] / R % mod
  */
-static void MontMul(const RSAPublicKey* key, u32* c, const u32* a, const u32* b)
-{
+static void MontMul(const RSAPublicKey* key, u32* c, const u32* a, const u32* b) {
     for (u32 i = 0; i < RSANUMWORDS; ++i) {
         c[i] = 0;
     }
@@ -105,25 +101,24 @@ static void MontMul(const RSAPublicKey* key, u32* c, const u32* a, const u32* b)
  * @param key		Key to use in signing
  * @param inout		Input and output big-endian byte array
  */
-static void ModPow(const RSAPublicKey* key, u32* inout)
-{
+static void ModPow(const RSAPublicKey* key, u32* inout) {
     u32 a[RSANUMWORDS];
     u32 aaR[RSANUMWORDS];
     u32 aaaR[RSANUMWORDS];
-    u32* aaa = aaaR; // Reuse location
+    u32* aaa = aaaR;  // Reuse location
 
     // Convert from big endian byte array to little endian word array
     for (u32 i = 0; i < RSANUMWORDS; ++i) {
         a[i] = inout[RSANUMWORDS - 1 - i];
     }
 
-    MontMul(key, aaR, a, key->rr); // aaR = a * RR / R mod M
+    MontMul(key, aaR, a, key->rr);  // aaR = a * RR / R mod M
     // Exponent 65537
     for (u32 i = 0; i < 16; i += 2) {
-        MontMul(key, aaaR, aaR, aaR); // aaaR = aaR * aaR / R mod M
-        MontMul(key, aaR, aaaR, aaaR); // aaR = aaaR * aaaR / R mod M
+        MontMul(key, aaaR, aaR, aaR);  // aaaR = aaR * aaR / R mod M
+        MontMul(key, aaR, aaaR, aaaR);  // aaR = aaaR * aaaR / R mod M
     }
-    MontMul(key, aaa, aaR, a); // aaa = aaR * a / R mod M
+    MontMul(key, aaa, aaR, a);  // aaa = aaR * a / R mod M
 
     // Make sure aaa < mod; aaa is at most 1x mod too large
     if (GeMod(key, aaa)) {
@@ -165,9 +160,8 @@ static const u8 sha256Tail[20] = {0x00, 0x30, 0x31, 0x30, 0x0D, 0x06, 0x09,
  * @param sha           SHA-256 digest of the content to verify
  * @return True on success.
  */
-bool RSAVerify(const RSAPublicKey* key, u8* signature, const u8* sha)
-{
-    ModPow(key, (u32*) signature); // In-place exponentiation
+bool RSAVerify(const RSAPublicKey* key, u8* signature, const u8* sha) {
+    ModPow(key, (u32*)signature);  // In-place exponentiation
 
     int result = 0;
     int i = 0;

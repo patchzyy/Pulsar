@@ -10,6 +10,6 @@ struct Rect {
     float bottom;
 };
 size_assert(Rect, 0x10);
-}//namespace ut
-}//namespace nw4r
+}  // namespace ut
+}  // namespace nw4r
 #endif

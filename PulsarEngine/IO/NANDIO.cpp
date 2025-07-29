@@ -3,7 +3,7 @@
 
 namespace Pulsar {
 
-//Virtual Funcs
+// Virtual Funcs
 bool NANDIO::CreateAndOpen(const char* path, u32 mode) {
     this->GetCorrectPath(this->filePath, path);
     ISFS::CreateFile(this->filePath, 0, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE, IOS::MODE_READ_WRITE);
@@ -17,11 +17,11 @@ bool NANDIO::OpenFile(const char* path, u32 mode) {
 
 void NANDIO::GetCorrectPath(char* realPath, const char* path) const {
     snprintf(realPath, IOS::ipcMaxPath, "%s%s", "/shared2/Pulsar", path);
-    //nand::GenerateAbsPath(realPath, path);
+    // nand::GenerateAbsPath(realPath, path);
 }
 
-//FOLDER
-//Virtual funcs
+// FOLDER
+// Virtual funcs
 bool NANDIO::FolderExists(const char* path) const {
     char realPath[IOS::ipcMaxPath];
     this->GetCorrectPath(realPath, path);
@@ -30,7 +30,7 @@ bool NANDIO::FolderExists(const char* path) const {
 }
 
 bool NANDIO::CreateFolder(const char* path) {
-    if(type != IOType_ISO) {
+    if (type != IOType_ISO) {
         this->Bind(path);
         char realPath[IOS::ipcMaxPath];
         this->GetCorrectPath(realPath, path);
@@ -46,22 +46,22 @@ void NANDIO::ReadFolder(const char* path) {
     this->GetCorrectPath(realPath, path);
 
     u32 count = maxFileCount;
-    char* tmpArray = new(this->heap, 0x20) char[255 * (count + 1)];
+    char* tmpArray = new (this->heap, 0x20) char[255 * (count + 1)];
     void* originalPtr = tmpArray;
     s32 error = ISFS::ReadDir(realPath, tmpArray, &count);
-    if(error >= 0 && !isBusy) {
+    if (error >= 0 && !isBusy) {
         isBusy = true;
         strncpy(this->folderName, path, IOS::ipcMaxPath);
-        IOS::IPCPath* namesArray = new(this->heap, 0x20) IOS::IPCPath[count];
+        IOS::IPCPath* namesArray = new (this->heap, 0x20) IOS::IPCPath[count];
         u32 realCount = 0;
         char curFile[IOS::ipcMaxPath];
-        while(tmpArray[0] != '\0') {
+        while (tmpArray[0] != '\0') {
             u32 length = strlen(tmpArray);
-            if(length > 255) break;
-            if(length <= IOS::ipcMaxFileName) {
+            if (length > 255) break;
+            if (length <= IOS::ipcMaxFileName) {
                 snprintf(curFile, IOS::ipcMaxPath, "%s/%s", realPath, tmpArray);
                 s32 curFilefd = ISFS::Open(curFile, ISFS::MODE_NONE);
-                if(curFilefd >= 0) {
+                if (curFilefd >= 0) {
                     strcpy(namesArray[realCount], tmpArray);
                     ++realCount;
                     ISFS::Close(curFilefd);
@@ -84,4 +84,4 @@ bool NANDIO::RenameFile(const char* oldPath, const char* newPath) const {
     return ISFS::Rename(realOldPath, realNewPath) >= 0;
 }
 
-}//namespace Pulsar
+}  // namespace Pulsar

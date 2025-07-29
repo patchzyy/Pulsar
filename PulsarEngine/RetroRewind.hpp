@@ -13,13 +13,12 @@ extern u8 RaceRename;
 extern u8 CommonRename;
 extern u8 AwardRename;
 
-
 namespace RetroRewind {
 class System : public Pulsar::System {
-public:
+   public:
     static bool Is500cc();
 
-    enum WeightClass{
+    enum WeightClass {
         LIGHTWEIGHT,
         MEDIUMWEIGHT,
         HEAVYWEIGHT,
@@ -27,7 +26,7 @@ public:
         ALLWEIGHT
     };
 
-    enum CharButtonId{
+    enum CharButtonId {
         BUTTON_BABY_MARIO,
         BUTTON_BABY_LUIGI,
         BUTTON_TOAD,
@@ -57,7 +56,7 @@ public:
     };
 
     WeightClass weight;
-    static Pulsar::System *Create(); //My Create function, needs to return Pulsar
+    static Pulsar::System *Create();  // My Create function, needs to return Pulsar
     static WeightClass GetWeightClass(CharacterId);
 };
-} // namespace RetroRewind
+}  // namespace RetroRewind

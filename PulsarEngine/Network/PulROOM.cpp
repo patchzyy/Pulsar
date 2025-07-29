@@ -10,10 +10,10 @@
 namespace Pulsar {
 namespace Network {
 
-//Implements the ability for a host to send a message, allowing for custom host settings
+// Implements the ability for a host to send a message, allowing for custom host settings
 
-//If we are in a room, we are guaranteed to be in a situation where Pul packets are being sent
-//however, no reason to send the settings outside of START packets and if we are not the host, this is easily changed by just editing the check
+// If we are in a room, we are guaranteed to be in a situation where Pul packets are being sent
+// however, no reason to send the settings outside of START packets and if we are not the host, this is easily changed by just editing the check
 
 static void ConvertROOMPacketToData(const PulROOM& packet) {
     System* system = System::sInstance;
@@ -35,14 +35,14 @@ static void HandleExtendedTeamUpdates(const PulROOM& packet) {
 }
 
 static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* src, u32 len) {
-    packetHolder->Copy(src, len); //default
+    packetHolder->Copy(src, len);  // default
 
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
     const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
     Pulsar::System* system = Pulsar::System::sInstance;
     PulROOM* destPacket = packetHolder->packet;
-    if(destPacket->messageType == 1 && sub.localAid == sub.hostAid) {
-        packetHolder->packetSize = sizeof(PulROOM); //this has been changed by copy so it's safe to do this
+    if (destPacket->messageType == 1 && sub.localAid == sub.hostAid) {
+        packetHolder->packetSize = sizeof(PulROOM);  // this has been changed by copy so it's safe to do this
         const Settings::Mgr& settings = Settings::Mgr::Get();
         const RacedataSettings& racedataSettings = Racedata::sInstance->menusScenario.settings;
         const GameMode mode = racedataSettings.gamemode;
@@ -75,60 +75,39 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
             koSetting = KOSETTING_DISABLED;
         }
 
-        destPacket->hostSystemContext |= (ottOnline != OTTSETTING_OFFLINE_DISABLED) << PULSAR_MODE_OTT // ott
-            | (ottOnline == OTTSETTING_ONLINE_FEATHER) << PULSAR_FEATHER // ott feather
-            | (settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_ALLOWUMTS) ^ true) << PULSAR_UMTS // ott umts
-            | koSetting << PULSAR_MODE_KO
-            | charRestrictLight << PULSAR_CHARRESTRICTLIGHT
-            | charRestrictMid << PULSAR_CHARRESTRICTMID
-            | charRestrictHeavy << PULSAR_CHARRESTRICTHEAVY
-            | kartRestrict << PULSAR_KARTRESTRICT
-            | bikeRestrict << PULSAR_BIKERESTRICT
-            | koFinal << PULSAR_KOFINAL
-            | changeCombo << PULSAR_CHANGECOMBO
-            | megaTC << PULSAR_THUNDERCLOUD
-            | settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_CC) << PULSAR_500
-            | settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_HOSTWINS) << PULSAR_HAW
-            | RegOnly << PULSAR_REGS
-            | RetroOnly << PULSAR_RETROS
-            | CtsOnly << PULSAR_CTS
-            | itemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN
-            | extendedTeams << PULSAR_EXTENDEDTEAMS;
+        destPacket->hostSystemContext |= (ottOnline != OTTSETTING_OFFLINE_DISABLED) << PULSAR_MODE_OTT  // ott
+                                         | (ottOnline == OTTSETTING_ONLINE_FEATHER) << PULSAR_FEATHER  // ott feather
+                                         | (settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_ALLOWUMTS) ^ true) << PULSAR_UMTS  // ott umts
+                                         | koSetting << PULSAR_MODE_KO | charRestrictLight << PULSAR_CHARRESTRICTLIGHT | charRestrictMid << PULSAR_CHARRESTRICTMID | charRestrictHeavy << PULSAR_CHARRESTRICTHEAVY | kartRestrict << PULSAR_KARTRESTRICT | bikeRestrict << PULSAR_BIKERESTRICT | koFinal << PULSAR_KOFINAL | changeCombo << PULSAR_CHANGECOMBO | megaTC << PULSAR_THUNDERCLOUD | settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_CC) << PULSAR_500 | settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_HOSTWINS) << PULSAR_HAW | RegOnly << PULSAR_REGS | RetroOnly << PULSAR_RETROS | CtsOnly << PULSAR_CTS | itemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN | extendedTeams << PULSAR_EXTENDEDTEAMS;
 
-        destPacket->hostSystemContext2 |= transmissionInside << PULSAR_TRANSMISSIONINSIDE
-            | transmissionOutside << PULSAR_TRANSMISSIONOUTSIDE
-            | transmissionVanilla << PULSAR_TRANSMISSIONVANILLA
-            | settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_ALLOW_MIIHEADS) << PULSAR_MIIHEADS
-            | itemModeRandom << PULSAR_ITEMMODERANDOM
-            | itemModeBlast << PULSAR_ITEMMODEBLAST
-            | itemModeNone << PULSAR_ITEMMODENONE
-            | itemModeRain << PULSAR_ITEMMODERAIN
-            | itemModeStorm << PULSAR_ITEMMODESTORM;
+        destPacket->hostSystemContext2 |= transmissionInside << PULSAR_TRANSMISSIONINSIDE | transmissionOutside << PULSAR_TRANSMISSIONOUTSIDE | transmissionVanilla << PULSAR_TRANSMISSIONVANILLA | settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_ALLOW_MIIHEADS) << PULSAR_MIIHEADS | itemModeRandom << PULSAR_ITEMMODERANDOM | itemModeBlast << PULSAR_ITEMMODEBLAST | itemModeNone << PULSAR_ITEMMODENONE | itemModeRain << PULSAR_ITEMMODERAIN | itemModeStorm << PULSAR_ITEMMODESTORM;
 
         u8 raceCount;
-        if(koSetting == KOSETTING_ENABLED) raceCount = 0xFE;
-        else switch(settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_SCROLL_GP_RACES)) {
-            case(1):
-            raceCount = 5;
-            break;
-        case(2):
-            raceCount = 7;
-            break;
-        case(3):
-            raceCount = 11;
-            break;
-        case(4):
-            raceCount = 23;
-            break;
-        case(5):
-            raceCount = 31;
-            break;
-        case(6):
-            raceCount = 1;
-            break;
-        default:
-            raceCount = 3;
-        }
+        if (koSetting == KOSETTING_ENABLED)
+            raceCount = 0xFE;
+        else
+            switch (settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_SCROLL_GP_RACES)) {
+                case (1):
+                    raceCount = 5;
+                    break;
+                case (2):
+                    raceCount = 7;
+                    break;
+                case (3):
+                    raceCount = 11;
+                    break;
+                case (4):
+                    raceCount = 23;
+                    break;
+                case (5):
+                    raceCount = 31;
+                    break;
+                case (6):
+                    raceCount = 1;
+                    break;
+                default:
+                    raceCount = 3;
+            }
         destPacket->raceCount = raceCount;
         ConvertROOMPacketToData(*destPacket);
 
@@ -155,7 +134,6 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
 
             destPacket->extendedTeams[byte] &= ~(0x0F << shift);
             destPacket->extendedTeams[byte] |= (playerInfo[i].team & 0x0F) << shift;
-
         }
     }
 }
@@ -167,14 +145,14 @@ static void AfterROOMReception(const RKNet::PacketHolder<PulROOM>* packetHolder,
     register u32 aid;
     asm(mr packet, r28;);
     asm(mr aid, r29;);
-    
+
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
     const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
-    
+
     const bool isHost = sub.localAid == sub.hostAid;
 
-    //START msg sent by the host, size check should always be guaranteed in theory
-    if(src.messageType == 1 && !isHost && packetHolder->packetSize == sizeof(PulROOM)) {
+    // START msg sent by the host, size check should always be guaranteed in theory
+    if (src.messageType == 1 && !isHost && packetHolder->packetSize == sizeof(PulROOM)) {
         ConvertROOMPacketToData(src);
         const Settings::Mgr& settings = Settings::Mgr::Get();
         bool isCharRestrictLight = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_CHARSELECT) == CHAR_LIGHTONLY;
@@ -185,22 +163,22 @@ static void AfterROOMReception(const RKNet::PacketHolder<PulROOM>* packetHolder,
         bool isExtendedTeams = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_EXTENDEDTEAMS) == EXTENDEDTEAMS_ENABLED;
         u32 newContext = 0;
         Network::Mgr& netMgr = Pulsar::System::sInstance->netMgr;
-            newContext = netMgr.hostContext;
-            isCharRestrictLight = newContext & (1 << PULSAR_CHARRESTRICTLIGHT);
-            isCharRestrictMid = newContext & (1 << PULSAR_CHARRESTRICTMID);
-            isCharRestrictHeavy = newContext & (1 << PULSAR_CHARRESTRICTHEAVY);
-            isKartRestrictKart = newContext & (1 << PULSAR_KARTRESTRICT);
-            isKartRestrictBike = newContext & (1 << PULSAR_BIKERESTRICT);
-            isExtendedTeams = newContext & (1 << PULSAR_EXTENDEDTEAMS);
+        newContext = netMgr.hostContext;
+        isCharRestrictLight = newContext & (1 << PULSAR_CHARRESTRICTLIGHT);
+        isCharRestrictMid = newContext & (1 << PULSAR_CHARRESTRICTMID);
+        isCharRestrictHeavy = newContext & (1 << PULSAR_CHARRESTRICTHEAVY);
+        isKartRestrictKart = newContext & (1 << PULSAR_KARTRESTRICT);
+        isKartRestrictBike = newContext & (1 << PULSAR_BIKERESTRICT);
+        isExtendedTeams = newContext & (1 << PULSAR_EXTENDEDTEAMS);
         netMgr.hostContext = newContext;
 
         u32 context = (isCharRestrictLight << PULSAR_CHARRESTRICTLIGHT) | (isCharRestrictMid << PULSAR_CHARRESTRICTMID) | (isCharRestrictHeavy << PULSAR_CHARRESTRICTHEAVY) | (isKartRestrictKart << PULSAR_KARTRESTRICT) | (isKartRestrictBike << PULSAR_BIKERESTRICT) | (isExtendedTeams << PULSAR_EXTENDEDTEAMS);
         Pulsar::System::sInstance->context = context;
 
-        //Also exit the settings page to prevent weird graphical artefacts
+        // Also exit the settings page to prevent weird graphical artefacts
         Page* topPage = SectionMgr::sInstance->curSection->GetTopLayerPage();
         PageId topId = topPage->pageId;
-        if(topId == UI::SettingsPanel::id) {
+        if (topId == UI::SettingsPanel::id) {
             UI::SettingsPanel* panel = static_cast<UI::SettingsPanel*>(topPage);
             panel->OnBackPress(0);
         }
@@ -213,7 +191,7 @@ static void AfterROOMReception(const RKNet::PacketHolder<PulROOM>* packetHolder,
     }
 
     if (((src.messageType == UI::ExtendedTeamManager::MSG_TYPE_UPDATE_TEAMS) || (src.messageType == UI::ExtendedTeamManager::MSG_TYPE_UPDATE_TEAMS)) &&
-        !isHost && 
+        !isHost &&
         packetHolder->packetSize == sizeof(PulROOM)) {
         HandleExtendedTeamUpdates(src);
     }
@@ -224,7 +202,7 @@ static void AfterROOMReception(const RKNet::PacketHolder<PulROOM>* packetHolder,
         UI::ExtendedTeamManager::sInstance->SetDoneStatusForAID(aid);
     }
 
-    memcpy(packet, &src, sizeof(RKNet::ROOMPacket)); //default
+    memcpy(packet, &src, sizeof(RKNet::ROOMPacket));  // default
 }
 kmCall(0x8065add8, AfterROOMReception);
 
@@ -285,8 +263,8 @@ RKNet::ROOMPacket GetParamFromPacket(u32 packetArg, u8 aidOfSender) {
 kmBranch(0x8065af70, GetParamFromPacket);
 */
 
-//Implements that setting
+// Implements that setting
 kmCall(0x806460B8, System::GetRaceCount);
 kmCall(0x8064f51c, System::GetRaceCount);
-}//namespace Network
-}//namespace Pulsar
+}  // namespace Network
+}  // namespace Pulsar

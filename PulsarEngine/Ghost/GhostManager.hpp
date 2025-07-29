@@ -11,18 +11,18 @@ namespace Pulsar {
 namespace UI {
 class ExpGhostSelect;
 void BeforeEntranceAnimations(Pages::TTSplits* page);
-}
+}  // namespace UI
 namespace Ghosts {
 
-//Implements MultiGhost and handles leaderboards/expert
-class  Mgr {
-public:
+// Implements MultiGhost and handles leaderboards/expert
+class Mgr {
+   public:
     enum CBTiming {
         IS_LOADING_LEADERBOARDS,
         IS_SETTING_RACE,
         IS_SAVING_GHOST
     };
-    typedef void(*RKGCallback)(const RKG& decompressed, CBTiming timing, int index);
+    typedef void (*RKGCallback)(const RKG& decompressed, CBTiming timing, int index);
 
     static const Mgr* GetInstance() { return sInstance; }
     static Mgr* CreateInstance();
@@ -46,32 +46,37 @@ public:
 
     static inline u32 GetRKGcrc32(const RKG& rkg) {
         u32 crc32;
-        if(rkg.header.compressed) crc32 = *(u32*)((u32)&rkg + reinterpret_cast<const CompressedRKG*>(&rkg)->dataLength + 0x8C);
-        else crc32 = rkg.uncompressedCRC32;
+        if (rkg.header.compressed)
+            crc32 = *(u32*)((u32)&rkg + reinterpret_cast<const CompressedRKG*>(&rkg)->dataLength + 0x8C);
+        else
+            crc32 = rkg.uncompressedCRC32;
         return crc32;
     }
     static inline u32 GetCompressedRKGLength(const CompressedRKG& rkg) {
         return rkg.dataLength + sizeof(RKGHeader) + 0x4 + 0x4;
     }
     static inline u32 GetRKGLength(const RKG& rkg) {
-        if(rkg.header.compressed) return GetCompressedRKGLength(reinterpret_cast<const CompressedRKG&>(rkg));
-        else return sizeof(RKG);
+        if (rkg.header.compressed)
+            return GetCompressedRKGLength(reinterpret_cast<const CompressedRKG&>(rkg));
+        else
+            return sizeof(RKG);
     }
     static const char* GetGhostFileName(u32 fileIndex) {
-        if(fileIndex == expertFileIdx) return "?";
-        else return IO::sInstance->GetFileName(fileIndex);
+        if (fileIndex == expertFileIdx)
+            return "?";
+        else
+            return IO::sInstance->GetFileName(fileIndex);
     }
-    //u32 GetGhostIndex(const GhostListEntry& entry) const;
+    // u32 GetGhostIndex(const GhostListEntry& entry) const;
     bool LoadGhost(RKG& dest, u32 index) const;
 
-
-private:
+   private:
     Mgr() : pulsarId(PULSARID_NONE), files(nullptr), areGhostsSaving(true) {
         Racedata* racedata = Racedata::sInstance;
-        for(int i = 0; i < 4; ++i) racedata->ghosts[i].ClearBuffer();
+        for (int i = 0; i < 4; ++i) racedata->ghosts[i].ClearBuffer();
     }
     ~Mgr() {
-        delete[] this->files; //in case Reset wasn't called before
+        delete[] this->files;  // in case Reset wasn't called before
     }
     static Mgr* sInstance;
     void Init(PulsarId id);
@@ -85,33 +90,31 @@ private:
     void SetFavGhost(const GhostListEntry& entry, TTMode mode, bool add) { this->leaderboard.SetFavGhost(entry.padding[0], mode, add); }
     static void CreateAndSaveFiles(Mgr* self);
     static char folderPath[IOS::ipcMaxPath];
-    static RKGCallback cb; //int = ghost index
-
+    static RKGCallback cb;  // int = ghost index
 
     GhostData* files;
     PulsarId pulsarId;
-    Timer expertGhost; //0x8
-    u32 rkgCount; //0x14
-    u32 mainGhostIndex; //0x18 from the watch replay;
-    u32 selGhostsIndex[3]; //0x1c
-    u32 lastUsedSlot; //0x28
-    u32 favGhostFileIndex[2]; //0x2c for saving and loading
-    bool areGhostsSaving; //0x34
-    s32 expertEntryNum; //0x38
+    Timer expertGhost;  // 0x8
+    u32 rkgCount;  // 0x14
+    u32 mainGhostIndex;  // 0x18 from the watch replay;
+    u32 selGhostsIndex[3];  // 0x1c
+    u32 lastUsedSlot;  // 0x28
+    u32 favGhostFileIndex[2];  // 0x2c for saving and loading
+    bool areGhostsSaving;  // 0x34
+    s32 expertEntryNum;  // 0x38
     u32 reservedPadding[5];
 
-    alignas(0x40) RKG rkg; //0x80 aligned for file operations
-    Leaderboard leaderboard; //aligned for file operations
+    alignas(0x40) RKG rkg;  // 0x80 aligned for file operations
+    Leaderboard leaderboard;  // aligned for file operations
     RKSYS::LicenseLdbEntry entry;
 
     static const u32 expertFileIdx = 39;
-    friend class UI::ExpGhostSelect; //UI backend
+    friend class UI::ExpGhostSelect;  // UI backend
     friend class Leaderboard;
-    friend void UI::BeforeEntranceAnimations(Pages::TTSplits* page); //not formally part of ExpGhostSelect but calls "SaveGhost"
+    friend void UI::BeforeEntranceAnimations(Pages::TTSplits* page);  // not formally part of ExpGhostSelect but calls "SaveGhost"
 };
 
-
-}//namespace Ghosts
-}//namespace Pulsar
+}  // namespace Ghosts
+}  // namespace Pulsar
 
 #endif

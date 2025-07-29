@@ -22,5 +22,5 @@ void ExpVotePage::BeforeControlUpdate() {
     Pages::Vote::BeforeControlUpdate();
 }
 
-} // namespace UI
-} // namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

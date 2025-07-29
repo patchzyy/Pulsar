@@ -66,14 +66,12 @@ void WUP028Manager::OnInit() {
     if (ret4 == 0x40001) {
         this->hidVersion = 4;
         OnInitVer4();
-    }
-    else {
+    } else {
         s32 ret5 = IOS::IOCtl(this->hidFd, IOS::IOCTL_HID5_GET_VERSION, nullptr, 0, nullptr, 0);
         if (ret5 == 0x50001) {
             this->hidVersion = 5;
-            //OnInitVer5();
-        }
-        else {
+            // OnInitVer5();
+        } else {
             this->hidVersion = -1;
         }
     }
@@ -102,8 +100,8 @@ void WUP028Manager::CustomPADRead(PAD::Status* status) {
 
             status[i] = this->status[i];
         }
-    }
-    else PAD::Read(status);
+    } else
+        PAD::Read(status);
 }
 
 void PatchPADRead(PAD::Status* status) {
@@ -115,12 +113,16 @@ kmCall(0x805237c4, PatchPADRead);
 kmCall(0x80217464, PatchPADRead);
 kmCall(0x80007880, PatchPADRead);
 
-static alignas(0x20) u8 InitMsgBuffer[1] = { CMD_INIT, };
+static alignas(0x20) u8 InitMsgBuffer[1] = {
+    CMD_INIT,
+};
 static alignas(0x20) u8 PollMsgBuffer[(POLL_SIZE + 0x1f) & ~0x1f];
-static alignas(0x20) u8 RumbleMsgBuffer[5]  = { CMD_RUMBLE, };
-static alignas(0x20) InterruptMsg4 InitMsg4  = { 0, 0, 0, 0, -1, ENDPOINT_OUT, sizeof(InitMsgBuffer), InitMsgBuffer };
-static alignas(0x20) InterruptMsg4 PollMsg4  = { 0, 0, 0, 0, -1, ENDPOINT_IN, POLL_SIZE, PollMsgBuffer };
-static alignas(0x20) InterruptMsg4 RumbleMsg4  = { 0, 0, 0, 0, -1, ENDPOINT_OUT, sizeof(RumbleMsgBuffer), RumbleMsgBuffer };
+static alignas(0x20) u8 RumbleMsgBuffer[5] = {
+    CMD_RUMBLE,
+};
+static alignas(0x20) InterruptMsg4 InitMsg4 = {0, 0, 0, 0, -1, ENDPOINT_OUT, sizeof(InitMsgBuffer), InitMsgBuffer};
+static alignas(0x20) InterruptMsg4 PollMsg4 = {0, 0, 0, 0, -1, ENDPOINT_IN, POLL_SIZE, PollMsgBuffer};
+static alignas(0x20) InterruptMsg4 RumbleMsg4 = {0, 0, 0, 0, -1, ENDPOINT_OUT, sizeof(RumbleMsgBuffer), RumbleMsgBuffer};
 
 void WUP028Manager::OnUsbPoll(s32 ret) {
     if (ret >= 0) {
@@ -164,20 +166,19 @@ void WUP028Manager::OnUsbPoll(s32 ret) {
         }
         OS::DCFlushRange(PollMsgBuffer, sizeof(PollMsgBuffer));
         ret = IOS::IOCtlAsync(this->hidFd, IOS::IOCTL_HID4_INTERRUPT_IN,
-            &PollMsg4, sizeof(PollMsg4), nullptr, 0,
-            WUP028Manager::OnUsbPollCallback, nullptr);
+                              &PollMsg4, sizeof(PollMsg4), nullptr, 0,
+                              WUP028Manager::OnUsbPollCallback, nullptr);
     }
     if (ret) OnError();
 }
 
 void WUP028Manager::OnInitVer4() {
     s32 ret = IOS::IOCtlAsync(this->hidFd, IOS::IOCTL_HID4_GET_DEVICE_CHANGE,
-        nullptr, 0, &this->deviceChangeSizeBuffer, 0x600,
-        WUP028Manager::OnUsbChangeVer4Callback, nullptr);
+                              nullptr, 0, &this->deviceChangeSizeBuffer, 0x600,
+                              WUP028Manager::OnUsbChangeVer4Callback, nullptr);
 }
 
 void WUP028Manager::OnUsbChangeVer4(s32 hid) {
-
     if (hid >= 0) {
         bool found = false;
         for (int i = 0; i < 0x180 && this->deviceChangeSizeBuffer[i] < 0x600; i += this->deviceChangeSizeBuffer[i] / 4) {
@@ -189,8 +190,8 @@ void WUP028Manager::OnUsbChangeVer4(s32 hid) {
                     this->adapterId = deviceId;
                     InitMsg4.device = this->adapterId;
                     (void)IOS::IOCtlAsync(this->hidFd, IOS::IOCTL_HID4_INTERRUPT_OUT,
-                        &InitMsg4, sizeof(InitMsg4), nullptr, 0,
-                        WUP028Manager::OnUsbInitVer4Callback, nullptr);
+                                          &InitMsg4, sizeof(InitMsg4), nullptr, 0,
+                                          WUP028Manager::OnUsbInitVer4Callback, nullptr);
                 }
                 break;
             }
@@ -200,8 +201,8 @@ void WUP028Manager::OnUsbChangeVer4(s32 hid) {
                 this->isWorking = false;
             }
             hid = IOS::IOCtlAsync(this->hidFd, IOS::IOCTL_HID4_GET_DEVICE_CHANGE,
-                nullptr, 0, this->deviceChangeSizeBuffer, 0x600,
-                WUP028Manager::OnUsbChangeVer4Callback, nullptr);
+                                  nullptr, 0, this->deviceChangeSizeBuffer, 0x600,
+                                  WUP028Manager::OnUsbChangeVer4Callback, nullptr);
         }
     }
     if (hid) OnError();
@@ -213,10 +214,10 @@ void WUP028Manager::OnUsbInitVer4(s32 ret) {
         PollMsg4.device = this->adapterId;
         OS::DCFlushRange(PollMsgBuffer, sizeof(PollMsgBuffer));
         ret = IOS::IOCtlAsync(this->hidFd, IOS::IOCTL_HID4_INTERRUPT_IN,
-            &PollMsg4, sizeof(PollMsg4), nullptr, 0,
-            WUP028Manager::OnUsbPollCallback, nullptr);
-    }
-    else OnError();
+                              &PollMsg4, sizeof(PollMsg4), nullptr, 0,
+                              WUP028Manager::OnUsbPollCallback, nullptr);
+    } else
+        OnError();
 }
 
 void WUP028Manager::CreateStaticInstance() {
@@ -226,4 +227,4 @@ void WUP028Manager::CreateStaticInstance() {
     }
 }
 static BootHook CreateWUP(WUP028Manager::CreateStaticInstance, 4);
-}//namespace Cosmos
+}  // namespace Cosmos

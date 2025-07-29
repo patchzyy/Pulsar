@@ -3,8 +3,7 @@
 
 static void loadIntoMKW();
 
-
-LoaderParams paramsPAL ={
+LoaderParams paramsPAL = {
     (OSReport_t)0x801A25D0,
     (OSFatal_t)0x801A4EC4,
     (DVDConvertPathToEntrynum_t)0x8015DF4C,
@@ -14,9 +13,8 @@ LoaderParams paramsPAL ={
     (sprintf_t)0x80011A2C,
     (RKSystem*)0x802A4080,
     PAL,
-    0x80510238
-};
-LoaderParams paramsNTSC_U ={
+    0x80510238};
+LoaderParams paramsNTSC_U = {
     (OSReport_t)0x801A2530,
     (OSFatal_t)0x801A4E24,
     (DVDConvertPathToEntrynum_t)0x8015DEAC,
@@ -29,7 +27,7 @@ LoaderParams paramsNTSC_U ={
     0x8050bf50,
 
 };
-LoaderParams paramsNTSC_J ={
+LoaderParams paramsNTSC_J = {
     (OSReport_t)0x801A24F0,
     (OSFatal_t)0x801A4DE4,
     (DVDConvertPathToEntrynum_t)0x8015DE6C,
@@ -41,7 +39,7 @@ LoaderParams paramsNTSC_J ={
     NTSC_J,
     0x8050fc50,
 };
-LoaderParams paramsNTSC_K ={
+LoaderParams paramsNTSC_K = {
     (OSReport_t)0x801A292C,
     (OSFatal_t)0x801A5220,
     (DVDConvertPathToEntrynum_t)0x8015DFC4,
@@ -51,16 +49,13 @@ LoaderParams paramsNTSC_K ={
     (sprintf_t)0x80011A94,
     (RKSystem*)0x80292080,
     NTSC_K,
-    0x804fe2f0
-};
-
-
+    0x804fe2f0};
 
 static void LoadIntoMKW() {
     const u8 regionMem = OS::BootInfo::mInstance.diskID.gameName[3];
 
     LoaderParams* params = nullptr;
-    switch(regionMem) {
+    switch (regionMem) {
         case 'P':
             params = &paramsPAL;
             break;

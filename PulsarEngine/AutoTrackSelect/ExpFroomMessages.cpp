@@ -81,7 +81,6 @@ s32 ExpFroomMessages::clickedButtonIdx = 0;
 // }
 // kmBranch(0x805dd314, OnBackButtonClick);
 
-
 // //kmWrite32(0x805dcb6c, 0x7EC4B378); //Get the loop idx in r4
 // u32 CorrectModeButtonsBMG(const RKNet::ROOMPacket& packet) {
 //     register u32 rowIdx;
@@ -129,5 +128,5 @@ void CorrectRoomStartButton(Pages::Globe::MessageWindow& control, u32 bmgId, Tex
 }
 kmCall(0x805e4df4, CorrectRoomStartButton);
 
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

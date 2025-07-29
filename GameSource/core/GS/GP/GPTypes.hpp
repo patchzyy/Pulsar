@@ -61,7 +61,7 @@ struct Connection {
     int inputBufferSize;
     IBuffer outputBuffer;
     // Replaced by UDP Layer
-    //SOCKET peerSocket;
+    // SOCKET peerSocket;
     char header[16];
     unsigned short peerPort;
     int nextOperationID;
@@ -104,7 +104,7 @@ struct Connection {
     Enum quietModeFlags;
     u32 gsi_time_kaTransmit;
 
-}; //0x634
+};  // 0x634
 
 struct UniqueMatch {
     int pid;
@@ -117,7 +117,6 @@ struct GetReverseBuddiesListResponseArg {
     UniqueMatch* matches;
 };
 
-}//namespace GP
-
+}  // namespace GP
 
 #endif

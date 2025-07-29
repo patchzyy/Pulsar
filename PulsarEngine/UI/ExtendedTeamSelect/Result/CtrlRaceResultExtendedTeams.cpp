@@ -137,14 +137,14 @@ void CtrlRaceResultExtendedTeams::OnUpdate() {
             this->items[i].SetTextBoxMessage("pts", BMG_SCORE_PTS, &this->textInfo);
         }
     }
-    
+
     if (this->resultTeamPoint) {
         this->textInfo = Text::Info();
 
         if (this->teamScore - this->currentScore > 0.0) {
             this->currentScore += 1.0;
             this->textInfo.intToPass[0] = this->currentScore;
-            
+
             this->PlaySound(0xde, 0xffffffff);
 
             u32 teamNameBmgID = BMG_NUMBER_RACE;
@@ -172,8 +172,7 @@ void CtrlRaceResultExtendedTeams::Load(ExtendedTeamID teamID, int numTeams, int 
         "Loop", "Loop", nullptr,
         "Select", "SelectOn", "SelectOff", nullptr,
         "Select2", "Select2On", "Select2Off", nullptr,
-        nullptr
-    };
+        nullptr};
 
     for (int i = 0; i < 6; i++) {
         snprintf(variant, 20, "BlueRed%d", i);
@@ -182,7 +181,6 @@ void CtrlRaceResultExtendedTeams::Load(ExtendedTeamID teamID, int numTeams, int 
         ControlLoader itemLoader(&this->items[i]);
         itemLoader.Load("result", "ResultVSTeam", variant, anims);
 
-        
         this->items[i].SetPaneVisibility("blue_null", false);
 
         nw4r::lyt::Pane* teamColorPane1 = this->items[i].layout.GetPaneByName("black_parts_r_l");
@@ -193,7 +191,7 @@ void CtrlRaceResultExtendedTeams::Load(ExtendedTeamID teamID, int numTeams, int 
 
         u8 r, g, b;
         ExtendedTeamSelect::GetTeamColor(this->teamId, r, g, b);
-        
+
         for (int j = 0; j < 2; j++) {
             teamColor1->tevColours[j].r = teamColor2->tevColours[j].r = r;
             teamColor1->tevColours[j].g = teamColor2->tevColours[j].g = g;
@@ -216,14 +214,13 @@ void CtrlRaceResultExtendedTeams::Load(ExtendedTeamID teamID, int numTeams, int 
 
     const char* teamPointAnims[] = {
         "team", "blue", "red", nullptr,
-        nullptr
-    };
+        nullptr};
 
     ControlLoader pointLoader(this->resultTeamPoint);
     pointLoader.Load("result", "ResultTeamPoint", "red", teamPointAnims);
     this->resultTeamPoint->animator.GetAnimationGroupById(0).isActive = false;
 
-    nw4r::lyt::TextBox* pane1 = (nw4r::lyt::TextBox*)this->resultTeamPoint->layout.GetPaneByName("point"); 
+    nw4r::lyt::TextBox* pane1 = (nw4r::lyt::TextBox*)this->resultTeamPoint->layout.GetPaneByName("point");
     nw4r::lyt::TextBox* pane2 = (nw4r::lyt::TextBox*)this->resultTeamPoint->layout.GetPaneByName("pts");
     nw4r::lyt::Material* mat1 = pane1->GetMaterial();
     nw4r::lyt::Material* mat2 = pane2->GetMaterial();
@@ -250,5 +247,5 @@ bool CtrlRaceResultExtendedTeams::IsResultAnimDone() const {
     return true;
 }
 
-} //namespace UI
-} //namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

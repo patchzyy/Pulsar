@@ -1,19 +1,17 @@
 #include <kamekLoader.hpp>
 #include <core/nw4r/ut/Misc.hpp>
 
-
 struct KBHeader {
-    u32 magic1; //0x0
-    u16 magic2; //0x2
-    u16 version; //0x4
-    u32 bssSize; //0x8
-    u32 codeSize; //0xc
-    u32 ctorStart; //0x10
-    u32 ctorEnd; //0x14
-    u32 length; //0x18
-    u32 padding; //0x1c
+    u32 magic1;  // 0x0
+    u16 magic2;  // 0x2
+    u16 version;  // 0x4
+    u32 bssSize;  // 0x8
+    u32 codeSize;  // 0xc
+    u32 ctorStart;  // 0x10
+    u32 ctorEnd;  // 0x14
+    u32 length;  // 0x18
+    u32 padding;  // 0x1c
 };
-
 
 #define kAddr32 1
 #define kAddr16Lo 4
@@ -30,25 +28,24 @@ struct KBHeader {
 #define kBranch 64
 #define kBranchLink 65
 
-
 static void DisplayError(const LoaderParams* params, const char* str) {
     u32 fg = 0xFFFFFFFF, bg = 0;
     params->OSFatal(&fg, &bg, str);
 }
 
-
 static inline u32 resolveAddress(u32 text, u32 address) {
-    if(address & 0x80000000)
+    if (address & 0x80000000)
         return address;
     else
         return text + address;
 }
 
-
 #define kCommandHandler(name) \
-	static inline const u8 *kHandle##name(const u8 *input, u32 text, u32 address)
-#define kDispatchCommand(name) \
-	case k##name: input = kHandle##name(input, text, address); break
+    static inline const u8* kHandle##name(const u8* input, u32 text, u32 address)
+#define kDispatchCommand(name)                       \
+    case k##name:                                    \
+        input = kHandle##name(input, text, address); \
+        break
 
 kCommandHandler(Addr32) {
     u32 target = resolveAddress(text, *(const u32*)input);
@@ -68,7 +65,7 @@ kCommandHandler(Addr16Hi) {
 kCommandHandler(Addr16Ha) {
     u32 target = resolveAddress(text, *(const u32*)input);
     *(u16*)address = target >> 16;
-    if(target & 0x8000)
+    if (target & 0x8000)
         *(u16*)address += 1;
     return input + 4;
 }
@@ -97,28 +94,28 @@ kCommandHandler(Write8) {
 kCommandHandler(CondWritePointer) {
     u32 target = resolveAddress(text, *(const u32*)input);
     u32 original = ((const u32*)input)[1];
-    if(*(u32*)address == original)
+    if (*(u32*)address == original)
         *(u32*)address = target;
     return input + 8;
 }
 kCommandHandler(CondWrite32) {
     u32 value = *(const u32*)input;
     u32 original = ((const u32*)input)[1];
-    if(*(u32*)address == original)
+    if (*(u32*)address == original)
         *(u32*)address = value;
     return input + 8;
 }
 kCommandHandler(CondWrite16) {
     u32 value = *(const u32*)input;
     u32 original = ((const u32*)input)[1];
-    if(*(u16*)address == (original & 0xFFFF))
+    if (*(u16*)address == (original & 0xFFFF))
         *(u16*)address = value & 0xFFFF;
     return input + 8;
 }
 kCommandHandler(CondWrite8) {
     u32 value = *(const u32*)input;
     u32 original = ((const u32*)input)[1];
-    if(*(u8*)address == (original & 0xFF))
+    if (*(u8*)address == (original & 0xFF))
         *(u8*)address = value & 0xFF;
     return input + 8;
 }
@@ -131,7 +128,6 @@ kCommandHandler(BranchLink) {
     return kHandleRel24(input, text, address);
 }
 
-
 inline void cacheInvalidateAddress(register u32 address) {
     asm(dcbst 0, address;);
     asm(sync;);
@@ -139,62 +135,62 @@ inline void cacheInvalidateAddress(register u32 address) {
 }
 
 static void LoadKamekBinary(LoaderParams* params, const void* binary, u32 binaryLength, bool isDol) {
-
     static u32 text = 0;
     const KBHeader* header = (const KBHeader*)binary;
-    if(header->magic1 != 'Kame' || header->magic2 != 'k\0')
+    if (header->magic1 != 'Kame' || header->magic2 != 'k\0')
         DisplayError(params, "FATAL ERROR: Corrupted file, please check your game's Kamek files");
-    if(header->version != 3) {
+    if (header->version != 3) {
         char err[512];
         params->sprintf(err, "FATAL ERROR: Incompatible file (version %d), please upgrade your Kamek Loader", header->version);
         DisplayError(params, err);
     }
 
     params->OSReport("header: bssSize=%u, codeSize=%u, ctors=%u-%u\n",
-        header->bssSize, header->codeSize, header->ctorStart, header->ctorEnd);
+                     header->bssSize, header->codeSize, header->ctorStart, header->ctorEnd);
 
     u32 textSize = header->codeSize + header->bssSize;
 
     EGG::ExpHeap* heap = params->rkSystem->EGGSystem;
-    if(isDol) text = (u32)heap->alloc(textSize, 0x20);
-    if(!text) DisplayError(params, "FATAL ERROR: Out of code memory");
+    if (isDol) text = (u32)heap->alloc(textSize, 0x20);
+    if (!text) DisplayError(params, "FATAL ERROR: Out of code memory");
 
     const u8* input = ((const u8*)binary) + sizeof(KBHeader);
     const u8* inputEnd = ((const u8*)binary) + binaryLength;
     u8* output = (u8*)text;
 
-    if(isDol) {
+    if (isDol) {
         // Create text + bss sections
-        for(u32 i = 0; i < header->codeSize; ++i) {
+        for (u32 i = 0; i < header->codeSize; ++i) {
             *output = *(input++);
             cacheInvalidateAddress((u32)(output++));
         }
-        for(u32 i = 0; i < header->bssSize; ++i) {
+        for (u32 i = 0; i < header->bssSize; ++i) {
             *output = 0;
             cacheInvalidateAddress((u32)(output++));
         }
     }
 
-    while(input < inputEnd) {
+    while (input < inputEnd) {
         u32 cmdHeader = *((u32*)input);
         input += 4;
 
         u8 cmd = cmdHeader >> 24;
         u32 address = cmdHeader & 0xFFFFFF;
-        if(address == 0xFFFFFE) {
+        if (address == 0xFFFFFE) {
             // Absolute address
             address = *((u32*)input);
-            if(address < params->relStart && !isDol) continue;
-            else if(address >= params->relStart && isDol) continue;
+            if (address < params->relStart && !isDol)
+                continue;
+            else if (address >= params->relStart && isDol)
+                continue;
             input += 4;
-        }
-        else {
-            if(!isDol) continue;
+        } else {
+            if (!isDol) continue;
             // Relative address
             address += text;
         }
 
-        switch(cmd) {
+        switch (cmd) {
             case kAddr32:
                 input = kHandleAddr32(input, text, address);
                 break;
@@ -247,16 +243,14 @@ static void LoadKamekBinary(LoaderParams* params, const void* binary, u32 binary
     asmVolatile(isync;);
 
     typedef void (*Func)();
-    if(isDol) {
-        for(Func* f = (Func*)(text + header->ctorStart); f < (Func*)(text + header->ctorEnd); f++) {
+    if (isDol) {
+        for (Func* f = (Func*)(text + header->ctorStart); f < (Func*)(text + header->ctorEnd); f++) {
             (*f)();
         }
     }
 }
 
-
-void LoadKamekBinaryFromDisc(LoaderParams* params)
-{
+void LoadKamekBinaryFromDisc(LoaderParams* params) {
     static void* codePulBuf = nullptr;
     static u32 sectionLength = 0;
     params->OSReport("{Kamek by Treeki}\nLoading Kamek binary");
@@ -264,17 +258,17 @@ void LoadKamekBinaryFromDisc(LoaderParams* params)
     bool isDol = false;
     EGG::ExpHeap* heap = params->rkSystem->EGGSystem;
 
-    if(codePulBuf == nullptr) {
+    if (codePulBuf == nullptr) {
         const char* path = "/Binaries/Code.pul";
         int entrynum = params->DVDConvertPathToEntrynum(path);
-        if(entrynum < 0) {
+        if (entrynum < 0) {
             char err[512];
             params->sprintf(err, "FATAL ERROR: Failed to locate file on the disc: %s", path);
             DisplayError(params, err);
         }
 
         DVD::FileInfo fileInfo;
-        if(!params->DVDFastOpen(entrynum, &fileInfo)) DisplayError(params, "FATAL ERROR: Failed to open file!");
+        if (!params->DVDFastOpen(entrynum, &fileInfo)) DisplayError(params, "FATAL ERROR: Failed to open file!");
         params->OSReport("DVD file located: addr=%p, size=%d\n", fileInfo.startAddr, fileInfo.length);
 
         alignas(0x20) u32 sizes[4];
@@ -286,10 +280,10 @@ void LoadKamekBinaryFromDisc(LoaderParams* params)
 
         isDol = true;
         codePulBuf = heap->alloc(roundedLength, -0x20);
-        if(!codePulBuf) DisplayError(params, "FATAL ERROR: Out of file memory");
+        if (!codePulBuf) DisplayError(params, "FATAL ERROR: Out of file memory");
         u32 offset = sizeof(u32) * 4;
         u32 region = PAL;
-        while(region < params->region) {
+        while (region < params->region) {
             offset += sizes[region];
             ++region;
         }
@@ -298,5 +292,5 @@ void LoadKamekBinaryFromDisc(LoaderParams* params)
     }
 
     LoadKamekBinary(params, codePulBuf, sectionLength, isDol);
-    if(!isDol) heap->free(codePulBuf);
+    if (!isDol) heap->free(codePulBuf);
 }

@@ -3,16 +3,15 @@
 #include <core/rvl/dvd/dvd.hpp>
 #include <core/RK/RKSystem.hpp>
 
-
 struct LoaderParams;
 
-typedef void (*OSReport_t) (const char* str, ...);
-typedef void (*OSFatal_t) (u32* fg, u32* bg, const char* str, ...);
-typedef int (*DVDConvertPathToEntrynum_t) (const char* path);
-typedef bool (*DVDFastOpen_t) (int entrynum, DVD::FileInfo* fileInfo);
-typedef int (*DVDReadPrio_t) (DVD::FileInfo* fileInfo, void* buffer, int length, int offset, int unk);
-typedef bool (*DVDClose_t) (DVD::FileInfo* fileInfo);
-typedef int (*sprintf_t) (char* str, const char* format, ...);
+typedef void (*OSReport_t)(const char* str, ...);
+typedef void (*OSFatal_t)(u32* fg, u32* bg, const char* str, ...);
+typedef int (*DVDConvertPathToEntrynum_t)(const char* path);
+typedef bool (*DVDFastOpen_t)(int entrynum, DVD::FileInfo* fileInfo);
+typedef int (*DVDReadPrio_t)(DVD::FileInfo* fileInfo, void* buffer, int length, int offset, int unk);
+typedef bool (*DVDClose_t)(DVD::FileInfo* fileInfo);
+typedef int (*sprintf_t)(char* str, const char* format, ...);
 
 enum Region {
     PAL = 0,
@@ -33,8 +32,6 @@ struct LoaderParams {
     Region region;
     u32 relStart;
 };
-
-
 
 void LoadKamekBinaryFromDisc(LoaderParams* funcs);
 #endif

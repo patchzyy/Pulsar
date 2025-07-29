@@ -11,7 +11,7 @@ class ExpVotePage : public Pages::Vote {
     void BeforeControlUpdate() override;
 };
 
-} // namespace UI
-} // namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 
-#endif // _EXP_VOTE_PAGE_HPP
+#endif  // _EXP_VOTE_PAGE_HPP

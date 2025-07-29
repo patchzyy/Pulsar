@@ -10,7 +10,7 @@ PageId ExtendedTeamResultIrregularTotal::GetNextPage() const {
             return PAGE_VS_RACEENDMENU;
         }
         return PAGE_GP_ENDMENU;
-    }  
+    }
 
     return PAGE_WIFI_VS_RESULTS;
 }
@@ -19,7 +19,7 @@ void ExtendedTeamResultIrregularTotal::OnInit() {
     Pages::GPVSLeaderboardTotal::OnInit();
 
     this->AddControl(this->GetRowCount(), this->textMessage, 0);
-    
+
     ControlLoader loader(&this->textMessage);
     loader.Load("game_image", "ExpandedTeamMessage", "ExpandedTeamMessage", nullptr);
 
@@ -74,9 +74,9 @@ void ExtendedTeamResultIrregularTotal::FillRows() {
     for (int i = teamCount; i < this->GetRowCount(); i++) {
         this->results[i]->isHidden = true;
     }
-     
+
     RKNet::Controller* controller = RKNet::Controller::sInstance;
-    ExtendedTeamID selfTeams[2] = { TEAM_COUNT, TEAM_COUNT };
+    ExtendedTeamID selfTeams[2] = {TEAM_COUNT, TEAM_COUNT};
     for (int i = 0; i < menuScenario.playerCount; i++) {
         if (menuScenario.players[i].playerType == PLAYER_REAL_LOCAL && menuScenario.players[i].hudSlotId == 0) {
             selfTeams[0] = ExtendedTeamManager::sInstance->GetPlayerTeam(i);
@@ -131,5 +131,5 @@ void ExtendedTeamResultIrregularTotal::FillRows() {
     }
 }
 
-} //namespace UI
-} //namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

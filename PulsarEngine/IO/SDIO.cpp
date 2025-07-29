@@ -2,11 +2,11 @@
 #include <core/rvl/ipc/ipc.hpp>
 
 namespace Pulsar {
-    
-#define S_IFDIR                 0040000 /* st_mode is directory */
-#define S_IFMT                  0170000 /* st_mode filetype mask */
-#define SD_MAX_FILENAME_LENGTH  768     /* filename length limit imposed by sd driver */
-#define EEXIST                  17      /* errno code for 'File already exists' */
+
+#define S_IFDIR 0040000 /* st_mode is directory */
+#define S_IFMT 0170000 /* st_mode filetype mask */
+#define SD_MAX_FILENAME_LENGTH 768 /* filename length limit imposed by sd driver */
+#define EEXIST 17 /* errno code for 'File already exists' */
 
 struct sd_vtable {
     int (*open)(void* file_struct, const char* path, int flags);
@@ -27,11 +27,14 @@ const sd_vtable* __sd_vtable = reinterpret_cast<sd_vtable*>(0x81782e00);
 
 u32 ios_mode_to_sd_mode(u32 mode) {
     switch (mode) {
-        case IOS::MODE_WRITE: return O_WRONLY;
-        case IOS::MODE_READ_WRITE: return O_RDWR;
+        case IOS::MODE_WRITE:
+            return O_WRONLY;
+        case IOS::MODE_READ_WRITE:
+            return O_RDWR;
         case IOS::MODE_NONE:
         case IOS::MODE_READ:
-        default: return O_RDONLY;
+        default:
+            return O_RDONLY;
     }
 }
 
@@ -65,7 +68,7 @@ void SDIO::ReadFolder(const char* path) {
     __sd_vtable->diropen(&dirData, path);
     strncpy(folderName, path, IOS::ipcMaxPath);
     char filename[SD_MAX_FILENAME_LENGTH];
-    
+
     fileNames = new (heap) IOS::IPCPath[maxFileCount];
     stat stat;
     while (__sd_vtable->dirnext(&dirData, filename, &stat) == 0) {
@@ -83,7 +86,7 @@ void SDIO::ReadFolder(const char* path) {
 
 void SDIO::CloseFolder() {
     if (fileNames) {
-        delete[](fileNames);
+        delete[] (fileNames);
         __sd_vtable->dirclose(&dirData);
     }
     fileNames = nullptr;
@@ -121,4 +124,4 @@ void SDIO::Close() {
     __sd_vtable->close(fd());
 }
 
-}//namespace Pulsar
+}  // namespace Pulsar

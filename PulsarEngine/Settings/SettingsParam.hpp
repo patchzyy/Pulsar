@@ -6,17 +6,19 @@
 #include <Config.hpp>
 
 namespace Pulsar {
-namespace UI { class SettingsPanel; }
+namespace UI {
+class SettingsPanel;
+}
 namespace Settings {
 
 class Params {
-public:
+   public:
     static const int pulsarPageCount = 5;
     static const int userPageCount = 3;
     static const int pageCount = pulsarPageCount + userPageCount;
 
-    static const int maxRadioCount = 8; // per page, due to space
-    static const int maxScrollerCount = 5; // per page, due to space
+    static const int maxRadioCount = 8;  // per page, due to space
+    static const int maxScrollerCount = 5;  // per page, due to space
 
     // Pulsar and User
     static u8 radioCount[pageCount];
@@ -41,7 +43,7 @@ enum UserType {
     SETTINGSTYPE_RRLANGUAGE
 };
 
-} // namespace Settings
+}  // namespace Settings
 
 // SETTINGS ENUM, for the page, DO NOT FORGET THE +6 for scrollers (see menu settings for example)
 // Use these 3 for "u32 setting" in GetSettingValue, the return will be the value of the other enums
@@ -371,13 +373,13 @@ enum Language {
     LANGUAGE_CZECH,
 };
 
-//Extra
+// Extra
 enum WWMode {
     WWMODE_DEFAULT,
     WWMODE_OTT,
     WWMODE_200
 };
 
-} // namespace Pulsar
+}  // namespace Pulsar
 
 #endif

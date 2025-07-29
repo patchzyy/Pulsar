@@ -43,7 +43,6 @@
  * SOFTWARE.
  */
 
-
 #ifndef _WUP028_
 #define _WUP028_
 
@@ -79,13 +78,13 @@ struct InterruptMsg4 {
 };
 
 class WUP028Manager {
-public:
+   public:
     WUP028Manager() : isStarted(false), isWorking(false), isInit(false), adapterId(-1U) {}
     static void CreateStaticInstance();
     static WUP028Manager* GetStaticInstance() { return sInstance; }
     void CustomPADRead(PAD::Status* status);
 
-private:
+   private:
     void OnInit();
     void OnError() {
         isWorking = false;
@@ -123,5 +122,5 @@ private:
 
     static WUP028Manager* sInstance;
 };
-}//namespace Cosmos
+}  // namespace Cosmos
 #endif

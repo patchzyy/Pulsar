@@ -23,12 +23,11 @@
 #pragma inline_max_size(256)
 #pragma inline_max_total_size(10000)
 
-#pragma warn_unusedvar on 
+#pragma warn_unusedvar on
 #pragma warn_illpragma on
 #pragma warn_extracomma on
 #pragma warn_possunwant on
 #pragma warn_illtokenpasting off
-
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -53,32 +52,33 @@ typedef volatile u8 vu8;
 typedef volatile f64 vf64;
 typedef volatile float vfloat;
 typedef int UnkType;
-typedef int BOOL; //any non-zero = true
-
+typedef int BOOL;  // any non-zero = true
 
 struct RGBA16 {
     u16 red, green, blue, alpha;
 };
 
 // Helper struct used by `offset_assert` because the `offsetof` macro can't be used in a `static_assert(...)`
-template<typename T, T lhs, T rhs>
+template <typename T, T lhs, T rhs>
 struct _AssertEq {
     static_assert(lhs == rhs, "Assertion failed");
 };
 
 #define offsetof(st, m) \
-    ((const u32)&(((const st *)0)->m))
+    ((const u32) & (((const st *)0)->m))
 #endif
 
 #ifdef __INTELLISENSE__
 #define ASM(...)
-#define asm(...) {}
+#define asm(...) \
+    {            \
+    }
 #define asmVolatile asm
 #define asmFunc void
 #define NULL 0
 #define __sync(...)
 #define __isync(...)
-#define size_assert(type, num) static_assert(sizeof(type)==(num),"type")
+#define size_assert(type, num) static_assert(sizeof(type) == (num), "type")
 #define static_assert(...)
 #define offset_assert(type, member, off)
 #else
@@ -88,8 +88,6 @@ struct _AssertEq {
 #define alignas(value) __attribute((aligned(value)))
 #define ASM(...) __VA_ARGS__
 #define override
-#define size_assert(type, num) static_assert(sizeof(type) ==num,#type)
+#define size_assert(type, num) static_assert(sizeof(type) == num, #type)
 #define offset_assert(type, member, off) _AssertEq<int, offsetof(type, member), off>()
 #endif
-
-

@@ -6,9 +6,9 @@
 namespace Pulsar {
 namespace UI {
 class ExpWWLeaderboardUpdate : public Pages::WWLeaderboardUpdate {
-public:
+   public:
     void OnUpdate() override;
 };
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 #endif

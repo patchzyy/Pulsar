@@ -21,6 +21,6 @@ void fillLeaderboardResults(int count, CtrlRaceResult** results);
 
 bool checkLeaderboardDisplaySwapInputs();
 
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 #endif

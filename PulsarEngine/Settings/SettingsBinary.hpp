@@ -17,8 +17,7 @@ enum SectionIndexes {
 struct TrackTrophy {
     u32 crc32;
     bool hastrophy[4];
-}; //0x8
-
+};  // 0x8
 
 struct Page {
     union {
@@ -37,7 +36,7 @@ struct PagesHolder {
     Pulsar::SectionHeader header;
     u32 pulsarPageCount;
     u32 userPageCount;
-    Page pages[1]; //0x14
+    Page pages[1];  // 0x14
 };
 
 struct MiscParams {
@@ -45,9 +44,9 @@ struct MiscParams {
     static const u32 version = 1;
     static const u32 index = SECTION_MISC;
     Pulsar::SectionHeader header;
-    u32 reserved[20]; //0xc
-    PulsarCupId lastSelectedCup; //0x5c
-    u32 trackCount; //0x60
+    u32 reserved[20];  // 0xc
+    PulsarCupId lastSelectedCup;  // 0x5c
+    u32 trackCount;  // 0x60
 };
 
 struct TrophiesHolder {
@@ -60,19 +59,19 @@ struct TrophiesHolder {
 };
 
 struct GPCupStatus {
-    u8 gpCCStatus[4]; //one per CC
+    u8 gpCCStatus[4];  // one per CC
 };
 struct GPSection {
     static const u32 gpMagic = 'GP\0\0';
     static const u32 version = 1;
     static const u32 index = SECTION_GP;
 
-    //2 bits for trophy
-    //4 bits for rank, 0 to 7
-    //3 2 1 a b c d e
+    // 2 bits for trophy
+    // 4 bits for rank, 0 to 7
+    // 3 2 1 a b c d e
 
     Pulsar::SectionHeader header;
-    GPCupStatus gpStatus[1]; //one per cup
+    GPCupStatus gpStatus[1];  // one per cup
 };
 
 struct BinaryHeader {
@@ -80,11 +79,11 @@ struct BinaryHeader {
     u32 version;
     u32 fileSize;
     u32 sectionCount;
-    u32 offsets[1]; //0x10
-    //u32 offsetToPages;
-    //u32 offsetToMisc;
-    //u32 offsetToTrophies;
-    //u32 offsetToGP;
+    u32 offsets[1];  // 0x10
+    // u32 offsetToPages;
+    // u32 offsetToMisc;
+    // u32 offsetToTrophies;
+    // u32 offsetToGP;
 };
 
 /*OLD VERSIONS*/
@@ -114,26 +113,29 @@ class alignas(0x20) Binary {
 
     Binary(u32 pulsarPageCount, u32 userPageCount, u32 trackCount);
 
-    template<typename T>
+    template <typename T>
     inline T& GetSection() {
         return *reinterpret_cast<T*>(ut::AddU32ToPtr(this, this->header.offsets[T::index]));
     }
-    template<typename T>
+    template <typename T>
     inline const T& GetSection() const {
         return *reinterpret_cast<const T*>(ut::AddU32ToPtr(this, this->header.offsets[T::index]));
     }
     template <class T>
-    bool CheckSection(const T& t) { if(t.header.magic != T::magic) return false; return true; }
+    bool CheckSection(const T& t) {
+        if (t.header.magic != T::magic) return false;
+        return true;
+    }
 
     BinaryHeader header;
     PagesHolder pages;
-    //MiscParams misc;
-    //TrophiesHolder trophies;
+    // MiscParams misc;
+    // TrophiesHolder trophies;
     friend class Mgr;
 };
 
-}//namespace Settings
-}//namespace Pulsar
+}  // namespace Settings
+}  // namespace Pulsar
 
 /*CHANGELOG:
 -V1 is defunct and was never used
@@ -147,6 +149,5 @@ class alignas(0x20) Binary {
 *Pages section now supports user pages
 
 */
-
 
 #endif

@@ -8,6 +8,6 @@ namespace Network {
 void Report(const char* key, const char* string);
 void ReportU32(const char* key, u32 uint);
 
-}//namespace Network
-}//namespace Pulsar
+}  // namespace Network
+}  // namespace Pulsar
 #endif

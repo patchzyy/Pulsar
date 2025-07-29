@@ -1,10 +1,10 @@
 #include <kamek.hpp>
 
 #ifndef _SHA256_
-#  define _SHA256_
+#define _SHA256_
 
-#  define SHA256_DIGEST_SIZE 32
-#  define SHA256_BLOCK_SIZE 64
+#define SHA256_DIGEST_SIZE 32
+#define SHA256_BLOCK_SIZE 64
 
 /* SHA256 context */
 struct SHA256Context {

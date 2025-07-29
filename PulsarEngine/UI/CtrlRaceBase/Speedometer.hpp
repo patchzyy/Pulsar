@@ -3,20 +3,20 @@
 #include <kamek.hpp>
 #include <UI/CtrlRaceBase/CustomCtrlRaceBase.hpp>
 
-//Simple speedometer that uses TPLs instead of text because the default font numbers have a very ugly black outline
+// Simple speedometer that uses TPLs instead of text because the default font numbers have a very ugly black outline
 namespace Pulsar {
 namespace UI {
 class CtrlRaceSpeedo : public CtrlRaceBase {
-public:
+   public:
     void Init() override;
     void OnUpdate() override;
     static u32 Count();
     static void Create(Page& page, u32 index, u32 count);
-private:
+
+   private:
     struct SpeedArg {
         SpeedArg() {}
-        SpeedArg(u32 hundreds, u32 tens, u32 units, u32 dot, u32 tenths, u32 hundredths, u32 thousandths) :
-            hundreds(hundreds), tens(tens), units(units), dot(dot), tenths(tenths), hundredths(hundredths), thousandths(thousandths) {}
+        SpeedArg(u32 hundreds, u32 tens, u32 units, u32 dot, u32 tenths, u32 hundredths, u32 thousandths) : hundreds(hundreds), tens(tens), units(units), dot(dot), tenths(tenths), hundredths(hundredths), thousandths(thousandths) {}
         union {
             u32 values[7];
             struct {
@@ -33,7 +33,7 @@ private:
     void Load(const char* variant, u8 id);
     void Animate(const SpeedArg* args = nullptr);
 };
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 
 #endif

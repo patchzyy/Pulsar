@@ -30,7 +30,7 @@ struct ExtendedTeamPlayer {
 };
 
 class ExtendedTeamManager {
-public:
+   public:
     enum ExtendedROOMMessageType {
         MSG_TYPE_START_RACE = 0x81,
         MSG_TYPE_UPDATE_TEAMS = 0x82,
@@ -93,9 +93,9 @@ public:
         return this->players;
     }
 
-    void SendStartRacePacket();     // Host
-    void SendUpdateTeamsPacket();   // Host
-    void SendPingPacket();          // Non-Host
+    void SendStartRacePacket();  // Host
+    void SendUpdateTeamsPacket();  // Host
+    void SendPingPacket();  // Non-Host
     void SendAckStartRacePacket();  // Non-Host
 
     void Update();
@@ -149,8 +149,7 @@ public:
         return System::sInstance->IsContext(PULSAR_EXTENDEDTEAMS) && Racedata::sInstance->menusScenario.settings.gamemode == MODE_PRIVATE_VS && (roomType == RKNet::ROOMTYPE_FROOM_HOST || roomType == RKNet::ROOMTYPE_FROOM_NONHOST);
     }
 
-private:
-
+   private:
     bool AreAllOtherPlayersActive(u8 localAid);
     bool AreAllOtherPlayersDone(u8 localAid);
 
@@ -160,14 +159,14 @@ private:
 
     Status status;
 
-public:
+   public:
     CountDown waitingTimer;
     CountDown lastUpdateTimer;
 
     u32 hasFriendRoomStarted;
 };
 
-} // namespace UI
-} // namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 
 #endif

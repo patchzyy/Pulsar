@@ -19,6 +19,6 @@ void NewChannel_SetLoadedFromRRFlag();
 // This loads the channels' crash handler if set and the channel is called back into.
 void NewChannel_SetCrashFlag();
 
-}
+}  // namespace Pulsar
 
 #endif

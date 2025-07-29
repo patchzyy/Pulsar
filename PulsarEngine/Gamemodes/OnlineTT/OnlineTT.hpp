@@ -5,7 +5,7 @@
 namespace Pulsar {
 namespace OTT {
 
-//Combo after vote
+// Combo after vote
 enum VoteState {
     COMBO_NONE,
     COMBO_SELECTION,
@@ -27,7 +27,7 @@ struct Mgr {
 };
 void AddGhostToVS();
 
-}//namespace OTT
-}//namespace Pulsar
+}  // namespace OTT
+}  // namespace Pulsar
 
 #endif

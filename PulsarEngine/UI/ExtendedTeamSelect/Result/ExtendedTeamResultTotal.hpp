@@ -14,7 +14,7 @@ namespace Pulsar {
 namespace UI {
 
 class ExtendedTeamResultTotal : public Pages::Leaderboard {
-public:
+   public:
     static const PulPageId id = PULPAGE_EXTENDEDTEAMS_RESULT_TOTAL;
 
     PageId GetNextPage() const override;
@@ -25,7 +25,7 @@ public:
     CtrlRaceResultExtendedTeams results[TEAM_COUNT];
 };
 
-} //namespace UI
-} //namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 
 #endif

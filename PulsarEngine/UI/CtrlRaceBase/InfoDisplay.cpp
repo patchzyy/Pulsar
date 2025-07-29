@@ -4,29 +4,27 @@
 #include <SlotExpansion/CupsConfig.hpp>
 #include <Settings/Settings.hpp>
 
-
 namespace Pulsar {
 namespace UI {
-//So that it is only done once in TTs
+// So that it is only done once in TTs
 u32 CtrlRaceTrackInfoDisplay::lastCourse = -1;
 
 u32 CtrlRaceTrackInfoDisplay::Count() {
     const u32 gamemode = Racedata::sInstance->racesScenario.settings.gamemode;
-    if((gamemode == MODE_GRAND_PRIX) || (gamemode == MODE_VS_RACE) || (gamemode == MODE_PUBLIC_VS) || (gamemode == MODE_PRIVATE_VS)) return 1;
+    if ((gamemode == MODE_GRAND_PRIX) || (gamemode == MODE_VS_RACE) || (gamemode == MODE_PUBLIC_VS) || (gamemode == MODE_PRIVATE_VS)) return 1;
     const PulsarId winning = CupsConfig::sInstance->GetWinning();
-    if(gamemode == MODE_TIME_TRIAL && winning != lastCourse) {
+    if (gamemode == MODE_TIME_TRIAL && winning != lastCourse) {
         lastCourse = winning;
         return 1;
     }
     return 0;
 }
 void CtrlRaceTrackInfoDisplay::Create(Page& page, u32 index, u32) {
-    CtrlRaceTrackInfoDisplay* info = new(CtrlRaceTrackInfoDisplay);
+    CtrlRaceTrackInfoDisplay* info = new (CtrlRaceTrackInfoDisplay);
     page.AddControl(index, *info, 0);
     info->Load();
 }
 static CustomCtrlBuilder INFODISPLAYPANEL(CtrlRaceTrackInfoDisplay::Count, CtrlRaceTrackInfoDisplay::Create);
-
 
 void CtrlRaceTrackInfoDisplay::Load() {
     this->hudSlotId = 0;
@@ -39,10 +37,10 @@ void CtrlRaceTrackInfoDisplay::Load() {
     info.bmgToPass[0] = bmgId;
     u32 authorId = BMG_NINTENDO;
     u32 languageFix = static_cast<Pulsar::Language>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RRLANGUAGE), Pulsar::SETTINGRRLANGUAGE_LANGUAGE)) * 0x1000;
-    if(bmgId >= BMG_TRACKS) authorId = bmgId + BMG_AUTHORS - BMG_TRACKS - languageFix;
+    if (bmgId >= BMG_TRACKS) authorId = bmgId + BMG_AUTHORS - BMG_TRACKS - languageFix;
     info.bmgToPass[1] = authorId;
     this->SetMessage(BMG_INFO_DISPLAY, &info);
 }
 
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

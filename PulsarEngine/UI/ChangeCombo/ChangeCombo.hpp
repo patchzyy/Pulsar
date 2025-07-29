@@ -20,9 +20,9 @@ namespace Pulsar {
 namespace UI {
 static void RandomizeCombo();
 class ExpVR : public Pages::VR {
-public:
-    static const int randomDuration = 60; //1s
-    static const int voteDuration = 1620; //30s
+   public:
+    static const int randomDuration = 60;  // 1s
+    static const int voteDuration = 1620;  // 30s
     static_assert(randomDuration % 4 == 0, "Random Combo Duration");
     static_assert(voteDuration % 4 == 0, "Vote Duration");
     ExpVR();
@@ -31,66 +31,67 @@ public:
     s32 rouletteCounter;
     CountDown countdown;
     CountDownTimerControl countdownControl;
-private:
+
+   private:
     void RandomizeComboVR(PushButton& button, u32 hudSlotId);
     void ChangeCombo(PushButton& button, u32 hudSlotId);
     void OnSettingsButtonClick(PushButton& button, u32 hudSlotId);
     void ExtOnButtonSelect(PushButton& button, u32 hudSlotId);
     static void CreateAndInitPage(ExpSection& self, u32 id);
     PtmfHolder_2A<ExpVR, void, PushButton&, u32> onButtonSelectHandler;
-    PtmfHolder_2A<ExpVR, void, PushButton&, u32> onRandomComboClick; //0x192c
+    PtmfHolder_2A<ExpVR, void, PushButton&, u32> onRandomComboClick;  // 0x192c
     PtmfHolder_2A<ExpVR, void, PushButton&, u32> onChangeComboClick;
     PtmfHolder_2A<ExpVR, void, PushButton&, u32> onSettingsClick;
     PushButton randomComboButton;
     PushButton changeComboButton;
     PushButton settingsButton;
-public:
-    u8 comboButtonState; //1 = randomize, 2 = change
+
+   public:
+    u8 comboButtonState;  // 1 = randomize, 2 = change
     PulPageId topSettingsPage;
     bool areControlsHidden;
-    PageId nextPageId; //when you press a button
+    PageId nextPageId;  // when you press a button
     u8 menuState;
 };
 
 class ExpCharacterSelect : public Pages::CharacterSelect {
-public:
+   public:
     ExpCharacterSelect();
     void BeforeControlUpdate() override;
     void OnStartPress(u32 hudSlotId) override {
-        if(hudSlotId == 0) RandomizeCombo();
+        if (hudSlotId == 0) RandomizeCombo();
     }
     CharacterId randomizedCharIdx[2];
     CharacterId rolledCharIdx[2];
     s32 rouletteCounter;
     s32 buttonCooldown;
-
 };
 
 class ExpBattleKartSelect : public Pages::BattleKartSelect {
-public:
+   public:
     ExpBattleKartSelect();
     void BeforeControlUpdate() override;
-    s32 selectedKart; //0 kart 1 bike
+    s32 selectedKart;  // 0 kart 1 bike
 };
 
 class ExpKartSelect : public Pages::KartSelect {
-public:
+   public:
     ExpKartSelect();
     void BeforeControlUpdate() override;
     ButtonMachine* GetKartButton(u32 idx) const;
-    u32 randomizedKartPos; //from 0 to 11
+    u32 randomizedKartPos;  // from 0 to 11
     s32 rouletteCounter;
-    u32 rolledKartPos; //from 0 to 11
+    u32 rolledKartPos;  // from 0 to 11
 };
 
 class ExpMultiKartSelect : public Pages::MultiKartSelect {
-public:
+   public:
     ExpMultiKartSelect();
     void BeforeControlUpdate() override;
     s32 rouletteCounter;
-    u32 rolledKartPos[2]; //from 0 to 11
+    u32 rolledKartPos[2];  // from 0 to 11
 };
 
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 #endif

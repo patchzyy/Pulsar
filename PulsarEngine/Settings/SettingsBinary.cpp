@@ -10,10 +10,10 @@ Binary::Binary(u32 pulsarPageCount, u32 userPageCount, u32 trackCount) {
     const u32 cupCount = trackCount / 4;
     header.magic = binMagic;
     header.version = Binary::curVersion;
-    header.offsets[PagesHolder::index]    = sizeof(BinaryHeader) + sizeof(u32) * (sectionCount - 1);
-    header.offsets[MiscParams::index]     = header.offsets[PagesHolder::index] + sizeof(PagesHolder) + sizeof(Page) * (pulsarPageCount + userPageCount - 1);
+    header.offsets[PagesHolder::index] = sizeof(BinaryHeader) + sizeof(u32) * (sectionCount - 1);
+    header.offsets[MiscParams::index] = header.offsets[PagesHolder::index] + sizeof(PagesHolder) + sizeof(Page) * (pulsarPageCount + userPageCount - 1);
     header.offsets[TrophiesHolder::index] = header.offsets[MiscParams::index] + sizeof(MiscParams);
-    header.offsets[GPSection::index]      = header.offsets[TrophiesHolder::index] + sizeof(TrophiesHolder) + sizeof(TrackTrophy) * (trackCount - 1);
+    header.offsets[GPSection::index] = header.offsets[TrophiesHolder::index] + sizeof(TrophiesHolder) + sizeof(TrackTrophy) * (trackCount - 1);
     header.fileSize = header.offsets[GPSection::index] + sizeof(GPSection) + sizeof(GPCupStatus) * (cupCount - 1);
     header.sectionCount = sectionCount;
 
@@ -44,7 +44,5 @@ Binary::Binary(u32 pulsarPageCount, u32 userPageCount, u32 trackCount) {
     memset(&gp.gpStatus[0], 0xFF, sizeof(GPCupStatus) * cupCount);
 }
 
-} //namespace Settings
-} //namespace Pulsar
-
-
+}  // namespace Settings
+}  // namespace Pulsar

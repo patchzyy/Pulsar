@@ -52,7 +52,7 @@ void DiscordRichPresence(Section* _this) {
     RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
     u32 vr = 0, br = 0;
     u64 fc = 0;
-    if(rksysMgr && rksysMgr->curLicenseId >= 0) {
+    if (rksysMgr && rksysMgr->curLicenseId >= 0) {
         RKSYS::LicenseMgr& license = rksysMgr->licenses[rksysMgr->curLicenseId];
         vr = license.vr.points;
         br = license.br.points;
@@ -237,10 +237,9 @@ void DiscordRichPresence(Section* _this) {
         startTimeStamp,
         0,
         minPlayers,
-        maxPlayers
-    );
+        maxPlayers);
 }
 
 kmCall(0x80635540, DiscordRichPresence);
 
-} // namespace Discord
+}  // namespace Discord

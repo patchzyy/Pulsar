@@ -8,12 +8,11 @@
 namespace Pulsar {
 namespace UI {
 
-class ExpGPVSLeaderboardTotal : public Pages::GPVSLeaderboardTotal  {
-public:
+class ExpGPVSLeaderboardTotal : public Pages::GPVSLeaderboardTotal {
+   public:
     void OnUpdate() override;
 };
 
-
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 #endif

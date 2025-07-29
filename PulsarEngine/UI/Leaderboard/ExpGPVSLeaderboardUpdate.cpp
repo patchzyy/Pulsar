@@ -65,5 +65,5 @@ PageId ExpGPVSLeaderboardUpdate::GetNextPage() const {
     return nextPageId;
 }
 
-}
-}
+}  // namespace UI
+}  // namespace Pulsar

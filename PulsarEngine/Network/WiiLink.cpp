@@ -14,18 +14,16 @@ static void *s_payload = nullptr;
 static bool s_payloadReady = false;
 static u8 s_saltHash[SHA256_DIGEST_SIZE];
 
-extern "C"
-{
-    void Real_DWCi_Auth_SendRequest(
-        int param_1, int param_2, int param_3, int param_4, int param_5, int param_6);
+extern "C" {
+void Real_DWCi_Auth_SendRequest(
+    int param_1, int param_2, int param_3, int param_4, int param_5, int param_6);
 
-    extern s32 *s_auth_work;
-    extern s32 s_auth_error;
+extern s32 *s_auth_work;
+extern s32 s_auth_error;
 }
 
 static asm void DWCi_Auth_SendRequest(
-    int param_1, int param_2, int param_3, int param_4, int param_5, int param_6)
-{
+    int param_1, int param_2, int param_3, int param_4, int param_5, int param_6) {
     // clang-format off
     nofralloc
 
@@ -34,12 +32,10 @@ static asm void DWCi_Auth_SendRequest(
     // clang-format on
 }
 
-bool GenerateRandomSalt(u8 *out)
-{
+bool GenerateRandomSalt(u8 *out) {
     // Generate cryptographic random with ES_Sign
     s32 fd = IOS::Open("/dev/es", IOS::MODE_NONE);
-    if (fd < 0)
-    {
+    if (fd < 0) {
         return false;
     }
 
@@ -60,8 +56,7 @@ bool GenerateRandomSalt(u8 *out)
     s32 ret = IOS::IOCtlv(fd, IOS::IOCtlType(0x30), 1, 2, vec);
     IOS::Close(fd);
 
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return false;
     }
 
@@ -73,24 +68,20 @@ bool GenerateRandomSalt(u8 *out)
     return true;
 }
 
-s32 HandleResponse(u8 *block)
-{
+s32 HandleResponse(u8 *block) {
     register wwfc_payload *__restrict payload =
         reinterpret_cast<wwfc_payload *>(block);
 
-    if (*reinterpret_cast<u32 *>(payload) != 0x57574643 /* WWFC */)
-    {
+    if (*reinterpret_cast<u32 *>(payload) != 0x57574643 /* WWFC */) {
         return WL_ERROR_PAYLOAD_STAGE1_HEADER_CHECK;
     }
 
     if (payload->header.total_size < sizeof(wwfc_payload) ||
-        payload->header.total_size > PAYLOAD_BLOCK_SIZE)
-    {
+        payload->header.total_size > PAYLOAD_BLOCK_SIZE) {
         return WL_ERROR_PAYLOAD_STAGE1_LENGTH_ERROR;
     }
 
-    if (memcmp(payload->salt, s_saltHash, SHA256_DIGEST_SIZE) != 0)
-    {
+    if (memcmp(payload->salt, s_saltHash, SHA256_DIGEST_SIZE) != 0) {
         return WL_ERROR_PAYLOAD_STAGE1_SALT_MISMATCH;
     }
 
@@ -103,17 +94,15 @@ s32 HandleResponse(u8 *block)
 
     if (!RSAVerify(
             reinterpret_cast<const RSAPublicKey *>(PayloadPublicKey),
-            payload->header.signature, hash))
-    {
+            payload->header.signature, hash)) {
         return WL_ERROR_PAYLOAD_STAGE1_SIGNATURE_INVALID;
     }
 
     // Flush data cache and invalidate instruction cache
-    for (register u32 i = 0; i < 0x20000; i += 0x20)
-    {
+    for (register u32 i = 0; i < 0x20000; i += 0x20) {
         asm(dcbf i, payload; sync; icbi i, payload; isync;);
     }
-    /*    
+    /*
     // Disable unnecessary patches
     u32 patchMask = WWFC_PATCH_LEVEL_CRITICAL | WWFC_PATCH_LEVEL_BUGFIX |
                     WWFC_PATCH_LEVEL_SUPPORT;
@@ -132,7 +121,7 @@ s32 HandleResponse(u8 *block)
         // Otherwise disable the patch
         patch->level |= WWFC_PATCH_LEVEL_DISABLED;
     }*/
-        
+
     s32 (*entryFunction)(wwfc_payload *) =
         reinterpret_cast<s32 (*)(wwfc_payload *)>(
             reinterpret_cast<u8 *>(payload) + payload->info.entry_point);
@@ -140,37 +129,31 @@ s32 HandleResponse(u8 *block)
     return entryFunction(payload);
 }
 
-void OnPayloadReceived(s32 result, void *response, void *userdata)
-{
-    if (response == nullptr)
-    {
+void OnPayloadReceived(s32 result, void *response, void *userdata) {
+    if (response == nullptr) {
         return;
     }
 
     NHTTPDestroyResponse(response);
 
-    if (result != 0)
-    {
+    if (result != 0) {
         return;
     }
 
-    s32 error = HandleResponse(reinterpret_cast<u8*>(s_payload));
-    if (error != 0)
-    {
+    s32 error = HandleResponse(reinterpret_cast<u8 *>(s_payload));
+    if (error != 0) {
         s_auth_error = error;
         return;
     }
 
     s_payloadReady = true;
-    s_auth_error = -1; // This error code will retry auth
+    s_auth_error = -1;  // This error code will retry auth
 }
 
 kmBranchDefCpp(
     0x800ed6e8, 0, void, int param_1, int param_2, int param_3, int param_4,
-    int param_5, int param_6)
-{
-    if (s_payloadReady)
-    {
+    int param_5, int param_6) {
+    if (s_payloadReady) {
         DWCi_Auth_SendRequest(
             param_1, param_2, param_3, param_4, param_5, param_6);
         return;
@@ -180,15 +163,13 @@ kmBranchDefCpp(
     memset(s_payload, 0, PAYLOAD_BLOCK_SIZE);
 
     u8 salt[SHA256_DIGEST_SIZE];
-    if (!GenerateRandomSalt(salt))
-    {
+    if (!GenerateRandomSalt(salt)) {
         s_auth_error = WL_ERROR_PAYLOAD_STAGE1_MAKE_REQUEST;
     }
 
     static const char *hexConv = "0123456789abcdef";
     char saltHex[SHA256_DIGEST_SIZE * 2 + 1];
-    for (int i = 0; i < SHA256_DIGEST_SIZE; i++)
-    {
+    for (int i = 0; i < SHA256_DIGEST_SIZE; i++) {
         saltHex[i * 2] = hexConv[salt[i] >> 4];
         saltHex[i * 2 + 1] = hexConv[salt[i] & 0xf];
     }
@@ -196,18 +177,15 @@ kmBranchDefCpp(
 
     // "Anticheat"
     // Check for the presence of the gecko codehandler, and halt online connections if it is found
-    if (*(u32 *)0x80001920 != 0x0)
-    {
-        if (*(u32 *)0x80001920 != 0xFEE00090 && *(u32 *)0x80001920 != 0x3C841000)
-        {
+    if (*(u32 *)0x80001920 != 0x0) {
+        if (*(u32 *)0x80001920 != 0xFEE00090 && *(u32 *)0x80001920 != 0x3C841000) {
             s_auth_error = WL_ERROR_PAYLOAD_STAGE1_WAITING;
             return;
         }
-    if (*(u32 *)0x802588F8 != 0x0 || *(u32 *)0x8000629C != 0x4E800020 || *(u32 *)0x80259198 == 0x9421FF98)
-    {
+        if (*(u32 *)0x802588F8 != 0x0 || *(u32 *)0x8000629C != 0x4E800020 || *(u32 *)0x80259198 == 0x9421FF98) {
             s_auth_error = WL_ERROR_PAYLOAD_STAGE1_WAITING;
             return;
-    }
+        }
     }
 
     char uri[0x100];
@@ -227,8 +205,7 @@ kmBranchDefCpp(
     void *request = NHTTPCreateRequest(
         url, 0, s_payload, PAYLOAD_BLOCK_SIZE, OnPayloadReceived, 0);
 
-    if (request == nullptr)
-    {
+    if (request == nullptr) {
         s_auth_error = WL_ERROR_PAYLOAD_STAGE1_MAKE_REQUEST;
         return;
     }

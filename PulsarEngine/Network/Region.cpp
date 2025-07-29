@@ -8,18 +8,17 @@
 
 namespace Pulsar {
 namespace Network {
-//Region Patch (Leseratte)
+// Region Patch (Leseratte)
 
 static void PatchLoginRegion() {
     WWFC_CUSTOM_REGION = System::sInstance->netMgr.region;
     char path[0x9];
     snprintf(path, 0x9, "%08d", System::sInstance->netMgr.region + 100000);
-    for(int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; ++i) {
         DWC::loginRegion[i] = path[i];
     }
 }
 BootHook LoginRegion(PatchLoginRegion, 2);
-
 
 // PatchRegion(0x8065920c);
 // PatchRegion(0x80659260);
@@ -35,16 +34,15 @@ kmCall(0x80659270, PatchRegion);
 kmCall(0x80659734, PatchRegion);
 kmCall(0x80659788, PatchRegion);
 
-
-//kmWrite32(0x8065a038, 0x7C050378);
-//kmWrite32(0x8065a084, 0x7C050378);
+// kmWrite32(0x8065a038, 0x7C050378);
+// kmWrite32(0x8065a084, 0x7C050378);
 static int GetFriendsSearchType(int curType, u32 regionId) {
     register u8 friendRegionId;
     asm(mr friendRegionId, r0;);
     if ((System::sInstance->netMgr.region == 0x0A || System::sInstance->netMgr.region == 0x0B || System::sInstance->netMgr.region == 0x0C || System::sInstance->netMgr.region == 0x0D ||
-        System::sInstance->netMgr.region == 0x14 || System::sInstance->netMgr.region == 0x15 || System::sInstance->netMgr.region == 0x16 || System::sInstance->netMgr.region == 0x17) ||
+         System::sInstance->netMgr.region == 0x14 || System::sInstance->netMgr.region == 0x15 || System::sInstance->netMgr.region == 0x16 || System::sInstance->netMgr.region == 0x17) ||
         (friendRegionId == 0x0A || friendRegionId == 0x0B || friendRegionId == 0x0C || friendRegionId == 0x0D ||
-        friendRegionId == 0x14 || friendRegionId == 0x15 || friendRegionId == 0x16 || friendRegionId == 0x17)) {
+         friendRegionId == 0x14 || friendRegionId == 0x15 || friendRegionId == 0x16 || friendRegionId == 0x17)) {
         if (curType == 7) return 6;
         return 9;
     }
@@ -55,22 +53,18 @@ static int GetFriendsSearchType(int curType, u32 regionId) {
 kmBranch(0x8065a03c, GetFriendsSearchType);
 kmBranch(0x8065a088, GetFriendsSearchType);
 
-
-
 static u32 PatchRKNetControllerRegion() {
     return System::sInstance->netMgr.region;
 }
 kmCall(0x80653640, PatchRKNetControllerRegion);
 kmWrite32(0x80653644, 0x7c651b78);
-kmCall(0x806536ac, PatchRKNetControllerRegion); //for battle
+kmCall(0x806536ac, PatchRKNetControllerRegion);  // for battle
 kmWrite32(0x806536b0, 0x7c661b78);
 
-//kmCall(0x80653700, PatchRKNetControllerRegion); this is for battle, right now it'll store 2 (if pal)/FF
+// kmCall(0x80653700, PatchRKNetControllerRegion); this is for battle, right now it'll store 2 (if pal)/FF
 
+// kmWrite32(0x8065A034, 0x3880008E);
+// kmWrite32(0x8065A080, 0x3880008E);
 
-
-//kmWrite32(0x8065A034, 0x3880008E);
-//kmWrite32(0x8065A080, 0x3880008E);
-
-}//namespace Network
-}//namespace Pulsar
+}  // namespace Network
+}  // namespace Pulsar

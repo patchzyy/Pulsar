@@ -11,5 +11,5 @@ void ExpWWLeaderboardUpdate::OnUpdate() {
     }
 }
 
-} //namespace UI
-} //namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

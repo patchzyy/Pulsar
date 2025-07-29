@@ -14,14 +14,12 @@
 #include <Network/MatchCommand.hpp>
 #include <Gamemodes/OnlineTT/OnlineTT.hpp>
 
-
 namespace Pulsar {
 namespace KO {
 class Mgr;
-}//namespace KO
+}  // namespace KO
 
 class ConfigFile;
-
 
 enum Context {
     PULSAR_CT = 0,
@@ -63,13 +61,12 @@ enum Context2 {
     PULSAR_ITEMMODENONE
 };
 
-
-
 class System {
-protected:
+   protected:
     System();
-public:
-    //System functions
+
+   public:
+    // System functions
     void Init(const ConfigFile& conf);
     void InitInstances(const ConfigFile& conf, IOType type);
     void InitIO(IOType type) const;
@@ -78,17 +75,19 @@ public:
     void UpdateContext();
     static void UpdateContextWrapper();
     static void ClearOttContext();
-protected:
-    //Virtual
+
+   protected:
+    // Virtual
     virtual void AfterInit() {};
-public:
+
+   public:
     static System* sInstance;
 
     virtual void SetUserInfo(Network::ResvInfo::UserInfo& userInfo) {};
     virtual bool CheckUserInfo(const Network::ResvInfo::UserInfo& userInfo) { return true; };
-    //Deprecated because you can now freely expand ROOM packets and do what you need to with them
-    //virtual u8 SetPackROOMMsg() { return 0; } //Only called for hosts
-    //virtual void ParsePackROOMMsg(u8 msg) {}  //Only called for non-hosts
+    // Deprecated because you can now freely expand ROOM packets and do what you need to with them
+    // virtual u8 SetPackROOMMsg() { return 0; } //Only called for hosts
+    // virtual void ParsePackROOMMsg(u8 msg) {}  //Only called for non-hosts
     const Info& GetInfo() const { return this->info; }
 
     bool IsContext(Context context) const { return (this->context & (1 << context)) != 0; }
@@ -98,13 +97,13 @@ public:
     const char* GetModFolder() const { return modFolderName; }
     static void CreateSystem();
 
-    //Network
+    // Network
     static asmFunc GetRaceCount();
 
-    //Modes
+    // Modes
     static asmFunc GetNonTTGhostPlayersCount();
 
-    //BMG
+    // BMG
     const BMGHolder& GetBMG() const { return customBmgs; }
     /*
     #define PatchRegion(addr)\
@@ -116,40 +115,40 @@ public:
         kmBranch(addr, GetWiimmfiRegionStatic##addr);\
         kmPatchExitPoint(GetWiimmfiRegionStatic##addr, ##addr + 4);
     */
-    //VARIABLES
-    EGG::ExpHeap* const heap; //0x4
-    EGG::TaskThread* const taskThread; //0x8
-    //Constants
+    // VARIABLES
+    EGG::ExpHeap* const heap;  // 0x4
+    EGG::TaskThread* const taskThread;  // 0x8
+    // Constants
 
-public:
-    char modFolderName[IOS::ipcMaxFileName + 1]; //0xC
+   public:
+    char modFolderName[IOS::ipcMaxFileName + 1];  // 0xC
     u8 padding[2];
-    Info info; //0x1c
+    Info info;  // 0x1c
     u32 context;
     u32 context2;
 
-public:
-    //Network variables only set when reading a ROOM packet that starts the GP; they are only ever used in UpdateState; no need to clear them as ROOM will reupdat ethem
+   public:
+    // Network variables only set when reading a ROOM packet that starts the GP; they are only ever used in UpdateState; no need to clear them as ROOM will reupdat ethem
     Network::Mgr netMgr;
 
     TTMode ttMode;
 
-    //LECODE data
+    // LECODE data
     LECODE::Mgr lecodeMgr;
 
-    //Modes
+    // Modes
     KO::Mgr* koMgr;
     bool ottHideNames;
     OTT::Mgr ottMgr;
-    u8 nonTTGhostPlayersCount; //because a ghost can be added in vs, racedata's playercount is not reliable
+    u8 nonTTGhostPlayersCount;  // because a ghost can be added in vs, racedata's playercount is not reliable
 
-private:
-    //Custom BMGS
+   private:
+    // Custom BMGS
     BMGHolder customBmgs;
     BMGHeader* rawBmg;
 
-public:
-    //string pool
+   public:
+    // string pool
     static const char pulsarString[];
     static const char CommonAssets[];
     static const char breff[];
@@ -157,10 +156,10 @@ public:
     static const char* ttModeFolders[];
 
     struct Inherit {
-        //static_assert(is_base_of<System, Child>::value, "Pulsar::System is not a parent of your class");
+        // static_assert(is_base_of<System, Child>::value, "Pulsar::System is not a parent of your class");
         typedef System* (*CreateFunc)();
         Inherit(CreateFunc func) {
-            //static_assert(inherit == nullptr, "Can only inherit once from Pulsar::System");
+            // static_assert(inherit == nullptr, "Can only inherit once from Pulsar::System");
             create = func;
             inherit = this;
         }
@@ -169,6 +168,6 @@ public:
     static Inherit* inherit;
     friend class Info;
 };
-} //namespace Pulsar
+}  // namespace Pulsar
 
 #endif

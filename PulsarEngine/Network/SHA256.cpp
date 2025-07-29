@@ -42,14 +42,14 @@
 #define SHA256_F3(x) (ROTR(x, 7) ^ ROTR(x, 18) ^ SHFR(x, 3))
 #define SHA256_F4(x) (ROTR(x, 17) ^ ROTR(x, 19) ^ SHFR(x, 10))
 
-#define UNPACK32(x, str)                                                       \
-    {                                                                          \
-        *((u32*) (str)) = (x);                                                 \
+#define UNPACK32(x, str)      \
+    {                         \
+        *((u32*)(str)) = (x); \
     }
 
-#define PACK32(str, x)                                                         \
-    {                                                                          \
-        *(x) = *((u32*) (str));                                                \
+#define PACK32(str, x)         \
+    {                          \
+        *(x) = *((u32*)(str)); \
     }
 
 /* Macros used for loops unrolling */
@@ -60,13 +60,13 @@
             SHA256_F4(w[i - 2]) + w[i - 7] + SHA256_F3(w[i - 15]) + w[i - 16]; \
     }
 
-#define SHA256_EXP(a, b, c, d, e, f, g, h, j)                                  \
-    {                                                                          \
-        t1 = wv[h] + SHA256_F2(wv[e]) + CH(wv[e], wv[f], wv[g]) +              \
-             sha256_k[j] + w[j];                                               \
-        t2 = SHA256_F1(wv[a]) + MAJ(wv[a], wv[b], wv[c]);                      \
-        wv[d] += t1;                                                           \
-        wv[h] = t1 + t2;                                                       \
+#define SHA256_EXP(a, b, c, d, e, f, g, h, j)                     \
+    {                                                             \
+        t1 = wv[h] + SHA256_F2(wv[e]) + CH(wv[e], wv[f], wv[g]) + \
+             sha256_k[j] + w[j];                                  \
+        t2 = SHA256_F1(wv[a]) + MAJ(wv[a], wv[b], wv[c]);         \
+        wv[d] += t1;                                              \
+        wv[h] = t1 + t2;                                          \
     }
 
 static const u32 sha256_h0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372,
@@ -86,8 +86,7 @@ static const u32 sha256_k[64] = {
     0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
     0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 
-void SHA256Init(SHA256Context* ctx)
-{
+void SHA256Init(SHA256Context* ctx) {
     int i;
 
     for (i = 0; i < 8; i++)
@@ -97,8 +96,7 @@ void SHA256Init(SHA256Context* ctx)
     ctx->tot_len = 0;
 }
 
-void SHA256Transform(SHA256Context* ctx, const u8* message, u32 block_nb)
-{
+void SHA256Transform(SHA256Context* ctx, const u8* message, u32 block_nb) {
     /* Note: this function requires a considerable amount of stack */
     u32 w[64];
     u32 wv[8];
@@ -106,7 +104,7 @@ void SHA256Transform(SHA256Context* ctx, const u8* message, u32 block_nb)
     const u8* sub_block;
     int i, j;
 
-    for (i = 0; i < (int) block_nb; i++) {
+    for (i = 0; i < (int)block_nb; i++) {
         sub_block = message + (i << 6);
 
         for (j = 0; j < 16; j++)
@@ -137,8 +135,7 @@ void SHA256Transform(SHA256Context* ctx, const u8* message, u32 block_nb)
     }
 }
 
-void SHA256Update(SHA256Context* ctx, const void* data, u32 len)
-{
+void SHA256Update(SHA256Context* ctx, const void* data, u32 len) {
     u32 block_nb;
     u32 new_len, rem_len, tmp_len;
     const u8* shifted_data;
@@ -156,7 +153,7 @@ void SHA256Update(SHA256Context* ctx, const void* data, u32 len)
     new_len = len - rem_len;
     block_nb = new_len / SHA256_BLOCK_SIZE;
 
-    shifted_data = (u8*) data + rem_len;
+    shifted_data = (u8*)data + rem_len;
 
     SHA256Transform(ctx, ctx->block, 1);
     SHA256Transform(ctx, shifted_data, block_nb);
@@ -169,8 +166,7 @@ void SHA256Update(SHA256Context* ctx, const void* data, u32 len)
     ctx->tot_len += (block_nb + 1) << 6;
 }
 
-u8* SHA256Final(SHA256Context* ctx)
-{
+u8* SHA256Final(SHA256Context* ctx) {
     u32 block_nb;
     u32 pm_len;
     u32 len_b;

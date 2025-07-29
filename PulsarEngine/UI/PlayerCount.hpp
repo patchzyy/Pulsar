@@ -20,6 +20,6 @@ void GetNumbersRegular(int& nRegular);
 void GetNumbersTotal(int& nTotal);
 void GetNumbersOthers(int& nOthers);
 
-}
+}  // namespace PlayerCount
 
-#endif // __PLAYER_COUNT_HPP
+#endif  // __PLAYER_COUNT_HPP

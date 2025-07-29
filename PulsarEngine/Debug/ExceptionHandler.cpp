@@ -20,63 +20,61 @@ static u16 crashError = 0;
 
 using namespace nw4r;
 
-
 void FatalError(const char* string) {
     GX::Color fg;
     fg.rgba = 0xFFFFFFFF;
-    GX::Color bg ={ 0 };
+    GX::Color bg = {0};
     OS::Fatal(fg, bg, string);
 }
 
 #pragma suppress_warnings on
-void LaunchSoftware() { //If dolphin, restarts game, else launches Riivo->HBC->OHBC->WiiMenu
-    s32 result = IO::OpenFix("/title/00010001/57524554/content/title.tmd\0", IOS::MODE_NONE); //Riivo
-    if(result >= 0) {
+void LaunchSoftware() {  // If dolphin, restarts game, else launches Riivo->HBC->OHBC->WiiMenu
+    s32 result = IO::OpenFix("/title/00010001/57524554/content/title.tmd\0", IOS::MODE_NONE);  // Riivo
+    if (result >= 0) {
         ISFS::Close(result);
         OS::__LaunchTitle(0x00010001, 0x57524554);
         return;
     }
-    result = IO::OpenFix("/title/00010001/4c554c5a/content/title.tmd\0", IOS::MODE_NONE); //OHBC
-    if(result >= 0) {
+    result = IO::OpenFix("/title/00010001/4c554c5a/content/title.tmd\0", IOS::MODE_NONE);  // OHBC
+    if (result >= 0) {
         ISFS::Close(result);
         OS::__LaunchTitle(0x00010001, 0x4c554c5a);
         return;
     }
-    result = IO::OpenFix("/title/00010001/48424330/content/title.tmd\0", IOS::MODE_NONE); // If HBC can't be found try OHBC
-    if(result >= 0) {
+    result = IO::OpenFix("/title/00010001/48424330/content/title.tmd\0", IOS::MODE_NONE);  // If HBC can't be found try OHBC
+    if (result >= 0) {
         ISFS::Close(result);
         OS::__LaunchTitle(0x00010001, 0x48424330);
         return;
     }
     result = IO::OpenFix("/dev/dolphin", IOS::MODE_NONE);
-    if(result >= 0 && !IsNewChannel()) {
+    if (result >= 0 && !IsNewChannel()) {
         IOS::Close(result);
         SystemManager::Shutdown();
         return;
     }
-    OS::__LaunchTitle(0x1, 0x2); // Launch Wii Menu if channel isn't found
+    OS::__LaunchTitle(0x1, 0x2);  // Launch Wii Menu if channel isn't found
 }
 #pragma suppress_warnings reset
 
-//Credit Star and Riidefi
+// Credit Star and Riidefi
 
-//Data Shown
-//kmWrite16(0x802A7410, 0x00000023);
-//Show Handler
-//kmWrite32(0x802A7404, 0x00000000);
-//Show StackTrace
+// Data Shown
+// kmWrite16(0x802A7410, 0x00000023);
+// Show Handler
+// kmWrite32(0x802A7404, 0x00000000);
+// Show StackTrace
 kmWrite32(0x80023948, 0x281e0007);
-//Max number of lines
-//kmWrite32(0x80009324, 0x38800068);
+// Max number of lines
+// kmWrite32(0x80009324, 0x38800068);
 
-//Lines on the screen and x-pos
+// Lines on the screen and x-pos
 static void SetConsoleParams() {
     db::detail::ConsoleHead* console = EGG::Exception::console;
     console->viewLines = 0x16;
     console->viewPosX = 0x10;
 }
 BootHook ConsoleParams(SetConsoleParams, 1);
-
 
 ExceptionFile::ExceptionFile(const OS::Context& context) : magic('PULD'), region(*reinterpret_cast<u32*>(OS::BootInfo::mInstance.diskID.gameName)), reserved(-1) {
     this->srr0.name = 'srr0';
@@ -89,8 +87,8 @@ ExceptionFile::ExceptionFile(const OS::Context& context) : magic('PULD'), region
     this->cr.gpr = context.cr;
     this->lr.name = 'lr: ';
     this->lr.gpr = context.lr;
-    for(u32 i = 0; i < 32; ++i) {
-        this->gprs[i].gpr = context.gpr[i]; //r00: //r01:
+    for (u32 i = 0; i < 32; ++i) {
+        this->gprs[i].gpr = context.gpr[i];  // r00: //r01:
         this->fprs[i].fpr = context.fpr[i];
         const u32 tens = i / 10U;
         const u32 units = i - tens * 10U;
@@ -101,8 +99,8 @@ ExceptionFile::ExceptionFile(const OS::Context& context) : magic('PULD'), region
     this->fpscr.name = 'fscr';
     this->fpscr.fpr = context.fpscr;
     u32* sp = (u32*)context.gpr[1];
-    for(int i = 0; i < 10; ++i) {
-        if(sp == nullptr || (u32)sp == 0xFFFFFFFF) break;
+    for (int i = 0; i < 10; ++i) {
+        if (sp == nullptr || (u32)sp == 0xFFFFFFFF) break;
         this->frames[i].sp = (u32)sp;
         this->frames[i].lr = sp[1];
         sp = (u32*)*sp;
@@ -116,7 +114,7 @@ static void WriteHeaderCrash(u16 error, const OS::Context* context, u32 dsisr, u
     exception.displayedInfo = 0x23;
     exception.callbackArgs = nullptr;
 
-    if(IsNewChannel()) {
+    if (IsNewChannel()) {
         // just "hide" the console/xfb
         db::DirectPrint_ChangeXfb((void*)0, 0, 0);
         // we just set the flag, generate dump file and return to the channel
@@ -128,31 +126,31 @@ static void WriteHeaderCrash(u16 error, const OS::Context* context, u32 dsisr, u
 }
 kmCall(0x80023484, WriteHeaderCrash);
 
-
 static void CreateCrashFile(s32 channel, KPAD::Status buff[], u32 count) {
-
-    IO* io = IO::sInstance;;
+    IO* io = IO::sInstance;
+    ;
     bool exit = false;
-    if(io == nullptr) exit = true; //should always exist if the crash is after strap 
+    if (io == nullptr)
+        exit = true;  // should always exist if the crash is after strap
     else {
         KPAD::Read(channel, buff, count);
         u8 wiimoteExtension = buff[0].extension;
-        if(buff[0].error == WPAD::WPAD_ERR_NONE && wiimoteExtension < WPAD::WPAD_DEV_FUTURE &&
-            (wiimoteExtension == WPAD::WPAD_DEV_CLASSIC && buff[0].extStatus.cl.trig & WPAD::WPAD_CL_BUTTON_A
-                || buff[0].trig & WPAD::WPAD_BUTTON_A)) exit = true;
+        if (buff[0].error == WPAD::WPAD_ERR_NONE && wiimoteExtension < WPAD::WPAD_DEV_FUTURE &&
+            (wiimoteExtension == WPAD::WPAD_DEV_CLASSIC && buff[0].extStatus.cl.trig & WPAD::WPAD_CL_BUTTON_A || buff[0].trig & WPAD::WPAD_BUTTON_A))
+            exit = true;
         else {
             PAD::Status padStatus[4];
             PAD::Read(&padStatus[0]);
-            for(int channel = 0; channel < 4; ++channel) {
-                if(padStatus[channel].error == PAD::PAD_ERR_NONE) {
-                    if(padStatus[channel].buttons & PAD::PAD_BUTTON_A) {
+            for (int channel = 0; channel < 4; ++channel) {
+                if (padStatus[channel].error == PAD::PAD_ERR_NONE) {
+                    if (padStatus[channel].buttons & PAD::PAD_BUTTON_A) {
                         exit = true;
                         break;
                     }
                 }
             }
         }
-        if(exit || IsNewChannel()) {
+        if (exit || IsNewChannel()) {
             OS::Thread* thread = crashThread;
             OS::DetachThread(thread);
             OS::CancelThread(thread);
@@ -183,7 +181,7 @@ static void CreateCrashFile(s32 channel, KPAD::Status buff[], u32 count) {
             io->Close();
         }
     }
-    if(exit || IsNewChannel()) LaunchSoftware();
+    if (exit || IsNewChannel()) LaunchSoftware();
 }
 kmCall(0x80226610, CreateCrashFile);
 
@@ -211,8 +209,5 @@ static void OnCrashEnd() {
 }
 */
 
-
-}//namespace Debug
-}//namespace Pulsar
-
-
+}  // namespace Debug
+}  // namespace Pulsar

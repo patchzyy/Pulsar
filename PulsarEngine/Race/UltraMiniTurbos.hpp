@@ -3,7 +3,6 @@
 #include <kamek.hpp>
 #include <MarioKartWii/Effect/EffectMgr.hpp>
 
-
 namespace Pulsar {
 namespace Race {
 /*Implements UMTs. This is a fully custom version so it has its own rules:
@@ -14,7 +13,7 @@ namespace Race {
 -In effect though, that last perk is mostly only useful for charging a MT/SMT on a boost panel that was hit after releasing a UMT
 */
 
-enum UMTeffects { //Chips are not implemented currently due to pure laziness
+enum UMTeffects {  // Chips are not implemented currently due to pure laziness
     rk_driftSpark3L_Spark00,
     rk_driftSpark3L_Spark01,
     rk_driftSpark3R_Spark00,
@@ -23,33 +22,32 @@ enum UMTeffects { //Chips are not implemented currently due to pure laziness
     rk_purpleBoost_2,
     rk_purpleBoost_3,
     rk_purpleBoost_4
-    //rk_driftSpark2L_Chip00,
-    //rk_driftSpark2R_Chip00,
-    //rk_driftSpark3L1T_Chip00 ,
-    //rk_driftSpark3L1T_Spark00,
-    //rk_driftSpark3L1T_Spark01,
-    //rk_driftSpark3R1T_Chip00,
-    //rk_driftSpark3R1T_Spark00,
-    //rk_driftSpark3R1T_Spark01
+    // rk_driftSpark2L_Chip00,
+    // rk_driftSpark2R_Chip00,
+    // rk_driftSpark3L1T_Chip00 ,
+    // rk_driftSpark3L1T_Spark00,
+    // rk_driftSpark3L1T_Spark01,
+    // rk_driftSpark3R1T_Chip00,
+    // rk_driftSpark3R1T_Spark00,
+    // rk_driftSpark3R1T_Spark01
 };
 
 class ExpPlayerEffects : public Effects::Player {
-public:
+   public:
     static const int SmtEffectsCount = 8;
     static const int UmtEffectsCount = 8;
-    explicit ExpPlayerEffects(Kart::Player* kartPlayer) : Effects::Player(kartPlayer) { };
+    explicit ExpPlayerEffects(Kart::Player* kartPlayer) : Effects::Player(kartPlayer) {};
     ~ExpPlayerEffects() override {
-        if (isBike){
+        if (isBike) {
             EGG::Effect** array = rk_orangeMT;
-            if(array != nullptr) {
-                for(int i = 0; i < SmtEffectsCount; ++i) delete(array[i]);
+            if (array != nullptr) {
+                for (int i = 0; i < SmtEffectsCount; ++i) delete (array[i]);
                 delete[] array;
             }
-        }
-        else{ 
+        } else {
             EGG::Effect** array = rk_purpleMT;
-            if(array != nullptr) {
-                for(int i = 0; i < UmtEffectsCount; ++i) delete(array[i]);
+            if (array != nullptr) {
+                for (int i = 0; i < UmtEffectsCount; ++i) delete (array[i]);
                 delete[] array;
             }
         }
@@ -60,5 +58,5 @@ public:
     static const char* SMTNames[8];
 };
 #endif
-}//namespace Race
-}//namespace Pulsar
+}  // namespace Race
+}  // namespace Pulsar

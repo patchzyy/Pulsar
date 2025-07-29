@@ -4,20 +4,22 @@
 #include <MarioKartWii/UI/Page/RaceHUD/RaceHUD.hpp>
 #include <UI/UI.hpp>
 
-//A builder to create any kind of ctrlracebase by registering a count and a create function
+// A builder to create any kind of ctrlracebase by registering a count and a create function
 namespace Pulsar {
 namespace UI {
 
 class CustomCtrlBuilder {
     typedef u32(CountFunc)();
-    typedef void (CreateFunc)(Page& page, u32 initialIdx, u32);
-public:
+    typedef void(CreateFunc)(Page& page, u32 initialIdx, u32);
+
+   public:
     static void BuildCustomRaceCtrls(Pages::RaceHUD& racePage, u32 count);
     CustomCtrlBuilder(CountFunc& count, CreateFunc& create)
         : countCtrls(count), createCtrls(create), next(sHooks) {
         sHooks = this;
     }
-private:
+
+   private:
     CountFunc& countCtrls;
     u32 ctrlCount;
     CreateFunc& createCtrls;
@@ -25,7 +27,7 @@ private:
     static CustomCtrlBuilder* sHooks;
 };
 
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 
 #endif

@@ -33,9 +33,9 @@ class IO {
     };
     static void CreateFolderAsync(CreateRequest* request);
 
-public:
+   public:
     static inline s32 OpenFix(const char* path, IOS::Mode mode) {
-        asmVolatile(stwu sp, -0x0020 (sp););
+        asmVolatile(stwu sp, -0x0020(sp););
         IOS::Open2ndInst(path, mode);
     }
 
@@ -49,7 +49,7 @@ public:
 
     static IO* sInstance;
     static IO* CreateInstance(IOType type, EGG::Heap* heap, EGG::TaskThread* const taskThread);
-    template<typename T>
+    template <typename T>
     T* Alloc(u32 size) const { return EGG::Heap::alloc<T>(nw4r::ut::RoundUp(size, 0x20), 0x20, this->heap); }
     virtual s32 GetFileSize() = 0;
 
@@ -61,7 +61,7 @@ public:
 
     const int GetFileCount() const { return this->fileCount; }
     const char* GetFolderName() const { return this->folderName; };
-    //void RequestCreateFolder(const char* path); //up to 2 simultaneous
+    // void RequestCreateFolder(const char* path); //up to 2 simultaneous
     virtual void CloseFolder() = 0;
     void PrintFullFilePath(char* path, const char* fileName) const {
         snprintf(path, IOS::ipcMaxPath, "%s/%s", &this->folderName, fileName);
@@ -88,7 +88,7 @@ public:
 
     const IOType type;
 
-protected:
+   protected:
     IO(IOType type, EGG::Heap* heap, EGG::TaskThread* taskThread) : type(type), heap(heap), taskThread(taskThread) {
         folderName[0] = '\0';
     }
@@ -103,8 +103,6 @@ protected:
     CreateRequest requests[2];
 };
 
-
-
-}//namespace Pulsar
+}  // namespace Pulsar
 
 #endif

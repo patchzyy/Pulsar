@@ -19,10 +19,10 @@ enum Status {
 };
 
 class Mgr {
-public:
+   public:
     // Constants
     static const u16 spectatorVote = 0x45;
-    static const u32 arbitraryAlmostDied = 60; // 60 frames in danger in the last 5s = almost out
+    static const u32 arbitraryAlmostDied = 60;  // 60 frames in danger in the last 5s = almost out
 
     // Structures for tracking player positions and stats
     struct PlayerPosition {
@@ -37,7 +37,7 @@ public:
             Final() : timeInDanger(0), almostKOdCounter(0), finalPercentageSum(0) {}
             u16 timeInDanger;
             u8 almostKOdCounter;
-            u8 finalPercentageSum; // Divided by race count at GP end
+            u8 finalPercentageSum;  // Divided by race count at GP end
         };
 
         float percentageSum;
@@ -49,10 +49,10 @@ public:
     // Static methods
     static void Create(Page* froom, u32 director, float length);
     static void Update();  // RaceFrameHook
-    static void ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, 
-                          size_t nitems, size_t size, 
-                          int (*compar)(const void*, const void*));
-    
+    static void ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr,
+                           size_t nitems, size_t size,
+                           int (*compar)(const void*, const void*));
+
     static int SortPlayersByPosition(PlayerPosition* a, PlayerPosition* b) {
         return a->position - b->position;
     }
@@ -63,15 +63,15 @@ public:
 
     // Race management
     inline void ResetRace() {
-        for(int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 2; ++i) {
             Stats& stats = this->stats[i];
             memset(&stats.isInDangerFrames[0], 0, sizeof(u8) * 300);
             stats.boolCountArray = 0;
             this->posTrackerAnmFrames[i] = 0;
         }
-        for(int i = 0; i < 12; ++i) {
-            if(this->status[i][0] == TIE) this->status[i][0] = NORMAL;
-            if(this->status[i][1] == TIE) this->status[i][1] = NORMAL;
+        for (int i = 0; i < 12; ++i) {
+            if (this->status[i][0] == TIE) this->status[i][0] = NORMAL;
+            if (this->status[i][1] == TIE) this->status[i][1] = NORMAL;
         }
     }
     void AddRaceStats();
@@ -103,12 +103,12 @@ public:
         return GetPlayerStatus(playerId) == DISCONNECTED;
     }
 
-    void SetKOd(u8 playerId) { 
-        this->SetStatus(playerId, KOD); 
+    void SetKOd(u8 playerId) {
+        this->SetStatus(playerId, KOD);
     }
 
-    void SetDisconnected(u8 playerId) { 
-        this->SetStatus(playerId, DISCONNECTED); 
+    void SetDisconnected(u8 playerId) {
+        this->SetStatus(playerId, DISCONNECTED);
     }
 
     void SetTie(u8 playerId, u8 playerId2) {
@@ -116,8 +116,8 @@ public:
         this->SetStatus(playerId2, TIE);
     }
 
-    bool GetWouldBeKnockedOut(u8 playerId) const { 
-        return this->wouldBeOut[playerId]; 
+    bool GetWouldBeKnockedOut(u8 playerId) const {
+        return this->wouldBeOut[playerId];
     }
 
     // Controller and UI management
@@ -131,7 +131,7 @@ public:
     u32 GetAidAndSlotFromPlayerId(u8 playerId) const;
     u8 GetBaseLocalPlayerCount() const { return this->baseLocPlayerCount; }
 
-private:
+   private:
     void SetStatus(u8 playerId, Status status) {
         u32 aidSlot = this->GetAidAndSlotFromPlayerId(playerId);
         this->status[aidSlot & 0xFFFF][aidSlot >> 16] = status;
@@ -145,7 +145,7 @@ private:
     u8 baseLocPlayerCount;  // Player count when GP started
     bool hasSwapped;  // Controller swap status
 
-public:
+   public:
     // Game settings
     bool isTiebreakerRace;
     u8 racesPerKO;
@@ -159,7 +159,7 @@ public:
     u8 posTrackerAnmFrames[2];
 };
 
-} // namespace KO
-} // namespace Pulsar
+}  // namespace KO
+}  // namespace Pulsar
 
 #endif

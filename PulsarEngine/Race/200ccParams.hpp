@@ -10,7 +10,7 @@ const float brakeDriftingDeceleration = -1.5f;
 const float fastFallingBodyGravity = 0.39f;
 const float fastFallingWheelGravity = 0.3f;
 
-}//namespace Race
-}//namespace Pulsar
+}  // namespace Race
+}  // namespace Pulsar
 
 #endif

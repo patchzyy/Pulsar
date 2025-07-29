@@ -6,3 +6,4 @@ build/
 .env
 PulsarEngine/Security/
 PulsarEngine/Network/RoomKey.cpp
+.clang-format

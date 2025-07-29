@@ -6,7 +6,6 @@
 namespace Pulsar {
 namespace Network {
 
-
 struct ResvInfo {
     struct UserInfo {
         UserInfo() {
@@ -35,8 +34,7 @@ struct ResvPacket : DWC::Reservation {
 };
 size_assert(ResvPacket, 0x48);
 
-}//namespace Network
-}//namespace Pulsar
+}  // namespace Network
+}  // namespace Pulsar
 
 #endif
-

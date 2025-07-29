@@ -13,8 +13,8 @@ enum DenyType {
     DENY_TYPE_KICK,
 };
 
-class Mgr { //Manages network related stuff within Pulsar
-public:
+class Mgr {  // Manages network related stuff within Pulsar
+   public:
     Mgr() : racesPerGP(3), curBlockingArrayIdx(0), region(0x0A) {}
     u32 hostContext;
     u32 hostContext2;
@@ -29,7 +29,7 @@ public:
     PulsarId* lastTracks;
 };
 
-}//namespace Network
-}//namespace Pulsar
+}  // namespace Network
+}  // namespace Pulsar
 
 #endif

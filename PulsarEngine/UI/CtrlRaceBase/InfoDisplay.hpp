@@ -4,18 +4,19 @@
 #include <MarioKartWii/UI/Ctrl/CtrlRace/CtrlRaceWifi.hpp>
 #include <UI/CtrlRaceBase/CustomCtrlRaceBase.hpp>
 
-//Displays the track name and its author when a race starts, but only once in TTs (until leaving the current track)
+// Displays the track name and its author when a race starts, but only once in TTs (until leaving the current track)
 namespace Pulsar {
 namespace UI {
 class CtrlRaceTrackInfoDisplay : public CtrlRaceWifiStartMessage {
-public:
+   public:
     static u32 Count();
     static void Create(Page& page, u32 index, u32);
-private:
+
+   private:
     void Load();
     static u32 lastCourse;
 };
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 
 #endif

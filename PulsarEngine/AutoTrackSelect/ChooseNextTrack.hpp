@@ -6,18 +6,17 @@
 #include <MarioKartWii/UI/Page/RaceMenu/RaceMenu.hpp>
 #include <UI/UI.hpp>
 
-
 namespace Pulsar {
 namespace UI {
 
-class RaceControlButtonInfo : public ControlButtonInfo { //needed because inputs are inverted online in mirror
-public:
+class RaceControlButtonInfo : public ControlButtonInfo {  // needed because inputs are inverted online in mirror
+   public:
     void Update(const Input::ControllerHolder* controllerHolder) override;
 };
 
-class ChooseNextTrack : public Pages::RaceMenu { //use page 0x27
-public:
-    static const PageId fakeId = PAGE_GHOST_RACE_ENDMENU; //never exists in an online race, and RaceMenu uses this id to know what/how to init and activate the page
+class ChooseNextTrack : public Pages::RaceMenu {  // use page 0x27
+   public:
+    static const PageId fakeId = PAGE_GHOST_RACE_ENDMENU;  // never exists in an online race, and RaceMenu uses this id to know what/how to init and activate the page
     static const PulPageId id = PULPAGE_CHOOSENEXT;
     enum Status {
         STATUS_NOTRACK,
@@ -32,38 +31,38 @@ public:
     ~ChooseNextTrack() override { ++SectionMgr::sInstance->sectionParams->onlineParams.currentRaceNumber; }
     void OnActivate() override;
     void OnUpdate() override;
-    //const ut::detail::RuntimeTypeInfo* GetRuntimeTypeInfo() const override;
+    // const ut::detail::RuntimeTypeInfo* GetRuntimeTypeInfo() const override;
     int GetMessageBMG() const override;
     u32 GetButtonCount() const override;
     const u32* GetVariantsIdxArray() const override;
     bool IsPausePage() const override;
     const char* GetButtonsBRCTRName() const override;
 
-private:
+   private:
     void OnRightArrowSelect(SheetSelectControl& control, u32 hudSlotId);
     void OnLeftArrowSelect(SheetSelectControl& control, u32 hudSlotId);
-    void OnButtonClick(PushButton& button, u32 hudSlotId); //8055a0f4
+    void OnButtonClick(PushButton& button, u32 hudSlotId);  // 8055a0f4
 
-public:
+   public:
     SectionId ProcessHAW(SectionId defaultId);
     PageId GetPageAfterWifiResults(PageId defaultId) const;
 
-
-private:
+   private:
     void UpdateButtonInfo(s32 direction);
     void UpdateRH1();
-public:
+
+   public:
     const bool isBattle;
     Status status;
     bool isHost;
-    //u32 lastSentFrames;
+    // u32 lastSentFrames;
 
-    //HOST VARIABLES
-    //s32 maxTimeDiff;
-    //s32 readyWait;
-    bool hasReceivedHostTrack[12]; //for the host to send confirmation once everyone has sent their confirmation
+    // HOST VARIABLES
+    // s32 maxTimeDiff;
+    // s32 readyWait;
+    bool hasReceivedHostTrack[12];  // for the host to send confirmation once everyone has sent their confirmation
 
-private:
+   private:
     void InitExtraControls(u32 gameControlCount);
     PtmfHolder_2A<ChooseNextTrack, void, SheetSelectControl&, u32> onRightArrowSelectHandler;
     PtmfHolder_2A<ChooseNextTrack, void, SheetSelectControl&, u32> onLeftArrowSelectHandler;
@@ -74,7 +73,7 @@ private:
 
     friend void RaceMenuExtraControls(Pages::RaceMenu& page, u32 gameControlCount);
 };
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 
 #endif

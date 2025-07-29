@@ -19,7 +19,6 @@ inline void GetTrackBMG(char* dest, PulsarId id) {
     wchar_t* cur = polish;
     const wchar_t* pos = name;
     while (token != nullptr) {
-
         wcsncpy(cur, pos, token - pos);
         cur = cur + (token - pos);
         cur[0] = '\0';
@@ -29,10 +28,9 @@ inline void GetTrackBMG(char* dest, PulsarId id) {
         token = wcschr(pos, L'\x1A');
     }
     snprintf(dest, 0x100, "%ls", finalString);
-
 }
 int GetTrackBMGByRowIdx(u32 cupTrackIdx);
 int GetCurTrackBMG();
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 #endif

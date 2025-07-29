@@ -12,12 +12,11 @@
 #include <MarioKartWii/RKNet/RKNetController.hpp>
 #include <MarioKartWii/RKNet/SELECT.hpp>
 
-
 namespace Pulsar {
 namespace UI {
 
 class RoomKickPage : public Pages::MenuInteractable {
-public:
+   public:
     static const PulPageId id = PULPAGE_ROOMKICK;
 
     RoomKickPage();
@@ -34,9 +33,9 @@ public:
     void SetButtonHandlers(PushButton& button) override;
 
     void ClearKickHistory();
-    u32* GetKickHistory(u32 &outCount);
+    u32* GetKickHistory(u32& outCount);
 
-private:
+   private:
     void OnBackPress(u32 hudSlotId);
     void OnButtonClick(PushButton& button, u32 hudSlotId);
     void OnButtonSelect(PushButton& button, u32 hudSlotId);
@@ -59,6 +58,6 @@ private:
     PtmfHolder_2A<RoomKickPage, void, u32, PushButton&> onYesNoClickHandler;
 };
 
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 #endif

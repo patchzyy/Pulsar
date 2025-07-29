@@ -9,9 +9,9 @@
 namespace Pulsar {
 namespace UI {
 
-//Extends GhostSelect by adding a ToggleButton to select ghosts and a BottomText
+// Extends GhostSelect by adding a ToggleButton to select ghosts and a BottomText
 class ExpGhostSelect : public Pages::GhostSelect {
-public:
+   public:
     ExpGhostSelect();
     void OnInit() override;
     void OnActivate() override;
@@ -21,7 +21,7 @@ public:
         this->selectGhostButton.isHidden = isInvisible;
     }
 
-private:
+   private:
     void OnChallengeGhostPress(PushButton& button, u32 hudSlotId);
     void OnWatchReplayPress(PushButton& button, u32 hudSlotId);
     void OnSelectGhostChange(ToggleButton& button, u32);
@@ -44,7 +44,7 @@ private:
 
 const Text::Info GetCourseBottomText(PulsarId id, u32* bmgId);
 
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 
 #endif

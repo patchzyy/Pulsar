@@ -16,22 +16,22 @@ double atan2(double, double);
 double ceil(double);
 double copysign(double, double);
 double cos(double);
-double cosh(double); // not in nsmbw
-double exp(double); // not in nsmbw
+double cosh(double);  // not in nsmbw
+double exp(double);  // not in nsmbw
 
 double floor(double);
 double fmod(double, double);
 double frexp(double, int*);
 double ldexp(double, int);
-double log(double); // not in nsmbw?
+double log(double);  // not in nsmbw?
 double log10(double);
 double modf(double, double*);
 double pow(double, double);
 double sin(double);
-double sinh(double); // not in nsmbw
+double sinh(double);  // not in nsmbw
 double sqrt(double);
 double tan(double);
-double tanh(double); // not in nsmbw
+double tanh(double);  // not in nsmbw
 
 extern double NAN;
 

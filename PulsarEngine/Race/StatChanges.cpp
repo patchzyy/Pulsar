@@ -13,7 +13,6 @@
 
 namespace Pulsar {
 
-    
 Kart::Stats* ApplyStatChanges(KartId kartId, CharacterId characterId, KartType kartType) {
     union SpeedModConv {
         float speedMod;
@@ -27,21 +26,17 @@ Kart::Stats* ApplyStatChanges(KartId kartId, CharacterId characterId, KartType k
     SpeedModConv speedModConv;
     bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
     speedModConv.kmpValue = (KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->speedMod << 16);
-    if(speedModConv.speedMod == 0.0f) speedModConv.speedMod = 1.0f;
+    if (speedModConv.speedMod == 0.0f) speedModConv.speedMod = 1.0f;
     float factor = 1.0f;
-    if (is200 && System::sInstance->IsContext(Pulsar::PULSAR_500)){
+    if (is200 && System::sInstance->IsContext(Pulsar::PULSAR_500)) {
         factor = 2.66f;
-    }
-    else if (is200){
+    } else if (is200) {
         factor = Race::speedFactor;
-    }
-    else if (RetroRewind::System::Is500cc() && (gameMode == MODE_PRIVATE_VS || gameMode == MODE_VS_RACE || gameMode == MODE_PUBLIC_VS || gameMode == MODE_GRAND_PRIX)){
+    } else if (RetroRewind::System::Is500cc() && (gameMode == MODE_PRIVATE_VS || gameMode == MODE_VS_RACE || gameMode == MODE_PUBLIC_VS || gameMode == MODE_GRAND_PRIX)) {
         factor = 3.0f;
-    }
-    else if (RetroRewind::System::Is500cc() && (gameMode == MODE_BATTLE || gameMode == MODE_PUBLIC_BATTLE || gameMode == MODE_PRIVATE_BATTLE)){
+    } else if (RetroRewind::System::Is500cc() && (gameMode == MODE_BATTLE || gameMode == MODE_PUBLIC_BATTLE || gameMode == MODE_PRIVATE_BATTLE)) {
         factor = 1.214;
-    }
-    else if (System::sInstance->IsContext(PULSAR_MODE_OTT) && gameMode == MODE_PUBLIC_VS) {
+    } else if (System::sInstance->IsContext(PULSAR_MODE_OTT) && gameMode == MODE_PUBLIC_VS) {
         factor = 1.0f;
     }
     factor *= speedModConv.speedMod;
@@ -63,32 +58,31 @@ Kart::Stats* ApplyStatChanges(KartId kartId, CharacterId characterId, KartType k
     stats->standard_acceleration_as[1] *= factor;
     stats->standard_acceleration_as[2] *= factor;
     stats->standard_acceleration_as[3] *= factor;
-    
+
     if (is200) {
         stats->weight = 0x9C;
     }
-    
+
     bool isLocalPlayer = false;
     const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
     bool isGhostPlayer = false;
     for (int playerId = 0; playerId < scenario.playerCount; ++playerId) {
-        if (scenario.players[playerId].kartId == kartId && 
+        if (scenario.players[playerId].kartId == kartId &&
             scenario.players[playerId].characterId == characterId) {
-            if(scenario.players[playerId].playerType == PLAYER_REAL_LOCAL) {
+            if (scenario.players[playerId].playerType == PLAYER_REAL_LOCAL) {
                 isLocalPlayer = true;
-            }
-            else if (scenario.players[playerId].playerType == PLAYER_GHOST) {
+            } else if (scenario.players[playerId].playerType == PLAYER_GHOST) {
                 isGhostPlayer = true;
             }
         }
     }
 
     int ghostPlayerIdx = -1;
-    if(isGhostPlayer) {
-        for(int pid = 0; pid < scenario.playerCount; ++pid) {
-            if(scenario.players[pid].kartId == kartId &&
-               scenario.players[pid].characterId == characterId &&
-               scenario.players[pid].playerType == PLAYER_GHOST) {
+    if (isGhostPlayer) {
+        for (int pid = 0; pid < scenario.playerCount; ++pid) {
+            if (scenario.players[pid].kartId == kartId &&
+                scenario.players[pid].characterId == characterId &&
+                scenario.players[pid].playerType == PLAYER_GHOST) {
                 ghostPlayerIdx = pid;
                 break;
             }
@@ -106,22 +100,25 @@ Kart::Stats* ApplyStatChanges(KartId kartId, CharacterId characterId, KartType k
     u32 transmission = static_cast<Pulsar::Transmission>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(
         static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RR),
         Pulsar::SETTINGRR_RADIO_TRANSMISSION));
-    if(ghostPlayerIdx >= 0) {
+    if (ghostPlayerIdx >= 0) {
         u8 offset = (scenario.players[0].playerType != PLAYER_GHOST) ? 1 : 0;
         int rkgIndex = ghostPlayerIdx - offset;
-        if(rkgIndex >= 0) {
+        if (rkgIndex >= 0) {
             RKG& ghostRkg = Racedata::sInstance->ghosts[rkgIndex];
             u32 savedTrans = ghostRkg.header.unknown_3;
             transmission = savedTrans;
             insideAll = outsideAll = vanilla = Pulsar::FORCE_TRANSMISSION_DEFAULT;
-            if(savedTrans == Pulsar::TRANSMISSION_INSIDEALL) insideAll = Pulsar::FORCE_TRANSMISSION_INSIDE;
-            else if(savedTrans == Pulsar::TRANSMISSION_OUTSIDE) outsideAll = Pulsar::FORCE_TRANSMISSION_OUTSIDE;
-            else if(savedTrans == Pulsar::TRANSMISSION_INSIDEBIKE) vanilla = Pulsar::FORCE_TRANSMISSION_VANILLA;
+            if (savedTrans == Pulsar::TRANSMISSION_INSIDEALL)
+                insideAll = Pulsar::FORCE_TRANSMISSION_INSIDE;
+            else if (savedTrans == Pulsar::TRANSMISSION_OUTSIDE)
+                outsideAll = Pulsar::FORCE_TRANSMISSION_OUTSIDE;
+            else if (savedTrans == Pulsar::TRANSMISSION_INSIDEBIKE)
+                vanilla = Pulsar::FORCE_TRANSMISSION_VANILLA;
         }
     }
 
-    if (RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW && 
-        RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_BT_WW && 
+    if (RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW &&
+        RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_BT_WW &&
         (isLocalPlayer || ghostPlayerIdx >= 0)) {
         if (insideAll == Pulsar::FORCE_TRANSMISSION_INSIDE && (roomType == RKNet::ROOMTYPE_FROOM_HOST || roomType == RKNet::ROOMTYPE_FROOM_NONHOST)) {
             if (stats->type == INSIDE_BIKE) {
@@ -134,8 +131,7 @@ Kart::Stats* ApplyStatChanges(KartId kartId, CharacterId characterId, KartType k
                 stats->type = INSIDE_BIKE;
                 stats->targetAngle = 0.0f;
             }
-        }
-        else if (outsideAll == Pulsar::FORCE_TRANSMISSION_OUTSIDE && (roomType == RKNet::ROOMTYPE_FROOM_HOST || roomType == RKNet::ROOMTYPE_FROOM_NONHOST)) {
+        } else if (outsideAll == Pulsar::FORCE_TRANSMISSION_OUTSIDE && (roomType == RKNet::ROOMTYPE_FROOM_HOST || roomType == RKNet::ROOMTYPE_FROOM_NONHOST)) {
             if (stats->type == INSIDE_BIKE) {
                 stats->type = OUTSIDE_BIKE;
                 stats->targetAngle = 45.0f;
@@ -145,8 +141,7 @@ Kart::Stats* ApplyStatChanges(KartId kartId, CharacterId characterId, KartType k
                 stats->type = OUTSIDE_BIKE;
                 stats->targetAngle = 45.0f;
             }
-        }
-        else if (vanilla == Pulsar::FORCE_TRANSMISSION_VANILLA && (roomType == RKNet::ROOMTYPE_FROOM_HOST || roomType == RKNet::ROOMTYPE_FROOM_NONHOST)) {
+        } else if (vanilla == Pulsar::FORCE_TRANSMISSION_VANILLA && (roomType == RKNet::ROOMTYPE_FROOM_HOST || roomType == RKNet::ROOMTYPE_FROOM_NONHOST)) {
             if (stats->type == INSIDE_BIKE) {
                 stats->type = INSIDE_BIKE;
             } else if (stats->type == KART) {
@@ -154,9 +149,7 @@ Kart::Stats* ApplyStatChanges(KartId kartId, CharacterId characterId, KartType k
             } else if (stats->type == OUTSIDE_BIKE) {
                 stats->type = OUTSIDE_BIKE;
             }
-        }
-        else if (transmission == Pulsar::TRANSMISSION_INSIDEALL)
-        {
+        } else if (transmission == Pulsar::TRANSMISSION_INSIDEALL) {
             if (stats->type == INSIDE_BIKE) {
                 stats->type = INSIDE_BIKE;
                 stats->targetAngle = 0.0f;
@@ -167,9 +160,7 @@ Kart::Stats* ApplyStatChanges(KartId kartId, CharacterId characterId, KartType k
                 stats->type = INSIDE_BIKE;
                 stats->targetAngle = 0.0f;
             }
-        }
-        else if (transmission == Pulsar::TRANSMISSION_INSIDEBIKE)
-        {
+        } else if (transmission == Pulsar::TRANSMISSION_INSIDEBIKE) {
             if (stats->type == INSIDE_BIKE) {
                 stats->type = INSIDE_BIKE;
                 stats->targetAngle = 0.0f;
@@ -179,9 +170,7 @@ Kart::Stats* ApplyStatChanges(KartId kartId, CharacterId characterId, KartType k
                 stats->type = INSIDE_BIKE;
                 stats->targetAngle = 0.0f;
             }
-        }
-        else if (transmission == Pulsar::TRANSMISSION_OUTSIDE)
-        {
+        } else if (transmission == Pulsar::TRANSMISSION_OUTSIDE) {
             if (stats->type == INSIDE_BIKE) {
                 stats->type = OUTSIDE_BIKE;
                 stats->targetAngle = 45.0f;
@@ -202,4 +191,4 @@ Kart::Stats* ApplyStatChanges(KartId kartId, CharacterId characterId, KartType k
 }
 kmCall(0x8058f670, ApplyStatChanges);
 
-} //namespace Pulsar
+}  // namespace Pulsar

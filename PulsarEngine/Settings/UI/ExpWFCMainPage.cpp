@@ -7,14 +7,14 @@
 
 namespace Pulsar {
 namespace UI {
-//EXPANDED WFC, keeping WW button and just hiding it in case it is ever needed...
+// EXPANDED WFC, keeping WW button and just hiding it in case it is ever needed...
 
-kmWrite32(0x8064b984, 0x60000000); //nop the InitControl call in the init func
-kmWrite24(0x80899a36, 'PUL'); //8064ba38
-kmWrite24(0x80899a5B, 'PUL'); //8064ba90
+kmWrite32(0x8064b984, 0x60000000);  // nop the InitControl call in the init func
+kmWrite24(0x80899a36, 'PUL');  // 8064ba38
+kmWrite24(0x80899a5B, 'PUL');  // 8064ba90
 
 void ExpWFCMain::OnInit() {
-    this->InitControlGroup(9); //5 controls usually + settings button + player count + retro and custom buttons
+    this->InitControlGroup(9);  // 5 controls usually + settings button + player count + retro and custom buttons
     WFCMainMenu::OnInit();
     this->AddControl(5, settingsButton, 0);
 
@@ -56,12 +56,12 @@ void ExpWFCMain::OnInit() {
 
 u32 Pulsar::UI::ExpWFCMain::lastClickedMainMenuButton = 6;
 void ExpWFCMain::OnRetroButtonClick(PushButton& pushButton, u32 hudSlotId) {
-    ExpWFCMain::lastClickedMainMenuButton = 6; // retros
+    ExpWFCMain::lastClickedMainMenuButton = 6;  // retros
     this->OnRegionalButtonClick(pushButton, hudSlotId);
 }
 
 void ExpWFCMain::OnCustomButtonClick(PushButton& pushButton, u32 hudSlotId) {
-    ExpWFCMain::lastClickedMainMenuButton = 7; // customs
+    ExpWFCMain::lastClickedMainMenuButton = 7;  // customs
     this->OnRegionalButtonClick(pushButton, hudSlotId);
 }
 
@@ -72,13 +72,15 @@ void ExpWFCMain::OnSettingsButtonClick(PushButton& pushButton, u32 r5) {
 }
 
 void ExpWFCMain::ExtOnButtonSelect(PushButton& button, u32 hudSlotId) {
-    if(button.buttonId == 5) {
+    if (button.buttonId == 5) {
         u32 bmgId = BMG_SETTINGS_BOTTOM + 1;
-        if(this->topSettingsPage == PAGE_VS_TEAMS_VIEW) bmgId += 1;
-        else if(this->topSettingsPage == PAGE_BATTLE_MODE_SELECT) bmgId += 2;
+        if (this->topSettingsPage == PAGE_VS_TEAMS_VIEW)
+            bmgId += 1;
+        else if (this->topSettingsPage == PAGE_BATTLE_MODE_SELECT)
+            bmgId += 2;
         this->bottomText.SetMessage(bmgId, 0);
-    }
-    else this->OnButtonSelect(button, hudSlotId);
+    } else
+        this->OnButtonSelect(button, hudSlotId);
 }
 
 void ExpWFCMain::BeforeControlUpdate() {
@@ -101,8 +103,8 @@ void ExpWFCMain::BeforeControlUpdate() {
     }
 }
 
-//ExpWFCModeSel
-kmWrite32(0x8064c284, 0x38800001); //distance func
+// ExpWFCModeSel
+kmWrite32(0x8064c284, 0x38800001);  // distance func
 
 void ExpWFCModeSel::OnInit() {
     WFCModeSelect::OnInit();
@@ -166,11 +168,11 @@ void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
     self.AddControl(10, self.vrButton, 0);
     ControlLoader loader(&self.vrButton);
     loader.Load(UI::buttonFolder, "VRButton", "VRButton", nullptr);
-    
+
     Text::Info info;
     RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
     u32 vr = 0;
-    if(rksysMgr->curLicenseId >= 0) {
+    if (rksysMgr->curLicenseId >= 0) {
         RKSYS::LicenseMgr& license = rksysMgr->licenses[rksysMgr->curLicenseId];
         vr = license.vr.points;
     }
@@ -193,9 +195,9 @@ void ExpWFCModeSel::ClearModeContexts() {
         PULSAR_200_WW,
         PULSAR_ITEMMODERAIN,
     };
-    
+
     const u32 numContexts = sizeof(modeContexts) / sizeof(modeContexts[0]);
-    for(u32 i = 0; i < numContexts; ++i) {
+    for (u32 i = 0; i < numContexts; ++i) {
         u32 context = modeContexts[i];
         System::sInstance->context &= ~(1 << context);
     }
@@ -204,29 +206,22 @@ void ExpWFCModeSel::ClearModeContexts() {
 void ExpWFCModeSel::OnModeButtonClick(PushButton& modeButton, u32 hudSlotId) {
     const u32 id = modeButton.buttonId;
     ClearModeContexts();
-    
+
     if (id == ottButtonId) {
         System::sInstance->netMgr.region = 0x0B;
-    }
-    else if (id == twoHundredButtonId) {
+    } else if (id == twoHundredButtonId) {
         System::sInstance->netMgr.region = 0x0C;
-    }
-    else if (id == itemRainButtonId) {
+    } else if (id == itemRainButtonId) {
         System::sInstance->netMgr.region = 0x0D;
-    }
-    else if (id == ctButtonId) {
+    } else if (id == ctButtonId) {
         System::sInstance->netMgr.region = 0x14;
-    }
-    else if (id == ottButtonIdCT) {
+    } else if (id == ottButtonIdCT) {
         System::sInstance->netMgr.region = 0x15;
-    }
-    else if (id == twoHundredButtonIdCT) {
+    } else if (id == twoHundredButtonIdCT) {
         System::sInstance->netMgr.region = 0x16;
-    }
-    else if (id == itemRainButtonIdCT) {
+    } else if (id == itemRainButtonIdCT) {
         System::sInstance->netMgr.region = 0x17;
-    }
-    else {
+    } else {
         System::sInstance->netMgr.region = 0x0A;
     }
 
@@ -242,15 +237,15 @@ void ExpWFCModeSel::OnActivatePatch() {
     asm(mr page, r29;);
     register Pages::GlobeSearch* search;
     asm(mr search, r30;);
-    const bool isHidden = search->searchType == 1 ? false : true; //make the button visible if continental was clicked
-    
+    const bool isHidden = search->searchType == 1 ? false : true;  // make the button visible if continental was clicked
+
     // Reset game mode if worldwide is selected
     if (isHidden) {
         ClearModeContexts();
         System::sInstance->netMgr.region = 0x0A;
-        page->lastClickedButton = 0; // Reset to VS button
+        page->lastClickedButton = 0;  // Reset to VS button
     }
-    
+
     page->vsButton.isHidden = isHidden;
     page->vsButton.manipulator.inaccessible = isHidden;
     page->ottButton.isHidden = isHidden;
@@ -269,10 +264,10 @@ void ExpWFCModeSel::OnActivatePatch() {
     page->itemRainButtonCT.manipulator.inaccessible = isHidden;
 
     page->vsButton.SetMessage(BMG_VS_BUTTON);
-    
+
     if (!isHidden) {
         bool isRetrosMode = (ExpWFCMain::lastClickedMainMenuButton == 6);
-        
+
         // Show retro buttons only in retros mode
         page->vsButton.isHidden = !isRetrosMode;
         page->vsButton.manipulator.inaccessible = !isRetrosMode;
@@ -282,8 +277,8 @@ void ExpWFCModeSel::OnActivatePatch() {
         page->twoHundredButton.manipulator.inaccessible = !isRetrosMode;
         page->itemRainButton.isHidden = !isRetrosMode;
         page->itemRainButton.manipulator.inaccessible = !isRetrosMode;
-        
-        // Show custom buttons only in customs mode  
+
+        // Show custom buttons only in customs mode
         page->ctButton.isHidden = isRetrosMode;
         page->ctButton.manipulator.inaccessible = isRetrosMode;
         page->ottButtonCT.isHidden = isRetrosMode;
@@ -299,11 +294,11 @@ void ExpWFCModeSel::OnActivatePatch() {
 
     page->battleButton.isHidden = true;
     page->battleButton.manipulator.inaccessible = true;
-    
+
     Text::Info info;
     RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
     u32 vr = 0;
-    if(rksysMgr->curLicenseId >= 0) {
+    if (rksysMgr->curLicenseId >= 0) {
         RKSYS::LicenseMgr& license = rksysMgr->licenses[rksysMgr->curLicenseId];
         vr = license.vr.points;
     }
@@ -316,42 +311,35 @@ void ExpWFCModeSel::OnActivatePatch() {
     page->lastClickedButton = 0;
 
     // Determine which button should be selected based on current context
-    if(System::sInstance->IsContext(PULSAR_MODE_OTT) && System::sInstance->IsContext(PULSAR_RETROS)) {
+    if (System::sInstance->IsContext(PULSAR_MODE_OTT) && System::sInstance->IsContext(PULSAR_RETROS)) {
         page->lastClickedButton = ottButtonId;
         button = &page->ottButton;
         bmgId = UI::BMG_OTT_WW_BOTTOM;
-    }
-    else if(System::sInstance->IsContext(PULSAR_200_WW) && System::sInstance->IsContext(PULSAR_RETROS)) {
+    } else if (System::sInstance->IsContext(PULSAR_200_WW) && System::sInstance->IsContext(PULSAR_RETROS)) {
         page->lastClickedButton = twoHundredButtonId;
         button = &page->twoHundredButton;
         bmgId = UI::BMG_200_WW_BOTTOM;
-    }
-    else if(System::sInstance->IsContext(PULSAR_ITEMMODERAIN) && System::sInstance->IsContext(PULSAR_RETROS)) {
+    } else if (System::sInstance->IsContext(PULSAR_ITEMMODERAIN) && System::sInstance->IsContext(PULSAR_RETROS)) {
         page->lastClickedButton = itemRainButtonId;
         button = &page->itemRainButton;
         bmgId = UI::BMG_ITEM_RAIN_WW_BOTTOM;
-    }
-    else if (System::sInstance->IsContext(PULSAR_CTS) && !System::sInstance->IsContext(PULSAR_MODE_OTT) && !System::sInstance->IsContext(PULSAR_200_WW)) {
+    } else if (System::sInstance->IsContext(PULSAR_CTS) && !System::sInstance->IsContext(PULSAR_MODE_OTT) && !System::sInstance->IsContext(PULSAR_200_WW)) {
         page->lastClickedButton = ctButtonId;
         button = &page->ctButton;
         bmgId = UI::BMG_RACE_WITH11P;
-    }
-    else if(System::sInstance->IsContext(PULSAR_MODE_OTT) && System::sInstance->IsContext(PULSAR_CTS)) {
+    } else if (System::sInstance->IsContext(PULSAR_MODE_OTT) && System::sInstance->IsContext(PULSAR_CTS)) {
         page->lastClickedButton = ottButtonIdCT;
         button = &page->ottButtonCT;
         bmgId = UI::BMG_OTT_WW_BOTTOM;
-    }
-    else if(System::sInstance->IsContext(PULSAR_200_WW) && System::sInstance->IsContext(PULSAR_CTS)) {
+    } else if (System::sInstance->IsContext(PULSAR_200_WW) && System::sInstance->IsContext(PULSAR_CTS)) {
         page->lastClickedButton = twoHundredButtonIdCT;
         button = &page->twoHundredButtonCT;
         bmgId = UI::BMG_200_WW_BOTTOM;
-    }
-    else if (System::sInstance->IsContext(PULSAR_ITEMMODERAIN) && System::sInstance->IsContext(PULSAR_CTS)) {
+    } else if (System::sInstance->IsContext(PULSAR_ITEMMODERAIN) && System::sInstance->IsContext(PULSAR_CTS)) {
         page->lastClickedButton = itemRainButtonIdCT;
         button = &page->itemRainButtonCT;
         bmgId = UI::BMG_ITEM_RAIN_WW_BOTTOM;
-    }
-    else if(page->lastClickedButton == 2) {
+    } else if (page->lastClickedButton == 2) {
         button = &page->battleButton;
         bmgId = UI::BMG_BATTLE_WITH6P;
     }
@@ -362,29 +350,24 @@ void ExpWFCModeSel::OnActivatePatch() {
 kmCall(0x8064c5f0, ExpWFCModeSel::OnActivatePatch);
 
 void ExpWFCModeSel::OnModeButtonSelect(PushButton& modeButton, u32 hudSlotId) {
-    if(modeButton.buttonId == ottButtonId) {
+    if (modeButton.buttonId == ottButtonId) {
         this->bottomText.SetMessage(BMG_OTT_WW_BOTTOM);
-    }   
-    else if(modeButton.buttonId == twoHundredButtonId) {
+    } else if (modeButton.buttonId == twoHundredButtonId) {
         this->bottomText.SetMessage(BMG_200_WW_BOTTOM);
-    }
-    else if (modeButton.buttonId == itemRainButtonId) {
+    } else if (modeButton.buttonId == itemRainButtonId) {
         this->bottomText.SetMessage(BMG_ITEM_RAIN_WW_BOTTOM);
-    }
-    else if(modeButton.buttonId == ctButtonId) {
+    } else if (modeButton.buttonId == ctButtonId) {
         this->bottomText.SetMessage(BMG_RACE_WITH11P);
-    }
-    else if(modeButton.buttonId == ottButtonIdCT) {
+    } else if (modeButton.buttonId == ottButtonIdCT) {
         this->bottomText.SetMessage(BMG_OTT_WW_BOTTOM);
-    }
-    else if(modeButton.buttonId == twoHundredButtonIdCT) {
+    } else if (modeButton.buttonId == twoHundredButtonIdCT) {
         this->bottomText.SetMessage(BMG_200_WW_BOTTOM);
-    }
-    else if (modeButton.buttonId == itemRainButtonIdCT) {
+    } else if (modeButton.buttonId == itemRainButtonIdCT) {
         this->bottomText.SetMessage(BMG_ITEM_RAIN_WW_BOTTOM);
     }
-    
-    else WFCModeSelect::OnModeButtonSelect(modeButton, hudSlotId);
+
+    else
+        WFCModeSelect::OnModeButtonSelect(modeButton, hudSlotId);
 }
 
 void ExpWFCModeSel::BeforeControlUpdate() {
@@ -400,10 +383,10 @@ void ExpWFCModeSel::BeforeControlUpdate() {
     Pages::GlobeSearch* globeSearch = SectionMgr::sInstance->curSection->Get<Pages::GlobeSearch>();
 
     Text::Info info;
-    if (globeSearch->searchType == 1) {  
+    if (globeSearch->searchType == 1) {
         info.intToPass[0] = RR_numIR;
         this->itemRainButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
-        
+
         info.intToPass[0] = RR_numOTT;
         this->ottButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
 
@@ -415,7 +398,7 @@ void ExpWFCModeSel::BeforeControlUpdate() {
 
         info.intToPass[0] = CT_numIR;
         this->itemRainButtonCT.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
-        
+
         info.intToPass[0] = CT_numOTT;
         this->ottButtonCT.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
 
@@ -431,7 +414,7 @@ void ExpWFCModeSel::BeforeControlUpdate() {
 
     RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
     u32 vr = 0;
-    if(rksysMgr->curLicenseId >= 0) {
+    if (rksysMgr->curLicenseId >= 0) {
         RKSYS::LicenseMgr& license = rksysMgr->licenses[rksysMgr->curLicenseId];
         vr = license.vr.points;
     }
@@ -449,8 +432,8 @@ void ExpWFCModeSel::BeforeControlUpdate() {
     }
 }
 
-} // namespace UI
-} // namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 
 // void PatchWFCMenu_LoadButton(PushButton* _this, const char* folderName, const char* ctrName, const char* variant, u32 localPlayerBitfield, u32 r8, bool inaccessible) {
 //     _this->Load(folderName, "NewWifiMenuButton", variant, localPlayerBitfield, r8, inaccessible);

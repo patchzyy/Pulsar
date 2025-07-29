@@ -11,13 +11,12 @@ PageId ExtendedTeamResultTotal::GetNextPage() const {
             return PAGE_VS_RACEENDMENU;
         }
         return PAGE_GP_ENDMENU;
-    }  
+    }
 
     return PAGE_WIFI_VS_RESULTS;
 }
 
 void ExtendedTeamResultTotal::OnInit() {
-    
     RacedataScenario& scenario = Racedata::sInstance->racesScenario;
 
     int teamCount = 0;
@@ -33,19 +32,18 @@ void ExtendedTeamResultTotal::OnInit() {
             teamPresent[team] = true;
         }
     }
-    
+
     int controlLoadedCount = 0;
     this->InitControlGroup(teamCount);
     for (int i = 0; i < TEAM_COUNT; i++) {
         if (!teamPresent[i])
             continue;
-        
+
         this->AddControl(controlLoadedCount, this->results[controlLoadedCount], 0);
         results[controlLoadedCount].Load((ExtendedTeamID)i, teamCount, controlLoadedCount);
 
         controlLoadedCount++;
     }
-
 }
 
 bool ExtendedTeamResultTotal::CanEnd() {
@@ -61,5 +59,5 @@ bool ExtendedTeamResultTotal::CanEnd() {
 void ExtendedTeamResultTotal::FillRows() {
 }
 
-} //namespace UI
-} //namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

@@ -5,10 +5,7 @@
 #include <UI/UI.hpp>
 #include <Settings/Settings.hpp>
 
-
-
-
-//Create
+// Create
 namespace Pulsar {
 namespace UI {
 
@@ -42,14 +39,13 @@ void ExpCupSelect::OnActivate() {
     Pages::CupSelect::OnActivate();
 }
 
-
-//Patch distance func to remove horizontal wrapping
+// Patch distance func to remove horizontal wrapping
 static void CupSelectDistanceFunc(ControlsManipulatorManager* manipulator, u32 type) {
     if (CupsConfig::sInstance->GetCtsTrackCount() != 0) type = 1;
     manipulator->SetDistanceFunc(type);
 }
 kmCall(0x80841248, CupSelectDistanceFunc);
-//SheetSelect
+// SheetSelect
 UIControl* ExpCupSelect::CreateControl(u32 controlId) {
     if (controlId == 2) {
         this->AddControl(2, this->arrows, 0);
@@ -60,15 +56,14 @@ UIControl* ExpCupSelect::CreateControl(u32 controlId) {
         arrows.Load(UI::buttonFolder, rightArrow, rightArrow, leftArrow, leftArrow, 1, 0, false);
         ++this->controlCount;
         return &this->arrows;
-    }
-    else if (controlId == 3) {
+    } else if (controlId == 3) {
         this->AddControl(3, this->randomControl, 0);
         ControlLoader loader(&this->randomControl);
         loader.Load(UI::controlFolder, "PULInstruction", "RandomCup", nullptr);
         this->randomControl.SetMessage(BMG_RANDOM_CUP);
         return &this->randomControl;
-    }
-    else return CupSelect::CreateControl(controlId);
+    } else
+        return CupSelect::CreateControl(controlId);
 }
 
 void ExpCupSelect::OnRightArrowSelect(SheetSelectControl& control, u32 hudSlotId) {
@@ -90,7 +85,6 @@ void ExpCupSelect::OnArrowSelect(s32 direction) {
         buttons[i]->buttonId = nextId;
         this->UpdateCupData(nextId, *buttons[i]);
     }
-
 }
 
 void ExpCupSelect::OnStartPress(u32 hudSlotId) {
@@ -103,8 +97,7 @@ void ExpCupSelect::AfterControlUpdate() {
     const bool isValid = gamemode == MODE_TIME_TRIAL || gamemode == MODE_VS_RACE;
     if (!isValid) {
         this->randomControl.isHidden = true;
-    }
-    else {
+    } else {
         this->randomControl.isHidden = false;
         PushButton** buttons = reinterpret_cast<PushButton**>(this->ctrlMenuCupSelectCup.childrenGroup.controlArray);
         if (this->randomizedId != PULSARID_NONE) {
@@ -125,12 +118,12 @@ void ExpCupSelect::AfterControlUpdate() {
             u32 high = nw4r::ut::Abs<s32>(randomizedCupButtonIdx - button7Idx);
             high = nw4r::ut::Min(high, cupCount - high);
             if (!isCurOnScreen) {
-                if (high <= low) arrow = &this->arrows.rightArrow;
-                else arrow = &this->arrows.leftArrow;
+                if (high <= low)
+                    arrow = &this->arrows.rightArrow;
+                else
+                    arrow = &this->arrows.leftArrow;
                 arrow->HandleScroll(0, -1);
-            }
-            else {
-
+            } else {
                 u32 finalButtonIdx = nw4r::ut::Abs<s32>(randomizedCupButtonIdx - button7Idx);
                 finalButtonIdx = 7 - nw4r::ut::Min(finalButtonIdx, cupCount - finalButtonIdx);
                 buttons[finalButtonIdx]->Select(0);
@@ -139,14 +132,12 @@ void ExpCupSelect::AfterControlUpdate() {
                 CourseButton& courseButton = coursePage->CtrlMenuCourseSelectCourse.courseButtons[this->randomizedId % 4];
                 cupsConfig->SaveSelectedCourse(courseButton);
                 courseButton.Select(0);
-                //coursePage->CtrlMenuCourseSelectCourse.courseButtons[this->randomizedId % 4].HandleClick(0, -1);
+                // coursePage->CtrlMenuCourseSelectCourse.courseButtons[this->randomizedId % 4].HandleClick(0, -1);
                 this->randomizedId = PULSARID_NONE;
                 for (int i = 0; i < 8; ++i) buttons[i]->manipulator.inaccessible = false;
-                this->arrows.leftArrow.manipulator.inaccessible = cupsConfig->GetCtsTrackCount() == 0; //keep the arrows inaccessible if there are no cts
-                this->arrows.rightArrow.manipulator.inaccessible = cupsConfig->GetCtsTrackCount() == 0; //keep the arrows inaccessible if there are no cts
-
+                this->arrows.leftArrow.manipulator.inaccessible = cupsConfig->GetCtsTrackCount() == 0;  // keep the arrows inaccessible if there are no cts
+                this->arrows.rightArrow.manipulator.inaccessible = cupsConfig->GetCtsTrackCount() == 0;  // keep the arrows inaccessible if there are no cts
             }
-
         }
     }
 }
@@ -156,15 +147,13 @@ void ExpCupSelect::OnBackPress(u32 hudSlotId) {
     CupSelect::OnBackPress(hudSlotId);
 }
 
-//Disable movies
+// Disable movies
 void ExpCupSelect::OnMoviesActivate(u32 r4) {}
 
 kmWrite32(0x808404f8, 0x60000000);
 
-//brlyt TPL stuff
-const char* regCupNames[8] ={ "kinoko", "koura", "flower", "banana", "star", "konoha", "oukan", "thunder" };
-
-
+// brlyt TPL stuff
+const char* regCupNames[8] = {"kinoko", "koura", "flower", "banana", "star", "konoha", "oukan", "thunder"};
 
 void ExpCupSelect::UpdateCupData(PulsarCupId pulsarCupId, LayoutUIControl& control) {
     u32 bmgId;
@@ -174,8 +163,7 @@ void ExpCupSelect::UpdateCupData(PulsarCupId pulsarCupId, LayoutUIControl& contr
     if (CupsConfig::IsRegCup(pulsarCupId)) {
         snprintf(tplName, 0x20, "tt_cup_icon_%s_00.tpl", &cupTPLs[realCupId][8]);
         bmgId = BMG_REGCUPS;
-    }
-    else {
+    } else {
         u32 tplId = realCupId;
         u16 iconCount = System::sInstance->GetInfo().GetCupIconCount();
         if (realCupId > iconCount - 1) {
@@ -185,8 +173,8 @@ void ExpCupSelect::UpdateCupData(PulsarCupId pulsarCupId, LayoutUIControl& contr
             tplId = tplId % iconCount;
             realCupId = 0;
             bmgId = BMG_TEXT;
-        }
-        else bmgId = BMG_CUPS;
+        } else
+            bmgId = BMG_CUPS;
         snprintf(tplName, 0x20, "icon_%03d.tpl", tplId);
     }
     control.SetMessage(bmgId + realCupId, &info);
@@ -195,7 +183,5 @@ void ExpCupSelect::UpdateCupData(PulsarCupId pulsarCupId, LayoutUIControl& contr
     ChangeImage(control, "icon_light_02", tplName);
 }
 
-
-
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

@@ -25,7 +25,7 @@ void ExtendedTeamManager::DestroyInstance() {
 }
 
 void ExtendedTeamManager::SendStartRacePacket() {
-    Pages::FriendRoomManager *friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
+    Pages::FriendRoomManager* friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
     RKNet::Controller* controller = RKNet::Controller::sInstance;
     RKNet::ControllerSub* sub = &controller->subs[controller->currentSub];
 
@@ -36,8 +36,8 @@ void ExtendedTeamManager::SendStartRacePacket() {
         packet.messageType = MSG_TYPE_START_RACE;
         packet.message = 0;
         packet.unknown_0x3 = friendRoomManager->lastMessageId;
-            
-         for (int i = 0; i < 12; ++i) {
+
+        for (int i = 0; i < 12; ++i) {
             if (i != sub->localAid) {
                 RKNet::ROOMHandler::sInstance->toSendPackets[i] = packet;
             }
@@ -56,7 +56,7 @@ void ExtendedTeamManager::SendStartRacePacket() {
 }
 
 void ExtendedTeamManager::SendUpdateTeamsPacket() {
-    Pages::FriendRoomManager *friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
+    Pages::FriendRoomManager* friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
     RKNet::Controller* controller = RKNet::Controller::sInstance;
     RKNet::ControllerSub* sub = &controller->subs[controller->currentSub];
 
@@ -67,7 +67,7 @@ void ExtendedTeamManager::SendUpdateTeamsPacket() {
         packet.messageType = MSG_TYPE_UPDATE_TEAMS;
         packet.message = 0;
         packet.unknown_0x3 = friendRoomManager->lastMessageId;
-            
+
         for (int i = 0; i < 12; ++i) {
             if (i != sub->localAid) {
                 RKNet::ROOMHandler::sInstance->toSendPackets[i] = packet;
@@ -80,7 +80,7 @@ void ExtendedTeamManager::SendUpdateTeamsPacket() {
 }
 
 void ExtendedTeamManager::SendPingPacket() {
-    Pages::FriendRoomManager *friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
+    Pages::FriendRoomManager* friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
     RKNet::Controller* controller = RKNet::Controller::sInstance;
     RKNet::ControllerSub* sub = &controller->subs[controller->currentSub];
 
@@ -98,7 +98,7 @@ void ExtendedTeamManager::SendPingPacket() {
 }
 
 void ExtendedTeamManager::SendAckStartRacePacket() {
-    Pages::FriendRoomManager *friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
+    Pages::FriendRoomManager* friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
     RKNet::Controller* controller = RKNet::Controller::sInstance;
     RKNet::ControllerSub* sub = &controller->subs[controller->currentSub];
 
@@ -134,7 +134,7 @@ bool ExtendedTeamManager::AreAllOtherPlayersDone(u8 localAid) {
 }
 
 void ExtendedTeamManager::Update() {
-    Pages::FriendRoomManager *friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
+    Pages::FriendRoomManager* friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
     this->isHost = RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST;
     u8 localAid = RKNet::Controller::sInstance->subs[RKNet::Controller::sInstance->currentSub].localAid;
     if (!this->isHost) {
@@ -216,7 +216,7 @@ void ExtendedTeamManager::VotePageSync() {
         if (aid == 0xFF) {
             continue;
         }
-    
+
         u8 localPlayerId;
         if (i < 1) {
             localPlayerId = 0;
@@ -262,5 +262,5 @@ void ExtendedTeamManager::ResetPlayers() {
     }
 }
 
-} // namespace UI
-} // namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

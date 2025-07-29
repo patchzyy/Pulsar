@@ -52,13 +52,13 @@ void RoomKickPage::BeforeEntranceAnimations() {
 void RoomKickPage::BeforeControlUpdate() {
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
     const RKNet::ControllerSub* sub = &controller->subs[0];
-    if(sub->connectionUserDatas[sub->localAid].playersAtConsole == 0)
+    if (sub->connectionUserDatas[sub->localAid].playersAtConsole == 0)
         sub = &controller->subs[1];
 
     int idx = 0;
-    for(int aid = 0; aid < 12; ++aid) {
-        if(sub->availableAids & (1 << aid)) {
-            for(int player = 0; player < sub->connectionUserDatas[aid].playersAtConsole; ++player) {
+    for (int aid = 0; aid < 12; ++aid) {
+        if (sub->availableAids & (1 << aid)) {
+            for (int player = 0; player < sub->connectionUserDatas[aid].playersAtConsole; ++player) {
                 this->miiIdx[idx] = aid * 2 + player;
                 this->aidIdx[idx] = aid;
 
@@ -76,7 +76,7 @@ void RoomKickPage::BeforeControlUpdate() {
                 } else {
                     this->miis[idx].animator.GetAnimationGroupById(4).PlayAnimationAtFrame(1, 0.0f);
                 }
-            
+
                 mii.SetPaneVisibility("w_null", true);
 
                 ++idx;
@@ -86,17 +86,17 @@ void RoomKickPage::BeforeControlUpdate() {
 
     this->playerCount = idx;
 
-    for(int remIdx = idx; remIdx < 12; ++remIdx) {
-        this->miis[remIdx].isHidden = false; // Change to true if you don't want to display empty slots
+    for (int remIdx = idx; remIdx < 12; ++remIdx) {
+        this->miis[remIdx].isHidden = false;  // Change to true if you don't want to display empty slots
         this->miis[remIdx].manipulator.inaccessible = false;
         this->miis[remIdx].SetPicturePane("chara", "no_linkmii");
         this->miis[remIdx].SetPicturePane("chara_shadow", "no_linkmii");
         this->miis[remIdx].SetPicturePane("chara_c_down", "no_linkmii");
         this->miis[remIdx].SetPicturePane("chara_light_01", "no_linkmii");
         this->miis[remIdx].SetPicturePane("chara_light_02", "no_linkmii");
-        
+
         this->miis[remIdx].animator.GetAnimationGroupById(4).PlayAnimationAtFrame(0, 0.0f);
-      
+
         this->miis[remIdx].SetPaneVisibility("w_null", false);
     }
 }
@@ -104,30 +104,34 @@ void RoomKickPage::BeforeControlUpdate() {
 UIControl* RoomKickPage::CreateControl(u32 id) {
     const u32 count = this->controlCount;
     char variant[0x40];
-    if(id < 12) {
+    if (id < 12) {
         this->AddControl(count, this->miis[id], 0);
         snprintf(variant, 0x40, "KickMii%d", id);
 
-        const char *anims[] = {
-            "State", "Offline", "Online", "RandomMatching", "FriendParent", nullptr,
+        const char* anims[] = {
+            "State",
+            "Offline",
+            "Online",
+            "RandomMatching",
+            "FriendParent",
+            nullptr,
             nullptr,
         };
 
         this->miis[id].LoadWithAnims(anims, "button", "KickMii", variant, 1, 0);
-        
+
         this->miis[id].animator.GetAnimationGroupById(4).PlayAnimationAtFrame(1, 0.0f);
         this->miis[id].buttonId = id;
         this->miis[id].SetOnClickHandler(this->onButtonClickHandler, 0);
         this->miis[id].SetOnSelectHandler(this->onButtonSelectHandler);
         this->controlCount++;
         return &this->miis[id];
-    }
-    else if(id == 12) {
+    } else if (id == 12) {
         this->AddControl(count, this->name, 0);
         ControlLoader loader(&this->name);
         const char* brctr = "TeamName";
         loader.Load(UI::controlFolder, brctr, brctr, nullptr);
-        
+
         this->controlCount++;
         return &this->name;
     }
@@ -173,7 +177,7 @@ void RoomKickPage::OnYesNoClick(u32 choice, PushButton& button) {
                 break;
             }
         }
-        
+
         DWC::CloseConnectionHard(this->aidIdx[this->selectedIdx]);
     }
 }
@@ -182,13 +186,12 @@ void RoomKickPage::ClearKickHistory() {
     this->kickedCount = 0;
 }
 
-u32* RoomKickPage::GetKickHistory(u32 &outCount) {
+u32* RoomKickPage::GetKickHistory(u32& outCount) {
     outCount = this->kickedCount;
     return this->kickedPIDs;
 }
 
 void RoomKickPage::OnButtonClick(PushButton& button, u32 hudSlotId) {
-
     RKNet::Controller* controller = RKNet::Controller::sInstance;
     RKNet::ControllerSub* sub = &controller->subs[controller->currentSub];
 
@@ -226,5 +229,5 @@ void RoomKickPage::OnButtonSelect(PushButton& button, u32 hudSlotId) {
     }
 }
 
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

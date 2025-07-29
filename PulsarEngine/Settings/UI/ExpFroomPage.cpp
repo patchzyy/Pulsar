@@ -12,10 +12,9 @@
 namespace Pulsar {
 namespace UI {
 
-kmWrite32(0x805d8260, 0x60000000); //nop initcontrolgroup
+kmWrite32(0x805d8260, 0x60000000);  // nop initcontrolgroup
 void ExpFroom::OnInit() {
-
-    this->InitControlGroup(8); //5 usually + settings button + teams button
+    this->InitControlGroup(8);  // 5 usually + settings button + teams button
     FriendRoom::OnInit();
 
     this->AddControl(5, settingsButton, 0);
@@ -39,21 +38,25 @@ void ExpFroom::OnInit() {
 }
 
 void ExpFroom::OnResume() {
-    if(this->areControlsHidden) GlobeMgr::sInstance->DisplayMii();
+    if (this->areControlsHidden) GlobeMgr::sInstance->DisplayMii();
     this->areControlsHidden = false;
     FriendRoom::OnResume();
 }
 
 void ExpFroom::ExtOnButtonSelect(PushButton& button, u32 hudSlotId) {
-    if(button.buttonId == 5) {
+    if (button.buttonId == 5) {
         u32 bmgId = BMG_SETTINGS_BOTTOM + 1;
-        if(this->topSettingsPage == PAGE_VS_TEAMS_VIEW) bmgId += 1;
-        else if(this->topSettingsPage == PAGE_BATTLE_MODE_SELECT) bmgId += 2;
+        if (this->topSettingsPage == PAGE_VS_TEAMS_VIEW)
+            bmgId += 1;
+        else if (this->topSettingsPage == PAGE_BATTLE_MODE_SELECT)
+            bmgId += 2;
         this->bottomText.SetMessage(bmgId, 0);
-    }
-    else if(button.buttonId == 6) this->bottomText.SetMessage(BMG_TEAMS_BOTTOM, 0);
-    else if (button.buttonId == 7) this->bottomText.SetMessage(BMG_KICK_BOTTOM, 0);
-    else this->OnButtonSelect(button, hudSlotId);
+    } else if (button.buttonId == 6)
+        this->bottomText.SetMessage(BMG_TEAMS_BOTTOM, 0);
+    else if (button.buttonId == 7)
+        this->bottomText.SetMessage(BMG_KICK_BOTTOM, 0);
+    else
+        this->OnButtonSelect(button, hudSlotId);
 }
 
 void ExpFroom::OnActivate() {
@@ -101,9 +104,9 @@ void ExpFroom::AfterControlUpdate() {
     this->teamsButton.isHidden = hidden;
     globe->message.isHidden = hidden;
     globe->miiName.isHidden = hidden;
-    for(FriendMatchingPlayer* player = &mgr->miiIcons[0]; player < &mgr->miiIcons[24]; player++) player->isHidden = hidden;
+    for (FriendMatchingPlayer* player = &mgr->miiIcons[0]; player < &mgr->miiIcons[24]; player++) player->isHidden = hidden;
     mgr->titleText.isHidden = hidden;
-    if(hidden) { //these get updated by the game too, so only need to update their isHidden when they should be forced hidden
+    if (hidden) {  // these get updated by the game too, so only need to update their isHidden when they should be forced hidden
         this->startButton.isHidden = hidden;
         this->addFriendsButton.isHidden = hidden;
         waiting->messageWindow.isHidden = hidden;
@@ -112,12 +115,11 @@ void ExpFroom::AfterControlUpdate() {
         globeMgr->earthmodel->isMiiShown = false;
         globeMgr->ResetGlobeMii();
 
-    }
-    else { //if controls are enabled, teamsButton is only visible for hosts when >2players in room
+    } else {  // if controls are enabled, teamsButton is only visible for hosts when >2players in room
         const RKNet::Controller* controller = RKNet::Controller::sInstance;
         const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
         bool teamHidden = true;
-        if(sub.hostAid == sub.localAid && sub.playerCount >= 2) teamHidden = false;
+        if (sub.hostAid == sub.localAid && sub.playerCount >= 2) teamHidden = false;
         this->teamsButton.isHidden = teamHidden;
         this->teamsButton.manipulator.inaccessible = teamHidden;
     }
@@ -134,7 +136,7 @@ void ExpFroom::OnMessageBoxClick(Pages::MessageBoxTransparent* msgBoxPage) {
 
 void FixLayerCountOnMsgBoxClick(Pages::MessageBoxTransparent* msgBoxPage) {
     Section* section = SectionMgr::sInstance->curSection;
-    if(section->layerCount == 9) {
+    if (section->layerCount == 9) {
         section->activePages[section->layerCount] = nullptr;
         section->layerCount--;
     }
@@ -142,5 +144,5 @@ void FixLayerCountOnMsgBoxClick(Pages::MessageBoxTransparent* msgBoxPage) {
 }
 kmCall(0x805d860c, FixLayerCountOnMsgBoxClick);
 
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

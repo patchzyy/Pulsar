@@ -19,4 +19,4 @@ void NewChannel_SetCrashFlag() {
     *reinterpret_cast<u8*>(RRC_BITFLAGS_ADDRESS) |= RRC_BITFLAG_RR_CRASHED;
 }
 
-}
+}  // namespace Pulsar

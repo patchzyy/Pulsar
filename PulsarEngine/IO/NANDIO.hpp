@@ -8,9 +8,7 @@ namespace Pulsar {
 
 typedef char FileName[255];
 
-
 class NANDIO : public IOSIO {
-
     NANDIO(IOType type, EGG::Heap* heap, EGG::TaskThread* taskThread) : IOSIO(type, heap, taskThread) {}
 
     bool OpenFile(const char* path, u32 mode) override;
@@ -23,13 +21,8 @@ class NANDIO : public IOSIO {
     void ReadFolder(const char* path) override;
 
     friend IO* IO::CreateInstance(IOType type, EGG::Heap* heap, EGG::TaskThread* const taskThread);
-
-
-
-
 };
 
-
-}//namespace Pulsar
+}  // namespace Pulsar
 
 #endif

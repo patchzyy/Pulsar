@@ -18,14 +18,13 @@ static int MAX_ITEM_LIFETIME = 200;
 static int DESPAWN_CHECK_INTERVAL = 2;
 
 void ItemModeCheck() {
-    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || 
-        RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || 
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST ||
+        RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST ||
         RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
         if (Pulsar::System::sInstance->IsContext(PULSAR_ITEMMODESTORM)) {
             ITEMS_PER_SPAWN = 3;
             MAX_ITEM_LIFETIME = 180;
-        }
-        else {
+        } else {
             ITEMS_PER_SPAWN = 1;
             MAX_ITEM_LIFETIME = 600;
         }
@@ -56,7 +55,7 @@ static ItemObjId GetRandomItem() {
         ItemObjId id;
         u32 weight;
     };
-        
+
     static const ItemWeight weightedItems[] = {
         {OBJ_MUSHROOM, 20},
         {OBJ_GREEN_SHELL, 18},
@@ -70,8 +69,7 @@ static ItemObjId GetRandomItem() {
         {OBJ_MEGA_MUSHROOM, 6},
         {OBJ_POW_BLOCK, 1},
         {OBJ_BULLET_BILL, 5},
-        {OBJ_LIGHTNING, 1}
-    };
+        {OBJ_LIGHTNING, 1}};
     const u32 totalWeight = 100;
     u32 roll = GetRandom() % totalWeight;
     u32 cumulative = 0;
@@ -126,20 +124,20 @@ void SpawnItemRain() {
     const GameMode mode = scenario.settings.gamemode;
     if (!Pulsar::System::sInstance->IsContext(PULSAR_ITEMMODERAIN) && !Pulsar::System::sInstance->IsContext(PULSAR_ITEMMODESTORM)) return;
     if (Pulsar::System::sInstance->IsContext(PULSAR_MODE_OTT)) return;
-    if (RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_FROOM_HOST && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_FROOM_NONHOST && 
+    if (RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_FROOM_HOST && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_FROOM_NONHOST &&
         RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_NONE && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_REGIONAL) return;
     if (mode == MODE_TIME_TRIAL) return;
     if (!Racedata::sInstance || !Raceinfo::sInstance || !Item::Manager::sInstance) return;
     if (!Raceinfo::sInstance->IsAtLeastStage(RACESTAGE_RACE)) return;
 
     sRaceInfoFrameCounter++;
-        
+
     if ((sRaceInfoFrameCounter % DESPAWN_CHECK_INTERVAL) == 0) {
         DespawnItems();
     }
     if ((sRaceInfoFrameCounter % (DESPAWN_CHECK_INTERVAL * 2)) == 0) {
         DespawnItems(true);
-    }   
+    }
     u8 playerCount = Pulsar::System::sInstance->nonTTGhostPlayersCount;
     if (playerCount == 0) return;
     if ((sRaceInfoFrameCounter % GetSpawnInterval(playerCount)) != 0) return;
@@ -150,7 +148,7 @@ void SpawnItemRain() {
     dummyDirection.z = 0.0f;
 
     for (int i = 0; i < ITEMS_PER_SPAWN; i++) {
-        int spawnDivisor = (sRaceInfoFrameCounter < 300) ? 4 : 1; 
+        int spawnDivisor = (sRaceInfoFrameCounter < 300) ? 4 : 1;
 
         for (int playerIdx = 0; playerIdx < playerCount; playerIdx += spawnDivisor) {
             Item::Player& player = Item::Manager::sInstance->players[playerIdx];
@@ -170,7 +168,7 @@ void SpawnItemRain() {
 
             float forward = GetRandomRange(1000.0f, 12000.0f);
             float side = GetRandomRange(-SPAWN_RADIUS, SPAWN_RADIUS);
-                
+
             Vec3 spawnPos;
             spawnPos.x = playerPos.x + forwardDir.x * forward + rightDir.x * side;
             spawnPos.y = playerPos.y + SPAWN_HEIGHT;
@@ -184,7 +182,7 @@ void SpawnItemRain() {
                     spawnPos.x = playerPos.x + forwardDir.x * newForward + rightDir.x * newSide;
                     spawnPos.z = playerPos.z + forwardDir.z * newForward + rightDir.z * newSide;
                 }
-                    
+
                 Item::Manager::sInstance->CreateItemDirect(selectedItem, &spawnPos, &dummyDirection, playerIdx);
             }
         }
@@ -192,5 +190,5 @@ void SpawnItemRain() {
 }
 RaceFrameHook ItemRainHook(SpawnItemRain);
 
-} // namespace ItemRain
-} // namespace Pulsar
+}  // namespace ItemRain
+}  // namespace Pulsar

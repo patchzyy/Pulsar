@@ -7,7 +7,7 @@ static bool s_isEmulator = false;
 static bool s_isEmulatorChecked = false;
 
 int OpenDolphin() {
-    if(s_dolphinFD < 0) {
+    if (s_dolphinFD < 0) {
         s_dolphinFD = IOS::Open("/dev/dolphin", IOS::MODE_NONE);
         if (s_dolphinFD < 0) {
             s_isEmulator = false;
@@ -22,7 +22,7 @@ int OpenDolphin() {
 }
 
 int CloseDolphin() {
-    if(s_dolphinFD >= 0) {
+    if (s_dolphinFD >= 0) {
         IOS::Close(s_dolphinFD);
         s_dolphinFD = -1;
     }
@@ -48,11 +48,11 @@ bool GetElapsedTime(u32& elapsedTime) {
     request.size = sizeof(u32);
 
     return IOS::IOCtlv(
-        s_dolphinFD,
-        (IOS::IOCtlType)IOCTL_DOLPHIN_GET_ELAPSED_TIME,
-        0,
-        1,
-        &request) >= 0;
+               s_dolphinFD,
+               (IOS::IOCtlType)IOCTL_DOLPHIN_GET_ELAPSED_TIME,
+               0,
+               1,
+               &request) >= 0;
 }
 
 bool GetVersion(char* version, u32 length) {
@@ -65,11 +65,11 @@ bool GetVersion(char* version, u32 length) {
     request.size = length;
 
     return IOS::IOCtlv(
-        s_dolphinFD,
-        (IOS::IOCtlType)IOCTL_DOLPHIN_GET_VERSION,
-        0,
-        1,
-        &request) >= 0;
+               s_dolphinFD,
+               (IOS::IOCtlType)IOCTL_DOLPHIN_GET_VERSION,
+               0,
+               1,
+               &request) >= 0;
 }
 
 // bool GetSpeedLimit(u32& speedLimit);
@@ -92,7 +92,7 @@ bool SetDiscordClient(char* clientID) {
         0,
         &request);
 
-    return ret >=0;
+    return ret >= 0;
 }
 
 bool SetDiscordPresence(
@@ -106,7 +106,6 @@ bool SetDiscordPresence(
     u64 endTimestamp,
     u32 partySize,
     u32 partyMax) {
-
     if (OpenDolphin() < 0) {
         return false;
     }
@@ -143,11 +142,11 @@ bool SetDiscordPresence(
     request[9].size = sizeof(u32);
 
     return IOS::IOCtlv(
-        s_dolphinFD,
-        (IOS::IOCtlType)IOCTL_DOLPHIN_DISCORD_SET_PRESENCE,
-        10,
-        0,
-        request) >= 0;
+               s_dolphinFD,
+               (IOS::IOCtlType)IOCTL_DOLPHIN_DISCORD_SET_PRESENCE,
+               10,
+               0,
+               request) >= 0;
 }
 
 bool ResetDiscord() {
@@ -156,11 +155,11 @@ bool ResetDiscord() {
     }
 
     return IOS::IOCtlv(
-        s_dolphinFD,
-        (IOS::IOCtlType)IOCTL_DOLPHIN_DISCORD_RESET,
-        0,
-        0,
-        nullptr) >= 0;
+               s_dolphinFD,
+               (IOS::IOCtlType)IOCTL_DOLPHIN_DISCORD_RESET,
+               0,
+               0,
+               nullptr) >= 0;
 }
 
 bool GetSystemTime(u64& systemTime) {
@@ -173,11 +172,11 @@ bool GetSystemTime(u64& systemTime) {
     request.size = sizeof(u64);
 
     return IOS::IOCtlv(
-        s_dolphinFD,
-        (IOS::IOCtlType)IOCTL_DOLPHIN_GET_SYSTEM_TIME,
-        0,
-        1,
-        &request) >= 0;
+               s_dolphinFD,
+               (IOS::IOCtlType)IOCTL_DOLPHIN_GET_SYSTEM_TIME,
+               0,
+               1,
+               &request) >= 0;
 }
-    
-}
+
+}  // namespace Dolphin

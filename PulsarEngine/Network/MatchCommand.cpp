@@ -15,24 +15,22 @@ ResvPacket::ResvPacket(const DWC::Reservation& src) {
     const System* system = System::sInstance;
     const Mgr& mgr = system->netMgr;
     pulInfo.statusData = mgr.ownStatusData;
-    pulInfo.roomKey = HARD_CODED_ROOM_KEY; // Use the hardcoded key
+    pulInfo.roomKey = HARD_CODED_ROOM_KEY;  // Use the hardcoded key
     strncpy(pulInfo.modFolderName, system->GetModFolder(), IOS::ipcMaxFileName);
 }
 
-asmFunc MoveSize() { // Needed to get data size later
+asmFunc MoveSize() {  // Needed to get data size later
     ASM(
         nofralloc;
         mr r25, r28;
         li r28, 255;
-        blr;
-    )
+        blr;)
 }
 kmCall(0x800dc3bc, MoveSize);
 
 DWC::MatchCommand Process(DWC::MatchCommand type, const void* data, u32 dataSize, u32 pid) {
     const RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
-    const bool isCustom = roomType == RKNet::ROOMTYPE_FROOM_NONHOST || roomType == RKNet::ROOMTYPE_FROOM_HOST
-        || roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL;
+    const bool isCustom = roomType == RKNet::ROOMTYPE_FROOM_NONHOST || roomType == RKNet::ROOMTYPE_FROOM_HOST || roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL;
 
     Pulsar::System* system = Pulsar::System::sInstance;
     Mgr& mgr = system->netMgr;
@@ -40,10 +38,8 @@ DWC::MatchCommand Process(DWC::MatchCommand type, const void* data, u32 dataSize
 
     if (type == DWC::MATCH_COMMAND_RESV_OK && isCustom) {
         const ResvPacket* packet = reinterpret_cast<const ResvPacket*>(data);
-        if (dataSize != (sizeof(ResvPacket) / sizeof(u32)) || packet->pulInfo.roomKey != HARD_CODED_ROOM_KEY // Compare with hardcoded key
-            || strcmp(packet->pulInfo.modFolderName, system->GetModFolder()) != 0
-            || !system->CheckUserInfo(packet->pulInfo.userInfo)) {
-
+        if (dataSize != (sizeof(ResvPacket) / sizeof(u32)) || packet->pulInfo.roomKey != HARD_CODED_ROOM_KEY  // Compare with hardcoded key
+            || strcmp(packet->pulInfo.modFolderName, system->GetModFolder()) != 0 || !system->CheckUserInfo(packet->pulInfo.userInfo)) {
             denyType = DENY_TYPE_BAD_PACK;
             if (roomType == RKNet::ROOMTYPE_VS_REGIONAL) mgr.deniesCount++;
             type = DWC::MATCH_COMMAND_RESV_DENY;
@@ -68,7 +64,6 @@ DWC::MatchCommand Process(DWC::MatchCommand type, const void* data, u32 dataSize
                 }
             }
         }
-
     }
     mgr.denyType = denyType;
     return type;
@@ -108,15 +103,13 @@ asmFunc ProcessWrapper() {
         bl Process;
         mtlr r31;
         rlwinm r0, r3, 0, 24, 31;
-        blr;
-    )
+        blr;)
 }
 kmCall(0x800dc4a0, ProcessWrapper);
 
 void Send(DWC::MatchCommand type, u32 pid, u32 ip, u16 port, void* data, u32 dataSize) {
     const RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
-    const bool isCustom = roomType == RKNet::ROOMTYPE_FROOM_NONHOST || roomType == RKNet::ROOMTYPE_FROOM_HOST
-        || roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL;
+    const bool isCustom = roomType == RKNet::ROOMTYPE_FROOM_NONHOST || roomType == RKNet::ROOMTYPE_FROOM_HOST || roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL;
     if (type == DWC::MATCH_COMMAND_RESERVATION && isCustom) {
         ResvPacket packet(*reinterpret_cast<const DWC::Reservation*>(data));
         System::sInstance->SetUserInfo(packet.pulInfo.userInfo);
@@ -135,5 +128,5 @@ static void ResetDenyCounter(UIControl* control, u32 soundId, u32 r5) {
 }
 kmCall(0x80609110, ResetDenyCounter);
 
-}
-}
+}  // namespace Network
+}  // namespace Pulsar

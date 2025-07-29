@@ -16,7 +16,7 @@ IO* IO::CreateInstance(IOType type, EGG::Heap* heap, EGG::TaskThread* const task
     switch (type) {
         case IOType_RIIVO:
             io = new (heap) RiivoIO(type, heap, taskThread);
-        break;
+            break;
         case IOType_ISO:
         case IOType_DOLPHIN:
             io = new (heap) NANDIO(type, heap, taskThread);
@@ -25,7 +25,7 @@ IO* IO::CreateInstance(IOType type, EGG::Heap* heap, EGG::TaskThread* const task
             io = new (heap) SDIO(type, heap, taskThread);
             break;
     }
-    
+
     IO::sInstance = io;
     return io;
 }
@@ -45,4 +45,4 @@ s32 IO::ReadFolderFileFromPath(void* bufferIn, const char* path, u32 maxLength) 
     return ret;
 }
 
-}//namespace Pulsar
+}  // namespace Pulsar

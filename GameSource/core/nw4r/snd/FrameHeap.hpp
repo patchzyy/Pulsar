@@ -11,7 +11,7 @@ namespace detail {
 size_assert(void*, 0x4);
 class FrameHeap {
     struct Block {
-    public:
+       public:
         ut::LinkListNode link;
         void* buffer;
         u32 size;
@@ -19,24 +19,23 @@ class FrameHeap {
         void* callbackArg;
     };
     class Section {
-    public:
+       public:
         ut::LinkListNode link;
         ut::LinkList<Block, offsetof(Block, link)> blockList;
     };
-    int SaveState(); //80092500
-    void LoadState(int level); //800925d0
-    int GetCurrentLevel() const; //80092800
-    bool Create(void* startAddress, u32 size); //80092090
-    void Destroy(); //80092230
-    void* Alloc(u32 size, void* callbackFunc, void* callbackArg); //80092450
-    u32 GetFreeSize() const; //80092810
+    int SaveState();  // 80092500
+    void LoadState(int level);  // 800925d0
+    int GetCurrentLevel() const;  // 80092800
+    bool Create(void* startAddress, u32 size);  // 80092090
+    void Destroy();  // 80092230
+    void* Alloc(u32 size, void* callbackFunc, void* callbackArg);  // 80092450
+    u32 GetFreeSize() const;  // 80092810
     void* MEMiHeapHead;
     ut::LinkList<Section, offsetof(Section, Section::link)> sectionlist;
-};//total size 0x10
+};  // total size 0x10
 size_assert(FrameHeap, 0x10);
 
-
-}//namespace detail
-}//namespace snd
-}//namespace nw4r
-#endif	
+}  // namespace detail
+}  // namespace snd
+}  // namespace nw4r
+#endif

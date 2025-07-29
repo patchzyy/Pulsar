@@ -59,4 +59,4 @@ void InitNewRace(RacedataScenario* scenario) {
 kmCall(0x8052fbd8, InitNewRace);
 kmCall(0x80533240, EveryFrame);
 
-} // namespace Security
+}  // namespace Security

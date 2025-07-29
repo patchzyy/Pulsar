@@ -13,23 +13,21 @@
 #include <Debug/Debug.hpp>
 #include <UI/UI.hpp>
 
-
-
 namespace Pulsar {
 
 namespace UI {
-//No ghost saving on RKSYS
+// No ghost saving on RKSYS
 kmWrite32(0x8054913C, 0x60000000);
 kmWrite32(0x80855f48, 0x48000148);
 
-//BMG size patch (Diamond)
+// BMG size patch (Diamond)
 kmWrite32(0x8007B37C, 0x38000128);
 
 static PageId AfterWifiResults(PageId id) {
     const SectionMgr* sectionMgr = SectionMgr::sInstance;
     const System* system = System::sInstance;
 
-    if (system->IsContext(PULSAR_MODE_KO)) id = system->koMgr->KickPlayersOut(id); //return KO::RaceEndPage with the choice to spectate if the local players are out 
+    if (system->IsContext(PULSAR_MODE_KO)) id = system->koMgr->KickPlayersOut(id);  // return KO::RaceEndPage with the choice to spectate if the local players are out
     // if (id != static_cast<PageId>(KO::RaceEndPage::id) && system->IsContext(PULSAR_HAW)) {
     //     ChooseNextTrack* chooseNext = ExpSection::GetSection()->GetPulPage<ChooseNextTrack>();
     //     if (chooseNext != nullptr) id = chooseNext->GetPageAfterWifiResults(id);
@@ -38,21 +36,21 @@ static PageId AfterWifiResults(PageId id) {
 }
 kmBranch(0x80646754, AfterWifiResults);
 
-
-//Credit to Kazuki for making the original ASM code, and Brawlbox for porting it to C++
+// Credit to Kazuki for making the original ASM code, and Brawlbox for porting it to C++
 static void LaunchRiivolutionButton(SectionMgr* sectionMgr) {
     const SectionId id = sectionMgr->nextSectionId;
-    if (id == SECTION_CHANNEL_FROM_MENU || id == SECTION_CHANNEL_FROM_CHECK_RANKINGS || id == SECTION_CHANNEL_FROM_DOWNLOADS) Debug::LaunchSoftware();
-    else sectionMgr->LoadSection();
+    if (id == SECTION_CHANNEL_FROM_MENU || id == SECTION_CHANNEL_FROM_CHECK_RANKINGS || id == SECTION_CHANNEL_FROM_DOWNLOADS)
+        Debug::LaunchSoftware();
+    else
+        sectionMgr->LoadSection();
 }
 kmCall(0x80553a60, LaunchRiivolutionButton);
 
-//Top left message when a race is about to start in a froom
+// Top left message when a race is about to start in a froom
 static void FixStartMessageFroom(CtrlRaceWifiStartMessage* startMsg, u32 bmgId, Text::Info* info) {
     const SectionMgr* sectionMgr = SectionMgr::sInstance;
     const SectionId id = sectionMgr->curSection->sectionId;
-    if (id == SECTION_P1_WIFI_FRIEND_VS || id == SECTION_P1_WIFI_FRIEND_TEAMVS
-        || id == SECTION_P2_WIFI_FRIEND_VS || id == SECTION_P2_WIFI_FRIEND_TEAMVS) {
+    if (id == SECTION_P1_WIFI_FRIEND_VS || id == SECTION_P1_WIFI_FRIEND_TEAMVS || id == SECTION_P2_WIFI_FRIEND_VS || id == SECTION_P2_WIFI_FRIEND_TEAMVS) {
         const System* system = System::sInstance;
         const u32 raceNumber = sectionMgr->sectionParams->onlineParams.currentRaceNumber + 1;
         bmgId = BMG_GP_RACE;
@@ -60,11 +58,14 @@ static void FixStartMessageFroom(CtrlRaceWifiStartMessage* startMsg, u32 bmgId, 
             const KO::Mgr* koMgr = system->koMgr;
             const u32 playerCount = system->nonTTGhostPlayersCount;
             u32 koCount = 0;
-            if (playerCount == 2) koCount = 1;
+            if (playerCount == 2)
+                koCount = 1;
             else if (raceNumber % koMgr->racesPerKO == 0) {
                 const u32 koPerRace = koMgr->koPerRace;
-                if (playerCount - koPerRace > 1) koCount = koPerRace; //eliminating the setting's amount of players, does not lead in a potential final
-                else koCount = playerCount - (1 + koMgr->alwaysFinal); //check if the setting is on, if it is, leave 2 players, otherwise, leave 1 player/the ko count is the complement
+                if (playerCount - koPerRace > 1)
+                    koCount = koPerRace;  // eliminating the setting's amount of players, does not lead in a potential final
+                else
+                    koCount = playerCount - (1 + koMgr->alwaysFinal);  // check if the setting is on, if it is, leave 2 players, otherwise, leave 1 player/the ko count is the complement
             }
             bmgId = BMG_KO_ELIM_START_NONE + koCount;
         }
@@ -100,14 +101,14 @@ SectionParams& FavouriteCombo(SectionParams& params) {
         if (kartWeight != -1) {
             if (charWeight == -1 || charWeight != kartWeight) {
                 switch (kartWeight) {
-                case 0:
-                    favChar = BABY_DAISY;
-                    break;
-                case 1:
-                    favChar = DAISY;
-                    break;
-                case 2:
-                    favChar = FUNKY_KONG;
+                    case 0:
+                        favChar = BABY_DAISY;
+                        break;
+                    case 1:
+                        favChar = DAISY;
+                        break;
+                    case 2:
+                        favChar = FUNKY_KONG;
                 }
             }
             params.characters[0] = favChar;
@@ -128,8 +129,7 @@ u8 ModifyCheckRankings() {
     asm(fmr animLength, f31;);
     ttEnd->ChangeSectionBySceneChange(SECTION_P1_WIFI, 0, animLength);
     return 0;
-    //ttEnd->EndStateAnimated(0, animLength);
-
+    // ttEnd->EndStateAnimated(0, animLength);
 }
 kmCall(0x8085b4bc, ModifyCheckRankings);
 kmPatchExitPoint(ModifyCheckRankings, 0x8085bbe0);
@@ -169,5 +169,5 @@ CameraParamBin* GetKartParamCamera(u32 weight, u32 screenCount) {
 
 kmCall(0x805a20d4, GetKartParamCamera);
 
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

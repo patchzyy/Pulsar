@@ -19,6 +19,6 @@ struct BinaryFileHeader {
 };
 size_assert(BinaryFileHeader, 0x10);
 
-}//namespace ut
-}//namespace nw4r
+}  // namespace ut
+}  // namespace nw4r
 #endif

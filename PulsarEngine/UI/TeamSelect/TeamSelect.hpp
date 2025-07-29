@@ -6,14 +6,12 @@
 #include <UI/UI.hpp>
 #include <UI/ToggleControls.hpp>
 
-
-//Custom Page that allows the host (and only the host) to arrange teams as they see fit. This also has a ToggleButton to disable it if wanted
+// Custom Page that allows the host (and only the host) to arrange teams as they see fit. This also has a ToggleButton to disable it if wanted
 namespace Pulsar {
 namespace UI {
 
-
 class TeamSelect : public Pages::MenuInteractable {
-public:
+   public:
     static const PulPageId id = PULPAGE_TEAMSELECT;
     TeamSelect();
     void OnInit() override;
@@ -21,13 +19,14 @@ public:
     void BeforeControlUpdate() override;
     int GetActivePlayerBitfield() const override;
     int GetPlayerBitfield() const override;
-    ManipulatorManager& GetManipulatorManager() override;; //offset 0x70
-    UIControl* CreateExternalControl(u32 id) override; //0x84
-    UIControl* CreateControl(u32 id) override; //0x88
-    void SetButtonHandlers(PushButton& button) override; //80853aac 0x8C
+    ManipulatorManager& GetManipulatorManager() override;
+    ;  // offset 0x70
+    UIControl* CreateExternalControl(u32 id) override;  // 0x84
+    UIControl* CreateControl(u32 id) override;  // 0x88
+    void SetButtonHandlers(PushButton& button) override;  // 80853aac 0x8C
     static inline Team GetPlayerTeam(u8 teamsArrayIdx) { return static_cast<Team>(teams[teamsArrayIdx]); }
 
-private:
+   private:
     void OnArrowClick(PushButton& button, u32 hudSlotId);
     void OnArrowSelect(PushButton& button, u32 hudSlotId);
     void OnArrowDeselect(PushButton& button, u32 hudSlotId) {};
@@ -49,19 +48,16 @@ private:
     PushButton arrows[12];
     LayoutUIControl miis[12];
     MiiName name;
-    MiiGroup* miiGroup; //take friendroom's
+    MiiGroup* miiGroup;  // take friendroom's
     u8 arrowMiiIdx[12];
     ToggleButton toggle;
     static const char* miiBg;
     static const char* border;
     static u8 teams[24];
 
-public:
+   public:
     static bool isEnabled;
-
-
-
 };
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 #endif

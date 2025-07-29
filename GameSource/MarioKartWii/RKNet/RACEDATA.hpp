@@ -3,8 +3,6 @@
 #include <kamek.hpp>
 #include <MarioKartWii/System/Identifiers.hpp>
 
-
-
 namespace RKNet {
 
 #pragma pack(push, 1)
@@ -58,5 +56,5 @@ struct RACEDATAPacket {
 size_assert(RACEDATAPacket, 0x40);
 */
 
-}//namespace RKNet
+}  // namespace RKNet
 #endif

@@ -8,11 +8,11 @@
 namespace Pulsar {
 namespace UI {
 class ExpGPVSLeaderboardUpdate : public Pages::GPVSLeaderboardUpdate {
-public:
+   public:
     void OnUpdate() override;
     void BeforeEntranceAnimations() override;
     PageId GetNextPage() const override;
 };
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar
 #endif

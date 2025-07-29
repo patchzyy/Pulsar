@@ -35,4 +35,4 @@ void VerifyItemSlotHashes();
 
 }  // namespace RetroRewind
 
-#endif 
+#endif

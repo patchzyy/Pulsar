@@ -7,22 +7,22 @@
 #include <Settings/Settings.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
 
-namespace  Pulsar {
+namespace Pulsar {
 namespace UI {
-//When the player goes back to the main menu, MultiGhostMgr is destroyed
+// When the player goes back to the main menu, MultiGhostMgr is destroyed
 static void DestroyMultiGhostManager(Section& section, PageId pageId) {
     section.CreateAndInitPage(pageId);
     Ghosts::Mgr::DestroyInstance();
 }
 kmCall(0x8062cf98, DestroyMultiGhostManager);
 
-//GhostInfoControl BRCTR
+// GhostInfoControl BRCTR
 static void LoadCustomGhostInfoBRCTR(ControlLoader& loader, const char* folderName, const char* ctrName,
-    const char* variantName, const char** anims) {
+                                     const char* variantName, const char** anims) {
     loader.Load(folderName, "PULGhostInfo", variantName, anims);
 }
 kmCall(0x805e28c0, LoadCustomGhostInfoBRCTR);
-kmWrite32(0x80639958, 0x3880000C); //Add controls
+kmWrite32(0x80639958, 0x3880000C);  // Add controls
 
 ExpGhostSelect::ExpGhostSelect() {
     Ghosts::Mgr::CreateInstance();
@@ -42,9 +42,9 @@ void ExpGhostSelect::OnInit() {
     this->bottomText.Load();
     this->selectGhostButton.buttonId = 0xA;
     this->AddControl(0xA, this->selectGhostButton, 0);
-    this->selectGhostButton.Load(1, UI::buttonFolder, "SelectGhost", "SelectGhost"); //check multighost
+    this->selectGhostButton.Load(1, UI::buttonFolder, "SelectGhost", "SelectGhost");  // check multighost
     this->selectGhostButton.SetOnClickHandler(this->onSelectGhostChangeHandler, 0);
-    //this->manipulatorManager.SetGlobalHandler(START_PRESS, onStartPressHandler, false, false);
+    // this->manipulatorManager.SetGlobalHandler(START_PRESS, onStartPressHandler, false, false);
     this->AddControl(0xB, this->favGhost, 0);
     this->favGhost.isHidden = true;
     ControlLoader loader(&this->favGhost);
@@ -52,7 +52,7 @@ void ExpGhostSelect::OnInit() {
     this->Reset();
 }
 
-//BottomText will display the current TTmode as well as if the player has a trophy on the track
+// BottomText will display the current TTmode as well as if the player has a trophy on the track
 void ExpGhostSelect::OnActivate() {
     GhostSelect::OnActivate();
     const System* system = System::sInstance;
@@ -82,16 +82,14 @@ void ExpGhostSelect::OnActivate() {
 void ExpGhostSelect::OnDeactivate() {
     Ghosts::Mgr::sInstance->SaveLeaderboard();
 }
-//Creates space by making the usual 3 buttons smaller, could be done without a BRCTR but this is easier to maintain
+// Creates space by making the usual 3 buttons smaller, could be done without a BRCTR but this is easier to maintain
 static void LoadButtonWithCustBRCTR(PushButton& button, const char* folderName, const char* ctrName, const char* variant,
-    u32 localPlayerBitfield, u32 r8, bool inaccessible)
-{
+                                    u32 localPlayerBitfield, u32 r8, bool inaccessible) {
     button.Load(folderName, "GhostListButton", variant, localPlayerBitfield, r8, inaccessible);
 }
 kmCall(0x80639ab8, LoadButtonWithCustBRCTR);
 kmCall(0x80639ad8, LoadButtonWithCustBRCTR);
 kmCall(0x80639af8, LoadButtonWithCustBRCTR);
-
 
 void ExpGhostSelect::OnChallengeGhostPress(PushButton& button, u32 hudSlotId) {
     GhostSelect::OnChallengeGhostPress(button, hudSlotId);
@@ -114,10 +112,9 @@ void ExpGhostSelect::OnSelectGhostChange(ToggleButton& button, u32) {
         if (mgr->EnableGhost(entry, false)) {
             this->selectedGhostsPages[index] = this->page;
             this->selectedGhostsCount = (this->selectedGhostsCount + 1) > 3 ? 3 : (this->selectedGhostsCount + 1);
-        }
-        else button.ToggleState(false);
-    }
-    else {
+        } else
+            button.ToggleState(false);
+    } else {
         mgr->DisableGhost(entry);
         this->selectedGhostsPages[mgr->lastUsedSlot] = -1;
         this->selectedGhostsCount -= 1;
@@ -133,15 +130,13 @@ void ExpGhostSelect::OnStartPress(u32) {
     if (this->favGhostIndex == this->page) {
         this->favGhostIndex = -1;
         isStarVisible = false;
-    }
-    else {
+    } else {
         this->favGhostIndex = this->page;
         isStarVisible = true;
     }
     this->PlaySound(isStarVisible ? SOUND_ID_SMALL_HIGH_NOTE : SOUND_ID_BACK_PRESS, 0);
     Ghosts::Mgr::sInstance->SetFavGhost(this->ghostList->entries[this->page], System::sInstance->ttMode, isStarVisible);
     this->info->SetPaneVisibility("star", isStarVisible);
-
 }
 
 void ExpGhostSelect::OnRightArrowPress(SheetSelectControl& control, u32 hudSlotId) {
@@ -158,18 +153,17 @@ void ExpGhostSelect::OnNewPage() {
     ToggleButton& button = this->selectGhostButton;
     if (this->page == this->selectedGhostsPages[0] || this->page == this->selectedGhostsPages[1] || this->page == this->selectedGhostsPages[2]) {
         if (button.GetState() == false) button.ToggleState(true);
-    }
-    else if (button.GetState() == true) button.ToggleState(false);
+    } else if (button.GetState() == true)
+        button.ToggleState(false);
 
     this->SetToggleBMG();
 
     bool isStarHidden;
     if (this->page == this->favGhostIndex) {
         isStarHidden = true;
-    }
-    else isStarHidden = false;
+    } else
+        isStarHidden = false;
     this->info->SetPaneVisibility("star", isStarHidden);
-
 }
 
 void ExpGhostSelect::SetToggleBMG() {
@@ -187,19 +181,18 @@ void ExpGhostSelect::Reset() {
     this->favGhostIndex = -1;
 }
 
-//Complete rewrite TTSplits BeforeEntranceAnimations; this will request a RKG if needed (flap or top 10 time)
+// Complete rewrite TTSplits BeforeEntranceAnimations; this will request a RKG if needed (flap or top 10 time)
 void BeforeEntranceAnimations(Pages::TTSplits* page) {
     const u32 gamemode = Racedata::sInstance->racesScenario.settings.gamemode;
-    //Init Variables
+    // Init Variables
     const SectionMgr* sectionMgr = SectionMgr::sInstance;
     SectionParams* sectionParams = sectionMgr->sectionParams;
     sectionParams->isNewTime = false;
     sectionParams->fastestLapId = 0xFFFFFFFF;
     if (System::sInstance->IsContext(PULSAR_MODE_OTT)) {
-    page->maxActiveFrames = 0x12C;
-    }
-    else if(gamemode == MODE_TIME_TRIAL) {
-    page->maxActiveFrames = 0xFFFFFFFF;
+        page->maxActiveFrames = 0x12C;
+    } else if (gamemode == MODE_TIME_TRIAL) {
+        page->maxActiveFrames = 0xFFFFFFFF;
     }
     sectionParams->unknown_0x3D8 = false;
     RKSYS::LicenseLdbEntry entry;
@@ -212,7 +205,7 @@ void BeforeEntranceAnimations(Pages::TTSplits* page) {
     const Mii* mii = sectionParams->playerMiis.GetMii(0);
     Mii::ComputeRFLStoreData(entry.miiData, &mii->info.createID);
 
-    //Find which lap is the best
+    // Find which lap is the best
     RaceinfoPlayer* raceInfoPlayer = Raceinfo::sInstance->players[playerId];
     page->timers[0] = *raceInfoPlayer->raceFinishTime;
     page->ctrlRaceTimeArray[0]->SetTimer(&page->timers[0]);
@@ -230,12 +223,11 @@ void BeforeEntranceAnimations(Pages::TTSplits* page) {
         curRaceTime->OnFocus();
     }
 
-    //No saving and no new record in OTT for now
+    // No saving and no new record in OTT for now
     if (System::sInstance->IsContext(PULSAR_MODE_OTT)) return;
 
-    //enhanced replay
-    if (sectionMgr->curSection->sectionId >= SECTION_WATCH_GHOST_FROM_CHANNEL
-        && sectionMgr->curSection->sectionId <= SECTION_WATCH_GHOST_FROM_MENU) {
+    // enhanced replay
+    if (sectionMgr->curSection->sectionId >= SECTION_WATCH_GHOST_FROM_CHANNEL && sectionMgr->curSection->sectionId <= SECTION_WATCH_GHOST_FROM_MENU) {
         page->ctrlRaceTimeArray[0]->EnableFlashingAnimation();
         page->ctrlRaceTimeArray[bestLapId]->EnableFlashingAnimation();
         page->ctrlRaceCount.isHidden = false;
@@ -244,7 +236,7 @@ void BeforeEntranceAnimations(Pages::TTSplits* page) {
         page->savedGhostMessage.SetMessage(UI::BMG_SAVED_GHOST);
     }
 
-    //Finish Time Leaderboard check and request
+    // Finish Time Leaderboard check and request
     else {
         Ghosts::Mgr* manager = Ghosts::Mgr::sInstance;
         bool hasFlap = false;
@@ -270,8 +262,8 @@ void BeforeEntranceAnimations(Pages::TTSplits* page) {
             page->PlaySound(SOUND_ID_NEW_RECORD, -1);
             page->savedGhostMessage.SetMessage(UI::BMG_SAVED_GHOST);
 
-        }
-        else if (position < 0) page->ctrlRaceCount.isHidden = true;
+        } else if (position < 0)
+            page->ctrlRaceCount.isHidden = true;
         if (hasFlap || position >= 0) {
             bool gotTrophy = manager->SaveGhost(entry, position, hasFlap);
             if (gotTrophy) page->savedGhostMessage.SetMessage(UI::BMG_TROPHY_EARNED);
@@ -279,7 +271,6 @@ void BeforeEntranceAnimations(Pages::TTSplits* page) {
     }
 }
 kmWritePointer(0x808DA614, BeforeEntranceAnimations);
-
 
 static void TrophyBMG(CtrlMenuInstructionText& bottomText, u32 bmgId) {
     Text::Info text;
@@ -299,22 +290,23 @@ kmCall(0x8084144c, TrophyBMG);
 void IndividualTrophyBMG(Pages::CourseSelect& courseSelect, CtrlMenuCourseSelectCourse& course, PushButton& button, u32 hudSlotId) {
     if (Racedata::sInstance->menusScenario.settings.gamemode != MODE_TIME_TRIAL) {
         courseSelect.UpdateBottomText(course, button, hudSlotId);
-    }
-    else {
+    } else {
         u32 bmgId;
         CupsConfig* cupsConfig = CupsConfig::sInstance;
-        const Text::Info text = GetCourseBottomText(cupsConfig->ConvertTrack_PulsarCupToTrack(cupsConfig->lastSelectedCup, button.buttonId), &bmgId); //FIX HERE
+        const Text::Info text = GetCourseBottomText(cupsConfig->ConvertTrack_PulsarCupToTrack(cupsConfig->lastSelectedCup, button.buttonId), &bmgId);  // FIX HERE
         courseSelect.bottomText->SetMessage(bmgId, &text);
     }
 }
 kmCall(0x807e54ec, IndividualTrophyBMG);
 
-//Global function as it is also used by CourseSelect
+// Global function as it is also used by CourseSelect
 const Text::Info GetCourseBottomText(PulsarId id, u32* bmgId) {
     const System* system = System::sInstance;
     const Settings::Mgr& settings = Settings::Mgr::Get();
-    if (settings.GetTotalTrophyCount(system->ttMode) > 0) *bmgId = BMG_TT_BOTTOM_COURSE;
-    else *bmgId = BMG_TT_BOTTOM_COURSE_NOTROPHY;
+    if (settings.GetTotalTrophyCount(system->ttMode) > 0)
+        *bmgId = BMG_TT_BOTTOM_COURSE;
+    else
+        *bmgId = BMG_TT_BOTTOM_COURSE_NOTROPHY;
 
     const bool hasTrophy = settings.HasTrophy(id, system->ttMode);
     Text::Info text;
@@ -326,9 +318,7 @@ const Text::Info GetCourseBottomText(PulsarId id, u32* bmgId) {
 }
 
 void SetRankingsBMG() {
-
 }
 
-
-}//namespace UI
-}//namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

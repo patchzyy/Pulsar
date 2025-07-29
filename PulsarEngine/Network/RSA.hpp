@@ -1,19 +1,19 @@
 #include <kamek.hpp>
 
 #ifndef _RSA_
-#  define _RSA_
+#define _RSA_
 
-#  define CONFIG_RSA_KEY_SIZE 2048
-#  define RSANUMBYTES ((CONFIG_RSA_KEY_SIZE) / 8)
-#  define RSANUMWORDS (RSANUMBYTES / sizeof(u32))
+#define CONFIG_RSA_KEY_SIZE 2048
+#define RSANUMBYTES ((CONFIG_RSA_KEY_SIZE) / 8)
+#define RSANUMWORDS (RSANUMBYTES / sizeof(u32))
 
 /**
  * RSA public key definition
  */
 struct RSAPublicKey {
-    u32 n0inv; // -1 / n[0] mod 2^32
-    u32 n[RSANUMWORDS]; // modulus as little endian array
-    u32 rr[RSANUMWORDS]; // R^2 as little endian array
+    u32 n0inv;  // -1 / n[0] mod 2^32
+    u32 n[RSANUMWORDS];  // modulus as little endian array
+    u32 rr[RSANUMWORDS];  // R^2 as little endian array
 };
 
 /**

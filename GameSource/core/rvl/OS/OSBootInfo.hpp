@@ -3,11 +3,10 @@
 #include <types.hpp>
 #include <core/rvl/dvd/dvd.hpp>
 
-
 namespace OS {
 struct BootInfo {
-    static BootInfo mInstance; //80000000
-    static BootInfo* sInstance; //80386890
+    static BootInfo mInstance;  // 80000000
+    static BootInfo* sInstance;  // 80386890
     DVD::DiskID diskID;
     u32 magic;
     u32 version;
@@ -18,6 +17,6 @@ struct BootInfo {
     void* FSTLocation;
     u32 FSTMaxLength;
 };
-}//namespace OS
+}  // namespace OS
 
 #endif

@@ -6,32 +6,32 @@
 namespace Pulsar {
 namespace Ghosts {
 const char Leaderboard::filePathFormat[] = "%s/ldb.pul";
-//CTOR to build a leaderboard from scratch
+// CTOR to build a leaderboard from scratch
 Leaderboard::Leaderboard() {
     memset(this, 0, sizeof(Leaderboard));
     this->magic = Leaderboard::fileMagic;
     this->version = curVersion;
-    for(int mode = 0; mode < 4; ++mode) this->hasTrophy[mode] = false;
+    for (int mode = 0; mode < 4; ++mode) this->hasTrophy[mode] = false;
 }
 
-//CTOR to build it from the raw file
+// CTOR to build it from the raw file
 Leaderboard::Leaderboard(const char* folderPath, PulsarId id, bool createNew) {
     char path[IOS::ipcMaxPath];
     snprintf(path, IOS::ipcMaxPath, filePathFormat, folderPath);
     IO* io = IO::sInstance;
     s32 ret = io->OpenFile(path, FILE_MODE_READ_WRITE);
-    if(ret) ret = io->Read(sizeof(Leaderboard), this);
+    if (ret) ret = io->Read(sizeof(Leaderboard), this);
 
-    if(!ret || this->crc32 != crc32 || magic != fileMagic) {
-        if(createNew) this->CreateFile(id);
-        //System::sInstance->taskThread->Request(&Leaderboard::CreateFile, id, 0);
+    if (!ret || this->crc32 != crc32 || magic != fileMagic) {
+        if (createNew) this->CreateFile(id);
+        // System::sInstance->taskThread->Request(&Leaderboard::CreateFile, id, 0);
         new (this) Leaderboard;
         this->SetTrack(id);
     }
     io->Close();
 }
 
-//This is its own function so that the file can be created async 
+// This is its own function so that the file can be created async
 void Leaderboard::CreateFile(PulsarId id) {
     char path[IOS::ipcMaxPath];
     snprintf(path, IOS::ipcMaxPath, filePathFormat, Mgr::folderPath);
@@ -44,21 +44,20 @@ void Leaderboard::CreateFile(PulsarId id) {
 };
 
 void Leaderboard::SetTrack(PulsarId id) {
-    if(CupsConfig::IsReg(id)) return;
+    if (CupsConfig::IsReg(id)) return;
     this->crc32 = CupsConfig::sInstance->GetCRC32(id);
     char trackName[0x100];
     UI::GetTrackBMG(trackName, id);
     snprintf(this->name, trackNameLen, "%s", trackName);
 }
 
-
-//Get ldb position
+// Get ldb position
 s32 Leaderboard::GetPosition(const Timer& other) const {
     s32 position = -1;
     Timer timer;
-    for(int i = ENTRY_10TH; i >= 0; i--) {
+    for (int i = ENTRY_10TH; i >= 0; i--) {
         this->EntryToTimer(timer, i);
-        if(timer > other) position = i;
+        if (timer > other) position = i;
     }
     return position;
 }
@@ -67,18 +66,18 @@ s8 Leaderboard::GetRepeatCount(const RKG& rkg) const {
     const TTMode mode = System::sInstance->ttMode;
     const RKGHeader& header = rkg.header;
     s8 repeats = 0;
-    for(int i = 0; i < 11; ++i) {
+    for (int i = 0; i < 11; ++i) {
         const PULLdbEntry& cur = this->entries[mode][i];
-        if(cur.milliseconds == header.milliseconds && cur.seconds == header.seconds && cur.minutes == header.minutes) repeats++;
+        if (cur.milliseconds == header.milliseconds && cur.seconds == header.seconds && cur.minutes == header.minutes) repeats++;
     }
     return repeats;
 }
 
-//updates the ldb with a new entry and a rkg crc32
+// updates the ldb with a new entry and a rkg crc32
 void Leaderboard::Update(u32 position, const RKSYS::LicenseLdbEntry& entry, u32 rkgCRC32) {
     const TTMode mode = System::sInstance->ttMode;
-    if(position != ENTRY_FLAP) { //if 10 then flap
-        for(int i = ENTRY_10TH; i > position; i--) memcpy(&this->entries[mode][i], &this->entries[mode][i - 1], sizeof(PULLdbEntry));
+    if (position != ENTRY_FLAP) {  // if 10 then flap
+        for (int i = ENTRY_10TH; i > position; i--) memcpy(&this->entries[mode][i], &this->entries[mode][i - 1], sizeof(PULLdbEntry));
         this->entries[mode][position].rkgCRC32 = rkgCRC32;
     }
     memcpy(&this->entries[mode][position].mii, &entry.miiData, sizeof(RFL::StoreData));
@@ -91,11 +90,12 @@ void Leaderboard::Update(u32 position, const RKSYS::LicenseLdbEntry& entry, u32 
     this->entries[mode][position].kart = entry.kart;
 }
 
-//saves and writes to the file
+// saves and writes to the file
 void Leaderboard::Save(const char* folderPath) {
     char path[IOS::ipcMaxPath];
     snprintf(path, IOS::ipcMaxPath, filePathFormat, folderPath);
-    IO* file = IO::sInstance;;
+    IO* file = IO::sInstance;
+    ;
     file->OpenFile(path, FILE_MODE_WRITE);
     file->Overwrite(sizeof(Leaderboard), this);
     file->Close();
@@ -118,7 +118,7 @@ void Leaderboard::EntryToGameEntry(RKSYS::LicenseLdbEntry& dest, u8 id) const {
     dest.controllerType = this->entries[mode][id].controllerType;
 }
 
-//PULEntry to LicenseLdbEntry
+// PULEntry to LicenseLdbEntry
 const RKSYS::LicenseLdbEntry* Leaderboard::GetEntry(u32 index) {
     Mgr* manager = Mgr::sInstance;
     manager->GetLeaderboard().EntryToGameEntry(manager->entry, index);
@@ -128,21 +128,21 @@ kmWrite32(0x8085d5bc, 0x3860000a);
 kmCall(0x8085d5c8, Leaderboard::GetEntry);
 kmWrite32(0x8085d784, 0x3860000b);
 kmWrite32(0x8085d8c8, 0x5743063E);
-kmCall(0x8085d8d0, Leaderboard::GetEntry); //actual leaderboard
-//kmWrite32(0x8085d8e8, 0x60000000);
+kmCall(0x8085d8d0, Leaderboard::GetEntry);  // actual leaderboard
+// kmWrite32(0x8085d8e8, 0x60000000);
 kmWrite32(0x8085da14, 0x281a000a);
 kmWrite32(0x8085da2c, 0x83230028);
 kmWrite32(0x8085da4c, 0x3860000a);
 kmCall(0x8085da54, Leaderboard::GetEntry);
-//kmWrite32(0x8085da6c, 0x60000000);
+// kmWrite32(0x8085da6c, 0x60000000);
 
-//Correct BMG if you beat the expert
+// Correct BMG if you beat the expert
 kmWrite32(0x8085d744, 0x38805000);
 int Leaderboard::ExpertBMGDisplay() {
     Mgr* manager = Mgr::sInstance;
     manager->GetLeaderboard().EntryToTimer(manager->entry.timer, ENTRY_1ST);
     const Timer& expert = manager->GetExpert();
-    if(expert.isActive && expert > manager->entry.timer) return 2;
+    if (expert.isActive && expert > manager->entry.timer) return 2;
     return 1;
 }
 kmCall(0x8085dc0c, Leaderboard::ExpertBMGDisplay);
@@ -151,7 +151,7 @@ kmWrite32(0x8085dc10, 0x38000002);
 void Leaderboard::SetFavGhost(u32 fileIdx, TTMode mode, bool add) {
     char* dest = &this->favGhost[mode][0];
     dest[0] = '\0';
-    if(add) strncpy(dest, Mgr::GetGhostFileName(fileIdx), IOS::ipcMaxFileName);
+    if (add) strncpy(dest, Mgr::GetGhostFileName(fileIdx), IOS::ipcMaxFileName);
 }
-}//namespace Ghosts
-}//namespace Pulsar
+}  // namespace Ghosts
+}  // namespace Pulsar

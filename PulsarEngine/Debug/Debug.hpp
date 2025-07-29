@@ -52,7 +52,7 @@ struct ExceptionFile {
     StackFrame frames[10];
 };
 
-}//namespace Debug
-}//namespace Pulsar
+}  // namespace Debug
+}  // namespace Pulsar
 
 #endif

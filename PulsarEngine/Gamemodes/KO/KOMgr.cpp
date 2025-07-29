@@ -13,7 +13,7 @@ Mgr::Mgr() : winnerPlayerId(0xFF), isSpectating(false), hasSwapped(false) /*, st
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
     const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
     this->baseLocPlayerCount = sub.localPlayerCount;
-    for(int aid = 0; aid < 12; ++aid) {
+    for (int aid = 0; aid < 12; ++aid) {
         this->status[aid][0] = NORMAL;
         this->status[aid][1] = NORMAL;
     }
@@ -23,17 +23,17 @@ Mgr::~Mgr() {
     RKNet::Controller* controller = RKNet::Controller::sInstance;
     controller->subs[0].localPlayerCount = this->baseLocPlayerCount;
     controller->subs[1].localPlayerCount = this->baseLocPlayerCount;
-    if(this->GetIsSwapped()) this->SwapControllersAndUI();
+    if (this->GetIsSwapped()) this->SwapControllersAndUI();
 }
 
-void Mgr::AddRaceStats() { //SHOULD ONLY BE CALLED AFTER PROCESSKOS
-    //CALC THE STATS
+void Mgr::AddRaceStats() {  // SHOULD ONLY BE CALLED AFTER PROCESSKOS
+    // CALC THE STATS
     const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
-    for(int hudSlot = 0; hudSlot < scenario.localPlayerCount; ++hudSlot) {
+    for (int hudSlot = 0; hudSlot < scenario.localPlayerCount; ++hudSlot) {
         Stats& stats = this->stats[hudSlot];
-        if(stats.boolCountArray >= arbitraryAlmostDied) ++stats.final.almostKOdCounter;
+        if (stats.boolCountArray >= arbitraryAlmostDied) ++stats.final.almostKOdCounter;
         const u8 pos = Raceinfo::sInstance->players[scenario.settings.hudPlayerIds[hudSlot]]->position;
-        stats.percentageSum += static_cast<float>(pos) / static_cast<float>(System::sInstance->nonTTGhostPlayersCount); //this allows higher precision across multiple races
+        stats.percentageSum += static_cast<float>(pos) / static_cast<float>(System::sInstance->nonTTGhostPlayersCount);  // this allows higher precision across multiple races
         stats.final.finalPercentageSum = static_cast<u8>(stats.percentageSum * 100);
     }
 
@@ -51,7 +51,7 @@ void Mgr::CalcWouldBeKnockedOut() {
     for (u8 curPlayerId = 0; curPlayerId < playerCount; ++curPlayerId) {
         this->wouldBeOut[curPlayerId] = false;
         players[curPlayerId].playerId = curPlayerId;
-        
+
         // Calculate position/points based on race mode
         if (this->racesPerKO > 1) {
             const u8 wouldBePoints = pointsArray[raceInfo->players[curPlayerId]->position - 1];
@@ -84,9 +84,9 @@ void Mgr::CalcWouldBeKnockedOut() {
         }
 
         // Sort players by score/position (ascending)
-        qsort(players, playerCount, sizeof(PlayerPosition), 
-              reinterpret_cast<int(*)(const void*, const void*)>(SortPlayersByPosition));
-    
+        qsort(players, playerCount, sizeof(PlayerPosition),
+              reinterpret_cast<int (*)(const void*, const void*)>(SortPlayersByPosition));
+
         // Mark players for KO starting with lowest scores
         s32 assignedKOs = 0;
         if (racesPerKO > 1) {
@@ -97,12 +97,11 @@ void Mgr::CalcWouldBeKnockedOut() {
                 this->wouldBeOut[players[idx].playerId] = true;
                 ++assignedKOs;
             }
-        }
-        else if (racesPerKO == 1) {
-        for (s32 idx = playerCount - 1; idx >= 0 && assignedKOs < roundKOs; --idx) {
+        } else if (racesPerKO == 1) {
+            for (s32 idx = playerCount - 1; idx >= 0 && assignedKOs < roundKOs; --idx) {
                 if (this->racesPerKO == 1 && raceInfo->players[players[idx].playerId]->position == 1) {
                     continue;
-                    }
+                }
                 this->wouldBeOut[players[idx].playerId] = true;
                 ++assignedKOs;
             }
@@ -136,7 +135,7 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, size_t nit
     for (int playerId = 0; playerId < playerCount; ++playerId) {
         const u8 aid = controller->aidsBelongingToPlayerIds[playerId];
         if (aid >= 12) continue;
-        
+
         if ((1 << aid & sub.availableAids) == 0) {
             self->SetDisconnected(playerId);
             ++disconnectedKOs;
@@ -145,7 +144,7 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, size_t nit
 
     // Calculate how many players to eliminate
     u8 koCount = self->koPerRace;
-    
+
     // Adjust KO count if we'd end up with fewer than 2 players and alwaysFinal is on
     if (playerCount - koCount < 2 && self->alwaysFinal) {
         koCount = playerCount - 2;
@@ -185,16 +184,16 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, size_t nit
     // Handle KO logic based on race mode
     if (self->racesPerKO > 1) {
         // Multi-race KO: Eliminate based on total score
-        
+
         // Check for ties at the KO threshold
         u32 koThresholdPosition = playerCount - koCount;
         u32 tieScore = playerArr[koThresholdPosition].totalScore;
-        
+
         // Count players involved in the tie
         int tiedPlayersCount = 0;
         int playersInKOPosition = 0;
         int playersNotInKOPosition = 0;
-        
+
         for (int position = 0; position < playerCount; ++position) {
             if (playerArr[position].totalScore == tieScore) {
                 ++tiedPlayersCount;
@@ -243,25 +242,25 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, size_t nit
         for (int idx = 0; idx < koCount; ++idx) {
             u8 playerId;
             u32 position = (playerCount - 1) - idx;
-            
+
             if (self->racesPerKO == 1) {
                 // Single race KO: Eliminate based on race position
                 playerId = raceinfo->playerIdInEachPosition[position];
             } else {
                 // Multi-race KO: Eliminate based on total score
                 playerId = playerArr[position].playerId;
-                
+
                 // Don't eliminate the winner in multi-race mode with more than 2 players
                 if (playerCount > 2 && playerId == self->winnerPlayerId) {
                     continue;
                 }
             }
-            
+
             // Skip already KO'd players
             if (self->IsKOdPlayerId(playerId)) {
                 continue;
             }
-            
+
             self->SetKOd(playerId);
         }
     }
@@ -275,7 +274,7 @@ void Mgr::ProcessKOs(Pages::GPVSLeaderboardUpdate::Player* playerArr, size_t nit
             potentialWinner = playerId;
         }
     }
-    
+
     if (notKOdCount == 1) {
         self->winnerPlayerId = potentialWinner;
     }
@@ -286,28 +285,30 @@ kmCall(0x8085cb94, Mgr::ProcessKOs);
 
 void Mgr::Update() {
     const System* system = System::sInstance;
-    if(system->IsContext(PULSAR_MODE_KO)) {
+    if (system->IsContext(PULSAR_MODE_KO)) {
         Mgr* self = System::sInstance->koMgr;
         self->CalcWouldBeKnockedOut();
         const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
-        for(int hudSlot = 0; hudSlot < scenario.localPlayerCount; ++hudSlot) {
+        for (int hudSlot = 0; hudSlot < scenario.localPlayerCount; ++hudSlot) {
             const bool wouldBeOut = self->GetWouldBeKnockedOut(scenario.settings.hudPlayerIds[hudSlot]);
             const u32 idx = Raceinfo::sInstance->raceFrames % 300;
 
             Stats& stats = self->stats[hudSlot];
-            if(wouldBeOut) ++stats.final.timeInDanger;
-            if(stats.isInDangerFrames[idx] == false && wouldBeOut == true) ++stats.boolCountArray;
-            else if(stats.isInDangerFrames[idx] == true && wouldBeOut == false) --stats.boolCountArray;
+            if (wouldBeOut) ++stats.final.timeInDanger;
+            if (stats.isInDangerFrames[idx] == false && wouldBeOut == true)
+                ++stats.boolCountArray;
+            else if (stats.isInDangerFrames[idx] == true && wouldBeOut == false)
+                --stats.boolCountArray;
             stats.isInDangerFrames[idx] = wouldBeOut;
         }
 
         const u8 winnerPlayerId = self->winnerPlayerId;
-        if(winnerPlayerId != 0xFF) { //if the if is taken, ProcessKOs and therefore AddRaceStats are guaranteed to have been called
+        if (winnerPlayerId != 0xFF) {  // if the if is taken, ProcessKOs and therefore AddRaceStats are guaranteed to have been called
             const RKNet::Controller* controller = RKNet::Controller::sInstance;
             const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
-            if(controller->aidsBelongingToPlayerIds[winnerPlayerId] == sub.localAid) { //only send the data if needed 
-                for(int aid = 0; aid < 12; ++aid) {
-                    if((1 << aid & sub.availableAids) == 0 || aid == sub.localAid) continue;
+            if (controller->aidsBelongingToPlayerIds[winnerPlayerId] == sub.localAid) {  // only send the data if needed
+                for (int aid = 0; aid < 12; ++aid) {
+                    if ((1 << aid & sub.availableAids) == 0 || aid == sub.localAid) continue;
 
                     Stats& stats = self->stats[0];
                     RKNet::PacketHolder<Network::PulRH1>* holder = controller->GetSendPacketHolder<Network::PulRH1>(aid);
@@ -351,29 +352,30 @@ void Mgr::UpdateStillInCount() {
 void Mgr::PatchAids(RKNet::ControllerSub& sub) const {
     u32 availableAids = sub.availableAids;
     const u8 localAid = sub.localAid;
-    for(u8 aid = 0; aid < 12; ++aid) {
-
+    for (u8 aid = 0; aid < 12; ++aid) {
         bool isConsoleOut = false;
         const bool isMainOut = this->IsKOdAid(aid, 0) || this->IsDisconnectedAid(aid, 0);
         u8 aidPlayerCount = aid == localAid ? sub.localPlayerCount : sub.connectionUserDatas[aid].playersAtConsole;
 
-
-        if(aidPlayerCount <= 1) isConsoleOut = isMainOut;
-        else if(aidPlayerCount == 2) {
+        if (aidPlayerCount <= 1)
+            isConsoleOut = isMainOut;
+        else if (aidPlayerCount == 2) {
             const bool isGuestOut = this->IsKOdAid(aid, 1) || this->IsDisconnectedAid(aid, 1);
-            if(isMainOut && isGuestOut) isConsoleOut = true;
-            else if(isMainOut != isGuestOut) {
+            if (isMainOut && isGuestOut)
+                isConsoleOut = true;
+            else if (isMainOut != isGuestOut) {
                 aidPlayerCount = 1;
             }
-
         }
-        if(isConsoleOut) {
+        if (isConsoleOut) {
             availableAids = availableAids & ~(1 << aid);
             aidPlayerCount = 0;
         }
 
-        if(aid == localAid) sub.localPlayerCount = aidPlayerCount;
-        else sub.connectionUserDatas[aid].playersAtConsole = aidPlayerCount;
+        if (aid == localAid)
+            sub.localPlayerCount = aidPlayerCount;
+        else
+            sub.connectionUserDatas[aid].playersAtConsole = aidPlayerCount;
     }
     sub.availableAids = availableAids;
 }
@@ -385,21 +387,24 @@ u32 Mgr::GetAidAndSlotFromPlayerId(u8 playerId) const {
     const u8 localAid = sub.localAid;
     u8 slot = 0;
 
-    if((aid == localAid && sub.localPlayerCount == 2) || (aid != localAid && sub.connectionUserDatas[aid].playersAtConsole == 2)) {
-        if(playerId > 0 && controller->aidsBelongingToPlayerIds[playerId - 1] == aid) slot = 1;
-        else if(playerId < 11 && this->status[aid][0] == KOD && controller->aidsBelongingToPlayerIds[playerId + 1] != aid) slot = 1;
+    if ((aid == localAid && sub.localPlayerCount == 2) || (aid != localAid && sub.connectionUserDatas[aid].playersAtConsole == 2)) {
+        if (playerId > 0 && controller->aidsBelongingToPlayerIds[playerId - 1] == aid)
+            slot = 1;
+        else if (playerId < 11 && this->status[aid][0] == KOD && controller->aidsBelongingToPlayerIds[playerId + 1] != aid)
+            slot = 1;
     }
-    return (slot << 16) | aid; //10001
+    return (slot << 16) | aid;  // 10001
 }
 
 SectionId Mgr::GetSectionAfterKO(SectionId defaultId) const {
     const RKNet::Controller* controller = RKNet::Controller::sInstance;
     const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
-    if(this->baseLocPlayerCount == 2) {
-        if(this->IsKOdAid(sub.localAid, 0) != this->IsKOdAid(sub.localAid, 1)) {
-            if(defaultId == SECTION_P2_WIFI_FROOM_VS_VOTING) defaultId = SECTION_P1_WIFI_FROOM_VS_VOTING; //select section
-            else if(defaultId == SECTION_P1_WIFI_FROM_FROOM_RACE || defaultId == SECTION_P2_WIFI_FROM_FROOM_RACE) {
-                defaultId = SECTION_P2_WIFI_FROM_FROOM_RACE; //after room section
+    if (this->baseLocPlayerCount == 2) {
+        if (this->IsKOdAid(sub.localAid, 0) != this->IsKOdAid(sub.localAid, 1)) {
+            if (defaultId == SECTION_P2_WIFI_FROOM_VS_VOTING)
+                defaultId = SECTION_P1_WIFI_FROOM_VS_VOTING;  // select section
+            else if (defaultId == SECTION_P1_WIFI_FROM_FROOM_RACE || defaultId == SECTION_P2_WIFI_FROM_FROOM_RACE) {
+                defaultId = SECTION_P2_WIFI_FROM_FROOM_RACE;  // after room section
                 SectionMgr::sInstance->sectionParams->localPlayerCount = 2;
             }
         }
@@ -409,12 +414,12 @@ SectionId Mgr::GetSectionAfterKO(SectionId defaultId) const {
 
 void OnDisconnectKO(SectionMgr* sectionMgr, SectionId id) {
     const System* system = System::sInstance;
-    if(system->IsContext(PULSAR_MODE_KO)) id = system->koMgr->GetSectionAfterKO(id);
+    if (system->IsContext(PULSAR_MODE_KO)) id = system->koMgr->GetSectionAfterKO(id);
     sectionMgr->SetNextSection(id, 0);
 }
 kmCall(0x80651814, OnDisconnectKO);
 
-PageId Mgr::KickPlayersOut(PageId defaultId) { //only called if KOMode
+PageId Mgr::KickPlayersOut(PageId defaultId) {  // only called if KOMode
 
     PageId ret = defaultId;
     const System* system = System::sInstance;
@@ -422,31 +427,30 @@ PageId Mgr::KickPlayersOut(PageId defaultId) { //only called if KOMode
     Mgr* mgr = system->koMgr;
     RacedataScenario& scenario = Racedata::sInstance->racesScenario;
     const bool isMainOut = mgr->IsKOdPlayerId(scenario.settings.hudPlayerIds[0]) || mgr->IsDisconnectedPlayerId(scenario.settings.hudPlayerIds[0]);
-    if(system->nonTTGhostPlayersCount > 2) {
-        if(scenario.localPlayerCount == 1) {
+    if (system->nonTTGhostPlayersCount > 2) {
+        if (scenario.localPlayerCount == 1) {
             const RKNet::Controller* controller = RKNet::Controller::sInstance;
             const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
-            if(isMainOut) {
-                if(sub.localAid == sub.hostAid) mgr->isSpectating = true; //force the host to spectate, they should not be allowed to quit
-                else ret = static_cast<PageId>(RaceEndPage::id);
+            if (isMainOut) {
+                if (sub.localAid == sub.hostAid)
+                    mgr->isSpectating = true;  // force the host to spectate, they should not be allowed to quit
+                else
+                    ret = static_cast<PageId>(RaceEndPage::id);
             }
-        }
-        else {
+        } else {
             const bool isGuestOut = mgr->IsKOdPlayerId(scenario.settings.hudPlayerIds[1]) || mgr->IsDisconnectedPlayerId(scenario.settings.hudPlayerIds[1]);
-            if(isMainOut != isGuestOut) SectionMgr::sInstance->sectionParams->localPlayerCount = 1;
-            if(isMainOut && !isGuestOut) {
+            if (isMainOut != isGuestOut) SectionMgr::sInstance->sectionParams->localPlayerCount = 1;
+            if (isMainOut && !isGuestOut) {
                 memcpy(&mgr->stats[0], &mgr->stats[1], sizeof(Mgr::Stats));
-            }
-            else if(isMainOut && isGuestOut) ret = static_cast<PageId>(RaceEndPage::id);
-
+            } else if (isMainOut && isGuestOut)
+                ret = static_cast<PageId>(RaceEndPage::id);
         }
     }
     return ret;
 }
 
 void Mgr::SwapControllersAndUI() {
-
-    //Swap the controllers
+    // Swap the controllers
     Input::Manager* input = Input::Manager::sInstance;
 
     char mainController[sizeof(Input::RealControllerHolder)];
@@ -465,7 +469,7 @@ void Mgr::SwapControllersAndUI() {
     main.controllerIDActive = main.controllerID;
     guest.controllerIDActive = guest.controllerID;
 
-    //Swap the characters on the UI
+    // Swap the characters on the UI
     SectionParams* params = sectionMgr->sectionParams;
     CharacterId mainChar = params->characters[0];
     KartId mainKart = params->karts[0];
@@ -476,5 +480,5 @@ void Mgr::SwapControllersAndUI() {
     memcpy(&params->combos[0], &params->combos[1], sizeof(PlayerCombo));
     this->hasSwapped = !this->hasSwapped;
 }
-}//namespace KO
-}//namespace Pulsar
+}  // namespace KO
+}  // namespace Pulsar
