@@ -427,8 +427,10 @@ void ExpWFCModeSel::BeforeControlUpdate() {
         this->ottButton.SetPaneVisibility("capsul_null", false);
         this->twoHundredButton.SetPaneVisibility("capsul_null", false);
         this->ctButton.SetPaneVisibility("capsul_null", false);
+        this->itemRainButton.SetPaneVisibility("capsul_null", false);
         this->ottButtonCT.SetPaneVisibility("capsul_null", false);
         this->twoHundredButtonCT.SetPaneVisibility("capsul_null", false);
+        this->itemRainButtonCT.SetPaneVisibility("capsul_null", false);
     }
 }
 
