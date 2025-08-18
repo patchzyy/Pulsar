@@ -159,8 +159,11 @@ kmWrite32(0x800EE3A0, 0x2C030000);
 kmWrite32(0x800ECAAC, 0x7C7E1B78);
 
 // Rename Online Mode Buttons [Toadette Hack Fan]
-kmWrite8(0x80899ACA, 0x00000058);
-kmWrite8(0x80899AF7, 0x00000058);
+kmWrite8(0x80899ACA, 'X');
+kmWrite8(0x80899AF7, 'X');
+
+// Rename Online Menu Buttons [ZPL]
+kmWrite8(0x80899a87, 'X');
 
 // Disable Camera Shaking from Bombs [ZPL]
 kmWrite32(0x805a906c, 0x4E800020);
@@ -237,4 +240,17 @@ asmFunc GetCapVRGain() {
 }
 kmCall(0x8052D1B0, GetCapVRGain);
 
+// Prevent Lag Abuse [???]
+kmWrite32(0x80654b00, 0x4E800020);
+
+// Fix star offroad glitch after cannon [Ro]
+asmFunc StarOffroadFix() {
+    ASM(
+        nofralloc;
+        andi.r11, r0, 0x80;
+        andis.r12, r0, 0x8000;
+        or.r0, r11, r12;
+        blr;)
+}
+kmCall(0x8057C3F8, StarOffroadFix);
 }  // namespace Codes

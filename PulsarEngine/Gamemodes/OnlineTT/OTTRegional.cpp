@@ -259,6 +259,8 @@ void GlobeSearchTopMsg(CtrlMenuPageTitleText& title, u32 bmgId, Text::Info* info
         bmgId = UI::BMG_200_TITLE_TEXT_CT;
     else if (System::sInstance->netMgr.region == 0x17)
         bmgId = UI::BMG_ITEM_RAIN_TITLE_TEXT_CT;
+    else if (System::sInstance->netMgr.region == 0x0E)
+        bmgId = UI::BMG_BATTLE_TITLE_TEXT;
     title.SetMessage(bmgId, info);
 }
 kmCall(0x80608658, GlobeSearchTopMsg);

@@ -179,7 +179,7 @@ void System::UpdateContext() {
                 break;
             case (RKNet::ROOMTYPE_FROOM_HOST):
             case (RKNet::ROOMTYPE_FROOM_NONHOST):
-                isCT = mode != MODE_BATTLE && mode != MODE_PUBLIC_BATTLE && mode != MODE_PRIVATE_BATTLE;
+                isCT = true;
                 newContext = netMgr.hostContext;
                 newContext2 = netMgr.hostContext2;
                 isKOFinal = newContext & (1 << PULSAR_KOFINAL);
@@ -218,7 +218,7 @@ void System::UpdateContext() {
                 }
                 break;
             default:
-                isCT = false;
+                isCT = true;
         }
     } else {
         const u8 ottOffline = settings.GetSettingValue(Settings::SETTINGSTYPE_OTT, SETTINGOTT_OFFLINE);

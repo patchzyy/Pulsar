@@ -19,6 +19,8 @@ class ExpWFCMain : public Pages::WFCMainMenu {
         this->onRetroClick.ptmf = &ExpWFCMain::OnRetroButtonClick;
         this->onCustomClick.subject = this;
         this->onCustomClick.ptmf = &ExpWFCMain::OnCustomButtonClick;
+        this->onBattleClick.subject = this;
+        this->onBattleClick.ptmf = &ExpWFCMain::OnBattleButtonClick;
         this->onButtonSelectHandler.ptmf = &ExpWFCMain::ExtOnButtonSelect;
 
         // this->onStartPress.subject = this;
@@ -32,6 +34,7 @@ class ExpWFCMain : public Pages::WFCMainMenu {
     void ExtOnButtonSelect(PushButton& pushButton, u32 hudSlotId);
     void OnRetroButtonClick(PushButton& PushButton, u32 hudSlotId);
     void OnCustomButtonClick(PushButton& PushButton, u32 hudSlotId);
+    void OnBattleButtonClick(PushButton& PushButton, u32 hudSlotId);
     // void ExtOnStartPress(u32 hudSlotId) {
     //     s_displayPlayerCount = !s_displayPlayerCount;
     // }
@@ -39,10 +42,12 @@ class ExpWFCMain : public Pages::WFCMainMenu {
     PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onSettingsClick;
     PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onRetroClick;
     PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onCustomClick;
+    PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onBattleClick;
     // PtmfHolder_1A<ExpWFCMain, void, u32> onStartPress;
     PushButton settingsButton;
     PushButton retroButton;
     PushButton customButton;
+    PushButton battleButton;
     LayoutUIControl playerCount;
 
    public:
@@ -81,6 +86,7 @@ class ExpWFCModeSel : public Pages::WFCModeSelect {
     PushButton twoHundredButtonCT;
     PushButton itemRainButton;
     PushButton itemRainButtonCT;
+    PushButton RRbattleButton;
     LayoutUIControl vrButton;
     static u32 lastClickedButton;
     u32 region;
@@ -91,6 +97,7 @@ class ExpWFCModeSel : public Pages::WFCModeSelect {
     static const u32 twoHundredButtonIdCT = 8;
     static const u32 itemRainButtonId = 9;
     static const u32 itemRainButtonIdCT = 10;
+    static const u32 RRbattleButtonId = 11;
 };
 }  // namespace UI
 }  // namespace Pulsar

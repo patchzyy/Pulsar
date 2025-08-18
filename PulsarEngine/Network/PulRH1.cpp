@@ -52,7 +52,7 @@ CourseId ReturnCorrectId(const RKNet::RH1Handler& rh1Handler) {
             const RKNet::Controller* controller = RKNet::Controller::sInstance;
             const RKNet::RoomType roomType = controller->roomType;  // only ever called when joining (this is used to correct liveview), therefore simply checkings roomtype is enough
 
-            if (roomType != RKNet::ROOMTYPE_VS_REGIONAL && roomType != RKNet::ROOMTYPE_JOINING_REGIONAL)
+            if (roomType != RKNet::ROOMTYPE_VS_REGIONAL && roomType != RKNet::ROOMTYPE_JOINING_REGIONAL && roomType != RKNet::ROOMTYPE_BT_REGIONAL)
                 id = CupsConfig::ConvertTrack_RealIdToPulsarId(curTrack);
             else {
                 id = static_cast<PulsarId>(curTrack);

@@ -29,7 +29,7 @@ void *GetCustomItemSlot(ArchiveMgr *archive, ArchiveSource type, const char *nam
         itemModeBlast = System::sInstance->IsContext(Pulsar::PULSAR_ITEMMODEBLAST) ? Pulsar::GAMEMODE_BLAST : Pulsar::GAMEMODE_DEFAULT;
         itemModeNone = System::sInstance->IsContext(Pulsar::PULSAR_ITEMMODENONE) ? Pulsar::GAMEMODE_NONE : Pulsar::GAMEMODE_DEFAULT;
     }
-    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_WW) {
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW) {
         itemModeNone = Pulsar::GAMEMODE_NONE;
     }
     if (itemModeRandom == Pulsar::GAMEMODE_DEFAULT || itemModeBlast == Pulsar::GAMEMODE_DEFAULT) {

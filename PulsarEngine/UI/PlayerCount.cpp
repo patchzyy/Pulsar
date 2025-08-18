@@ -119,6 +119,8 @@ static int CT_numPlayers150cc = 0;
 static int CT_numPlayersOTT = 0;
 static int CT_numPlayersIR = 0;
 
+static int BT_numPlayersRegular = 0;
+
 static int RR_numPlayersOthers = 0;
 static int RR_numPlayersTotal = 0;
 
@@ -134,6 +136,10 @@ void PlayerCount::GetNumbersCT(int& n150cc, int& n200c, int& nOtt, int& nIR) {
     n200c = CT_numPlayers200cc;
     nOtt = CT_numPlayersOTT;
     nIR = CT_numPlayersIR;
+}
+
+void PlayerCount::GetNumbersBT(int& nBattle) {
+    nBattle = BT_numPlayersRegular;
 }
 
 void PlayerCount::GetNumbersRegular(int& nRegular) {
@@ -156,6 +162,7 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
         int numRegs = 0;
         int RR_local150cc = 0, RR_local200cc = 0, RR_localOTT = 0, RR_localIR = 0;
         int CT_local150cc = 0, CT_local200cc = 0, CT_localOTT = 0, CT_localIR = 0;
+        int BT_localRegular = 0;
         for (int i = 0; i < ServerBrowserCount(sb); i++) {
             SBServer server = ServerBrowserGetServer(sb, i);
 
@@ -188,8 +195,11 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
                 } else {
                     numElse += numplayers;
                 }
+            } else if (strstr(region, "bt")) {
+                if (regionID == 0x0E) {
+                    BT_localRegular += numplayers;
+                }
             }
-
             totalPlayers += numplayers;
         }
 
@@ -202,6 +212,8 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
         CT_numPlayers200cc = CT_local200cc;
         CT_numPlayersOTT = CT_localOTT;
         CT_numPlayersIR = CT_localIR;
+
+        BT_numPlayersRegular = BT_localRegular;
 
         RR_numPlayersRegular = numRegs;
 

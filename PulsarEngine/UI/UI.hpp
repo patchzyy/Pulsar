@@ -162,6 +162,7 @@ enum BMG {
     // Worldwides
     BMG_RETRO_MODES = 0x6901,
     BMG_CUSTOM_MODES = 0x6902,
+    BMG_BATTLE_MODES = 0x6914,
 
     // OTT
     BMG_OTT_WW_BOTTOM = 0x6903,
@@ -185,14 +186,23 @@ enum BMG {
     BMG_ITEM_RAIN_TITLE_TEXT = 0x6910,
     BMG_ITEM_RAIN_TITLE_TEXT_CT = 0x6911,
 
+    // Battle
+    BMG_BATTLE_WW_BOTTOM = 0x6915,
+    BMG_BATTLE_BUTTON = 0x6916,
+    BMG_BATTLE_TITLE_TEXT = 0x6917,
+
     // RT
     BMG_TITLE_TEXT_RT = 0x6912,
 
     // CT
     BMG_TITLE_TEXT_CT = 0x6913,
 
+    // BT
+    BMG_TITLE_TEXT_BT = 0x6918,
+
     // VR Rating
     BMG_VR_RATING = 0x285e,
+    BMG_BR_RATING = 0x6969,
 
     // Language
     BMG_LANGUAGE_RESET_REQUIRED = 0x295f,
