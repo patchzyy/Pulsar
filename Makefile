@@ -25,12 +25,16 @@ build:
 build/kamek.o: $(KAMEK_H)/kamek.cpp | build
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
+build/RuntimeWrite.o: $(KAMEK_H)/RuntimeWrite.cpp | build
+	@echo Compiling $<...
+	@$(CC) $(CFLAGS) -c -o $@ $<
+
 build/%.o: $(PULSAR)/%.cpp | build
 	@echo Compiling $<...
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
-force_link: build/kamek.o $(OBJS)
+force_link: build/kamek.o build/RuntimeWrite.o $(OBJS)
 	@echo Linking...
 	@$(KAMEK) $^ -dynamic $(EXTERNALS) -output-combined=build/Code.pul
 
