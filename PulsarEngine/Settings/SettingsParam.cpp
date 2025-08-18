@@ -8,7 +8,7 @@ namespace Pulsar {
 namespace Settings {
 
 u8 Params::radioCount[Params::pageCount] = {
-    4, 6, 3, 5, 2, 8, 6, 0  // menu, race, host, OTT, KO, RR1, RRHost, RRLanguage
+    4, 6, 4, 5, 2, 8, 6, 0  // menu, race, host, OTT, KO, RR1, RRHost, RRLanguage
     // Add user radio count here
 
 };
@@ -18,7 +18,7 @@ u8 Params::buttonsPerPagePerRow[Params::pageCount][Params::maxRadioCount] =  // 
     {
         {2, 2, 3, 2, 0, 0, 0, 0},  // Menu
         {2, 2, 2, 2, 3, 2, 0, 0},  // Race
-        {2, 4, 2, 3, 0, 0, 0, 0},  // Host
+        {2, 4, 2, 2, 0, 0, 0, 0},  // Host
         {2, 2, 2, 2, 2, 0, 0, 0},  // OTT
         {2, 2, 0, 0, 0, 0, 0, 0},  // KO
         {4, 2, 2, 3, 2, 2, 2, 2},  // RR1
