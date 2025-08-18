@@ -6,7 +6,7 @@ namespace UI {
 
 PageId ExtendedTeamResultTotal::GetNextPage() const {
     SectionId currentId = SectionMgr::sInstance->curSection->sectionId;
-    if ((currentId != SECTION_P1_WIFI_FRIEND_VS) && (currentId != SECTION_P1_WIFI_FRIEND_VS)) {
+    if ((currentId != SECTION_P1_WIFI_FRIEND_VS) && (currentId != SECTION_P1_WIFI_FRIEND_BALLOON) && (currentId != SECTION_P1_WIFI_FRIEND_COIN) && (currentId != SECTION_P1_WIFI_FRIEND_TEAMVS)) {
         if (currentId != SECTION_GP) {
             return PAGE_VS_RACEENDMENU;
         }

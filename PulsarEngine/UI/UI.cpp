@@ -86,6 +86,10 @@ void ExpSection::CreatePulPages() {
         case SECTION_P1_WIFI_FRIEND_TEAMVS:  // 0x71
         case SECTION_P2_WIFI_FRIEND_VS:  // 0x74
         case SECTION_P2_WIFI_FRIEND_TEAMVS:  // 0x75
+        case SECTION_P1_WIFI_FRIEND_BALLOON:
+        case SECTION_P1_WIFI_FRIEND_COIN:
+        case SECTION_P2_WIFI_FRIEND_BALLOON:
+        case SECTION_P2_WIFI_FRIEND_COIN:
             if (system->IsContext(PULSAR_MODE_OTT)) {
                 this->CreateAndInitPage(*this, PAGE_TT_SPLITS);
                 Pages::RaceHUD::sInstance->nextPageId = PAGE_TT_SPLITS;
@@ -100,16 +104,6 @@ void ExpSection::CreatePulPages() {
             }
             // if(system->IsContext(PULSAR_HAW)) {
             //     if(SectionMgr::sInstance->sectionParams->onlineParams.currentRaceNumber != System::sInstance->netMgr.racesPerGP) this->CreateAndInitPage(*this, ChooseNextTrack::id);
-            // }
-            break;
-        case SECTION_P1_WIFI_FRIEND_BALLOON:  // 0x72
-        case SECTION_P1_WIFI_FRIEND_COIN:  // 0x73
-        case SECTION_P2_WIFI_FRIEND_BALLOON:  // 0x76
-        case SECTION_P2_WIFI_FRIEND_COIN:  // 0x77
-
-            // if(system->IsContext(PULSAR_HAW)) {
-            //     const SectionParams* sectionParams = SectionMgr::sInstance->sectionParams;
-            //     if(sectionParams->redWins < 2 && sectionParams->blueWins < 2) this->CreateAndInitPage(*this, ChooseNextTrack::id);
             // }
             break;
         case SECTION_SINGLE_P_FROM_MENU:  // 0x48

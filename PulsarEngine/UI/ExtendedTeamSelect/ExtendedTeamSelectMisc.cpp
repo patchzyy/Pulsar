@@ -21,7 +21,7 @@ void PrepareOnlinePages(Pages::FriendRoomWaiting* _this) {
     _this->StartRoom();
 
     Pages::FriendRoomManager* friendRoomManager = SectionMgr::sInstance->curSection->Get<Pages::FriendRoomManager>();
-    if (System::sInstance->IsContext(PULSAR_EXTENDEDTEAMS) && friendRoomManager->startedGameMode == 0) {
+    if (System::sInstance->IsContext(PULSAR_EXTENDEDTEAMS) && (friendRoomManager->startedGameMode == 0 || friendRoomManager->startedGameMode == 2 || friendRoomManager->startedGameMode == 3)) {
         _this->countdown.SetInitial(86400.0f);
         _this->AddPageLayer(static_cast<PageId>(PULPAGE_EXTENDEDTEAMSELECT), 0);
     } else {

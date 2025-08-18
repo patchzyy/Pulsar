@@ -146,7 +146,7 @@ class ExtendedTeamManager {
 
     static bool IsActivated() {
         RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
-        return System::sInstance->IsContext(PULSAR_EXTENDEDTEAMS) && Racedata::sInstance->menusScenario.settings.gamemode == MODE_PRIVATE_VS && (roomType == RKNet::ROOMTYPE_FROOM_HOST || roomType == RKNet::ROOMTYPE_FROOM_NONHOST);
+        return System::sInstance->IsContext(PULSAR_EXTENDEDTEAMS) && (Racedata::sInstance->menusScenario.settings.gamemode == MODE_PRIVATE_VS || Racedata::sInstance->menusScenario.settings.gamemode == MODE_PRIVATE_BATTLE) && (roomType == RKNet::ROOMTYPE_FROOM_HOST || roomType == RKNet::ROOMTYPE_FROOM_NONHOST);
     }
 
    private:

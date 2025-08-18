@@ -74,6 +74,11 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
 
         if (extendedTeams) {
             koSetting = KOSETTING_DISABLED;
+            if (destPacket->message == 2 || destPacket->message == 3) {
+                battleTeam = BATTLE_TEAMS_DISABLED;
+            } else {
+                battleTeam = BATTLE_TEAMS_ENABLED;
+            }
         }
 
         destPacket->hostSystemContext |= (ottOnline != OTTSETTING_OFFLINE_DISABLED) << PULSAR_MODE_OTT  // ott
@@ -120,7 +125,7 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
     // if we're starting a Extended Team VS or we're the host updating the teams, write the new teams to the packet
     const bool isExtendedTeams = Settings::Mgr::Get().GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_EXTENDEDTEAMS) == EXTENDEDTEAMS_ENABLED;
     const bool isUpdateTeamMessage = destPacket->messageType == UI::ExtendedTeamManager::MSG_TYPE_UPDATE_TEAMS;
-    const bool isStartVSRaceMessage = destPacket->messageType == 1 && destPacket->message == 0;
+    const bool isStartVSRaceMessage = destPacket->messageType == 1 && (destPacket->message == 0 || destPacket->message == 2 || destPacket->message == 3);
     if ((isUpdateTeamMessage || (isStartVSRaceMessage && isExtendedTeams)) && sub.localAid == sub.hostAid) {
         packetHolder->packetSize = sizeof(PulROOM);
         const UI::ExtendedTeamPlayer* playerInfo = UI::ExtendedTeamManager::sInstance->GetPlayerInfo();
