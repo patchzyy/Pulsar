@@ -3,7 +3,7 @@
 #include <kamek.hpp>
 #include <MarioKartWii/UI/Page/Page.hpp>
 #include <MarioKartWii/UI/Page/Leaderboard/Leaderboard.hpp>
-#include <MarioKartWii/UI/Ctrl//CtrlRace/CtrlRaceResult.hpp>
+#include <MarioKartWii/UI/Ctrl/CtrlRace/CtrlRaceResult.hpp>
 
 //_sinit_ at 8085e644
 namespace Pages {

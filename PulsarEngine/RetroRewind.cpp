@@ -77,10 +77,13 @@ static PageLoadHook PatchFPS(FPSPatch);
 
 void ItemBoxRespawn(Objects::Itembox* itembox) {
     bool is200 = Racedata::sInstance->racesScenario.settings.engineClass == CC_100 && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW;
-    bool isFastRespawn = Pulsar::System::sInstance->IsContext(Pulsar::PULSAR_ITEMBOXRESPAWN) ? Pulsar::ITEMBOX_DEFAULTRESPAWN : Pulsar::ITEMBOX_FASTRESPAWN;
+    bool isFastRespawn = Pulsar::ITEMBOX_DEFAULTRESPAWN;
+    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
+        isFastRespawn = Pulsar::System::sInstance->IsContext(Pulsar::PULSAR_ITEMBOXRESPAWN) ? Pulsar::ITEMBOX_FASTRESPAWN : Pulsar::ITEMBOX_DEFAULTRESPAWN;
+    }
     itembox->respawnTime = 150;
     itembox->isActive = 0;
-    if (isFastRespawn == Pulsar::ITEMBOX_DEFAULTRESPAWN || is200) {
+    if (isFastRespawn == Pulsar::ITEMBOX_FASTRESPAWN || is200) {
         itembox->respawnTime = 75;
         itembox->isActive = 0;
     }

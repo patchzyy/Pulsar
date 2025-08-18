@@ -2,7 +2,7 @@
 #define _UI_LEADERBOARD_DISPLAY_H_
 
 #include <kamek.hpp>
-#include <MarioKartWii/UI/Ctrl//CtrlRace/CtrlRaceResult.hpp>
+#include <MarioKartWii/UI/Ctrl/CtrlRace/CtrlRaceResult.hpp>
 
 namespace Pulsar {
 namespace UI {
