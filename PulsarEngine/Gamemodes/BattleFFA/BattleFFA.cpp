@@ -90,7 +90,7 @@ void ApplyFFABattle() {
     kmRuntimeWrite8A(0x80890209, 'm');  // minigame.kmg
     kmRuntimeWrite32A(0x8052E9E0, 0x80660B70); // Team Flag
     kmRuntimeWrite32A(0x8052EA7C, 0x80840B70);
-    kmRuntimeWrite32A(0x8052EB98, 0x98780035);
+    kmRuntimeWrite32A(0x8052EB98, 0x80630B70);
     const RacedataScenario& scenario = Racedata::sInstance->menusScenario;
     const GameMode mode = scenario.settings.gamemode;
     bool isFFA = Pulsar::System::sInstance->IsContext(PULSAR_TEAM_BATTLE) == BATTLE_TEAMS_ENABLED;
@@ -114,7 +114,7 @@ void ApplyFFABattle() {
         kmRuntimeWrite32A(0x8052E9E0, 0x38600000); // Team Flag
         kmRuntimeWrite32A(0x8052EA7C, 0x38800000);
         kmRuntimeWrite32A(0x8052EB98, 0x38600000);
-        if (isElim && System::sInstance->netMgr.region != 0x0E) {
+        if (isElim || (mode == MODE_PUBLIC_BATTLE && System::sInstance->netMgr.region != 0x0E)) {
             kmRuntimeWrite8A(0x80890209, 'E');  // minigame.kmg
         }
     }
