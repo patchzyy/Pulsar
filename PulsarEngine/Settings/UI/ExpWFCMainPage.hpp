@@ -87,6 +87,7 @@ class ExpWFCModeSel : public Pages::WFCModeSelect {
     PushButton itemRainButton;
     PushButton itemRainButtonCT;
     PushButton RRbattleButton;
+    PushButton RRbattleButtonElim;
     LayoutUIControl vrButton;
     static u32 lastClickedButton;
     u32 region;
@@ -98,6 +99,7 @@ class ExpWFCModeSel : public Pages::WFCModeSelect {
     static const u32 itemRainButtonId = 9;
     static const u32 itemRainButtonIdCT = 10;
     static const u32 RRbattleButtonId = 11;
+    static const u32 RRbattleButtonIdElim = 12;
 };
 }  // namespace UI
 }  // namespace Pulsar

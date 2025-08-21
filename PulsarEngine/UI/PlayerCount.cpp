@@ -120,6 +120,7 @@ static int CT_numPlayersOTT = 0;
 static int CT_numPlayersIR = 0;
 
 static int BT_numPlayersRegular = 0;
+static int BT_numPlayersELIM = 0;
 
 static int RR_numPlayersOthers = 0;
 static int RR_numPlayersTotal = 0;
@@ -138,8 +139,9 @@ void PlayerCount::GetNumbersCT(int& n150cc, int& n200c, int& nOtt, int& nIR) {
     nIR = CT_numPlayersIR;
 }
 
-void PlayerCount::GetNumbersBT(int& nBattle) {
+void PlayerCount::GetNumbersBT(int& nBattle, int& nBattleELIM) {
     nBattle = BT_numPlayersRegular;
+    nBattleELIM = BT_numPlayersELIM;
 }
 
 void PlayerCount::GetNumbersRegular(int& nRegular) {
@@ -162,7 +164,7 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
         int numRegs = 0;
         int RR_local150cc = 0, RR_local200cc = 0, RR_localOTT = 0, RR_localIR = 0;
         int CT_local150cc = 0, CT_local200cc = 0, CT_localOTT = 0, CT_localIR = 0;
-        int BT_localRegular = 0;
+        int BT_localRegular = 0, BT_localRegularELIM = 0;
         for (int i = 0; i < ServerBrowserCount(sb); i++) {
             SBServer server = ServerBrowserGetServer(sb, i);
 
@@ -198,6 +200,8 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
             } else if (strstr(region, "bt")) {
                 if (regionID == 0x0E) {
                     BT_localRegular += numplayers;
+                } else if (regionID == 0x0F) {
+                    BT_localRegularELIM += numplayers;
                 }
             }
             totalPlayers += numplayers;
@@ -214,6 +218,7 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
         CT_numPlayersIR = CT_localIR;
 
         BT_numPlayersRegular = BT_localRegular;
+        BT_numPlayersELIM = BT_localRegularELIM;
 
         RR_numPlayersRegular = numRegs;
 

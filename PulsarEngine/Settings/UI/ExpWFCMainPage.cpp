@@ -100,16 +100,16 @@ void ExpWFCMain::BeforeControlUpdate() {
 
     int RR_num150cc, RR_num200cc, RR_numOTT, RR_numIR;
     int CT_num150cc, CT_num200cc, CT_numOTT, CT_numIR;
-    int BT_numRegulars;
+    int BT_numRegulars, BT_numElim;
     int numRegulars;
 
     PlayerCount::GetNumbersRR(RR_num150cc, RR_num200cc, RR_numOTT, RR_numIR);
     PlayerCount::GetNumbersCT(CT_num150cc, CT_num200cc, CT_numOTT, CT_numIR);
-    PlayerCount::GetNumbersBT(BT_numRegulars);
+    PlayerCount::GetNumbersBT(BT_numRegulars, BT_numElim);
     PlayerCount::GetNumbersRegular(numRegulars);
 
     Text::Info info;
-    info.intToPass[0] = RR_numOTT + RR_num200cc + RR_num150cc + RR_numIR + CT_num150cc + CT_num200cc + CT_numOTT + CT_numIR + BT_numRegulars + numRegulars;
+    info.intToPass[0] = RR_numOTT + RR_num200cc + RR_num150cc + RR_numIR + CT_num150cc + CT_num200cc + CT_numOTT + CT_numIR + BT_numRegulars + BT_numElim + numRegulars;
     this->playerCount.SetTextBoxMessage("go", BMG_PLAYER_COUNT, &info);
 
     if (!Dolphin::IsEmulator()) {
@@ -128,7 +128,7 @@ void ExpWFCModeSel::OnInit() {
 u32 Pulsar::UI::ExpWFCModeSel::lastClickedButton = 0;
 
 void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
-    self.InitControlGroup(14);
+    self.InitControlGroup(15);
 
     self.AddControl(5, self.ottButton, 0);
     self.ottButton.Load(UI::buttonFolder, "XifiMenuModeSelect", "RTOTTButton", 1, 0, 0);
@@ -186,6 +186,13 @@ void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
     self.RRbattleButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.RRbattleButton.SetOnSelectHandler(self.onButtonSelectHandler);
 
+    self.AddControl(14, self.RRbattleButtonElim, 0);
+    self.RRbattleButtonElim.Load(UI::buttonFolder, "XifiMenuModeSelect", "BattleButtonElim", 1, 0, 0);
+    self.RRbattleButtonElim.buttonId = RRbattleButtonIdElim;
+    self.RRbattleButtonElim.SetMessage(BMG_BATTLE_BUTTON_ELIM);
+    self.RRbattleButtonElim.SetOnClickHandler(self.onModeButtonClickHandler, 0);
+    self.RRbattleButtonElim.SetOnSelectHandler(self.onButtonSelectHandler);
+
     self.AddControl(10, self.vrButton, 0);
     ControlLoader loader(&self.vrButton);
     loader.Load(UI::buttonFolder, "VRButton", "VRButton", nullptr);
@@ -193,11 +200,16 @@ void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
     Text::Info info;
     RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
     u32 vr = 0;
+    u32 br = 0;
     if (rksysMgr->curLicenseId >= 0) {
         RKSYS::LicenseMgr& license = rksysMgr->licenses[rksysMgr->curLicenseId];
         vr = license.vr.points;
+        br = license.br.points;
     }
     info.intToPass[0] = vr;
+    if (ExpWFCMain::lastClickedMainMenuButton == 8) {
+        info.intToPass[0] = br;
+    }
     self.ottButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
     self.twoHundredButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
     self.itemRainButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
@@ -206,6 +218,7 @@ void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
     self.twoHundredButtonCT.SetTextBoxMessage("go", BMG_VR_RATING, &info);
     self.itemRainButtonCT.SetTextBoxMessage("go", BMG_VR_RATING, &info);
     self.RRbattleButton.SetTextBoxMessage("go", BMG_BR_RATING, &info);
+    self.RRbattleButtonElim.SetTextBoxMessage("go", BMG_BR_RATING, &info);
 }
 kmCall(0x8064c294, ExpWFCModeSel::InitButton);
 
@@ -245,6 +258,9 @@ void ExpWFCModeSel::OnModeButtonClick(PushButton& modeButton, u32 hudSlotId) {
         System::sInstance->netMgr.region = 0x17;
     } else if (id == RRbattleButtonId) {
         System::sInstance->netMgr.region = 0x0E;
+        WFCModeSelect::OnModeButtonClick(this->battleButton, hudSlotId);
+    } else if (id == RRbattleButtonIdElim) {
+        System::sInstance->netMgr.region = 0x0F;
         WFCModeSelect::OnModeButtonClick(this->battleButton, hudSlotId);
     } else {
         System::sInstance->netMgr.region = 0x0A;
@@ -289,6 +305,8 @@ void ExpWFCModeSel::OnActivatePatch() {
     page->itemRainButtonCT.manipulator.inaccessible = isHidden;
     page->RRbattleButton.isHidden = isHidden;
     page->RRbattleButton.manipulator.inaccessible = isHidden;
+    page->RRbattleButtonElim.isHidden = isHidden;
+    page->RRbattleButtonElim.manipulator.inaccessible = isHidden;
 
     page->vsButton.SetMessage(BMG_VS_BUTTON);
 
@@ -320,6 +338,8 @@ void ExpWFCModeSel::OnActivatePatch() {
         // Show battle buttons only in battle mode
         page->RRbattleButton.isHidden = isCustomsMode || isRetrosMode;
         page->RRbattleButton.manipulator.inaccessible = isCustomsMode || isRetrosMode;
+        page->RRbattleButtonElim.isHidden = isCustomsMode || isRetrosMode;
+        page->RRbattleButtonElim.manipulator.inaccessible = isCustomsMode || isRetrosMode;
     }
 
     page->battleButton.isHidden = true;
@@ -328,11 +348,16 @@ void ExpWFCModeSel::OnActivatePatch() {
     Text::Info info;
     RKSYS::Mgr* rksysMgr = RKSYS::Mgr::sInstance;
     u32 vr = 0;
+    u32 br = 0;
     if (rksysMgr->curLicenseId >= 0) {
         RKSYS::LicenseMgr& license = rksysMgr->licenses[rksysMgr->curLicenseId];
         vr = license.vr.points;
+        br = license.br.points;
     }
     info.intToPass[0] = vr;
+    if (ExpWFCMain::lastClickedMainMenuButton == 8) {
+        info.intToPass[0] = br;
+    }
     page->vsButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
 
     page->nextPage = PAGE_NONE;
@@ -372,10 +397,14 @@ void ExpWFCModeSel::OnActivatePatch() {
         page->lastClickedButton = itemRainButtonIdCT;
         button = &page->itemRainButtonCT;
         bmgId = UI::BMG_ITEM_RAIN_WW_BOTTOM;
-    } else if (System::sInstance->netMgr.region == 0x0A && gamemode == MODE_PUBLIC_BATTLE) {
+    } else if (System::sInstance->netMgr.region == 0x0E && gamemode == MODE_PUBLIC_BATTLE) {
         page->lastClickedButton = RRbattleButtonId;
         button = &page->RRbattleButton;
         bmgId = UI::BMG_BATTLE_WW_BOTTOM;
+    } else if (System::sInstance->netMgr.region == 0x0F && System::sInstance->IsContext(PULSAR_ELIMINATION)) {
+        page->lastClickedButton = RRbattleButtonIdElim;
+        button = &page->RRbattleButtonElim;
+        bmgId = UI::BMG_BATTLE_WW_BOTTOM_ELIM;
     } else if (page->lastClickedButton == 2) {
         button = &page->battleButton;
         bmgId = UI::BMG_BATTLE_WITH6P;
@@ -408,6 +437,8 @@ void ExpWFCModeSel::OnModeButtonSelect(PushButton& modeButton, u32 hudSlotId) {
         this->bottomText.SetMessage(BMG_ITEM_RAIN_WW_BOTTOM);
     } else if (modeButton.buttonId == RRbattleButtonId) {
         this->bottomText.SetMessage(BMG_BATTLE_WW_BOTTOM);
+    } else if (modeButton.buttonId == RRbattleButtonIdElim) {
+        this->bottomText.SetMessage(BMG_BATTLE_WW_BOTTOM_ELIM);
     }
 
     else
@@ -420,10 +451,10 @@ void ExpWFCModeSel::BeforeControlUpdate() {
     int numRegulars;
     int RR_num150cc, RR_num200cc, RR_numOTT, RR_numIR;
     int CT_num150cc, CT_num200cc, CT_numOTT, CT_numIR;
-    int BT_numRegulars;
+    int BT_numRegulars, BT_numELIM;
     PlayerCount::GetNumbersRR(RR_num150cc, RR_num200cc, RR_numOTT, RR_numIR);
     PlayerCount::GetNumbersCT(CT_num150cc, CT_num200cc, CT_numOTT, CT_numIR);
-    PlayerCount::GetNumbersBT(BT_numRegulars);
+    PlayerCount::GetNumbersBT(BT_numRegulars, BT_numELIM);
     PlayerCount::GetNumbersRegular(numRegulars);
 
     Pages::GlobeSearch* globeSearch = SectionMgr::sInstance->curSection->Get<Pages::GlobeSearch>();
@@ -456,6 +487,9 @@ void ExpWFCModeSel::BeforeControlUpdate() {
 
         info.intToPass[0] = BT_numRegulars;
         this->RRbattleButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
+
+        info.intToPass[0] = BT_numELIM;
+        this->RRbattleButtonElim.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
     } else {
         info.intToPass[0] = numRegulars;
         this->vsButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
@@ -487,6 +521,7 @@ void ExpWFCModeSel::BeforeControlUpdate() {
         this->twoHundredButtonCT.SetPaneVisibility("capsul_null", false);
         this->itemRainButtonCT.SetPaneVisibility("capsul_null", false);
         this->RRbattleButton.SetPaneVisibility("capsul_null", false);
+        this->RRbattleButtonElim.SetPaneVisibility("capsul_null", false);
     }
 }
 

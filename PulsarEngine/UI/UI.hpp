@@ -191,6 +191,10 @@ enum BMG {
     BMG_BATTLE_BUTTON = 0x6916,
     BMG_BATTLE_TITLE_TEXT = 0x6917,
 
+    //
+    BMG_BATTLE_BUTTON_ELIM = 0x6919,
+    BMG_BATTLE_WW_BOTTOM_ELIM = 0x691a,
+    
     // RT
     BMG_TITLE_TEXT_RT = 0x6912,
 
@@ -246,8 +250,8 @@ enum BMG {
     BMG_SETTINGS_BOTTOM = 0x2f10,
     BMG_SETTINGS_TITLE = 0x2f20,
     BMG_RADIO_SETTINGS = 0x3000,
-    BMG_SCROLLER_SETTINGS = 0x3700,
-    BMG_USERSETTINGSOFFSET = 0x60000,  // user settings therefore start at 0x53000 for radi osettings, 0x53700 for scrollers
+    BMG_SCROLLER_SETTINGS = 0x3A00,
+    BMG_USERSETTINGSOFFSET = 0x60000,  // user settings therefore start at 0x53000 for radio settings, 0x53A00 for scrollers
 
     // Custom texts (extended teams, explanations, etc..)
     BMG_EXTENDEDTEAMS_EXPLANATION = 0x83337,

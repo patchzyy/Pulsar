@@ -22,18 +22,20 @@ void LoadCorrectSectionForBattle() {
         sectionMgr->nextSectionId = SECTION_SINGLE_P_VS_NEXT_RACE;
     } else if (sectionMgr->nextSectionId == SECTION_VS_RACE_AWARD || sectionMgr->nextSectionId == SECTION_AWARD_37 || sectionMgr->nextSectionId == SECTION_AWARD_38) {
         sectionMgr->nextSectionId = SECTION_MAIN_MENU_FROM_BOOT;
-    } else if (sectionMgr->nextSectionId == SECTION_P1_WIFI_VS_VOTING && System::sInstance->netMgr.region == 0x0E && RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_REGIONAL) {
+    } else if (sectionMgr->nextSectionId == SECTION_P1_WIFI_VS_VOTING && (System::sInstance->netMgr.region == 0x0E || System::sInstance->netMgr.region == 0x0F)) {
         sectionMgr->nextSectionId = SECTION_P1_WIFI_BATTLE_VOTING;
     } else if (sectionMgr->nextSectionId == SECTION_P1_WIFI_FROOM_VS_VOTING && racedataSettings.battleType == BATTLE_BALLOON && mode == MODE_PRIVATE_BATTLE) {
         sectionMgr->nextSectionId = SECTION_P1_WIFI_FROOM_BALLOON_VOTING;
     } else if (sectionMgr->nextSectionId == SECTION_P1_WIFI_FROOM_VS_VOTING && racedataSettings.battleType == BATTLE_COIN && mode == MODE_PRIVATE_BATTLE) {
         sectionMgr->nextSectionId = SECTION_P1_WIFI_FROOM_COIN_VOTING;
-    } else if (sectionMgr->nextSectionId == SECTION_P2_WIFI_VS_VOTING && System::sInstance->netMgr.region == 0x0E && RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_REGIONAL) {
+    } else if (sectionMgr->nextSectionId == SECTION_P2_WIFI_VS_VOTING && (System::sInstance->netMgr.region == 0x0E || System::sInstance->netMgr.region == 0x0F)) {
         sectionMgr->nextSectionId = SECTION_P2_WIFI_BATTLE_VOTING;
     } else if (sectionMgr->nextSectionId == SECTION_P2_WIFI_FROOM_VS_VOTING && racedataSettings.battleType == BATTLE_BALLOON && mode == MODE_PRIVATE_BATTLE) {
         sectionMgr->nextSectionId = SECTION_P2_WIFI_FROOM_BALLOON_VOTING;
     } else if (sectionMgr->nextSectionId == SECTION_P2_WIFI_FROOM_VS_VOTING && racedataSettings.battleType == BATTLE_COIN && mode == MODE_PRIVATE_BATTLE) {
         sectionMgr->nextSectionId = SECTION_P2_WIFI_FROOM_COIN_VOTING;
+    } else if (sectionMgr->nextSectionId == SECTION_P1_WIFI_VS && (System::sInstance->netMgr.region == 0x0E || System::sInstance->netMgr.region == 0x0F)) {
+        sectionMgr->nextSectionId = SECTION_P1_WIFI_BT;
     }
 }
 static PageLoadHook PatchLoadCorrectSectionForBattle(LoadCorrectSectionForBattle);
@@ -75,6 +77,10 @@ kmWrite32(0x8062EC14, 0x3880006F);
 // Battle Timer [Ro]
 kmWrite32(0x80532BCC, 0x38000096);
 kmWrite32(0x80532C04, 0x38000096);
+
+kmWrite32(0x8052F564, 0x60000000);
+kmWrite32(0x8072627C, 0x38600001);
+kmWrite32(0x80590670, 0x70030003);
 
 // Fix GMDataOnlineCoinBattle::Update() [ZPL]
 asmFunc CoinBattle_EarlyOutIfInvalid() {
