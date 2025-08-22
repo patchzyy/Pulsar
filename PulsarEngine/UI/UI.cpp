@@ -121,6 +121,7 @@ void ExpSection::CreatePulPages() {
         case SECTION_P2_WIFI_FROM_FROOM_RACE:  // 0x5c
         case SECTION_OPTIONS:  // 0x8c
         case SECTION_P1_WIFI_VS_VOTING:  // 0x60
+        case SECTION_P1_WIFI_BATTLE_VOTING:
             this->CreateAndInitPage(*this, SettingsPanel::id);
     }
     if (this->hasAutoVote) {
