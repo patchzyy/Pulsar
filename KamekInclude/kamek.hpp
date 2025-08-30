@@ -212,35 +212,91 @@ struct PtmfHolder_3A : PtmfHolderBase_3A<Ret, A1, A2, A3> {
 class DoFuncsHook {
    protected:
     typedef void(Func)();
-    Func& func;
-    DoFuncsHook* next;
-    DoFuncsHook(Func& f, DoFuncsHook** prev);
+    typedef void (*Invoker)(void* funcPtr, void* a1, void* a2, void* a3);
 
-    static void Exec(DoFuncsHook* first);
+    void* funcPtr;
+    Invoker invoker;
+    DoFuncsHook* next;
+
+    static void Append(DoFuncsHook** prev, DoFuncsHook* self) {
+        self->next = *prev;
+        *prev = self;
+    }
+
+    static void Invoke0(void* f, void*, void*, void*) {
+        reinterpret_cast<void (*)()>(f)();
+    }
+
+    template <typename A1>
+    struct CastArg {
+        static A1 from(void* p) { return reinterpret_cast<A1>(p); }
+    };
+
+    template <typename T>
+    struct CastArg<T&> {
+        static T& from(void* p) { return *reinterpret_cast<T*>(p); }
+    };
+
+    template <typename A1>
+    static void Invoke1(void* f, void* a1, void*, void*) {
+        reinterpret_cast<void (*)(A1)>(f)(CastArg<A1>::from(a1));
+    }
+
+    template <typename A1, typename A2>
+    static void Invoke2(void* f, void* a1, void* a2, void*) {
+        reinterpret_cast<void (*)(A1, A2)>(f)(CastArg<A1>::from(a1), CastArg<A2>::from(a2));
+    }
+
+    template <typename A1, typename A2, typename A3>
+    static void Invoke3(void* f, void* a1, void* a2, void* a3) {
+        reinterpret_cast<void (*)(A1, A2, A3)>(f)(CastArg<A1>::from(a1), CastArg<A2>::from(a2), CastArg<A3>::from(a3));
+    }
+
+    // 0-arg
+    DoFuncsHook(void (*f)(), DoFuncsHook** prev) { Init(reinterpret_cast<void*>(f), &Invoke0, prev); }
+
+    // 1-arg
+    template <typename A1>
+    DoFuncsHook(void (*f)(A1), DoFuncsHook** prev) { Init(reinterpret_cast<void*>(f), &Invoke1<A1>, prev); }
+
+    // 2-arg
+    template <typename A1, typename A2>
+    DoFuncsHook(void (*f)(A1, A2), DoFuncsHook** prev) { Init(reinterpret_cast<void*>(f), &Invoke2<A1, A2>, prev); }
+
+    // 3-arg
+    template <typename A1, typename A2, typename A3>
+    DoFuncsHook(void (*f)(A1, A2, A3), DoFuncsHook** prev) { Init(reinterpret_cast<void*>(f), &Invoke3<A1, A2, A3>, prev); }
+
+    void Init(void* f, Invoker inv, DoFuncsHook** prev);
+
+    static void Exec(DoFuncsHook* first, void* a1 = nullptr, void* a2 = nullptr, void* a3 = nullptr);
 };
 
 class RaceLoadHook : public DoFuncsHook {
     static DoFuncsHook* raceLoadHooks;
 
    public:
-    RaceLoadHook(Func& f) : DoFuncsHook(f, &raceLoadHooks) {}
-    static void Exec() { DoFuncsHook::Exec(raceLoadHooks); }
+    template <typename F>
+    RaceLoadHook(F f) : DoFuncsHook(f, &raceLoadHooks) {}
+    static void Exec(void* a1 = nullptr, void* a2 = nullptr, void* a3 = nullptr) { DoFuncsHook::Exec(raceLoadHooks, a1, a2, a3); }
 };
 
 class PageLoadHook : public DoFuncsHook {
     static DoFuncsHook* pageLoadHooks;
 
    public:
-    PageLoadHook(Func& f) : DoFuncsHook(f, &pageLoadHooks) {}
-    static void Exec() { DoFuncsHook::Exec(pageLoadHooks); }
+    template <typename F>
+    PageLoadHook(F f) : DoFuncsHook(f, &pageLoadHooks) {}
+    static void Exec(void* a1 = nullptr, void* a2 = nullptr, void* a3 = nullptr) { DoFuncsHook::Exec(pageLoadHooks, a1, a2, a3); }
 };
 
 class RaceFrameHook : public DoFuncsHook {
     static DoFuncsHook* raceFrameHooks;
 
    public:
-    RaceFrameHook(Func& f) : DoFuncsHook(f, &raceFrameHooks) {}
-    static void Exec() { DoFuncsHook::Exec(raceFrameHooks); }
+    template <typename F>
+    RaceFrameHook(F f) : DoFuncsHook(f, &raceFrameHooks) {}
+    static void Exec(void* a1 = nullptr, void* a2 = nullptr, void* a3 = nullptr) { DoFuncsHook::Exec(raceFrameHooks, a1, a2, a3); }
 };
 
 class SectionLoadHook {
