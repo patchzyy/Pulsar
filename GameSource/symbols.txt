@@ -764,6 +764,7 @@ GetPlayerIdOfLocalPlayer__8RacedataFUc = 0x80531f70
 SetGhost__8RacedataFRC3RKG = 0x80531f2c
 pointsRoom__8Racedata = 0x80890030
 sInstance__8Racedata = 0x809bd728
+GetPlayerIdOfLocalPlayer__8RacedataCFUc = 0x80531f70
 
 #RacedataScenario
 ComputePlayerCounts__16RacedataScenarioCFPUcPUcPUc = 0x8052f788
