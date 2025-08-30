@@ -38,21 +38,21 @@ kmRuntimeUse(0x808A56EB);
 kmRuntimeUse(0x808A548B);
 void ItemRainFix() {
     ItemRainOnlineFixHook = 0x00;
-    kmRuntimeWrite32A(0x808A5D47, 0x0c000000);
-    kmRuntimeWrite32A(0x808A5A3F, 0x08000000);
-    kmRuntimeWrite32A(0x808A538F, 0x10000000);
-    kmRuntimeWrite32A(0x808A56EB, 0x06000000);
-    kmRuntimeWrite32A(0x808A548B, 0x03000000);
+    kmRuntimeWrite8A(0x808A5D47, 0x0c000000);
+    kmRuntimeWrite8A(0x808A5A3F, 0x08000000);
+    kmRuntimeWrite8A(0x808A538F, 0x10000000);
+    kmRuntimeWrite8A(0x808A56EB, 0x06000000);
+    kmRuntimeWrite8A(0x808A548B, 0x03000000);
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST ||
         RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST ||
         RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
         if (Pulsar::System::sInstance->IsContext(PULSAR_ITEMMODESTORM)) {
             ItemRainOnlineFixHook = 0x00FF0100;
-            kmRuntimeWrite32A(0x808A5D47, 0x00000022);
-            kmRuntimeWrite32A(0x808A5A3F, 0x00000022);
-            kmRuntimeWrite32A(0x808A538F, 0x00000022);
-            kmRuntimeWrite32A(0x808A56EB, 0x00000019);
-            kmRuntimeWrite32A(0x808A548B, 0x00000019);
+            kmRuntimeWrite8A(0x808A5D47, 0x00000022);
+            kmRuntimeWrite8A(0x808A5A3F, 0x00000022);
+            kmRuntimeWrite8A(0x808A538F, 0x00000022);
+            kmRuntimeWrite8A(0x808A56EB, 0x00000019);
+            kmRuntimeWrite8A(0x808A548B, 0x00000019);
         }
     }
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST ||
@@ -61,11 +61,11 @@ void ItemRainFix() {
         RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) {
         if (Pulsar::System::sInstance->IsContext(PULSAR_ITEMMODERAIN)) {
             ItemRainOnlineFixHook = 0x00FF0100;
-            kmRuntimeWrite32A(0x808A5D47, 0x00000022);
-            kmRuntimeWrite32A(0x808A5A3F, 0x00000022);
-            kmRuntimeWrite32A(0x808A538F, 0x00000022);
-            kmRuntimeWrite32A(0x808A56EB, 0x00000019);
-            kmRuntimeWrite32A(0x808A548B, 0x00000019);
+            kmRuntimeWrite8A(0x808A5D47, 0x00000022);
+            kmRuntimeWrite8A(0x808A5A3F, 0x00000022);
+            kmRuntimeWrite8A(0x808A538F, 0x00000022);
+            kmRuntimeWrite8A(0x808A56EB, 0x00000019);
+            kmRuntimeWrite8A(0x808A548B, 0x00000019);
         }
     }
 }
