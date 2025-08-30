@@ -127,6 +127,23 @@ kmWrite32(0x807b0bd4, 0x38000000);  // pass TC to teammate
 kmWrite32(0x807bd2bc, 0x38000000);  // RaceGlobals
 kmWrite32(0x807f18c8, 0x38000000);  // TC alert
 
+/// Ro's No Team Invincibility
+kmWrite32(0x80539B98, 0x60000000);
+kmWrite32(0x80538A30, 0x60000000);
+kmWrite32(0x8056FD90, 0x60000000);
+kmWrite32(0x80572634, 0x60000000);
+kmWrite32(0x80572654, 0x60000000);
+kmWrite32(0x807A3438, 0x60000000);
+kmWrite32(0x807A3454, 0x60000000);
+kmWrite32(0x807ac264, 0x60000000);
+kmWrite32(0x807AC3BC, 0x60000000);
+kmWrite32(0x807A8978, 0x60000000);
+kmWrite32(0x807A9884, 0x60000000);
+kmWrite32(0x807A97E8, 0x60000000);
+kmWrite32(0x807B0BDC, 0x60000000);
+kmWrite32(0x807B7C9C, 0x60000000);
+kmWrite32(0x807B1EA4, 0x60000000);
+
 // Accurate Explosion Damage (MrBean, CLF)
 kmWrite16(0x80572690, 0x4800);
 kmWrite16(0x80569F68, 0x4800);

@@ -16,12 +16,38 @@ extern "C" volatile void* gBattleElimStorePtr = 0;
 extern "C" volatile unsigned short gBattleElimElimOrder[12] = {0};
 extern "C" volatile unsigned short gBattleElimEliminations = 0;
 extern "C" volatile unsigned int gBattleElimWinnersAssigned = 0;
+extern "C" volatile bool gBattleElimPersistentEliminated[12] = {false};
+
+int IsAnyLocalPlayerEliminated() {
+    // Returns true if any local split-screen player has been eliminated.
+    if (!Racedata::sInstance) return false;
+    const u8 localCount = Racedata::sInstance->menusScenario.localPlayerCount;
+    for (u8 hud = 0; hud < localCount; ++hud) {
+        const u32 pid = Racedata::sInstance->GetPlayerIdOfLocalPlayer(hud);
+        if (pid < 12 && gBattleElimPersistentEliminated[pid]) return true;
+    }
+    return false;
+};
+
+int IsAnyLocalPlayerFinished() {
+    // Returns true if any local split-screen player has finished the match.
+    if (!Racedata::sInstance) return false;
+    const u8 localCount = Racedata::sInstance->menusScenario.localPlayerCount;
+    for (u8 hud = 0; hud < localCount; ++hud) {
+        const u32 pid = Racedata::sInstance->GetPlayerIdOfLocalPlayer(hud);
+        if (pid < 12 && CtrlRaceTime::HasPlayerFinished(pid)) return true;
+    }
+    return false;
+};
 
 static void ResetBattleElimState() {
+    // Called on race load. If the current context is a Balloon Battle
+    // session with elimination enabled (or RR BT regional override),
+    // reset all elimination-related runtime state.
     const RacedataScenario& scenario = Racedata::sInstance->menusScenario;
     const GameMode mode = scenario.settings.gamemode;
     bool isElim = RACESETTING_ELIMINATION_DISABLED;
-    if ((RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) && (mode == MODE_BATTLE || mode == MODE_PRIVATE_BATTLE || mode == MODE_PUBLIC_BATTLE) && System::sInstance->IsContext(PULSAR_TEAM_BATTLE) == BATTLE_TEAMS_DISABLED) {
+    if ((RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) && (mode == MODE_PRIVATE_BATTLE || mode == MODE_PUBLIC_BATTLE) && System::sInstance->IsContext(PULSAR_TEAM_BATTLE) == BATTLE_TEAMS_DISABLED) {
         isElim = Pulsar::System::sInstance->IsContext(PULSAR_ELIMINATION) ? RACESETTING_ELIMINATION_ENABLED : RACESETTING_ELIMINATION_DISABLED;
     }
     if ((isElim || (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_REGIONAL && System::sInstance->netMgr.region == 0x0F)) && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_REGIONAL && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW) {
@@ -37,12 +63,29 @@ static void ResetBattleElimState() {
         (void)playerCount;
         gBattleElimEliminations = 0;
         gBattleElimWinnersAssigned = 0;
-        for (int i = 0; i < 12; ++i) gBattleElimElimOrder[i] = 0;
+        for (int i = 0; i < 12; ++i) {
+            gBattleElimElimOrder[i] = 0;
+            gBattleElimPersistentEliminated[i] = false;
+        }
     } else {
         return;
     }
 }
 static RaceLoadHook sBattleElimResetHook(ResetBattleElimState);
+
+static void ResetBattleElimOnSectionLoad() {
+    gBattleElimFlag = 0;
+    gBattleElimMakeInvisible = 0;
+    gBattleElimRemaining = 0;
+    gBattleElimEliminations = 0;
+    gBattleElimWinnersAssigned = 0;
+    gBattleElimStorePtr = 0;
+    for (int i = 0; i < 12; ++i) {
+        gBattleElimElimOrder[i] = 0;
+        gBattleElimPersistentEliminated[i] = false;
+    }
+}
+static SectionLoadHook sBattleElimSectionResetHook(ResetBattleElimOnSectionLoad);
 
 asmFunc ForceInvisible() {
     ASM(
@@ -70,10 +113,12 @@ asmFunc ForceInvisible() {
 }
 
 static void BattleElimRemainingUpdate() {
+    // Per-frame update. Counts active players and sets elimination flags.
     const RacedataScenario& scenario = Racedata::sInstance->menusScenario;
     const GameMode mode = scenario.settings.gamemode;
+    Racedata* racedata = Racedata::sInstance;
     bool isElim = RACESETTING_ELIMINATION_DISABLED;
-    if ((RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) && (mode == MODE_BATTLE || mode == MODE_PRIVATE_BATTLE || mode == MODE_PUBLIC_BATTLE) && System::sInstance->IsContext(PULSAR_TEAM_BATTLE) == BATTLE_TEAMS_DISABLED) {
+    if ((RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) && (mode == MODE_PRIVATE_BATTLE || mode == MODE_PUBLIC_BATTLE) && System::sInstance->IsContext(PULSAR_TEAM_BATTLE) == BATTLE_TEAMS_DISABLED) {
         isElim = Pulsar::System::sInstance->IsContext(PULSAR_ELIMINATION) ? RACESETTING_ELIMINATION_ENABLED : RACESETTING_ELIMINATION_DISABLED;
     }
     if ((isElim || (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_REGIONAL && System::sInstance->netMgr.region == 0x0F)) && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_REGIONAL && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW) {
@@ -86,29 +131,39 @@ static void BattleElimRemainingUpdate() {
         const RKNet::Controller* controller = RKNet::Controller::sInstance;
         const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
         const u32 availableAids = sub.availableAids;
-        u32 activeNotFinished = 0;
-        u32 actualFinished = 0;
-        u32 disconnectedCount = 0;
+        u32 activeNotFinished = 0;  // Still battling.
+        u32 actualFinished = 0;  // Reached finish (treated as eliminated here).
+        u32 disconnectedCount = 0;  // Offline/DC (also eliminated).
 
         for (u8 pid = 0; pid < total; ++pid) {
             const bool playerFinished = CtrlRaceTime::HasPlayerFinished(pid);
             const u8 aid = controller->aidsBelongingToPlayerIds[pid];
             const bool disconnected = (aid >= 12) || ((availableAids & (1 << aid)) == 0);
-            if (playerFinished) {
-                ++actualFinished;
-                if (gBattleElimElimOrder[pid] == 0) {
-                    unsigned short elimNum = ++gBattleElimEliminations;  // first elimination becomes 1, etc.
-                    gBattleElimElimOrder[pid] = elimNum;
-                    if (ri && ri->players && ri->players[pid]) ri->players[pid]->battleScore = elimNum - 1;  // freeze at pre-elim survivor count
-                }
-            } else if (disconnected) {
+            if (gBattleElimPersistentEliminated[pid]) {
+                // Already marked eliminated earlier.
                 ++disconnectedCount;
                 if (gBattleElimElimOrder[pid] == 0) {
                     unsigned short elimNum = ++gBattleElimEliminations;
                     gBattleElimElimOrder[pid] = elimNum;
-                    if (ri && ri->players && ri->players[pid]) ri->players[pid]->battleScore = elimNum - 1;
+                }
+            } else if (playerFinished) {
+                // Consider finishing as being out for Elimination.
+                ++actualFinished;
+                if (gBattleElimElimOrder[pid] == 0) {
+                    unsigned short elimNum = ++gBattleElimEliminations;
+                    gBattleElimElimOrder[pid] = elimNum;
+                    gBattleElimPersistentEliminated[pid] = true;
+                }
+            } else if (disconnected) {
+                // Disconnected players are eliminated and assigned an order.
+                ++disconnectedCount;
+                if (gBattleElimElimOrder[pid] == 0) {
+                    unsigned short elimNum = ++gBattleElimEliminations;
+                    gBattleElimElimOrder[pid] = elimNum;
+                    gBattleElimPersistentEliminated[pid] = true;
                 }
             } else {
+                // Still in the match.
                 ++activeNotFinished;
             }
         }
@@ -120,24 +175,28 @@ static void BattleElimRemainingUpdate() {
                 RaceinfoPlayer* pl = ri->players[pid];
                 if (!pl) continue;
                 unsigned short elimOrd = gBattleElimElimOrder[pid];
-                if (elimOrd > 0) {
-                    pl->battleScore = elimOrd - 1;
-                } else {
-                    pl->battleScore = gBattleElimEliminations;
-                }
+                // Before the race starts, initialize balloon count to 3.
+                if (!Raceinfo::sInstance->IsAtLeastStage(RACESTAGE_RACE)) pl->battleScore = 3;
             }
         }
 
-        if (activeNotFinished <= 1 && actualFinished > 0) {
+        // Raise the flag once only one active player remains and at least one
+        // player has actually finished (or if spectating).
+        if (activeNotFinished <= 1 && actualFinished > 0 || racedata->menusScenario.settings.gametype == GAMETYPE_ONLINE_SPECTATOR) {
             gBattleElimFlag = 1;
+        } else {
+            gBattleElimFlag = 0;
         }
     } else {
+        gBattleElimFlag = 0;
         return;
     }
 }
 static RaceFrameHook sBattleElimRemainingHook(BattleElimRemainingUpdate);
 
 asmFunc OnBattleRespawn() {
+    // When a player respawns in battle, ensure the elimination flag is set
+    // at least once so downstream logic can react.
     ASM(
         lis r12, gBattleElimFlag @ha;
         lwz r11, gBattleElimFlag @l(r12);
@@ -151,6 +210,8 @@ asmFunc OnBattleRespawn() {
 }
 
 asmFunc ForceTimerOnStore() {
+    // If elimination is active, force the store/timer state and capture the
+    // store pointer for the invisible logic; then clear the flag.
     ASM(
         lis r12, gBattleElimFlag @ha;
         lwz r11, gBattleElimFlag @l(r12);
@@ -160,7 +221,7 @@ asmFunc ForceTimerOnStore() {
         stb r11, 0x40(r29);
         li r0, 0;
         stw r0, 0x48(r29);
-        lis r12, gBattleElimStorePtr @ha;  // save store pointer for ForceInvisible
+        lis r12, gBattleElimStorePtr @ha;
         stw r29, gBattleElimStorePtr @l(r12);
         lis r12, gBattleElimFlag @ha;
         li r10, 0;
@@ -168,34 +229,12 @@ asmFunc ForceTimerOnStore() {
         blr;
         original : stw r0, 0x48(r29);
         lis r12, gBattleElimStorePtr @ha;
-        stw r29, gBattleElimStorePtr @l(r12);  // still record pointer
-        blr;)
-}
-
-asmFunc BattleElimScore() {
-    ASM(
-        mflr r12;
-
-        lis r11, gBattleElimElimOrder @ha;
-        lbz r9, 0x8(r3);
-        addi r11, r11, gBattleElimElimOrder @l;
-        slwi r10, r9, 1;
-        lhzx r8, r11, r10;
-        cmpwi r8, 0;
-        beq checkWinner;
-        addi r8, r8, -1;
-        sth r8, 0x22(r3);
-        b finish;
-        checkWinner : lis r4, gBattleElimEliminations @ha;
-        lhz r4, gBattleElimEliminations @l(r4);
-        sth r4, 0x22(r3);
-        b finish;
-        writeOriginal : sth r0, 0x22(r3);
-        finish : mtlr r12;
+        stw r29, gBattleElimStorePtr @l(r12);
         blr;)
 }
 
 asmFunc ForceBalloonBattle() {
+    // Ensure the balloon battle path is taken in code that branches on mode.
     ASM(
         oris r0, r0, 0x8000;
         xoris r0, r0, 0;
@@ -203,32 +242,49 @@ asmFunc ForceBalloonBattle() {
         lwz r3, 0x0(r31);)
 }
 
-kmRuntimeUse(0x80579C1C);  // OnBattleRespawn
-kmRuntimeUse(0x80535C7C);  // ForceTimerOnStore
-kmRuntimeUse(0x806619AC);  // ForceBalloonBattle
-kmRuntimeUse(0x80539878);  // BattleElimScore
-kmRuntimeUse(0x8058CB7C);  // ForceInvisible
+kmRuntimeUse(0x80579C1C);  // OnBattleRespawn [ZPL]
+kmRuntimeUse(0x80535C7C);  // ForceTimerOnStore [ZPL]
+kmRuntimeUse(0x806619AC);  // ForceBalloonBattle [Ro]
+kmRuntimeUse(0x8058CB7C);  // ForceInvisible [Xer, edited by ZPL]
+kmRuntimeUse(0x805348E8);  // Drive after finish [Supastarrio]
+kmRuntimeUse(0x80534880);
+kmRuntimeUse(0x80799CC8);  // Drive thru items [Sponge]
 void BattleElim() {
+    // First, set default patches (no-op behavior) at known addresses.
     kmRuntimeWrite32A(0x80579C1C, 0xa89f02d6);
     kmRuntimeWrite32A(0x80535C7C, 0x901d0048);
     kmRuntimeWrite32A(0x806619AC, 0x807f0000);
-    kmRuntimeWrite32A(0x80539878, 0xB0040022);
     kmRuntimeWrite32A(0x8058CB7C, 0xc0030000);
+    kmRuntimeWrite32A(0x805348E8, 0x2C00FFFF);
+    kmRuntimeWrite32A(0x80534880, 0x2C050000);
+    kmRuntimeWrite32A(0x80799CC8, 0x880538BC);
     const RacedataScenario& scenario = Racedata::sInstance->menusScenario;
     const GameMode mode = scenario.settings.gamemode;
     bool isElim = RACESETTING_ELIMINATION_DISABLED;
-    if ((RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) && (mode == MODE_BATTLE || mode == MODE_PRIVATE_BATTLE || mode == MODE_PUBLIC_BATTLE) && System::sInstance->IsContext(PULSAR_TEAM_BATTLE) == BATTLE_TEAMS_DISABLED) {
+    if ((RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) && (mode == MODE_PRIVATE_BATTLE || mode == MODE_PUBLIC_BATTLE) && System::sInstance->IsContext(PULSAR_TEAM_BATTLE) == BATTLE_TEAMS_DISABLED && scenario.settings.battleType == BATTLE_BALLOON) {
         isElim = Pulsar::System::sInstance->IsContext(PULSAR_ELIMINATION) ? RACESETTING_ELIMINATION_ENABLED : RACESETTING_ELIMINATION_DISABLED;
     }
     if ((isElim || (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_BT_REGIONAL && System::sInstance->netMgr.region == 0x0F)) && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_REGIONAL && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_VS_WW) {
+        // When elimination is active, redirect calls to our ASM stubs
+        // and adjust a few behaviors (driving after finish, item behavior).
         kmRuntimeCallA(0x80579C1C, OnBattleRespawn);
         kmRuntimeCallA(0x80535C7C, ForceTimerOnStore);
         kmRuntimeCallA(0x806619AC, ForceBalloonBattle);
-        kmRuntimeCallA(0x80539878, BattleElimScore);
         kmRuntimeCallA(0x8058CB7C, ForceInvisible);
+        kmRuntimeWrite32A(0x805348E8, 0x2C000000);
+        kmRuntimeWrite32A(0x80534880, 0x2C05FFFF);
+        kmRuntimeWrite32A(0x80799CC8, 0x880538BC);
+        if (IsAnyLocalPlayerEliminated() && IsAnyLocalPlayerFinished()) {
+            // If a local player is both eliminated and finished, tweak the
+            // drive-through-items behavior to disable pickups.
+            kmRuntimeWrite32A(0x80799CC8, 0x38000001);
+        }
     }
 }
 static PageLoadHook BattleElimHook(BattleElim);
+
+// No Balloon Stealing [ZPL]
+kmWrite32(0x8053B584, 0x4e800020);
 
 }  // namespace BattleElim
 }  // namespace Pulsar

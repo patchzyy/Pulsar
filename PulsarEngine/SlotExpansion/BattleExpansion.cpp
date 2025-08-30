@@ -68,10 +68,6 @@ kmWrite32(0x8062EB84, 0x3880006F);
 kmWrite32(0x8062EC08, 0x3880006E);
 kmWrite32(0x8062EC14, 0x3880006F);
 
-// Battle Timer [Ro]
-kmWrite32(0x80532BCC, 0x38000096);
-kmWrite32(0x80532C04, 0x38000096);
-
 // Fix GMDataOnlineCoinBattle::Update() [ZPL]
 asmFunc CoinBattle_EarlyOutIfInvalid() {
     ASM(
