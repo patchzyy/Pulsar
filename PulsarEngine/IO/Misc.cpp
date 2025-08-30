@@ -8,11 +8,11 @@ namespace Pulsar {
 
 // Adds a 3rd UI (menu or race) and a 3rd common to the relevant archive holders, which will contain custom pulsar assets
 kmWrite32(0x8052a108, 0x38800003);  // Add one archive to CommonArchiveHolder
-kmWrite32(0x8052a188, 0x38800003);  // Add one archive to UIArchiveHolder
+kmWrite32(0x8052a188, 0x38800004);  // Add one archive to UIArchiveHolder
 void LoadAssetsFile(ArchiveFile* file, const char* path, EGG::Heap* decompressedHeap, bool isCompressed, s32 allocDirection,
                     EGG::Heap* archiveHeap, EGG::Archive::FileInfo* info) {
     const ArchiveMgr* archiveMgr = ArchiveMgr::sInstance;
-    if (file == &archiveMgr->archivesHolders[ARCHIVE_HOLDER_UI]->archives[2]) {
+    if (file == &archiveMgr->archivesHolders[ARCHIVE_HOLDER_UI]->archives[3]) {
         const char* fileType = "UI";
         Pulsar::Language currentLanguage = static_cast<Pulsar::Language>(Pulsar::Settings::Mgr::Get().GetUserSettingValue(static_cast<Pulsar::Settings::UserType>(Pulsar::Settings::SETTINGSTYPE_RRLANGUAGE), Pulsar::SETTINGRRLANGUAGE_LANGUAGE));
 
@@ -68,6 +68,8 @@ void LoadAssetsFile(ArchiveFile* file, const char* path, EGG::Heap* decompressed
         path = newPath;
     } else if (file == &archiveMgr->archivesHolders[ARCHIVE_HOLDER_COMMON]->archives[2])
         path = System::CommonAssets;
+    else if (file == &archiveMgr->archivesHolders[ARCHIVE_HOLDER_UI]->archives[0])
+        path = "/ReplacedAssets.szs";
     file->Load(path, decompressedHeap, isCompressed, allocDirection, archiveHeap, info);
 }
 kmCall(0x8052aa2c, LoadAssetsFile);
