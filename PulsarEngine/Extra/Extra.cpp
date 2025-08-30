@@ -158,13 +158,6 @@ kmWrite8(0x807BA077, 0x00);
 kmWrite32(0x800EE3A0, 0x2C030000);
 kmWrite32(0x800ECAAC, 0x7C7E1B78);
 
-// Rename Online Mode Buttons [Toadette Hack Fan]
-kmWrite8(0x80899ACA, 'X');
-kmWrite8(0x80899AF7, 'X');
-
-// Rename Online Menu Buttons [ZPL]
-kmWrite8(0x80899a87, 'X');
-
 // Disable Camera Shaking from Bombs [ZPL]
 kmWrite32(0x805a906c, 0x4E800020);
 
@@ -253,4 +246,9 @@ asmFunc StarOffroadFix() {
         blr;)
 }
 kmCall(0x8057C3F8, StarOffroadFix);
+
+// Force player to not be penalized [B_squo]
+kmWrite32(0x80549898, 0x38600000);
+kmWrite32(0x8054989c, 0x4E800020);
+
 }  // namespace Codes
