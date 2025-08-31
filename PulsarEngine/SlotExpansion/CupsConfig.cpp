@@ -245,7 +245,7 @@ PulsarId CupsConfig::RandomizeTrack() const {
     else if (isRegsOnly == TRACKSELECTION_REGS && !isBattle)
         pulsarId = random.NextLimited(32);
     else if (isBattle)
-        pulsarId = random.NextLimited(32) + 0x100 + 264;
+        pulsarId = random.NextLimited(40) + 0x100 + 264;
     else if (this->HasRegs()) {
         pulsarId = random.NextLimited(this->GetCtsTrackCount() + 32);
         if (pulsarId > 31) pulsarId += (0x100 - 32);
@@ -299,7 +299,7 @@ PulsarCupId CupsConfig::GetNextCupId(PulsarCupId pulsarId, s32 direction) const 
         if (!this->hasRegs && nextIdxCT < 8) return static_cast<PulsarCupId>(nextIdxCT + countCT + 0x38);
         return ConvertCup_IdxToPulsarId(nextIdxCT);
     } else if (isBattle) {
-        const u32 countBT = 8;
+        const u32 countBT = 10;
         const u32 lastCupIndex = this->GetTotalCupCount() - 1;
         const u32 startIdx = 74;
         const u32 nextIdxBT = startIdx + ((idx - startIdx + direction + countBT) % countBT);
