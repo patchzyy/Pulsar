@@ -38,11 +38,11 @@ kmRuntimeUse(0x808A56EB);
 kmRuntimeUse(0x808A548B);
 void ItemRainFix() {
     ItemRainOnlineFixHook = 0x00;
-    kmRuntimeWrite8A(0x808A5D47, 0x0c000000);
-    kmRuntimeWrite8A(0x808A5A3F, 0x08000000);
-    kmRuntimeWrite8A(0x808A538F, 0x10000000);
-    kmRuntimeWrite8A(0x808A56EB, 0x06000000);
-    kmRuntimeWrite8A(0x808A548B, 0x03000000);
+    kmRuntimeWrite8A(0x808A5D47, 0x0000000c);
+    kmRuntimeWrite8A(0x808A5A3F, 0x00000008);
+    kmRuntimeWrite8A(0x808A538F, 0x00000010);
+    kmRuntimeWrite8A(0x808A56EB, 0x00000006);
+    kmRuntimeWrite8A(0x808A548B, 0x00000003);
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST ||
         RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST ||
         RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
