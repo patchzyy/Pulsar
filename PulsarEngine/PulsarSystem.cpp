@@ -247,7 +247,7 @@ void System::UpdateContext() {
 
     // Set the new context value
     u32 newContextValue = (isCT) << PULSAR_CT | (isHAW) << PULSAR_HAW;
-    u32 newContextValue2 = (isMiiHeads) << PULSAR_MIIHEADS;
+    u32 newContextValue2 = 0;
     if (isCT) {
         newContextValue |= (is200) << PULSAR_200 | (isFeather) << PULSAR_FEATHER |
                            (isUMTs) << PULSAR_UMTS | (isMegaTC) << PULSAR_MEGATC |
@@ -265,7 +265,8 @@ void System::UpdateContext() {
         newContextValue2 |= (isTransmissionInside) << PULSAR_TRANSMISSIONINSIDE | (isTransmissionOutside) << PULSAR_TRANSMISSIONOUTSIDE |
                             (isTransmissionVanilla) << PULSAR_TRANSMISSIONVANILLA | (isItemModeRandom) << PULSAR_ITEMMODERANDOM |
                             (isItemModeBlast) << PULSAR_ITEMMODEBLAST | (isItemModeNone) << PULSAR_ITEMMODENONE |
-                            (isItemModeRain) << PULSAR_ITEMMODERAIN | (isItemModeStorm) << PULSAR_ITEMMODESTORM;
+                            (isItemModeRain) << PULSAR_ITEMMODERAIN | (isItemModeStorm) << PULSAR_ITEMMODESTORM |
+                            (isMiiHeads) << PULSAR_MIIHEADS;
     }
 
     // Combine the new context with preserved bits
