@@ -57,7 +57,9 @@ static ItemObjId GetRandomItem() {
         u32 weight;
     };
 
-    static const ItemWeight weightedItems[] = {
+    const RacedataScenario& scenario = Racedata::sInstance->racesScenario;
+    const GameMode mode = scenario.settings.gamemode;
+    static const ItemWeight weightsVS[] = {
         {OBJ_MUSHROOM, 20},
         {OBJ_GREEN_SHELL, 18},
         {OBJ_BANANA, 18},
@@ -70,14 +72,36 @@ static ItemObjId GetRandomItem() {
         {OBJ_MEGA_MUSHROOM, 7},
         {OBJ_BULLET_BILL, 5},
     };
-    const u32 totalWeight = 100;
+    static const ItemWeight weightsBattle[] = {
+        {OBJ_MUSHROOM, 20},
+        {OBJ_GREEN_SHELL, 18},
+        {OBJ_BANANA, 18},
+        {OBJ_RED_SHELL, 8},
+        {OBJ_FAKE_ITEM_BOX, 8},
+        {OBJ_BOBOMB, 1},
+        {OBJ_STAR, 6},
+        {OBJ_BLUE_SHELL, 8},
+        {OBJ_GOLDEN_MUSHROOM, 5},
+        {OBJ_MEGA_MUSHROOM, 7},
+        {OBJ_BULLET_BILL, 0},
+    };
+
+    const ItemWeight* weights = weightsVS;
+    u32 count = sizeof(weightsVS) / sizeof(weightsVS[0]);
+    if (mode == MODE_BATTLE || mode == MODE_PRIVATE_BATTLE) {
+        weights = weightsBattle;
+        count = sizeof(weightsBattle) / sizeof(weightsBattle[0]);
+    }
+
+    u32 totalWeight = 0;
+    for (u32 i = 0; i < count; i++) totalWeight += weights[i].weight;
+    if (totalWeight == 0) return OBJ_MUSHROOM;
+
     u32 roll = GetRandom() % totalWeight;
     u32 cumulative = 0;
-    for (u32 i = 0; i < sizeof(weightedItems) / sizeof(weightedItems[0]); i++) {
-        cumulative += weightedItems[i].weight;
-        if (roll < cumulative) {
-            return weightedItems[i].id;
-        }
+    for (u32 i = 0; i < count; i++) {
+        cumulative += weights[i].weight;
+        if (roll < cumulative) return weights[i].id;
     }
     return OBJ_MUSHROOM;
 }
