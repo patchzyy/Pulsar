@@ -27,6 +27,7 @@ ExpVR::ExpVR() : comboButtonState(0) {
     this->onSettingsClick.ptmf = &ExpVR::OnSettingsButtonClick;
     this->onButtonSelectHandler.subject = this;
     this->onButtonSelectHandler.ptmf = &ExpVR::ExtOnButtonSelect;
+    this->shouldRestoreControls = false;
 }
 
 kmWrite32(0x8064a61c, 0x60000000);  // nop initControlGroup
@@ -189,7 +190,21 @@ void ExpVR::ChangeCombo(PushButton& changeComboButton, u32 hudSlotId) {
 }
 
 void ExpVR::OnSettingsButtonClick(PushButton& button, u32 hudSlotId) {
+    this->savedOkHidden = this->okButton.isHidden;
+    this->savedBackHidden = this->ctrlMenuBackButton.isHidden;
+    this->savedBottomHidden = this->ctrlMenuBottomMessage.isHidden;
+    this->savedRandomHidden = this->randomComboButton.isHidden;
+    this->savedChangeHidden = this->changeComboButton.isHidden;
+    this->savedSettingsHidden = this->settingsButton.isHidden;
+    for (int i = 0; i < 12; ++i) this->savedVRControlsHidden[i] = this->vrControls[i].isHidden;
     this->areControlsHidden = true;
+    this->okButton.isHidden = true;
+    this->ctrlMenuBackButton.isHidden = true;
+    this->ctrlMenuBottomMessage.isHidden = true;
+    for (int i = 0; i < 12; ++i) this->vrControls[i].isHidden = true;
+    this->randomComboButton.isHidden = true;
+    this->changeComboButton.isHidden = true;
+    this->settingsButton.isHidden = true;
     SettingsPanel* settingsPanel = ExpSection::GetSection()->GetPulPage<SettingsPanel>();
     settingsPanel->prevPageId = PAGE_VR;
     this->AddPageLayer(static_cast<PageId>(this->topSettingsPage), 0);
@@ -203,7 +218,9 @@ void ExpVR::AfterControlUpdate() {
     this->okButton.isHidden = hidden;
     this->ctrlMenuBackButton.isHidden = hidden;
     this->ctrlMenuBottomMessage.isHidden = hidden;
-    for (int i = 0; i < 12; ++i) this->vrControls[i].isHidden = hidden;
+    if (hidden) {
+        for (int i = 0; i < 12; ++i) this->vrControls[i].isHidden = true;
+    }
 
     if (hidden) {
         this->randomComboButton.isHidden = true;
@@ -212,27 +229,33 @@ void ExpVR::AfterControlUpdate() {
     } else {
         const System* system = System::sInstance;
         bool isKOd = false;
-        if(system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating) isKOd = true;
-        if(system->IsContext(PULSAR_MODE_OTT) && system->IsContext(PULSAR_CHANGECOMBO) == OTTSETTING_COMBO_ENABLED) isKOd = true;
-        if(System::sInstance->IsContext(PULSAR_MODE_OTT) && ((RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) || (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL))) isKOd = true;
+        if (system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating) isKOd = true;
+        if (system->IsContext(PULSAR_MODE_OTT) && system->IsContext(PULSAR_CHANGECOMBO) == OTTSETTING_COMBO_ENABLED) isKOd = true;
+        if (System::sInstance->IsContext(PULSAR_MODE_OTT) && ((RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) || (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL))) isKOd = true;
 
-        this->randomComboButton.isHidden = isKOd;
+        bool isRandomHidden = false;
+        if (Settings::Mgr::Get().GetUserSettingValue(Settings::SETTINGSTYPE_RR, SETTINGRR_RADIO_RANDOMBUTTON) == RANDOMBUTTON_DISABLED) isRandomHidden = true;
+
+        this->randomComboButton.isHidden = isKOd || isRandomHidden;
         this->changeComboButton.isHidden = isKOd;
         this->settingsButton.isHidden = false;
 
-        u32 lobbyPlayers = 0;
-        const RKNet::Controller* controller = RKNet::Controller::sInstance;
-        if (controller != nullptr) {
-            const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
-            lobbyPlayers = sub.playerCount;
-            if (lobbyPlayers > 12) lobbyPlayers = 12;
+        if (this->shouldRestoreControls) {
+            this->okButton.isHidden = this->savedOkHidden;
+            this->ctrlMenuBackButton.isHidden = this->savedBackHidden;
+            this->ctrlMenuBottomMessage.isHidden = this->savedBottomHidden;
+            this->randomComboButton.isHidden = this->savedRandomHidden;
+            this->changeComboButton.isHidden = this->savedChangeHidden;
+            this->settingsButton.isHidden = this->savedSettingsHidden;
+            for (int i = 0; i < 12; ++i) this->vrControls[i].isHidden = this->savedVRControlsHidden[i];
+            this->shouldRestoreControls = false;
         }
-        for (u32 i = lobbyPlayers; i < 12; ++i) this->vrControls[i].isHidden = true;
     }
 }
 
 void ExpVR::OnResume() {
     if (this->areControlsHidden) this->areControlsHidden = false;
+    this->shouldRestoreControls = true;
     VR::OnResume();
 }
 

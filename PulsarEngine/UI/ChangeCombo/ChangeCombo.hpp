@@ -46,12 +46,20 @@ class ExpVR : public Pages::VR {
     PtmfHolder_2A<ExpVR, void, PushButton&, u32> onSettingsClick;
     PushButton randomComboButton;
     PushButton changeComboButton;
-    PushButton settingsButton;
+   PushButton settingsButton;
 
    public:
     u8 comboButtonState;  // 1 = randomize, 2 = change
     PulPageId topSettingsPage;
     bool areControlsHidden;
+    bool shouldRestoreControls;
+    bool savedVRControlsHidden[12];
+    bool savedOkHidden;
+    bool savedBackHidden;
+    bool savedBottomHidden;
+    bool savedRandomHidden;
+    bool savedChangeHidden;
+    bool savedSettingsHidden;
     PageId nextPageId;  // when you press a button
     u8 menuState;
 };
