@@ -64,12 +64,11 @@ static ItemObjId GetRandomItem() {
         {OBJ_FAKE_ITEM_BOX, 8},
         {OBJ_BOBOMB, 1},
         {OBJ_STAR, 6},
-        {OBJ_BLUE_SHELL, 2},
+        {OBJ_BLUE_SHELL, 3},
         {OBJ_GOLDEN_MUSHROOM, 5},
-        {OBJ_MEGA_MUSHROOM, 6},
-        {OBJ_POW_BLOCK, 1},
+        {OBJ_MEGA_MUSHROOM, 7},
         {OBJ_BULLET_BILL, 5},
-        {OBJ_LIGHTNING, 1}};
+    };
     const u32 totalWeight = 100;
     u32 roll = GetRandom() % totalWeight;
     u32 cumulative = 0;
