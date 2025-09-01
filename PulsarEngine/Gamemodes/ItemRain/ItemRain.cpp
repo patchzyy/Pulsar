@@ -11,18 +11,19 @@ namespace ItemRain {
 
 static s32 sRaceInfoFrameCounter = 0;
 
-static int ITEMS_PER_SPAWN = 1;
+static int ITEMS_PER_SPAWN = 3;
 static int SPAWN_HEIGHT = 1500;
 static int SPAWN_RADIUS = 8000;
 static int MAX_ITEM_LIFETIME = 200;
 static int DESPAWN_CHECK_INTERVAL = 2;
+static int CLUSTER_RADIUS = 5000;
 
 void ItemModeCheck() {
     if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST ||
         RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST ||
         RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
         if (Pulsar::System::sInstance->IsContext(PULSAR_ITEMMODESTORM)) {
-            ITEMS_PER_SPAWN = 3;
+            ITEMS_PER_SPAWN = 5;
             MAX_ITEM_LIFETIME = 180;
         } else {
             ITEMS_PER_SPAWN = 1;
@@ -146,12 +147,48 @@ void SpawnItemRain() {
     dummyDirection.y = 0.0f;
     dummyDirection.z = 0.0f;
 
+    bool visited[12] = {};
+    bool isClusterRep[12] = {};
+    Vec3 positions[12];
+    for (int i = 0; i < playerCount && i < 12; i++) positions[i] = Item::Manager::sInstance->players[i].GetPosition();
+    const float clusterRadiusSq = float(CLUSTER_RADIUS) * float(CLUSTER_RADIUS);
+
+    for (int i = 0; i < playerCount; i++) {
+        if (visited[i]) continue;
+        int queueIdx[12];
+        int queueSize = 0;
+        int rep = i;
+        visited[i] = true;
+        queueIdx[queueSize++] = i;
+
+        for (int q = 0; q < queueSize; q++) {
+            int cur = queueIdx[q];
+            if (cur < rep) rep = cur;
+            for (int j = 0; j < playerCount; j++) {
+                if (visited[j]) continue;
+                Vec3 d;
+                d.x = positions[cur].x - positions[j].x;
+                d.y = positions[cur].y - positions[j].y;
+                d.z = positions[cur].z - positions[j].z;
+                float distSq = d.x * d.x + d.y * d.y + d.z * d.z;
+                if (distSq <= clusterRadiusSq) {
+                    visited[j] = true;
+                    queueIdx[queueSize++] = j;
+                }
+            }
+        }
+        isClusterRep[rep] = true;
+    }
+
     for (int i = 0; i < ITEMS_PER_SPAWN; i++) {
         int spawnDivisor = (sRaceInfoFrameCounter < 300) ? 4 : 1;
 
-        for (int playerIdx = 0; playerIdx < playerCount; playerIdx += spawnDivisor) {
+        for (int playerIdx = 0; playerIdx < playerCount; playerIdx++) {
+            if ((playerIdx % spawnDivisor) != 0) continue;
+            if (!isClusterRep[playerIdx]) continue;
+
             Item::Player& player = Item::Manager::sInstance->players[playerIdx];
-            Vec3 playerPos = player.GetPosition();
+            Vec3 playerPos = positions[playerIdx];
             Vec3 forwardDir;
             if (player.kartPlayer) {
                 forwardDir = player.kartPlayer->GetMovement().dir;
