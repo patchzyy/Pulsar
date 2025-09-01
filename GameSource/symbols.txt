@@ -1385,6 +1385,8 @@ InitControlGroup__4PageFUi = 0x8060245c
 AddControl__4PageFUcR9UIControlUi = 0x8060246c
 SetManipulatorManager__4PageFR18ManipulatorManager = 0x80602474
 EndStateAnimated__4PageFUif = 0x80602488
+EndState__4PageFv = 0x8060247c
+Resume__4PageFv = 0x80602390
 ChangeSectionBySceneChange__4PageF9SectionIdUif = 0x806024b0
 ChangeSectionByReinit__4PageFv = 0x80602530
 AddPageLayer__4PageF6PageIdUi = 0x806025b0
@@ -1759,6 +1761,8 @@ sInstance__Q25RKNet9PacketMgr = 0x809c1f50
 Copy__Q25RKNet15PacketHolder<v>FPCvUi = 0x8065a34c
 Append__Q25RKNet12PacketHolder<v>FPCvUi = 0x8065a38c
 sInstance__Q25RKNet13SELECTHandler = 0x809c2100
+GetTeam__Q25RKNet13SELECTHandlerCFUcUc = 0x80660654
+GetOwnPlayerIdToAid__Q25RKNet13SELECTHandlerCFv = 0x806604cc
 
 #ROOM
 sInstance__Q25RKNet11ROOMHandler = 0x809c20e0

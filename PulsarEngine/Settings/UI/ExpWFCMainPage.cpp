@@ -411,11 +411,13 @@ void ExpWFCModeSel::OnActivatePatch() {
     }
 
     page->bottomText.SetMessage(bmgId);
-    button->SelectInitial(0);
+    button->Select(0);
     if (ExpWFCMain::lastClickedMainMenuButton == 8) {
-        BTbutton->SelectInitial(0);
+        BTbutton->Select(0);
     } else if (ExpWFCMain::lastClickedMainMenuButton == 7) {
-        CTbutton->SelectInitial(0);
+        CTbutton->Select(0);
+    } else if (ExpWFCMain::lastClickedMainMenuButton == 6) {
+        button->Select(0);
     }
 }
 kmCall(0x8064c5f0, ExpWFCModeSel::OnActivatePatch);

@@ -168,7 +168,7 @@ void System::UpdateContext() {
     bool isTransmissionOutside = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_FORCETRANSMISSION) == FORCE_TRANSMISSION_OUTSIDE;
     bool isTransmissionVanilla = settings.GetUserSettingValue(Settings::SETTINGSTYPE_RRHOST, SETTINGRR3_RADIO_FORCETRANSMISSION) == FORCE_TRANSMISSION_VANILLA;
     bool isTeamBattle = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_BATTLETEAMS);
-    bool isElimination = settings.GetSettingValue(Settings::SETTINGSTYPE_RACE, SETTINGRACE_RADIO_ELIMINATION);
+    bool isElimination = settings.GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_ELIMINATION);
     bool isFeather = this->info.HasFeather();
     bool isUMTs = this->info.HasUMTs();
     bool isMegaTC = this->info.HasMegaTC();
@@ -242,7 +242,7 @@ void System::UpdateContext() {
     // When entering a friend room (host/nonhost), clear any region-preserved bits
     if (controller->roomType == RKNet::ROOMTYPE_FROOM_HOST || controller->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || controller->roomType == RKNet::ROOMTYPE_NONE) {
         preserved &= ~((1 << PULSAR_200_WW) | (1 << PULSAR_MODE_OTT) | (1 << PULSAR_ELIMINATION));
-        preserved2 &= ~(1 << PULSAR_ITEMMODERAIN);
+        preserved2 &= ~((1 << PULSAR_ITEMMODERAIN) | (1 << PULSAR_ITEMMODESTORM));
     }
 
     // Set the new context value
@@ -284,6 +284,7 @@ void System::UpdateContext() {
                 sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
                 sInstance->context2 &= ~(1 << PULSAR_TEAM_BATTLE);
                 sInstance->context &= ~(1 << PULSAR_ELIMINATION);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
                 break;
 
             case 0x0B:  // OTT with retro tracks
@@ -293,6 +294,7 @@ void System::UpdateContext() {
                 sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
                 sInstance->context2 &= ~(1 << PULSAR_TEAM_BATTLE);
                 sInstance->context &= ~(1 << PULSAR_ELIMINATION);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
                 break;
 
             case 0x0C:  // 200cc with retro tracks
@@ -302,6 +304,7 @@ void System::UpdateContext() {
                 sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
                 sInstance->context2 &= ~(1 << PULSAR_TEAM_BATTLE);
                 sInstance->context &= ~(1 << PULSAR_ELIMINATION);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
                 break;
 
             case 0x0D:  // Item Rain with retro tracks
@@ -311,6 +314,7 @@ void System::UpdateContext() {
                 sInstance->context &= ~(1 << PULSAR_MODE_OTT);
                 sInstance->context2 &= ~(1 << PULSAR_TEAM_BATTLE);
                 sInstance->context &= ~(1 << PULSAR_ELIMINATION);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
                 break;
 
             case 0x14:  // CT (Custom Tracks)
@@ -320,6 +324,7 @@ void System::UpdateContext() {
                 sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
                 sInstance->context2 &= ~(1 << PULSAR_TEAM_BATTLE);
                 sInstance->context &= ~(1 << PULSAR_ELIMINATION);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
                 break;
 
             case 0x15:  // OTT with custom tracks
@@ -329,6 +334,7 @@ void System::UpdateContext() {
                 sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
                 sInstance->context2 &= ~(1 << PULSAR_TEAM_BATTLE);
                 sInstance->context &= ~(1 << PULSAR_ELIMINATION);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
                 break;
 
             case 0x16:  // 200cc with custom tracks
@@ -338,6 +344,7 @@ void System::UpdateContext() {
                 sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
                 sInstance->context2 &= ~(1 << PULSAR_TEAM_BATTLE);
                 sInstance->context &= ~(1 << PULSAR_ELIMINATION);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
                 break;
 
             case 0x17:  // Item Rain with custom tracks
@@ -347,11 +354,13 @@ void System::UpdateContext() {
                 sInstance->context &= ~(1 << PULSAR_MODE_OTT);
                 sInstance->context2 &= ~(1 << PULSAR_TEAM_BATTLE);
                 sInstance->context &= ~(1 << PULSAR_ELIMINATION);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
                 break;
 
             case 0x0E:  // Battle
                 this->context |= (1 << PULSAR_TEAM_BATTLE);
                 sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
                 sInstance->context &= ~(1 << PULSAR_200_WW);
                 sInstance->context &= ~(1 << PULSAR_MODE_OTT);
                 sInstance->context &= ~(1 << PULSAR_ELIMINATION);
@@ -363,6 +372,7 @@ void System::UpdateContext() {
                 sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
                 sInstance->context &= ~(1 << PULSAR_200_WW);
                 sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
                 break;
         }
     }
