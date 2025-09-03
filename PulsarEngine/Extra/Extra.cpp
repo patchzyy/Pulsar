@@ -161,6 +161,10 @@ kmWrite32(0x800ECAAC, 0x7C7E1B78);
 // Disable Camera Shaking from Bombs [ZPL]
 kmWrite32(0x805a906c, 0x4E800020);
 
+// No VR/BR Loss on Disconnect [Bully]
+kmWrite32(0x80856560, 0x60000000); // Disable VR loss
+kmWrite32(0x808565CC, 0x60000000); // Disable BR loss
+
 // Ultra Uncut [MrBean35000vr + Chadderz]
 asmFunc GetUltraUncut() {
     ASM(
