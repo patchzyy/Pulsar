@@ -160,9 +160,15 @@ enum BMG {
     BMG_VS_BUTTON = 0x6900,
 
     // Worldwides
-    BMG_RETRO_MODES = 0x6901,
-    BMG_CUSTOM_MODES = 0x6902,
+    BMG_MAIN_MODES = 0x6901,
+    BMG_OTHER_MODES = 0x6902,
     BMG_BATTLE_MODES = 0x6914,
+
+    // Custom Track
+    BMG_CT_BUTTON = 0x690c,
+
+    // Regular Track
+    BMG_REGULAR_BUTTON = 0x6907,
 
     // OTT
     BMG_OTT_WW_BOTTOM = 0x6903,
@@ -170,28 +176,25 @@ enum BMG {
     BMG_OTT_PLAYING = 0x6905,
     BMG_OTT_TITLE_TEXT = 0x6906,
     BMG_OTT_TIME_DIFF = 0x2854,
-    BMG_OTT_TITLE_TEXT_CT = 0x6907,
 
     // 200cc
     BMG_200_WW_BOTTOM = 0x6908,
     BMG_200_BUTTON = 0x6909,
     BMG_200_PLAYING = 0x690a,
     BMG_200_TITLE_TEXT = 0x690b,
-    BMG_200_TITLE_TEXT_CT = 0x690c,
 
     // ItemRain
     BMG_ITEM_RAIN_WW_BOTTOM = 0x690d,
     BMG_ITEM_RAIN_BUTTON = 0x690e,
     BMG_ITEM_RAIN_PLAYING = 0x690f,
     BMG_ITEM_RAIN_TITLE_TEXT = 0x6910,
-    BMG_ITEM_RAIN_TITLE_TEXT_CT = 0x6911,
 
     // Battle
     BMG_BATTLE_WW_BOTTOM = 0x6915,
     BMG_BATTLE_BUTTON = 0x6916,
     BMG_BATTLE_TITLE_TEXT = 0x6917,
 
-    //
+    // Elimination
     BMG_BATTLE_BUTTON_ELIM = 0x6919,
     BMG_BATTLE_WW_BOTTOM_ELIM = 0x691a,
     
@@ -200,6 +203,9 @@ enum BMG {
 
     // CT
     BMG_TITLE_TEXT_CT = 0x6913,
+
+    // Regs
+    BMG_TITLE_TEXT_REGS = 0x691b,
 
     // BT
     BMG_TITLE_TEXT_BT = 0x6918,

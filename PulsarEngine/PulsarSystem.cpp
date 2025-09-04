@@ -327,31 +327,11 @@ void System::UpdateContext() {
                 sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
                 break;
 
-            case 0x15:  // OTT with custom tracks
-                this->context |= (1 << PULSAR_CTS);
-                sInstance->context &= ~(1 << PULSAR_200_WW);
-                this->context |= (1 << PULSAR_MODE_OTT);
-                sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
-                sInstance->context2 &= ~(1 << PULSAR_TEAM_BATTLE);
-                sInstance->context &= ~(1 << PULSAR_ELIMINATION);
-                sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
-                break;
-
-            case 0x16:  // 200cc with custom tracks
-                this->context |= (1 << PULSAR_CTS);
-                this->context |= (1 << PULSAR_200_WW);
-                sInstance->context &= ~(1 << PULSAR_MODE_OTT);
-                sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
-                sInstance->context2 &= ~(1 << PULSAR_TEAM_BATTLE);
-                sInstance->context &= ~(1 << PULSAR_ELIMINATION);
-                sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);
-                break;
-
-            case 0x17:  // Item Rain with custom tracks
-                this->context |= (1 << PULSAR_CTS);
-                this->context2 |= (1 << PULSAR_ITEMMODERAIN);
+            case 0x15:  // RT (Regular Tracks)
+                this->context |= (1 << PULSAR_REGS);
                 sInstance->context &= ~(1 << PULSAR_200_WW);
                 sInstance->context &= ~(1 << PULSAR_MODE_OTT);
+                sInstance->context2 &= ~(1 << PULSAR_ITEMMODERAIN);
                 sInstance->context2 &= ~(1 << PULSAR_TEAM_BATTLE);
                 sInstance->context &= ~(1 << PULSAR_ELIMINATION);
                 sInstance->context2 &= ~(1 << PULSAR_ITEMMODESTORM);

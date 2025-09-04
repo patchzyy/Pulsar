@@ -107,36 +107,32 @@ static bool isHookedRequest = false;
 static float hookLocalTimer = 0.0f;
 static bool hasRKNetRequestFinished = true;
 
-static int RR_numPlayersRegular = 0;
+
+static int RR_numPlayers150cc = 0;
+static int RR_numPlayersCT = 0;
+static int RR_numPlayersRT = 0;
 
 static int RR_numPlayers200cc = 0;
-static int RR_numPlayers150cc = 0;
 static int RR_numPlayersOTT = 0;
 static int RR_numPlayersIR = 0;
-
-static int CT_numPlayers200cc = 0;
-static int CT_numPlayers150cc = 0;
-static int CT_numPlayersOTT = 0;
-static int CT_numPlayersIR = 0;
 
 static int BT_numPlayersRegular = 0;
 static int BT_numPlayersELIM = 0;
 
+static int RR_numPlayersRegular = 0;
 static int RR_numPlayersOthers = 0;
 static int RR_numPlayersTotal = 0;
 
-void PlayerCount::GetNumbersRR(int& n150cc, int& n200c, int& nOtt, int& nIR) {
-    n150cc = RR_numPlayers150cc;
-    n200c = RR_numPlayers200cc;
-    nOtt = RR_numPlayersOTT;
-    nIR = RR_numPlayersIR;
+void PlayerCount::GetNumbersMain(int& nRetro, int& nCT, int& nRT) {
+    nRetro = RR_numPlayers150cc;
+    nCT = RR_numPlayersCT;
+    nRT = RR_numPlayersRT;
 }
 
-void PlayerCount::GetNumbersCT(int& n150cc, int& n200c, int& nOtt, int& nIR) {
-    n150cc = CT_numPlayers150cc;
-    n200c = CT_numPlayers200cc;
-    nOtt = CT_numPlayersOTT;
-    nIR = CT_numPlayersIR;
+void PlayerCount::GetNumbersOther(int& n200, int& nOtt, int& nIR) {
+    n200 = RR_numPlayers200cc;
+    nOtt = RR_numPlayersOTT;
+    nIR = RR_numPlayersIR;
 }
 
 void PlayerCount::GetNumbersBT(int& nBattle, int& nBattleELIM) {
@@ -162,8 +158,8 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
         int totalPlayers = 0;
         int numElse = 0;
         int numRegs = 0;
-        int RR_local150cc = 0, RR_local200cc = 0, RR_localOTT = 0, RR_localIR = 0;
-        int CT_local150cc = 0, CT_local200cc = 0, CT_localOTT = 0, CT_localIR = 0;
+        int RR_localRetro = 0, RR_localCT = 0, RR_localRT = 0;
+        int RR_local200cc = 0, RR_localOTT = 0, RR_localIR = 0;
         int BT_localRegular = 0, BT_localRegularELIM = 0;
         for (int i = 0; i < ServerBrowserCount(sb); i++) {
             SBServer server = ServerBrowserGetServer(sb, i);
@@ -177,7 +173,7 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
             int numplayers = SBServerGetIntValueA(server, "numplayers", -1) + 1;
             if (strstr(region, "vs")) {
                 if (regionID == 0x0A) {
-                    RR_local150cc += numplayers;
+                    RR_localRetro += numplayers;
                 } else if (regionID == 0x0C) {
                     RR_local200cc += numplayers;
                 } else if (regionID == 0x0B) {
@@ -185,13 +181,9 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
                 } else if (regionID == 0x0D) {
                     RR_localIR += numplayers;
                 } else if (regionID == 0x14) {
-                    CT_local150cc += numplayers;
-                } else if (regionID == 0x16) {
-                    CT_local200cc += numplayers;
+                    RR_localCT += numplayers;
                 } else if (regionID == 0x15) {
-                    CT_localOTT += numplayers;
-                } else if (regionID == 0x17) {
-                    CT_localIR += numplayers;
+                    RR_localRT += numplayers;
                 } else if (regionID == 0x13371337) {
                     numRegs += numplayers;
                 } else {
@@ -207,15 +199,13 @@ void sbCallback(ServerBrowser sb, SBCallbackReason reason,
             totalPlayers += numplayers;
         }
 
-        RR_numPlayers150cc = RR_local150cc;
+        RR_numPlayers150cc = RR_localRetro;
+        RR_numPlayersCT = RR_localCT;
+        RR_numPlayersRT = RR_localRT;
+        
         RR_numPlayers200cc = RR_local200cc;
         RR_numPlayersOTT = RR_localOTT;
         RR_numPlayersIR = RR_localIR;
-
-        CT_numPlayers150cc = CT_local150cc;
-        CT_numPlayers200cc = CT_local200cc;
-        CT_numPlayersOTT = CT_localOTT;
-        CT_numPlayersIR = CT_localIR;
 
         BT_numPlayersRegular = BT_localRegular;
         BT_numPlayersELIM = BT_localRegularELIM;

@@ -27,19 +27,19 @@ void ExpWFCMain::OnInit() {
     ControlLoader loader(&this->playerCount);
     loader.Load(UI::buttonFolder, "VRButton", "VRButton", nullptr);
 
-    this->AddControl(7, retroButton, 0);
-    this->retroButton.Load(UI::buttonFolder, "RetrosButton", "ButtonRetros", 1, 0, 0);
-    this->retroButton.buttonId = 6;
-    this->retroButton.SetMessage(BMG_RETRO_MODES);
-    this->retroButton.SetOnClickHandler(this->onRetroClick, 0);
-    this->retroButton.SetOnSelectHandler(this->onButtonSelectHandler);
+    this->AddControl(7, mainButton, 0);
+    this->mainButton.Load(UI::buttonFolder, "MainButton", "ButtonMain", 1, 0, 0);
+    this->mainButton.buttonId = 6;
+    this->mainButton.SetMessage(BMG_MAIN_MODES);
+    this->mainButton.SetOnClickHandler(this->onMainClick, 0);
+    this->mainButton.SetOnSelectHandler(this->onButtonSelectHandler);
 
-    this->AddControl(8, customButton, 0);
-    this->customButton.Load(UI::buttonFolder, "CustomsButton", "ButtonCustoms", 1, 0, 0);
-    this->customButton.buttonId = 7;
-    this->customButton.SetMessage(BMG_CUSTOM_MODES);
-    this->customButton.SetOnClickHandler(this->onCustomClick, 0);
-    this->customButton.SetOnSelectHandler(this->onButtonSelectHandler);
+    this->AddControl(8, otherButton, 0);
+    this->otherButton.Load(UI::buttonFolder, "OtherButton", "ButtonOther", 1, 0, 0);
+    this->otherButton.buttonId = 7;
+    this->otherButton.SetMessage(BMG_OTHER_MODES);
+    this->otherButton.SetOnClickHandler(this->onOtherClick, 0);
+    this->otherButton.SetOnSelectHandler(this->onButtonSelectHandler);
 
     this->AddControl(9, battleButton, 0);
     this->battleButton.Load(UI::buttonFolder, "BattleButton", "ButtonBattle", 1, 0, 0);
@@ -56,18 +56,18 @@ void ExpWFCMain::OnInit() {
     this->topSettingsPage = SettingsPanel::id;
 
     // Set retro button as default selected
-    this->retroButton.Select(0);
+    this->mainButton.Select(0);
 
     // this->manipulatorManager.SetGlobalHandler(START_PRESS, this->onStartPress, false, false);
 }
 
 u32 Pulsar::UI::ExpWFCMain::lastClickedMainMenuButton = 6;
-void ExpWFCMain::OnRetroButtonClick(PushButton& pushButton, u32 hudSlotId) {
+void ExpWFCMain::OnMainButtonClick(PushButton& pushButton, u32 hudSlotId) {
     ExpWFCMain::lastClickedMainMenuButton = 6;  // retros
     this->OnRegionalButtonClick(pushButton, hudSlotId);
 }
 
-void ExpWFCMain::OnCustomButtonClick(PushButton& pushButton, u32 hudSlotId) {
+void ExpWFCMain::OnOtherButtonClick(PushButton& pushButton, u32 hudSlotId) {
     ExpWFCMain::lastClickedMainMenuButton = 7;  // customs
     this->OnRegionalButtonClick(pushButton, hudSlotId);
 }
@@ -98,18 +98,18 @@ void ExpWFCMain::ExtOnButtonSelect(PushButton& button, u32 hudSlotId) {
 void ExpWFCMain::BeforeControlUpdate() {
     WFCMainMenu::BeforeControlUpdate();
 
-    int RR_num150cc, RR_num200cc, RR_numOTT, RR_numIR;
-    int CT_num150cc, CT_num200cc, CT_numOTT, CT_numIR;
+    int RR_numRetro, RR_numCT, RR_numRT;
+    int RR_num200cc, RR_numOTT, RR_numIR;
     int BT_numRegulars, BT_numElim;
     int numRegulars;
 
-    PlayerCount::GetNumbersRR(RR_num150cc, RR_num200cc, RR_numOTT, RR_numIR);
-    PlayerCount::GetNumbersCT(CT_num150cc, CT_num200cc, CT_numOTT, CT_numIR);
+    PlayerCount::GetNumbersMain(RR_numRetro, RR_numCT, RR_numRT);
+    PlayerCount::GetNumbersOther(RR_num200cc, RR_numOTT, RR_numIR);
     PlayerCount::GetNumbersBT(BT_numRegulars, BT_numElim);
     PlayerCount::GetNumbersRegular(numRegulars);
 
     Text::Info info;
-    info.intToPass[0] = RR_numOTT + RR_num200cc + RR_num150cc + RR_numIR + CT_num150cc + CT_num200cc + CT_numOTT + CT_numIR + BT_numRegulars + BT_numElim + numRegulars;
+    info.intToPass[0] = RR_numRetro + RR_numCT + RR_numRT + RR_num200cc + RR_numOTT + RR_numIR + BT_numRegulars + BT_numElim + numRegulars;
     this->playerCount.SetTextBoxMessage("go", BMG_PLAYER_COUNT, &info);
 
     if (!Dolphin::IsEmulator()) {
@@ -128,65 +128,51 @@ void ExpWFCModeSel::OnInit() {
 u32 Pulsar::UI::ExpWFCModeSel::lastClickedButton = 0;
 
 void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
-    self.InitControlGroup(15);
+    self.InitControlGroup(13);
 
-    self.AddControl(5, self.ottButton, 0);
-    self.ottButton.Load(UI::buttonFolder, "WifiMenuModeSelect", "RTOTTButton", 1, 0, 0);
-    self.ottButton.buttonId = ottButtonId;
-    self.ottButton.SetMessage(BMG_OTT_BUTTON);
-    self.ottButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
-    self.ottButton.SetOnSelectHandler(self.onButtonSelectHandler);
+    self.AddControl(5, self.ctButton, 0);
+    self.ctButton.Load(UI::buttonFolder, "WifiMenuModeSelect", "CTButton", 1, 0, 0);
+    self.ctButton.buttonId = ctButtonId;
+    self.ctButton.SetMessage(BMG_CT_BUTTON);
+    self.ctButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
+    self.ctButton.SetOnSelectHandler(self.onButtonSelectHandler);
 
-    self.AddControl(6, self.twoHundredButton, 0);
-    self.twoHundredButton.Load(UI::buttonFolder, "WifiMenuModeSelect", "RT200Button", 1, 0, 0);
+    self.AddControl(6, self.regButton, 0);
+    self.regButton.Load(UI::buttonFolder, "WifiMenuModeSelect", "RegButton", 1, 0, 0);
+    self.regButton.buttonId = regButtonId;
+    self.regButton.SetMessage(BMG_REGULAR_BUTTON);
+    self.regButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
+    self.regButton.SetOnSelectHandler(self.onButtonSelectHandler);
+
+    self.AddControl(7, self.twoHundredButton, 0);
+    self.twoHundredButton.Load(UI::buttonFolder, "WifiMenuModeSelect", "200Button", 1, 0, 0);
     self.twoHundredButton.buttonId = twoHundredButtonId;
     self.twoHundredButton.SetMessage(BMG_200_BUTTON);
     self.twoHundredButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.twoHundredButton.SetOnSelectHandler(self.onButtonSelectHandler);
 
-    self.AddControl(7, self.ctButton, 0);
-    self.ctButton.Load(UI::buttonFolder, "WifiMenuModeSelect", "CTVSButton", 1, 0, 0);
-    self.ctButton.buttonId = ctButtonId;
-    self.ctButton.SetMessage(BMG_VS_BUTTON);
-    self.ctButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
-    self.ctButton.SetOnSelectHandler(self.onButtonSelectHandler);
+    self.AddControl(8, self.ottButton, 0);
+    self.ottButton.Load(UI::buttonFolder, "WifiMenuModeSelect", "OTTButton", 1, 0, 0);
+    self.ottButton.buttonId = ottButtonId;
+    self.ottButton.SetMessage(BMG_OTT_BUTTON);
+    self.ottButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
+    self.ottButton.SetOnSelectHandler(self.onButtonSelectHandler);
 
-    self.AddControl(8, self.ottButtonCT, 0);
-    self.ottButtonCT.Load(UI::buttonFolder, "WifiMenuModeSelect", "CTOTTButton", 1, 0, 0);
-    self.ottButtonCT.buttonId = ottButtonIdCT;
-    self.ottButtonCT.SetMessage(BMG_OTT_BUTTON);
-    self.ottButtonCT.SetOnClickHandler(self.onModeButtonClickHandler, 0);
-    self.ottButtonCT.SetOnSelectHandler(self.onButtonSelectHandler);
-
-    self.AddControl(9, self.twoHundredButtonCT, 0);
-    self.twoHundredButtonCT.Load(UI::buttonFolder, "WifiMenuModeSelect", "CT200Button", 1, 0, 0);
-    self.twoHundredButtonCT.buttonId = twoHundredButtonIdCT;
-    self.twoHundredButtonCT.SetMessage(BMG_200_BUTTON);
-    self.twoHundredButtonCT.SetOnClickHandler(self.onModeButtonClickHandler, 0);
-    self.twoHundredButtonCT.SetOnSelectHandler(self.onButtonSelectHandler);
-
-    self.AddControl(11, self.itemRainButton, 0);
-    self.itemRainButton.Load(UI::buttonFolder, "WifiMenuModeSelect", "RTItemRainButton", 1, 0, 0);
+    self.AddControl(9, self.itemRainButton, 0);
+    self.itemRainButton.Load(UI::buttonFolder, "WifiMenuModeSelect", "ItemRainButton", 1, 0, 0);
     self.itemRainButton.buttonId = itemRainButtonId;
     self.itemRainButton.SetMessage(BMG_ITEM_RAIN_BUTTON);
     self.itemRainButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.itemRainButton.SetOnSelectHandler(self.onButtonSelectHandler);
 
-    self.AddControl(12, self.itemRainButtonCT, 0);
-    self.itemRainButtonCT.Load(UI::buttonFolder, "WifiMenuModeSelect", "CTItemRainButton", 1, 0, 0);
-    self.itemRainButtonCT.buttonId = itemRainButtonIdCT;
-    self.itemRainButtonCT.SetMessage(BMG_ITEM_RAIN_BUTTON);
-    self.itemRainButtonCT.SetOnClickHandler(self.onModeButtonClickHandler, 0);
-    self.itemRainButtonCT.SetOnSelectHandler(self.onButtonSelectHandler);
-
-    self.AddControl(13, self.RRbattleButton, 0);
+    self.AddControl(11, self.RRbattleButton, 0);
     self.RRbattleButton.Load(UI::buttonFolder, "WifiMenuModeSelect", "BattleButton", 1, 0, 0);
     self.RRbattleButton.buttonId = RRbattleButtonId;
     self.RRbattleButton.SetMessage(BMG_BATTLE_BUTTON);
     self.RRbattleButton.SetOnClickHandler(self.onModeButtonClickHandler, 0);
     self.RRbattleButton.SetOnSelectHandler(self.onButtonSelectHandler);
 
-    self.AddControl(14, self.RRbattleButtonElim, 0);
+    self.AddControl(12, self.RRbattleButtonElim, 0);
     self.RRbattleButtonElim.Load(UI::buttonFolder, "WifiMenuModeSelect", "BattleButtonElim", 1, 0, 0);
     self.RRbattleButtonElim.buttonId = RRbattleButtonIdElim;
     self.RRbattleButtonElim.SetMessage(BMG_BATTLE_BUTTON_ELIM);
@@ -210,13 +196,11 @@ void ExpWFCModeSel::InitButton(ExpWFCModeSel& self) {
     if (ExpWFCMain::lastClickedMainMenuButton == 8) {
         info.intToPass[0] = br;
     }
-    self.ottButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
-    self.twoHundredButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
-    self.itemRainButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
     self.ctButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
-    self.ottButtonCT.SetTextBoxMessage("go", BMG_VR_RATING, &info);
-    self.twoHundredButtonCT.SetTextBoxMessage("go", BMG_VR_RATING, &info);
-    self.itemRainButtonCT.SetTextBoxMessage("go", BMG_VR_RATING, &info);
+    self.regButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
+    self.twoHundredButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
+    self.ottButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
+    self.itemRainButton.SetTextBoxMessage("go", BMG_VR_RATING, &info);
     self.RRbattleButton.SetTextBoxMessage("go", BMG_BR_RATING, &info);
     self.RRbattleButtonElim.SetTextBoxMessage("go", BMG_BR_RATING, &info);
 }
@@ -250,12 +234,8 @@ void ExpWFCModeSel::OnModeButtonClick(PushButton& modeButton, u32 hudSlotId) {
         System::sInstance->netMgr.region = 0x0D;
     } else if (id == ctButtonId) {
         System::sInstance->netMgr.region = 0x14;
-    } else if (id == ottButtonIdCT) {
+    } else if (id == regButtonId) {
         System::sInstance->netMgr.region = 0x15;
-    } else if (id == twoHundredButtonIdCT) {
-        System::sInstance->netMgr.region = 0x16;
-    } else if (id == itemRainButtonIdCT) {
-        System::sInstance->netMgr.region = 0x17;
     } else if (id == RRbattleButtonId) {
         System::sInstance->netMgr.region = 0x0E;
         WFCModeSelect::OnModeButtonClick(this->battleButton, hudSlotId);
@@ -289,20 +269,16 @@ void ExpWFCModeSel::OnActivatePatch() {
 
     page->vsButton.isHidden = isHidden;
     page->vsButton.manipulator.inaccessible = isHidden;
-    page->ottButton.isHidden = isHidden;
-    page->ottButton.manipulator.inaccessible = isHidden;
-    page->twoHundredButton.isHidden = isHidden;
-    page->twoHundredButton.manipulator.inaccessible = isHidden;
-    page->itemRainButton.isHidden = isHidden;
-    page->itemRainButton.manipulator.inaccessible = isHidden;
     page->ctButton.isHidden = isHidden;
     page->ctButton.manipulator.inaccessible = isHidden;
-    page->ottButtonCT.isHidden = isHidden;
-    page->ottButtonCT.manipulator.inaccessible = isHidden;
-    page->twoHundredButtonCT.isHidden = isHidden;
-    page->twoHundredButtonCT.manipulator.inaccessible = isHidden;
-    page->itemRainButtonCT.isHidden = isHidden;
-    page->itemRainButtonCT.manipulator.inaccessible = isHidden;
+    page->regButton.isHidden = isHidden;
+    page->regButton.manipulator.inaccessible = isHidden;
+    page->twoHundredButton.isHidden = isHidden;
+    page->twoHundredButton.manipulator.inaccessible = isHidden;
+    page->ottButton.isHidden = isHidden;
+    page->ottButton.manipulator.inaccessible = isHidden;
+    page->itemRainButton.isHidden = isHidden;
+    page->itemRainButton.manipulator.inaccessible = isHidden;
     page->RRbattleButton.isHidden = isHidden;
     page->RRbattleButton.manipulator.inaccessible = isHidden;
     page->RRbattleButtonElim.isHidden = isHidden;
@@ -311,35 +287,31 @@ void ExpWFCModeSel::OnActivatePatch() {
     page->vsButton.SetMessage(BMG_VS_BUTTON);
 
     if (!isHidden) {
-        bool isRetrosMode = (ExpWFCMain::lastClickedMainMenuButton == 6);
+        bool isMainMode = (ExpWFCMain::lastClickedMainMenuButton == 6);
         bool isBattleMode = (ExpWFCMain::lastClickedMainMenuButton == 8);
-        bool isCustomsMode = (ExpWFCMain::lastClickedMainMenuButton == 7);
+        bool isOtherMode = (ExpWFCMain::lastClickedMainMenuButton == 7);
 
-        // Show retro buttons only in retros mode
-        page->vsButton.isHidden = isCustomsMode || isBattleMode;
-        page->vsButton.manipulator.inaccessible = isCustomsMode || isBattleMode;
-        page->ottButton.isHidden = isCustomsMode || isBattleMode;
-        page->ottButton.manipulator.inaccessible = isCustomsMode || isBattleMode;
-        page->twoHundredButton.isHidden = isCustomsMode || isBattleMode;
-        page->twoHundredButton.manipulator.inaccessible = isCustomsMode || isBattleMode;
-        page->itemRainButton.isHidden = isCustomsMode || isBattleMode;
-        page->itemRainButton.manipulator.inaccessible = isCustomsMode || isBattleMode;
+        // Show retro buttons only in main mode
+        page->vsButton.isHidden = isOtherMode || isBattleMode;
+        page->vsButton.manipulator.inaccessible = isOtherMode || isBattleMode;
+        page->ctButton.isHidden = isOtherMode || isBattleMode;
+        page->ctButton.manipulator.inaccessible = isOtherMode || isBattleMode;
+        page->regButton.isHidden = isOtherMode || isBattleMode;
+        page->regButton.manipulator.inaccessible = isOtherMode || isBattleMode;
 
-        // Show custom buttons only in customs mode
-        page->ctButton.isHidden = isRetrosMode || isBattleMode;
-        page->ctButton.manipulator.inaccessible = isRetrosMode || isBattleMode;
-        page->ottButtonCT.isHidden = isRetrosMode || isBattleMode;
-        page->ottButtonCT.manipulator.inaccessible = isRetrosMode || isBattleMode;
-        page->twoHundredButtonCT.isHidden = isRetrosMode || isBattleMode;
-        page->twoHundredButtonCT.manipulator.inaccessible = isRetrosMode || isBattleMode;
-        page->itemRainButtonCT.isHidden = isRetrosMode || isBattleMode;
-        page->itemRainButtonCT.manipulator.inaccessible = isRetrosMode || isBattleMode;
+        // Show custom buttons only in other mode
+        page->ottButton.isHidden = isMainMode || isBattleMode;
+        page->ottButton.manipulator.inaccessible = isMainMode || isBattleMode;
+        page->twoHundredButton.isHidden = isMainMode || isBattleMode;
+        page->twoHundredButton.manipulator.inaccessible = isMainMode || isBattleMode;
+        page->itemRainButton.isHidden = isMainMode || isBattleMode;
+        page->itemRainButton.manipulator.inaccessible = isMainMode || isBattleMode;
 
         // Show battle buttons only in battle mode
-        page->RRbattleButton.isHidden = isCustomsMode || isRetrosMode;
-        page->RRbattleButton.manipulator.inaccessible = isCustomsMode || isRetrosMode;
-        page->RRbattleButtonElim.isHidden = isCustomsMode || isRetrosMode;
-        page->RRbattleButtonElim.manipulator.inaccessible = isCustomsMode || isRetrosMode;
+        page->RRbattleButton.isHidden = isOtherMode || isMainMode;
+        page->RRbattleButton.manipulator.inaccessible = isOtherMode || isMainMode;
+        page->RRbattleButtonElim.isHidden = isOtherMode || isMainMode;
+        page->RRbattleButtonElim.manipulator.inaccessible = isOtherMode || isMainMode;
     }
 
     page->battleButton.isHidden = true;
@@ -363,7 +335,7 @@ void ExpWFCModeSel::OnActivatePatch() {
     page->nextPage = PAGE_NONE;
     PushButton* button = &page->vsButton;
     PushButton* BTbutton = &page->RRbattleButton;
-    PushButton* CTbutton = &page->ctButton;
+    PushButton* TWObutton = &page->twoHundredButton;
     u32 bmgId = UI::BMG_RACE_WITH11P;
     page->lastClickedButton = 0;
     const u32 gamemode = Racedata::sInstance->racesScenario.settings.gamemode;
@@ -385,18 +357,10 @@ void ExpWFCModeSel::OnActivatePatch() {
         page->lastClickedButton = ctButtonId;
         button = &page->ctButton;
         bmgId = UI::BMG_RACE_WITH11P;
-    } else if (System::sInstance->IsContext(PULSAR_MODE_OTT) && System::sInstance->IsContext(PULSAR_CTS)) {
-        page->lastClickedButton = ottButtonIdCT;
-        button = &page->ottButtonCT;
-        bmgId = UI::BMG_OTT_WW_BOTTOM;
-    } else if (System::sInstance->IsContext(PULSAR_200_WW) && System::sInstance->IsContext(PULSAR_CTS)) {
-        page->lastClickedButton = twoHundredButtonIdCT;
-        button = &page->twoHundredButtonCT;
-        bmgId = UI::BMG_200_WW_BOTTOM;
-    } else if (System::sInstance->IsContext(PULSAR_ITEMMODERAIN) && System::sInstance->IsContext(PULSAR_CTS)) {
-        page->lastClickedButton = itemRainButtonIdCT;
-        button = &page->itemRainButtonCT;
-        bmgId = UI::BMG_ITEM_RAIN_WW_BOTTOM;
+    } else if (System::sInstance->IsContext(PULSAR_REGS)) {
+        page->lastClickedButton = regButtonId;
+        button = &page->regButton;
+        bmgId = UI::BMG_RACE_WITH11P;
     } else if (System::sInstance->netMgr.region == 0x0E && gamemode == MODE_PUBLIC_BATTLE) {
         page->lastClickedButton = RRbattleButtonId;
         button = &page->RRbattleButton;
@@ -415,7 +379,7 @@ void ExpWFCModeSel::OnActivatePatch() {
     if (ExpWFCMain::lastClickedMainMenuButton == 8) {
         BTbutton->Select(0);
     } else if (ExpWFCMain::lastClickedMainMenuButton == 7) {
-        CTbutton->Select(0);
+        TWObutton->Select(0);
     } else if (ExpWFCMain::lastClickedMainMenuButton == 6) {
         button->Select(0);
     }
@@ -431,12 +395,8 @@ void ExpWFCModeSel::OnModeButtonSelect(PushButton& modeButton, u32 hudSlotId) {
         this->bottomText.SetMessage(BMG_ITEM_RAIN_WW_BOTTOM);
     } else if (modeButton.buttonId == ctButtonId) {
         this->bottomText.SetMessage(BMG_RACE_WITH11P);
-    } else if (modeButton.buttonId == ottButtonIdCT) {
-        this->bottomText.SetMessage(BMG_OTT_WW_BOTTOM);
-    } else if (modeButton.buttonId == twoHundredButtonIdCT) {
-        this->bottomText.SetMessage(BMG_200_WW_BOTTOM);
-    } else if (modeButton.buttonId == itemRainButtonIdCT) {
-        this->bottomText.SetMessage(BMG_ITEM_RAIN_WW_BOTTOM);
+    } else if (modeButton.buttonId == regButtonId) {
+        this->bottomText.SetMessage(BMG_RACE_WITH11P);
     } else if (modeButton.buttonId == RRbattleButtonId) {
         this->bottomText.SetMessage(BMG_BATTLE_WW_BOTTOM);
     } else if (modeButton.buttonId == RRbattleButtonIdElim) {
@@ -451,11 +411,11 @@ void ExpWFCModeSel::BeforeControlUpdate() {
     WFCModeSelect::BeforeControlUpdate();
 
     int numRegulars;
-    int RR_num150cc, RR_num200cc, RR_numOTT, RR_numIR;
-    int CT_num150cc, CT_num200cc, CT_numOTT, CT_numIR;
+    int RR_numRetro, RR_numCT, RR_numRT;
+    int RR_num200cc, RR_numOTT, RR_numIR;
     int BT_numRegulars, BT_numELIM;
-    PlayerCount::GetNumbersRR(RR_num150cc, RR_num200cc, RR_numOTT, RR_numIR);
-    PlayerCount::GetNumbersCT(CT_num150cc, CT_num200cc, CT_numOTT, CT_numIR);
+    PlayerCount::GetNumbersMain(RR_numRetro, RR_numCT, RR_numRT);
+    PlayerCount::GetNumbersOther(RR_num200cc, RR_numOTT, RR_numIR);
     PlayerCount::GetNumbersBT(BT_numRegulars, BT_numELIM);
     PlayerCount::GetNumbersRegular(numRegulars);
 
@@ -472,20 +432,14 @@ void ExpWFCModeSel::BeforeControlUpdate() {
         info.intToPass[0] = RR_num200cc;
         this->twoHundredButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
 
-        info.intToPass[0] = RR_num150cc;
+        info.intToPass[0] = RR_numRetro;
         this->vsButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
 
-        info.intToPass[0] = CT_numIR;
-        this->itemRainButtonCT.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
-
-        info.intToPass[0] = CT_numOTT;
-        this->ottButtonCT.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
-
-        info.intToPass[0] = CT_num200cc;
-        this->twoHundredButtonCT.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
-
-        info.intToPass[0] = CT_num150cc;
+        info.intToPass[0] = RR_numCT;
         this->ctButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
+
+        info.intToPass[0] = RR_numRT;
+        this->regButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
 
         info.intToPass[0] = BT_numRegulars;
         this->RRbattleButton.SetTextBoxMessage("go", Pulsar::UI::BMG_PLAYER_COUNT, &info);
@@ -519,9 +473,7 @@ void ExpWFCModeSel::BeforeControlUpdate() {
         this->twoHundredButton.SetPaneVisibility("capsul_null", false);
         this->ctButton.SetPaneVisibility("capsul_null", false);
         this->itemRainButton.SetPaneVisibility("capsul_null", false);
-        this->ottButtonCT.SetPaneVisibility("capsul_null", false);
-        this->twoHundredButtonCT.SetPaneVisibility("capsul_null", false);
-        this->itemRainButtonCT.SetPaneVisibility("capsul_null", false);
+        this->regButton.SetPaneVisibility("capsul_null", false);
         this->RRbattleButton.SetPaneVisibility("capsul_null", false);
         this->RRbattleButtonElim.SetPaneVisibility("capsul_null", false);
     }

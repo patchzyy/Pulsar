@@ -15,10 +15,10 @@ class ExpWFCMain : public Pages::WFCMainMenu {
     ExpWFCMain() {
         this->onSettingsClick.subject = this;
         this->onSettingsClick.ptmf = &ExpWFCMain::OnSettingsButtonClick;
-        this->onRetroClick.subject = this;
-        this->onRetroClick.ptmf = &ExpWFCMain::OnRetroButtonClick;
-        this->onCustomClick.subject = this;
-        this->onCustomClick.ptmf = &ExpWFCMain::OnCustomButtonClick;
+        this->onMainClick.subject = this;
+        this->onMainClick.ptmf = &ExpWFCMain::OnMainButtonClick;
+        this->onOtherClick.subject = this;
+        this->onOtherClick.ptmf = &ExpWFCMain::OnOtherButtonClick;
         this->onBattleClick.subject = this;
         this->onBattleClick.ptmf = &ExpWFCMain::OnBattleButtonClick;
         this->onButtonSelectHandler.ptmf = &ExpWFCMain::ExtOnButtonSelect;
@@ -32,21 +32,21 @@ class ExpWFCMain : public Pages::WFCMainMenu {
    private:
     void OnSettingsButtonClick(PushButton& PushButton, u32 r5);
     void ExtOnButtonSelect(PushButton& pushButton, u32 hudSlotId);
-    void OnRetroButtonClick(PushButton& PushButton, u32 hudSlotId);
-    void OnCustomButtonClick(PushButton& PushButton, u32 hudSlotId);
+    void OnMainButtonClick(PushButton& PushButton, u32 hudSlotId);
+    void OnOtherButtonClick(PushButton& PushButton, u32 hudSlotId);
     void OnBattleButtonClick(PushButton& PushButton, u32 hudSlotId);
     // void ExtOnStartPress(u32 hudSlotId) {
     //     s_displayPlayerCount = !s_displayPlayerCount;
     // }
 
     PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onSettingsClick;
-    PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onRetroClick;
-    PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onCustomClick;
+    PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onMainClick;
+    PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onOtherClick;
     PtmfHolder_2A<ExpWFCMain, void, PushButton&, u32> onBattleClick;
     // PtmfHolder_1A<ExpWFCMain, void, u32> onStartPress;
     PushButton settingsButton;
-    PushButton retroButton;
-    PushButton customButton;
+    PushButton mainButton;
+    PushButton otherButton;
     PushButton battleButton;
     LayoutUIControl playerCount;
 
@@ -79,27 +79,23 @@ class ExpWFCModeSel : public Pages::WFCModeSelect {
 
     // PtmfHolder_1A<ExpWFCModeSel, void, u32> onStartPress;
 
-    PushButton ottButton;
-    PushButton twoHundredButton;
     PushButton ctButton;
-    PushButton ottButtonCT;
-    PushButton twoHundredButtonCT;
+    PushButton regButton;
+    PushButton twoHundredButton;
+    PushButton ottButton;
     PushButton itemRainButton;
-    PushButton itemRainButtonCT;
     PushButton RRbattleButton;
     PushButton RRbattleButtonElim;
     LayoutUIControl vrButton;
     static u32 lastClickedButton;
     u32 region;
-    static const u32 ottButtonId = 4;
-    static const u32 twoHundredButtonId = 5;
-    static const u32 ctButtonId = 6;
-    static const u32 ottButtonIdCT = 7;
-    static const u32 twoHundredButtonIdCT = 8;
+    static const u32 ctButtonId = 4;
+    static const u32 regButtonId = 5;
+    static const u32 twoHundredButtonId = 7;
+    static const u32 ottButtonId = 6;
     static const u32 itemRainButtonId = 9;
-    static const u32 itemRainButtonIdCT = 10;
-    static const u32 RRbattleButtonId = 11;
-    static const u32 RRbattleButtonIdElim = 12;
+    static const u32 RRbattleButtonId = 10;
+    static const u32 RRbattleButtonIdElim = 11;
 };
 }  // namespace UI
 }  // namespace Pulsar

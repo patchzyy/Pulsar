@@ -14,8 +14,8 @@
 
 namespace PlayerCount {
 
-void GetNumbersRR(int& n150cc, int& n200c, int& nOtt, int& nIR);
-void GetNumbersCT(int& n150cc, int& n200c, int& nOtt, int& nIR);
+void GetNumbersMain(int& nRetro, int& nCT, int& nRT);
+void GetNumbersOther(int& n200, int& nOtt, int& nIR);
 void GetNumbersBT(int& nBattle, int& nBattleELIM);
 void GetNumbersRegular(int& nRegular);
 void GetNumbersTotal(int& nTotal);
