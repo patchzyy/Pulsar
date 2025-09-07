@@ -11,6 +11,7 @@ char GetRegion() {
 /* Must be preallocated */
 void SDIO_RKSYS_path(char* path, u32 pathlen) {
     if (IO::sInstance->type == IOType_DOLPHIN) {
+        // this exists on NAND, usually in shared2 (not SD)
         snprintf(path, pathlen, "/RetroRewind6/rksys-%c.dat", GetRegion());
     } else {
         snprintf(path, pathlen, "/riivolution/save/RetroWFC/RMC%c/rksys.dat", GetRegion());
@@ -23,6 +24,8 @@ bool useRedirectedRKSYS() {
 
 NandUtils::Result SDIO_ReadRKSYS(NandMgr* nm, void* buffer, u32 size, u32 offset, bool r7)  // 8052c0b0
 {
+    OS::Report("* SDIO_RKSYS: ReadRKSYS base\n");
+
     if (useRedirectedRKSYS()) {
         OS::Report("* SDIO_RKSYS: ReadRKSYS (size: %i offset: %i bool: %i)\n", size, offset, r7);
         bool res;
@@ -42,13 +45,17 @@ NandUtils::Result SDIO_ReadRKSYS(NandMgr* nm, void* buffer, u32 size, u32 offset
         return NandUtils::NAND_RESULT_OK;
     } else {
         asmVolatile(stwu sp, -0x00B0(sp););
-        return nm->ReadRKSYS2ndInst(buffer, size, offset, r7);
+        NandUtils::Result res = nm->ReadRKSYS2ndInst(buffer, size, offset, r7);
+        OS::Report("* SDIO_RKSYS: ReadRKSYS trampoline: returned %i\n", res);
+        return res;
     }
 }
 kmBranch(0x8052c0b0, SDIO_ReadRKSYS);
 
 NandUtils::Result SDIO_CheckRKSYSLength(NandMgr* nm, u32 length)  // 8052c20c
 {
+    OS::Report("* SDIO_RKSYS: CheckRKSYSLength base\n");
+
     if (useRedirectedRKSYS()) {
         OS::Report("* SDIO_RKSYS: CheckRKSYSLength (length: %i)\n", length);
         bool res;
@@ -74,14 +81,20 @@ NandUtils::Result SDIO_CheckRKSYSLength(NandMgr* nm, u32 length)  // 8052c20c
             return NandUtils::NAND_RESULT_OK;
         }
     } else {
+        OS::Report("* SDIO_RKSYS: CheckRKSYSLength trampoline\n");
+
         asmVolatile(stwu sp, -0x00B0(sp););
-        return nm->CheckRKSYSLength2ndInst(length);
+        NandUtils::Result res = nm->CheckRKSYSLength2ndInst(length);
+        OS::Report("* SDIO_RKSYS: CheckRKSYSLength trampoline: returned %i\n", res);
+        return res;
     }
 }
 kmBranch(0x8052c20c, SDIO_CheckRKSYSLength);
 
 NandUtils::Result SDIO_WriteToRKSYS(NandMgr* nm, const void* buffer, u32 size, u32 offset, bool r7)  // 8052c2d0
 {
+    OS::Report("* SDIO_RKSYS: WriteToRKSYS base\n");
+
     if (useRedirectedRKSYS()) {
         OS::Report("* SDIO_RKSYS: WriteToRKSYS (size: %i offset: %i bool: %i)\n", size, offset, r7);
         bool res;
@@ -111,13 +124,17 @@ NandUtils::Result SDIO_WriteToRKSYS(NandMgr* nm, const void* buffer, u32 size, u
         return NandUtils::NAND_RESULT_OK;
     } else {
         asmVolatile(stwu sp, -0x00B0(sp););
-        return nm->WriteToRKSYS2ndInst(buffer, size, offset, r7);
+        NandUtils::Result res = nm->WriteToRKSYS2ndInst(buffer, size, offset, r7);
+        OS::Report("* SDIO_RKSYS: WriteToRKSYS trampoline: returned %i\n", res);
+        return res;
     }
 }
 kmBranch(0x8052c2d0, SDIO_WriteToRKSYS);
 
 NandUtils::Result SDIO_CreateRKSYS(NandMgr* nm, u32 length)  // 8052c68c
 {
+    OS::Report("* SDIO_RKSYS: CreateRKSYS base (length = %i)\n", length);
+
     if (useRedirectedRKSYS()) {
         bool res;
         char path[64];
@@ -138,13 +155,17 @@ NandUtils::Result SDIO_CreateRKSYS(NandMgr* nm, u32 length)  // 8052c68c
         return NandUtils::NAND_RESULT_OK;
     } else {
         asmVolatile(stwu sp, -0x00B0(sp););
-        return nm->CreateRKSYS2ndInst(length);
+        NandUtils::Result res = nm->CreateRKSYS2ndInst(length);
+        OS::Report("* SDIO_RKSYS: CreateRKSYS trampoline: returned %i\n", res);
+        return res;
     }
 }
-// kmBranch(0x8052c68c, SDIO_CreateRKSYS);
+kmBranch(0x8052c68c, SDIO_CreateRKSYS);
 
 NandUtils::Result SDIO_DeleteRKSYS(NandMgr* nm, u32 length, bool r5)  // 8052c7e4
 {
+    OS::Report("* SDIO_RKSYS: DeleteRKSYS base\n");
+
     if (useRedirectedRKSYS()) {
         OS::Report("* SDIO_RKSYS: DeleteRKSYS (length: %p/%i)\n", length, length);
         return NandUtils::NAND_RESULT_OK;
