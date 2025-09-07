@@ -253,7 +253,7 @@ PulsarId CupsConfig::RandomizeTrack() const {
         pulsarId = random.NextLimited(this->GetCtsTrackCount() + 32);
         if (pulsarId > 31) pulsarId += (0x100 - 32);
     } else
-        pulsarId = random.NextLimited(this->GetCtsTrackCount()) + 0x100;
+        pulsarId = random.NextLimited(264) + 0x100;
     return static_cast<PulsarId>(pulsarId);
 }
 
