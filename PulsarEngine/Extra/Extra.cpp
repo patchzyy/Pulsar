@@ -255,4 +255,17 @@ kmCall(0x8057C3F8, StarOffroadFix);
 kmWrite32(0x80549898, 0x38600000);
 kmWrite32(0x8054989c, 0x4E800020);
 
+// Deflicker when 480p [MKW-SP]
+asmFunc Deflicker() {
+    ASM(
+        nofralloc;
+        cntlzw r0, r3;
+        lwz r5, 0x14 (r5);
+        cmpwi r5, 0x0;
+        bnelr;
+        li r0, 0x0;
+        blr;)
+}
+kmCall(0x8021A028, Deflicker);
+
 }  // namespace Codes
