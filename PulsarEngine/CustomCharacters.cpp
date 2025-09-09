@@ -1,6 +1,7 @@
 #include <RetroRewind.hpp>
 #include <Settings/Settings.hpp>
 #include <MarioKartWii/System/Identifiers.hpp>
+#include <MarioKartWii/GlobalFunctions.hpp>
 
 namespace Pulsar {
 
@@ -34,7 +35,7 @@ void SetCharacter() {
     CUSTOM_BOWSER_JR = 'jr';
     CUSTOM_BOWSER = 'kp';
     CUSTOM_DRY_BOWSER = 'bk';
-    if (character == Pulsar::MENUSETTING_CUSTOMCHARACTER_ENABLED) {
+    if (character == Pulsar::MENUSETTING_CUSTOMCHARACTER_ENABLED && GetLocalPlayerCount() == 1) {
         CUSTOM_DRIVER = 'R';
         CUSTOM_BABY_MARIO = 'km';
         CUSTOM_TOAD = 'ct';
