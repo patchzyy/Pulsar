@@ -268,4 +268,12 @@ asmFunc Deflicker() {
 }
 kmCall(0x8021A028, Deflicker);
 
+// Edit Battle Item Point Probabilities [Zeraora, B_squo]
+kmWrite32(0x807bd494, 0x38000000);
+kmWrite32(0x807bd498, 0x38A00003);
+kmWrite32(0x807bd4a8, 0x38000000);
+kmWrite32(0x807bd4ac, 0x38A00003);
+kmWrite32(0x807bd4b4, 0x38000000);
+kmWrite32(0x807bd4b8, 0x38A00003);
+
 }  // namespace Codes

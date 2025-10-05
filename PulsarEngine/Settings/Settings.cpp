@@ -108,7 +108,7 @@ u8 Mgr::GetSettingValue(Type type, u32 setting) const {
     return this->rawBin->GetSection<PagesHolder>().pages[type].settings[setting];
 }
 u8 Mgr::GetUserSettingValue(UserType type, u32 setting) const {
-    return this->rawBin->GetSection<PagesHolder>().pages[type + 5].settings[setting];
+    return this->rawBin->GetSection<PagesHolder>().pages[type].settings[setting];
 }
 
 void Mgr::SetSettingValue(Type type, u32 setting, u8 value) {
