@@ -38,8 +38,6 @@ asmFunc ForceInvisible_LapKO() {
 // Hook points also used by BattleElim (see BattleElim.cpp for provenance)
 kmRuntimeUse(0x8058CB7C);  // ForceInvisible hook site
 static void ApplyLapKOInvisibility() {
-    // Set default instructions at hook sites (no-op) first
-    // These match BattleElim's defaults to preserve original semantics when not hooked
     kmRuntimeWrite32A(0x8058CB7C, 0xc0030000);  // lfs f0, 0(r3)
 
     const System* system = System::sInstance;
@@ -47,15 +45,15 @@ static void ApplyLapKOInvisibility() {
     if (system == nullptr || controller == nullptr) return;
 
     const bool isLapKO = system->IsContext(PULSAR_MODE_LAPKO);
-    const bool isOnline = (controller->roomType != RKNet::ROOMTYPE_NONE);
-    if (!(isLapKO && isOnline)) return;
+    const bool isFroom = (controller->roomType == RKNet::ROOMTYPE_FROOM_HOST || controller->roomType == RKNet::ROOMTYPE_FROOM_NONHOST);
+    if (!(isLapKO && isFroom)) return;
 
     // Apply runtime hooks to force invisibility for eliminated players during online LapKO
     kmRuntimeCallA(0x8058CB7C, ForceInvisible_LapKO);
 }
 
 // Apply on page load so hooks are installed once per race scene load
-static PageLoadHook sLapKOInvisHook(ApplyLapKOInvisibility);
+static RaceLoadHook sLapKOInvisHook(ApplyLapKOInvisibility);
 
 }  // namespace LapKO
 }  // namespace Pulsar
