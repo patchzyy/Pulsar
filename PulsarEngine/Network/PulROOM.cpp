@@ -47,7 +47,8 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
         const RacedataSettings& racedataSettings = Racedata::sInstance->menusScenario.settings;
         const GameMode mode = racedataSettings.gamemode;
 
-        u8 koSetting = settings.GetUserSettingValue(Settings::SETTINGSTYPE_KO, RADIO_KOENABLED);
+        u8 koSetting = settings.GetUserSettingValue(Settings::SETTINGSTYPE_KO, RADIO_KOENABLED) == KOSETTING_ENABLED;
+        u8 lapKoSetting = settings.GetUserSettingValue(Settings::SETTINGSTYPE_KO, RADIO_KOENABLED) == KOSETTING_LAPBASED;
         u8 battleTeam = settings.GetUserSettingValue(Settings::SETTINGSTYPE_BATTLE, RADIO_BATTLETEAMS);
         u8 battleElim = settings.GetUserSettingValue(Settings::SETTINGSTYPE_BATTLE, RADIO_BATTLEELIMINATION);
         const u8 ottOnline = settings.GetUserSettingValue(Settings::SETTINGSTYPE_OTT, RADIO_OTTONLINE);
@@ -86,7 +87,7 @@ static void BeforeROOMSend(RKNet::PacketHolder<PulROOM>* packetHolder, PulROOM* 
         destPacket->hostSystemContext |= (ottOnline != OTTSETTING_OFFLINE_DISABLED) << PULSAR_MODE_OTT  // ott
                                          | (ottOnline == OTTSETTING_ONLINE_FEATHER) << PULSAR_FEATHER  // ott feather
                                          | (settings.GetUserSettingValue(Settings::SETTINGSTYPE_OTT, RADIO_OTTALLOWUMTS) ^ true) << PULSAR_UMTS  // ott umts
-                                         | koSetting << PULSAR_MODE_KO | charRestrictLight << PULSAR_CHARRESTRICTLIGHT | charRestrictMid << PULSAR_CHARRESTRICTMID | charRestrictHeavy << PULSAR_CHARRESTRICTHEAVY | kartRestrict << PULSAR_KARTRESTRICT | bikeRestrict << PULSAR_BIKERESTRICT | koFinal << PULSAR_KOFINAL | changeCombo << PULSAR_CHANGECOMBO | megaTC << PULSAR_THUNDERCLOUD | settings.GetUserSettingValue(Settings::SETTINGSTYPE_FROOM1, RADIO_FROOMCC) << PULSAR_500 | settings.GetUserSettingValue(Settings::SETTINGSTYPE_FROOM2, RADIO_HOSTWINS) << PULSAR_HAW | RegOnly << PULSAR_REGS | RetroOnly << PULSAR_RETROS | CtsOnly << PULSAR_CTS | itemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN | battleTeam << PULSAR_TEAM_BATTLE | extendedTeams << PULSAR_EXTENDEDTEAMS | battleElim << PULSAR_ELIMINATION;
+                                         | koSetting << PULSAR_MODE_KO | lapKoSetting << PULSAR_MODE_LAPKO | charRestrictLight << PULSAR_CHARRESTRICTLIGHT | charRestrictMid << PULSAR_CHARRESTRICTMID | charRestrictHeavy << PULSAR_CHARRESTRICTHEAVY | kartRestrict << PULSAR_KARTRESTRICT | bikeRestrict << PULSAR_BIKERESTRICT | koFinal << PULSAR_KOFINAL | changeCombo << PULSAR_CHANGECOMBO | megaTC << PULSAR_THUNDERCLOUD | settings.GetUserSettingValue(Settings::SETTINGSTYPE_FROOM1, RADIO_FROOMCC) << PULSAR_500 | settings.GetUserSettingValue(Settings::SETTINGSTYPE_FROOM2, RADIO_HOSTWINS) << PULSAR_HAW | RegOnly << PULSAR_REGS | RetroOnly << PULSAR_RETROS | CtsOnly << PULSAR_CTS | itemBoxRepsawnFast << PULSAR_ITEMBOXRESPAWN | battleTeam << PULSAR_TEAM_BATTLE | extendedTeams << PULSAR_EXTENDEDTEAMS | battleElim << PULSAR_ELIMINATION;
 
         destPacket->hostSystemContext2 |= transmissionInside << PULSAR_TRANSMISSIONINSIDE | transmissionOutside << PULSAR_TRANSMISSIONOUTSIDE | transmissionVanilla << PULSAR_TRANSMISSIONVANILLA | miiHeads << PULSAR_MIIHEADS | itemModeRandom << PULSAR_ITEMMODERANDOM | itemModeBlast << PULSAR_ITEMMODEBLAST | itemModeNone << PULSAR_ITEMMODENONE | itemModeRain << PULSAR_ITEMMODERAIN | itemModeStorm << PULSAR_ITEMMODESTORM;
 

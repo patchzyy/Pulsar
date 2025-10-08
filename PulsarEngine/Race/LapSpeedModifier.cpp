@@ -9,13 +9,43 @@
 #include <Race/200ccParams.hpp>
 #include <PulsarSystem.hpp>
 #include <RetroRewind.hpp>
+#include <Settings/Settings.hpp>
+#include <Settings/SettingsParam.hpp>
 
 namespace Pulsar {
 namespace Race {
 // Mostly a port of MrBean's version with better hooks and arguments documentation
+bool IsLapKOEnabled(const System* system) {
+    if (system == nullptr) return false;
+    if (system->IsContext(PULSAR_MODE_LAPKO)) return true;
+    if (system->lapKoMgr != nullptr) return true;
+    if ((system->netMgr.hostContext & (1 << PULSAR_MODE_LAPKO)) != 0) return true;
+    return false;
+}
+
+u8 GetLapKOTargetCount(const System* system, const Racedata* racedata, u8 fallback) {
+    u8 playerCount = 0;
+    if (system != nullptr) playerCount = system->nonTTGhostPlayersCount;
+    if (playerCount == 0) playerCount = fallback;
+    if (playerCount < 2) playerCount = 2;
+    if (playerCount > 8) playerCount = 8;
+    return playerCount;
+}
+
 RaceinfoPlayer* LoadCustomLapCount(RaceinfoPlayer* player, u8 id) {
-    const u8 lapCount = KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->lapCount;
-    Racedata::sInstance->racesScenario.settings.lapCount = lapCount;
+    System* system = System::sInstance;
+    Racedata* racedata = Racedata::sInstance;
+    u8 lapCount = KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->lapCount;
+
+    const bool lapKoActive = IsLapKOEnabled(system);
+    if (lapKoActive) {
+        lapCount = GetLapKOTargetCount(system, racedata, 1) - 1;
+    }
+
+    if (racedata != nullptr) {
+        racedata->racesScenario.settings.lapCount = lapCount;
+        if (lapKoActive) racedata->menusScenario.settings.lapCount = lapCount;
+    }
     return new (player) RaceinfoPlayer(id, lapCount);
 }
 kmCall(0x805328d4, LoadCustomLapCount);

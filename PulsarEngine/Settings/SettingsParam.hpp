@@ -386,7 +386,8 @@ enum OTTSettingUMTs {
 // 10) KO values
 enum KOSettingEnabled {
     KOSETTING_DISABLED,
-    KOSETTING_ENABLED
+    KOSETTING_ENABLED,
+    KOSETTING_LAPBASED
 };
 
 enum KOSettingFINAL {

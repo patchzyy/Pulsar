@@ -19,6 +19,11 @@ void BeforeRH1Send(RKNet::PacketHolder<PulRH1>& packetHolder, PulRH1* packet, u3
         packetHolder.packet->pulsarTrackId = static_cast<u16>(CupsConfig::sInstance->GetWinning());
         packetHolder.packet->variantIdx = CupsConfig::sInstance->GetCurVariantIdx();
     }
+
+    packetHolder.packet->lapKoEventSeq = 0;
+    packetHolder.packet->lapKoEliminatedId = 0xFF;
+    packetHolder.packet->lapKoRoundIndex = 0;
+    packetHolder.packet->lapKoActiveCount = 0;
 }
 kmCall(0x80655458, BeforeRH1Send);
 kmCall(0x806550e4, BeforeRH1Send);

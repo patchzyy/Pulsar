@@ -791,6 +791,7 @@ __ct__14RaceinfoPlayerFUcUc = 0x80533ed8
 Init__14RaceinfoPlayerFv = 0x80534194
 Disconnect__14RaceinfoPlayerFv = 0x80534cbc
 EndRace__14RaceinfoPlayerFRC5TimerbUi = 0x805347f4
+Vanish__14RaceinfoPlayerFv = 0x80534c78
 FillTimerWithSplits__14RaceinfoPlayerFUcP5Timer = 0x8053572c
 
 ##RKSYS
