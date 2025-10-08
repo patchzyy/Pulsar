@@ -28,7 +28,7 @@ u8 GetLapKOTargetCount(const System* system, const Racedata* racedata, u8 fallba
     if (system != nullptr) playerCount = system->nonTTGhostPlayersCount;
     if (playerCount == 0) playerCount = fallback;
     if (playerCount < 2) playerCount = 2;
-    if (playerCount > 8) playerCount = 8;
+    if (playerCount > 9) playerCount = 9;
     return playerCount;
 }
 
