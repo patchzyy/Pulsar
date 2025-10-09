@@ -4,7 +4,7 @@
 namespace Pulsar {
 namespace UI {
 
-// Displays the nametag as the color of the Mii [THF, Ro]
+// Displays the nametag as the color of the Mii [Conradi]
 extern "C" void sInstance__8Racedata(void*);
 asmFunc MiiTag() {
     ASM(
