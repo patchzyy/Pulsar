@@ -82,6 +82,7 @@ enum Race2Settings {
     RADIO_FPS = 1,
     RADIO_BLOOM = 2,
     RADIO_FOV = 3,
+    RADIO_NAMETAG = 4,
 };
 
 // 3) Menu
@@ -221,10 +222,9 @@ enum RaceSettingBATTLE {
     BATTLE_GLITCH_ENABLED = 0x1
 };
 
-// Optional race 2 feature (kept for completeness)
-enum RaceSettingBLUES {
-    DRAGGABLE_BLUES_DISABLED = 0x0,
-    DRAGGABLE_BLUES_ENABLED = 0x1
+enum RaceSettingNAMETAG {
+    NAMETAG_REGULAR = 0x0,
+    NAMETAG_MII = 0x1
 };
 
 // 3) Menu values
