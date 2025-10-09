@@ -3,6 +3,7 @@
 #include <MarioKartWii/Race/RaceData.hpp>
 #include <MarioKartWii/RKNet/RKNetController.hpp>
 #include <Network/PacketExpansion.hpp>
+#include <MarioKartWii/KMP/KMPManager.hpp>
 
 namespace Pulsar {
 namespace LapKO {
@@ -146,6 +147,9 @@ void Mgr::TryResolveRound() {
     if (this->raceFinished) return;
     if (this->activeCount <= 1) return;
 
+    // Special case for 1-lap tracks: when first place finishes, eliminate everyone else
+    const u8 usualLaps = this->GetUsualTrackLapCount();
+
     // Determine number of eliminations this round
     u8 planIdx = (this->roundIndex - 1);
     if (planIdx >= this->totalRounds) return;
@@ -153,11 +157,17 @@ void Mgr::TryResolveRound() {
     if (toEliminate == 0) return;  // no eliminations scheduled this round
     if (toEliminate >= this->activeCount) toEliminate = static_cast<u8>(this->activeCount - 1);
 
-    const u8 requiredCrossings = static_cast<u8>(this->activeCount - toEliminate);
+    u8 requiredCrossings = static_cast<u8>(this->activeCount - toEliminate);
+    if (usualLaps <= 1) {
+        // Require just the first to cross to trigger elimination of the rest
+        requiredCrossings = 1;
+        // Eliminate everyone except the first crosser
+        toEliminate = static_cast<u8>(this->activeCount - 1);
+    }
     if (this->orderCursor < requiredCrossings) return;  // wait until all safe players crossed
 
     // Collect elimination targets = remaining active players who haven't crossed OR tail of order if overflow
-    u8 eliminatedList[2];
+    u8 eliminatedList[12];
     u8 elimCount = 0;
     // First try find not crossed players
     for (u8 i = 0; i < 12 && elimCount < toEliminate; ++i) {
@@ -440,6 +450,19 @@ void Mgr::UpdateFrame() {
 void Mgr::ComputeEliminationPlan() {
     for (int i = 0; i < 8; ++i) this->eliminationPlan[i] = 0;
     if (this->playerCount < 2) { this->totalRounds = 0; return; }
+    const u8 usualLaps = this->GetUsualTrackLapCount();
+
+    // Special-case planning for 1-lap and 2-lap tracks
+    if (usualLaps <= 1) {
+        // Single round: when first crosses, eliminate everyone else
+        this->eliminationPlan[0] = static_cast<u8>((this->playerCount > 1) ? (this->playerCount - 1) : 0);
+        this->totalRounds = 1;
+        return;
+    }
+
+    // For 2-lap tracks, keep same logic for 2 players, else halve normal KO pacing by doubling eliminations
+    const bool twoLapTrack = (usualLaps == 2);
+
     u8 remainingPlayers = this->playerCount;
     u8 round = 0;
     // While more than 2 players and room for another round
@@ -457,6 +480,14 @@ void Mgr::ComputeEliminationPlan() {
         }
 
         if (elim >= remainingPlayers - 1) elim = 1;
+
+        if (twoLapTrack && this->playerCount >= 3) {
+            // Double the elimination rate, but never eliminate all remaining in a single round
+            u8 doubled = static_cast<u8>(elim * 2);
+            if (doubled >= remainingPlayers) doubled = static_cast<u8>(remainingPlayers - 1);
+            if (doubled == 0) doubled = 1;
+            elim = doubled;
+        }
         this->eliminationPlan[round] = elim;
         remainingPlayers -= elim;
         ++round;
@@ -468,6 +499,19 @@ void Mgr::ComputeEliminationPlan() {
         remainingPlayers -= 1;
     }
     this->totalRounds = round;
+}
+
+u8 Mgr::GetUsualTrackLapCount() const {
+    // Default to 3 if KMP not available
+    u8 usual = 3;
+    if (KMP::Manager::sInstance != nullptr &&
+        KMP::Manager::sInstance->stgiSection != nullptr &&
+        KMP::Manager::sInstance->stgiSection->holdersArray[0] != nullptr &&
+        KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw != nullptr) {
+        usual = KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->lapCount;
+        if (usual == 0) usual = 3; // safety
+    }
+    return usual;
 }
 
 }  // namespace LapKO

@@ -48,6 +48,7 @@ class Mgr {
 
    private:
     void ComputeEliminationPlan();
+    u8 GetUsualTrackLapCount() const;
     void ProcessEliminationInternal(u8 playerId, const char* reason, bool fromNetwork, bool suppressRoundAdvance);
     void StartNewRound();
     void TryResolveRound();

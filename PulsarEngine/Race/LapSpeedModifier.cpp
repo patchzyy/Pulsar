@@ -39,7 +39,31 @@ RaceinfoPlayer* LoadCustomLapCount(RaceinfoPlayer* player, u8 id) {
 
     const bool lapKoActive = IsLapKOEnabled(system);
     if (lapKoActive) {
-        lapCount = GetLapKOTargetCount(system, racedata, 1) - 1;
+        // Base KO lap count (existing behaviour)
+        const u8 basePlayers = GetLapKOTargetCount(system, racedata, 1);
+        u8 koLapCount = static_cast<u8>(basePlayers - 1);
+
+        // Detect usual track lap count from KMP (1, 2, or 3+)
+        const u8 usualTrackLaps = KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->lapCount;
+
+        // Special cases for LapKO
+        if (usualTrackLaps <= 1) {
+            // 1-lap tracks: always 1 lap
+            lapCount = 1; // ensure non-zero; display hook will handle proper labeling
+        } else if (usualTrackLaps == 2) {
+            // 2-lap tracks: keep same logic for 2 players, but for 3+ players halve the KO lap count
+            if (basePlayers >= 3) {
+                // Halve, rounding down, but ensure at least 1 in the internal representation
+                u8 halved = static_cast<u8>(koLapCount / 2);
+                if (halved == 0) halved = 1; // safety floor
+                lapCount = halved;
+            } else {
+                lapCount = koLapCount;
+            }
+        } else {
+            // Normal tracks: existing KO behaviour
+            lapCount = koLapCount;
+        }
     }
 
     if (racedata != nullptr) {
