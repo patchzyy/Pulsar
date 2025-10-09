@@ -9,6 +9,7 @@ namespace Pulsar {
 namespace LapKO {
 
 static const u16 pendingBroadcastFrames = 120;
+static const u16 eliminationDisplayDuration = 270; 
 
 Mgr::Mgr()
     : orderCursor(0),
@@ -28,7 +29,10 @@ Mgr::Mgr()
       hostAid(0xFF),
       pendingTimer(0),
     raceFinished(false),
-    raceInitDone(false) {
+    raceInitDone(false),
+    recentEliminationCount(0),
+    recentEliminationRound(0),
+    eliminationDisplayTimer(0) {
     for (int i = 0; i < 12; ++i) {
         this->active[i] = false;
         this->crossed[i] = false;
@@ -37,6 +41,7 @@ Mgr::Mgr()
     }
     this->lastAvailableAids = 0;
     this->lastRaceFrames = 0xFFFF;
+    this->ResetEliminationDisplay();
 }
 
 Mgr::~Mgr() {}
@@ -78,6 +83,7 @@ void Mgr::InitForRace() {
     this->isSpectating = false;
     this->raceFinished = false;
     this->raceInitDone = true;
+    this->ResetEliminationDisplay();
 
     if (controller != nullptr && controller->roomType != RKNet::ROOMTYPE_NONE) {
         const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
@@ -210,6 +216,7 @@ void Mgr::ProcessEliminationInternal(u8 playerId, const char* reason, bool fromN
     }
 
     this->EnterSpectateIfLocal(playerId);
+    this->RecordEliminationForDisplay(playerId, concludedRound);
 
     Raceinfo* raceinfo = Raceinfo::sInstance;
     if (raceinfo != nullptr) {
@@ -445,6 +452,12 @@ void Mgr::UpdateFrame() {
         if (packet->lapKoEventSeq == this->appliedSequence) return;
         this->ApplyRemoteEvent(packet->lapKoEventSeq, packet->lapKoEliminatedId, packet->lapKoRoundIndex, packet->lapKoActiveCount);
     }
+     if (this->eliminationDisplayTimer > 0) {
+        --this->eliminationDisplayTimer;
+        if (this->eliminationDisplayTimer == 0) {
+            this->ResetEliminationDisplay();
+        }
+    }
 }
 
 void Mgr::ComputeEliminationPlan() {
@@ -512,6 +525,28 @@ u8 Mgr::GetUsualTrackLapCount() const {
         if (usual == 0) usual = 3; // safety
     }
     return usual;
+}
+
+void Mgr::RecordEliminationForDisplay(u8 playerId, u8 concludedRound) {
+    if (playerId >= 12) return;
+    if (this->eliminationDisplayTimer == 0 || this->recentEliminationRound != concludedRound) {
+        this->ResetEliminationDisplay();
+        this->recentEliminationRound = concludedRound;
+    }
+
+    if (this->recentEliminationCount < 2) {
+        this->recentEliminations[this->recentEliminationCount++] = playerId;
+    }
+
+    this->eliminationDisplayTimer = eliminationDisplayDuration;
+}
+
+void Mgr::ResetEliminationDisplay() {
+    this->recentEliminationCount = 0;
+    this->recentEliminationRound = 0;
+    this->recentEliminations[0] = 0xFF;
+    this->recentEliminations[1] = 0xFF;
+    this->eliminationDisplayTimer = 0;
 }
 
 }  // namespace LapKO

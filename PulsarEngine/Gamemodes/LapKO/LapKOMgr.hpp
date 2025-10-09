@@ -43,6 +43,11 @@ class Mgr {
     u8 GetPendingElimination() const { return this->pendingElimination; }
     u8 GetPendingRound() const { return this->pendingRound; }
     u8 GetPendingActiveCount() const { return this->pendingActiveCount; }
+    u8 GetRecentEliminationCount() const { return this->recentEliminationCount; }
+    u16 GetEliminationDisplayTimer() const { return this->eliminationDisplayTimer; }
+    u8 GetRecentEliminationId(u8 index) const {
+        return (index < this->recentEliminationCount) ? this->recentEliminations[index] : 0xFF;
+    }
 
     void ClearPendingEvent();
 
@@ -58,6 +63,9 @@ class Mgr {
     void BroadcastEvent(u8 playerId, u8 concludedRound);
     void LogState(const char* tag, u8 value) const;
     u8 FindNextSpectateTarget(u8 eliminatedId) const;
+    void RecordEliminationForDisplay(u8 playerId, u8 concludedRound);
+    void ResetEliminationDisplay();
+
 
     u8 eliminationPlan[8];
     u8 totalRounds;
@@ -85,6 +93,10 @@ class Mgr {
     bool raceFinished;
     bool raceInitDone;
     u16 lastRaceFrames;
+    u8 recentEliminations[2];
+    u8 recentEliminationCount;
+    u8 recentEliminationRound;
+    u16 eliminationDisplayTimer;
 };
 
 }  // namespace LapKO
