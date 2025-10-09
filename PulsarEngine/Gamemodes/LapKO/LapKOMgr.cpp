@@ -9,7 +9,7 @@ namespace Pulsar {
 namespace LapKO {
 
 static const u16 pendingBroadcastFrames = 120;
-static const u16 eliminationDisplayDuration = 270; 
+static const u16 eliminationDisplayDuration = 180; 
 
 Mgr::Mgr()
     : orderCursor(0),
@@ -368,6 +368,14 @@ void Mgr::ApplyRemoteEvent(u8 seq, u8 eliminatedId, u8 roundIdx, u8 activeCnt) {
 }
 
 void Mgr::UpdateFrame() {
+    // Always tick the elimination display timer every frame, independent of network flow
+    if (this->eliminationDisplayTimer > 0) {
+        --this->eliminationDisplayTimer;
+        if (this->eliminationDisplayTimer == 0) {
+            this->ResetEliminationDisplay();
+        }
+    }
+
     RKNet::Controller* controller = RKNet::Controller::sInstance;
     Raceinfo* raceinfo = Raceinfo::sInstance;
     if (controller == nullptr || raceinfo == nullptr) return;
@@ -451,12 +459,6 @@ void Mgr::UpdateFrame() {
         if (packet->lapKoEventSeq == 0) return;
         if (packet->lapKoEventSeq == this->appliedSequence) return;
         this->ApplyRemoteEvent(packet->lapKoEventSeq, packet->lapKoEliminatedId, packet->lapKoRoundIndex, packet->lapKoActiveCount);
-    }
-     if (this->eliminationDisplayTimer > 0) {
-        --this->eliminationDisplayTimer;
-        if (this->eliminationDisplayTimer == 0) {
-            this->ResetEliminationDisplay();
-        }
     }
 }
 

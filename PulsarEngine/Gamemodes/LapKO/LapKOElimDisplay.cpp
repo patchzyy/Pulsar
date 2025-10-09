@@ -17,7 +17,27 @@ namespace LapKO {
 
 namespace {
 
-static const u16 kEliminationDisplayDuration = 270;
+static const u16 kEliminationDisplayDuration = 180;
+
+// Safely copy a wchar_t name from a fixed-size source buffer to dst.
+// - Stops at the first null in src or at srcMax, and ensures dst is null-terminated.
+// - Returns dst if at least one character was copied, otherwise nullptr.
+static const wchar_t* CopyNameSafe(const wchar_t* src, size_t srcMax, wchar_t* dst, size_t dstLen) {
+    if (src == nullptr || dst == nullptr || dstLen == 0) return nullptr;
+    size_t i = 0;
+    for (; i + 1 < dstLen && i < srcMax; ++i) {
+        const wchar_t ch = src[i];
+        if (ch == L'\0') break;
+        dst[i] = ch;
+    }
+    if (i == 0) {
+        // Nothing copied (empty string)
+        if (dstLen > 0) dst[0] = L'\0';
+        return nullptr;
+    }
+    dst[i] = L'\0';
+    return dst;
+}
 
 class CtrlRaceLapKOElimMessage : public CtrlRaceBase {
    public:
@@ -163,10 +183,18 @@ const wchar_t* CtrlRaceLapKOElimMessage::GetPlayerDisplayName(u8 playerId, wchar
     const RacedataPlayer& player = scenario.players[playerId];
 
     scratch[0] = L'\0';
-    if (player.mii.isLoaded && player.mii.rawStoreMii.miiName[0] != L'\0') {
-        ::wcsncpy(scratch, player.mii.rawStoreMii.miiName, length - 1);
-        scratch[length - 1] = L'\0';
-        return scratch;
+    // Prefer the resolved Mii name from AdditionalInfo (up to 10-11 wide chars)
+    if (player.mii.isLoaded) {
+        // RFL::AdditionalInfo::name is 11 wchar_t according to headers
+        if (player.mii.info.name[0] != L'\0') {
+            const wchar_t* copied = CopyNameSafe(player.mii.info.name, 11, scratch, length);
+            if (copied != nullptr) return copied;
+        }
+        // Fallback to the raw stored miiName (10 wchar_t)
+        if (player.mii.rawStoreMii.miiName[0] != L'\0') {
+            const wchar_t* copied = CopyNameSafe(player.mii.rawStoreMii.miiName, 10, scratch, length);
+            if (copied != nullptr) return copied;
+        }
     }
 
     const wchar_t* bmgName = UI::GetCustomMsg(GetCharacterBMGId(player.characterId, true));
