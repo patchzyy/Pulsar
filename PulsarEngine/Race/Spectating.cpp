@@ -15,8 +15,7 @@ static const u64 CreateSwitchFocusPlayerPtmfs(u32 arg) {  // extremely hacky, bu
     SectionId id = SectionMgr::sInstance->curSection->sectionId;
     const System* system = System::sInstance;
     const bool isKoSpectate = system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating;
-    const bool isLapSpectate = system->IsContext(PULSAR_MODE_LAPKO) && system->lapKoMgr != nullptr && system->lapKoMgr->IsSpectatingLocal();
-    if (isKoSpectate || isLapSpectate || id >= SECTION_WATCH_GHOST_FROM_CHANNEL && id <= SECTION_WATCH_GHOST_FROM_MENU) id = SECTION_P1_WIFI_VS_LIVEVIEW;
+    if (isKoSpectate || id >= SECTION_WATCH_GHOST_FROM_CHANNEL && id <= SECTION_WATCH_GHOST_FROM_MENU) id = SECTION_P1_WIFI_VS_LIVEVIEW;
     fakeSection = id;
     u64 ret = ((static_cast<u64>(arg)) << 32) | (reinterpret_cast<u32>(&fakeSection) & 0xffffffffL);
     return ret;
@@ -70,7 +69,6 @@ static void RaceinfoNoSpectating() {
     const System* system = System::sInstance;
     bool allowSpectate = false;
     if (system->IsContext(PULSAR_MODE_KO)) allowSpectate = system->koMgr->isSpectating;
-    if (system->IsContext(PULSAR_MODE_LAPKO) && system->lapKoMgr != nullptr) allowSpectate |= system->lapKoMgr->IsSpectatingLocal();
     raceInfo->isSpectating = allowSpectate;
 }
 kmCall(0x80532cf8, RaceinfoNoSpectating);
@@ -78,8 +76,7 @@ kmCall(0x80532cf8, RaceinfoNoSpectating);
 static bool SkipOpeningPanCheck(const RaceCameraMgr& cameraMgr) {
     const System* system = System::sInstance;
     const bool isKoSpectate = system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating;
-    const bool isLapSpectate = system->IsContext(PULSAR_MODE_LAPKO) && system->lapKoMgr != nullptr && system->lapKoMgr->IsSpectatingLocal();
-    if (isKoSpectate || isLapSpectate)
+    if (isKoSpectate)
         return true;
     else
         return cameraMgr.HasEveryOpeningPanEnded();

@@ -73,11 +73,6 @@ static u8 ReturnCorrectId(u8 localId) {
         if (cameraMgr == nullptr) return 0;
         return cameraMgr->focusedPlayerIdx;
     }
-    if (system->IsContext(PULSAR_MODE_LAPKO) && system->lapKoMgr != nullptr && system->lapKoMgr->IsSpectatingLocal()) {
-        const RaceCameraMgr* cameraMgr = RaceCameraMgr::sInstance;
-        if (cameraMgr == nullptr) return 0;  // this is needed because this function is called by the ctor of racecameramgr
-        return cameraMgr->focusedPlayerIdx;
-    }
     return localId;
 }
 kmBranch(0x80531f7c, ReturnCorrectId);
@@ -86,8 +81,7 @@ static GameType SyncCountdown(const Racedata& raceData) {
     GameType type = raceData.racesScenario.settings.gametype;
     const System* system = System::sInstance;
     const bool isKoSpectate = system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating;
-    const bool isLapSpectate = system->IsContext(PULSAR_MODE_LAPKO) && system->lapKoMgr != nullptr && system->lapKoMgr->IsSpectatingLocal();
-    if ((isKoSpectate || isLapSpectate) && type == GAMETYPE_ONLINE_SPECTATOR) {
+    if (isKoSpectate && type == GAMETYPE_ONLINE_SPECTATOR) {
         type = GAMETYPE_DEFAULT;
         if (Racedata::sInstance != nullptr) {
             Racedata::sInstance->racesScenario.settings.gametype = GAMETYPE_DEFAULT;

@@ -1,9 +1,12 @@
 #include <Gamemodes/LapKO/LapKOMgr.hpp>
-#include <MarioKartWii/3D/Camera/CameraMgr.hpp>
 #include <MarioKartWii/Race/RaceData.hpp>
 #include <MarioKartWii/RKNet/RKNetController.hpp>
 #include <Network/PacketExpansion.hpp>
 #include <MarioKartWii/KMP/KMPManager.hpp>
+#include <MarioKartWii/3D/Camera/CameraMgr.hpp>
+#include <MarioKartWii/3D/Camera/RaceCamera.hpp>
+#include <MarioKartWii/Driver/DriverManager.hpp>
+#include <MarioKartWii/UI/Section/SectionMgr.hpp>
 
 namespace Pulsar {
 namespace LapKO {
@@ -215,7 +218,6 @@ void Mgr::ProcessEliminationInternal(u8 playerId, const char* reason, bool fromN
         this->BroadcastEvent(playerId, concludedRound);
     }
 
-    this->EnterSpectateIfLocal(playerId);
     this->RecordEliminationForDisplay(playerId, concludedRound);
 
     Raceinfo* raceinfo = Raceinfo::sInstance;
@@ -225,6 +227,9 @@ void Mgr::ProcessEliminationInternal(u8 playerId, const char* reason, bool fromN
             infoPlayer->Vanish();
         }
     }
+
+    // If the eliminated player is local, enter spectating and immediately follow the current leader
+    this->EnterSpectateIfLocal(playerId);
 
     if (!suppressRoundAdvance) {
         this->ResetRound();
@@ -247,66 +252,6 @@ void Mgr::ProcessEliminationInternal(u8 playerId, const char* reason, bool fromN
         ++this->roundIndex;
         OS::Report("LapKO: NextRound=%u active=%u\n", this->roundIndex, this->activeCount);
     }
-}
-
-void Mgr::EnterSpectateIfLocal(u8 playerId) {
-    Racedata* racedata = Racedata::sInstance;
-    if (racedata == nullptr) return;
-
-    RacedataScenario& scenario = racedata->racesScenario;
-    const u8 localCount = scenario.localPlayerCount;
-    for (u8 i = 0; i < localCount; ++i) {
-        if (scenario.settings.hudPlayerIds[i] == playerId) {
-            // If we are offline (no active room) with bots, end the race immediately with correct placements.
-            const RKNet::Controller* controller = RKNet::Controller::sInstance;
-            const bool isOffline = (controller == nullptr) || (controller->roomType == RKNet::ROOMTYPE_NONE);
-            if (isOffline) {
-                Raceinfo* raceinfo = Raceinfo::sInstance;
-                if (raceinfo == nullptr) return;
-                // Finish all players in their current position order so the local gets their proper placement.
-                const u8 total = this->playerCount > 0 ? this->playerCount : 12;
-                if (raceinfo->playerIdInEachPosition != nullptr && raceinfo->players != nullptr) {
-                    for (u8 pos = 0; pos < total && pos < 12; ++pos) {
-                        const u8 pid = raceinfo->playerIdInEachPosition[pos];
-                        if (pid >= 12) continue;
-                        RaceinfoPlayer* p = raceinfo->players[pid];
-                        if (p == nullptr) continue;
-                        // Mark player as finished and commit placement.
-                        p->EndRace(*p->raceFinishTime, false, 0);
-                        raceinfo->EndPlayerRace(pid);
-                    }
-                } else {
-                    // Fallback: end at least the local player to avoid softlocks.
-                    RaceinfoPlayer* p = raceinfo->players[playerId];
-                    if (p != nullptr) {
-                        p->EndRace(*p->raceFinishTime, false, 0);
-                        raceinfo->EndPlayerRace(playerId);
-                    }
-                }
-                this->raceFinished = true;
-            } else {
-                this->isSpectating = true;
-                scenario.settings.gametype = GAMETYPE_ONLINE_SPECTATOR;
-                racedata->menusScenario.settings.gametype = GAMETYPE_ONLINE_SPECTATOR;
-                const u8 focusId = this->FindNextSpectateTarget(playerId);
-                RaceCameraMgr* cameraMgr = RaceCameraMgr::sInstance;
-                if (cameraMgr != nullptr) {
-                    cameraMgr->isOnlineSpectating = true;
-                    if (focusId < 12) cameraMgr->focusedPlayerIdx = focusId;
-                }
-            }
-            break;
-        }
-    }
-}
-
-u8 Mgr::FindNextSpectateTarget(u8 eliminatedId) const {
-    for (u8 i = 0; i < 12; ++i) {
-        if (!this->active[i]) continue;
-        if (i == eliminatedId) continue;
-        return i;
-    }
-    return 0xFF;
 }
 
 void Mgr::ConcludeRace(u8 winnerId) {
@@ -429,6 +374,43 @@ void Mgr::UpdateFrame() {
         }
     }
 
+    // If we are spectating locally, keep the camera focused on first place every frame
+    // Uses RaceCameraMgr::ChangeFocusedPlayer to update the watched camera when positions change.
+    // Important: ChangeFocusedPlayer expects a CAMERA INDEX, not a playerId. Map leader -> camera index safely.
+    if (this->isSpectating && raceinfo->playerIdInEachPosition != nullptr) {
+        RaceCameraMgr* camMgr = RaceCameraMgr::sInstance;
+        const u8 leaderPid = raceinfo->playerIdInEachPosition[0];
+        if (camMgr != nullptr && camMgr->cameras != nullptr && camMgr->cameraCount > 0 && leaderPid < 12) {
+            // Check if current focused camera already tracks the leader
+            bool alreadyOnLeader = false;
+            if (camMgr->focusedPlayerIdx < camMgr->cameraCount) {
+                RaceCamera* curCam = camMgr->cameras[camMgr->focusedPlayerIdx];
+                if (curCam != nullptr && curCam->playerId == leaderPid) alreadyOnLeader = true;
+            }
+
+            if (!alreadyOnLeader) {
+                // Find the camera index for the leader playerId
+                u8 targetCamIdx = 0xFF;
+                for (u32 i = 0; i < camMgr->cameraCount; ++i) {
+                    RaceCamera* cam = camMgr->cameras[i];
+                    if (cam != nullptr && cam->playerId == leaderPid) { targetCamIdx = static_cast<u8>(i); break; }
+                }
+                if (targetCamIdx != 0xFF) {
+                    // Update both driver watched index and camera focus to the camera index
+                    DriverMgr::ChangeFocusedPlayer(targetCamIdx);
+                    RaceCameraMgr::ChangeFocusedPlayer(targetCamIdx);
+                } else {
+                    // Fallback: retarget the current camera to the leader if no dedicated camera exists (single local player cases)
+                    u32 idx = (camMgr->focusedPlayerIdx < camMgr->cameraCount) ? camMgr->focusedPlayerIdx : 0;
+                    RaceCamera* cam = camMgr->cameras[idx];
+                    if (cam != nullptr) cam->playerId = leaderPid;
+                    // Keep driver watched index consistent with current camera idx
+                    DriverMgr::ChangeFocusedPlayer(static_cast<u8>(idx));
+                }
+            }
+        }
+    }
+
     if (this->isHost) {
         if (!this->hasPendingEvent) return;
         for (int aid = 0; aid < 12; ++aid) {
@@ -459,6 +441,43 @@ void Mgr::UpdateFrame() {
         if (packet->lapKoEventSeq == 0) return;
         if (packet->lapKoEventSeq == this->appliedSequence) return;
         this->ApplyRemoteEvent(packet->lapKoEventSeq, packet->lapKoEliminatedId, packet->lapKoRoundIndex, packet->lapKoActiveCount);
+    }
+}
+
+// Enter spectating if the eliminated player belongs to the local AID; also force camera to leader
+// This integrates with generic spectating patches in Race/Spectating.cpp which consult IsSpectatingLocal
+void Mgr::EnterSpectateIfLocal(u8 eliminatedId) {
+    RKNet::Controller* controller = RKNet::Controller::sInstance;
+    if (controller == nullptr) return;
+    const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
+    const u8 aid = controller->aidsBelongingToPlayerIds[eliminatedId];
+    if (aid >= 12 || aid != sub.localAid) return;  // not a local player
+
+    this->isSpectating = true;
+
+    // Snap focus to current leader if possible (map to camera index safely). If cameras aren't ready yet, UpdateFrame will handle it later.
+    RaceCameraMgr* camMgr = RaceCameraMgr::sInstance;
+    Raceinfo* raceinfo = Raceinfo::sInstance;
+    if (raceinfo != nullptr && raceinfo->playerIdInEachPosition != nullptr) {
+        const u8 leaderPid = raceinfo->playerIdInEachPosition[0];
+        if (leaderPid < 12 && camMgr != nullptr && camMgr->cameras != nullptr && camMgr->cameraCount > 0) {
+            // Try to find a camera for the leader immediately
+            u8 targetCamIdx = 0xFF;
+            for (u32 i = 0; i < camMgr->cameraCount; ++i) {
+                RaceCamera* cam = camMgr->cameras[i];
+                if (cam != nullptr && cam->playerId == leaderPid) { targetCamIdx = static_cast<u8>(i); break; }
+            }
+            if (targetCamIdx != 0xFF) {
+                DriverMgr::ChangeFocusedPlayer(targetCamIdx);
+                RaceCameraMgr::ChangeFocusedPlayer(targetCamIdx);
+            } else {
+                // Fallback: retarget current camera to leader and keep indices consistent
+                u32 idx = (camMgr->focusedPlayerIdx < camMgr->cameraCount) ? camMgr->focusedPlayerIdx : 0;
+                RaceCamera* cam = camMgr->cameras[idx];
+                if (cam != nullptr && cam->playerId != leaderPid) cam->playerId = leaderPid;
+                DriverMgr::ChangeFocusedPlayer(static_cast<u8>(idx));
+            }
+        }
     }
 }
 

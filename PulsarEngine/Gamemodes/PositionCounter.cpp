@@ -44,11 +44,6 @@ void PositionCounter::UpdatePositionDisplay(CtrlRaceRankNum& posTracker) {
         if (cameraMgr != nullptr) {
             playerId = cameraMgr->focusedPlayerIdx;
         }
-    } else if (isLapKO && system->lapKoMgr != nullptr && system->lapKoMgr->IsSpectatingLocal()) {
-        const RaceCameraMgr* cameraMgr = RaceCameraMgr::sInstance;
-        if (cameraMgr != nullptr) {
-            playerId = cameraMgr->focusedPlayerIdx;
-        }
     } else {
         playerId = racedata->racesScenario.settings.hudPlayerIds[hudSlotId];
     }

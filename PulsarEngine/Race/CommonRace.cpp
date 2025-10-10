@@ -15,7 +15,6 @@ void UpdatePoints(RacedataScenario& scenario) {
 
     bool forceDefault = false;
     if (system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating) forceDefault = true;
-    if (system->IsContext(PULSAR_MODE_LAPKO) && system->lapKoMgr != nullptr && system->lapKoMgr->IsSpectatingLocal()) forceDefault = true;
     if (forceDefault) scenario.settings.gametype = GAMETYPE_DEFAULT;
     bool hasVSGhost = false;
     if (system->IsContext(PULSAR_MODE_OTT)) {

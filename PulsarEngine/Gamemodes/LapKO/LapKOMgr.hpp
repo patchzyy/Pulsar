@@ -24,7 +24,6 @@ class Mgr {
     void ApplyRemoteEvent(u8 seq, u8 eliminatedId, u8 roundIndex, u8 activeCount);
 
     bool IsActive(u8 playerId) const { return this->active[playerId]; }
-    bool IsSpectatingLocal() const { return this->isSpectating; }
     u8 GetActiveCount() const { return this->activeCount; }
     u8 GetRoundIndex() const { return this->roundIndex; }
     u8 GetCurrentRoundEliminationCount() const {
@@ -62,7 +61,6 @@ class Mgr {
     void ConcludeRace(u8 winnerId);
     void BroadcastEvent(u8 playerId, u8 concludedRound);
     void LogState(const char* tag, u8 value) const;
-    u8 FindNextSpectateTarget(u8 eliminatedId) const;
     void RecordEliminationForDisplay(u8 playerId, u8 concludedRound);
     void ResetEliminationDisplay();
 

@@ -840,6 +840,7 @@ mInstance__13ScreensHolder = 0x809C1868
 SetInstance__9CameraMgrFP9CameraMgr = 0x805a1a64
 __ct__10RaceCameraFUcR10GameScreenP3BCPUc = 0x805a1d10
 HasEveryOpeningPanEnded__13RaceCameraMgrCFv = 0x805a8fbc
+ChangeFocusedPlayer__13RaceCameraMgrFUc = 0x805a9b04
 sInstance__13RaceCameraMgr = 0x809c19b8
 
 ##MII
@@ -1690,6 +1691,8 @@ typeInfo__Q25Pages10VSSettings = 0x809c4618
 #RaceHUD
 AfterControlUpdate__Q25Pages7RaceHUDFv = 0x808574b8
 sInstance__Q25Pages7RaceHUD = 0x809c4680
+OnNextPlayerSwitch__Q25Pages7RaceHUDFUi = 0x808569ac
+OnPrevPlayerSwitch__Q25Pages7RaceHUDFUi = 0x808569b4
 
 ##RACEMENU
 #RaceMenu
@@ -1924,6 +1927,7 @@ GetRaceinfoRandom__9DriverMgrFv = 0x807bd718
 sInstance__9DriverMgr = 0x809c23f8
 isOnlineRace__9DriverMgr = 0x809c38b9
 isTT__9DriverMgr = 0x809c38bc
+ChangeFocusedPlayer__9DriverMgrFUc = 0x8078dde4
 
 
 ##OBJECTS
