@@ -805,6 +805,15 @@ __dt__Q25RKSYS15LicenseLdbEntryFv = 0x8054437c
 #LicenseManager
 GetFavouriteCharacter__Q25RKSYS10LicenseMgrCFv = 0x805493b0
 GetFavouriteKart__Q25RKSYS10LicenseMgrCFv = 0x80549470
+GetVR__Q25RKSYS10LicenseMgrCFv = 0x80547480
+GetBR__Q25RKSYS10LicenseMgrCFv = 0x805474a8
+GetWFCVSWins__Q25RKSYS10LicenseMgrCFv = 0x8054755c
+GetWFCVSLosses__Q25RKSYS10LicenseMgrCFv = 0x80547580
+GetWFCBattleWins__Q25RKSYS10LicenseMgrCFv = 0x805475a4
+GetWFCBattleLosses__Q25RKSYS10LicenseMgrCFv = 0x805475c8
+GetTimes1stPlaceAchieved__Q25RKSYS10LicenseMgrCFv = 0x80547864
+GetDistanceTravelled__Q25RKSYS10LicenseMgrCFv = 0x80547714
+GetDistancetravelledwhilein1stplace__Q25RKSYS10LicenseMgrCFv = 0x8054789c
 
 #RKSYSMgr
 CheckLicenseMagic__Q25RKSYS3MgrCFUc = 0x80544d10
