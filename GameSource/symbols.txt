@@ -750,6 +750,7 @@ __vt__Q25Input7UIState = 0x808b2f20
 __vt__Q25Input5State = 0x808b2f2c
 
 #Timer
+SetActive__5TimerFb = 0x80544310
 __dt__5TimerFv = 0x8051c334
 __ct__5TimerFv = 0x8051c374
 __ct__5TimerFb = 0x805442c0
@@ -1346,6 +1347,7 @@ ComparePlayers__18CtrlRaceResultTeamFPCQ218CtrlRaceResultTeam6PlayerPCQ218CtrlRa
 
 #CtrlRaceTime
 SetTimer__12CtrlRaceTimeFP5Timer = 0x807f84c0
+CloneTimer__8RaceinfoFP5Timer = 0x80535ca0
 EnableFlashingAnimation__12CtrlRaceTimeFv = 0x807f8878
 
 #CtrlRaceWifiMessage

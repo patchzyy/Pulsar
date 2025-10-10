@@ -57,8 +57,9 @@ class Mgr {
     void StartNewRound();
     void TryResolveRound();
     void ProcessElimination(u8 playerId, const char* reason, bool fromNetwork);
-    void EnterSpectateIfLocal(u8 playerId);
+    bool EnterSpectateIfLocal(u8 playerId);
     void ConcludeRace(u8 winnerId);
+    void FinishOfflineAtCurrentStandings();
     void BroadcastEvent(u8 playerId, u8 concludedRound);
     void LogState(const char* tag, u8 value) const;
     void RecordEliminationForDisplay(u8 playerId, u8 concludedRound);

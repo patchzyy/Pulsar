@@ -228,8 +228,10 @@ void Mgr::ProcessEliminationInternal(u8 playerId, const char* reason, bool fromN
         }
     }
 
-    // If the eliminated player is local, enter spectating and immediately follow the current leader
-    this->EnterSpectateIfLocal(playerId);
+    // If the eliminated player is local, either enter spectate (online) or end the race offline.
+    if (this->EnterSpectateIfLocal(playerId)) {
+        return;  // Offline eliminations end the race immediately.
+    }
 
     if (!suppressRoundAdvance) {
         this->ResetRound();
@@ -261,6 +263,12 @@ void Mgr::ConcludeRace(u8 winnerId) {
     Raceinfo* raceinfo = Raceinfo::sInstance;
     if (raceinfo == nullptr) return;
 
+    // If we're offline, immediately finish everyone at their current standings and return.
+    if (RKNet::Controller::sInstance == nullptr || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) {
+        this->FinishOfflineAtCurrentStandings();
+        return;
+    }
+
     u8 finishId = winnerId;
     if (finishId >= 12) {
         finishId = 0xFF;
@@ -277,6 +285,52 @@ void Mgr::ConcludeRace(u8 winnerId) {
     if (finishId < 12) {
         raceinfo->EndPlayerRace(finishId);
         raceinfo->CheckEndRaceOnline(finishId);
+    }
+}
+
+void Mgr::FinishOfflineAtCurrentStandings() {
+    Raceinfo* raceinfo = Raceinfo::sInstance;
+    if (raceinfo == nullptr) return;
+    if (raceinfo->players == nullptr || raceinfo->playerIdInEachPosition == nullptr) return;
+
+    // Derive a reference time from Raceinfo
+    Timer now(false);
+    raceinfo->CloneTimer(&now);
+    now.SetActive(true);
+
+    // Walk current placements; cap to 12 and playerCount
+    u8 total = 12;
+    const Racedata* racedata = Racedata::sInstance;
+    if (racedata != nullptr) total = racedata->racesScenario.playerCount;
+    if (total > 12) total = 12;
+
+    if (raceinfo->playerIdInEachPosition != nullptr) {
+        for (u8 pos = 0; pos < total && pos < 12; ++pos) {
+            const u8 pid = raceinfo->playerIdInEachPosition[pos];
+            if (pid >= 12) continue;
+            RaceinfoPlayer* p = raceinfo->players[pid];
+            if (p == nullptr) continue;
+
+            // Determine the finish time to commit: keep existing active finish time if any; else use 'now'.
+            const Timer* commitTime = &now;
+            if (p->raceFinishTime != nullptr && p->raceFinishTime->isActive) {
+                commitTime = p->raceFinishTime;
+            }
+
+            // Mark player as finished and commit placement.
+            p->EndRace(*commitTime, false, 0);
+            raceinfo->EndPlayerRace(pid);
+        }
+    } else {
+        // Fallback: iterate player IDs directly if standings are unavailable.
+        for (u8 pid = 0; pid < total && pid < 12; ++pid) {
+            RaceinfoPlayer* p = raceinfo->players[pid];
+            if (p == nullptr) continue;
+            const Timer* commitTime = &now;
+            if (p->raceFinishTime != nullptr && p->raceFinishTime->isActive) commitTime = p->raceFinishTime;
+            p->EndRace(*commitTime, false, 0);
+            raceinfo->EndPlayerRace(pid);
+        }
     }
 }
 
@@ -444,41 +498,56 @@ void Mgr::UpdateFrame() {
     }
 }
 
-// Enter spectating if the eliminated player belongs to the local AID; also force camera to leader
-// This integrates with generic spectating patches in Race/Spectating.cpp which consult IsSpectatingLocal
-void Mgr::EnterSpectateIfLocal(u8 eliminatedId) {
-    RKNet::Controller* controller = RKNet::Controller::sInstance;
-    if (controller == nullptr) return;
-    const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
-    const u8 aid = controller->aidsBelongingToPlayerIds[eliminatedId];
-    if (aid >= 12 || aid != sub.localAid) return;  // not a local player
+// Enter spectating if the eliminated player belongs to the local AID online.
+// Offline eliminations instead end the race immediately so the player skips spectating.
+bool Mgr::EnterSpectateIfLocal(u8 eliminatedId) {
+    if (this->raceFinished) return true;
 
-    this->isSpectating = true;
+    const Racedata* racedata = Racedata::sInstance;
+    const bool isOffline = (RKNet::Controller::sInstance == nullptr || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE);
+    if (isOffline && racedata != nullptr && eliminatedId < racedata->racesScenario.playerCount) {
+        const RacedataPlayer& eliminatedPlayer = racedata->racesScenario.players[eliminatedId];
+        if (eliminatedPlayer.playerType == PLAYER_REAL_LOCAL) {
+            // Offline: instead of spectating, end the entire race now and lock in placements/times.
+            this->FinishOfflineAtCurrentStandings();
+            this->raceFinished = true;
+            return true;
+        }
+    } else {
+        RKNet::Controller* controller = RKNet::Controller::sInstance;
+        if (controller == nullptr) return false;
+        const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
+        const u8 aid = controller->aidsBelongingToPlayerIds[eliminatedId];
+        if (aid >= 12 || aid != sub.localAid) return false;  // not a local player
 
-    // Snap focus to current leader if possible (map to camera index safely). If cameras aren't ready yet, UpdateFrame will handle it later.
-    RaceCameraMgr* camMgr = RaceCameraMgr::sInstance;
-    Raceinfo* raceinfo = Raceinfo::sInstance;
-    if (raceinfo != nullptr && raceinfo->playerIdInEachPosition != nullptr) {
-        const u8 leaderPid = raceinfo->playerIdInEachPosition[0];
-        if (leaderPid < 12 && camMgr != nullptr && camMgr->cameras != nullptr && camMgr->cameraCount > 0) {
-            // Try to find a camera for the leader immediately
-            u8 targetCamIdx = 0xFF;
-            for (u32 i = 0; i < camMgr->cameraCount; ++i) {
-                RaceCamera* cam = camMgr->cameras[i];
-                if (cam != nullptr && cam->playerId == leaderPid) { targetCamIdx = static_cast<u8>(i); break; }
-            }
-            if (targetCamIdx != 0xFF) {
-                DriverMgr::ChangeFocusedPlayer(targetCamIdx);
-                RaceCameraMgr::ChangeFocusedPlayer(targetCamIdx);
-            } else {
-                // Fallback: retarget current camera to leader and keep indices consistent
-                u32 idx = (camMgr->focusedPlayerIdx < camMgr->cameraCount) ? camMgr->focusedPlayerIdx : 0;
-                RaceCamera* cam = camMgr->cameras[idx];
-                if (cam != nullptr && cam->playerId != leaderPid) cam->playerId = leaderPid;
-                DriverMgr::ChangeFocusedPlayer(static_cast<u8>(idx));
+        this->isSpectating = true;
+
+        // Snap focus to current leader if possible (map to camera index safely). If cameras aren't ready yet, UpdateFrame will handle it later.
+        RaceCameraMgr* camMgr = RaceCameraMgr::sInstance;
+        Raceinfo* raceinfo = Raceinfo::sInstance;
+        if (raceinfo != nullptr && raceinfo->playerIdInEachPosition != nullptr) {
+            const u8 leaderPid = raceinfo->playerIdInEachPosition[0];
+            if (leaderPid < 12 && camMgr != nullptr && camMgr->cameras != nullptr && camMgr->cameraCount > 0) {
+                // Try to find a camera for the leader immediately
+                u8 targetCamIdx = 0xFF;
+                for (u32 i = 0; i < camMgr->cameraCount; ++i) {
+                    RaceCamera* cam = camMgr->cameras[i];
+                    if (cam != nullptr && cam->playerId == leaderPid) { targetCamIdx = static_cast<u8>(i); break; }
+                }
+                if (targetCamIdx != 0xFF) {
+                    DriverMgr::ChangeFocusedPlayer(targetCamIdx);
+                    RaceCameraMgr::ChangeFocusedPlayer(targetCamIdx);
+                } else {
+                    // Fallback: retarget current camera to leader and keep indices consistent
+                    u32 idx = (camMgr->focusedPlayerIdx < camMgr->cameraCount) ? camMgr->focusedPlayerIdx : 0;
+                    RaceCamera* cam = camMgr->cameras[idx];
+                    if (cam != nullptr && cam->playerId != leaderPid) cam->playerId = leaderPid;
+                    DriverMgr::ChangeFocusedPlayer(static_cast<u8>(idx));
+                }
             }
         }
     }
+    return false;
 }
 
 void Mgr::ComputeEliminationPlan() {
