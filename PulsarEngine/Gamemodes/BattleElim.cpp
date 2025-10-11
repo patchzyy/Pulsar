@@ -264,7 +264,8 @@ kmRuntimeUse(0x8058CB7C);  // ForceInvisible [Xer, edited by ZPL]
 kmRuntimeUse(0x805348E8);  // Drive after finish [Supastarrio]
 kmRuntimeUse(0x80534880);
 kmRuntimeUse(0x80799CAC);  // Drive thru items [Sponge]
-kmRuntimeUse(0x807123e8);  // GetFanfare [Zerora]
+kmRuntimeUse(0x807123e8);  // GetFanfare [Zeraora]
+kmRuntimeUse(0x807CC7F0);  // Force Character Finish Animation & Voiceline [Zeraora]
 void BattleElim() {
     // First, set default patches (no-op behavior) at known addresses.
     kmRuntimeWrite32A(0x80579C1C, 0xa89f02d6);
@@ -275,6 +276,7 @@ void BattleElim() {
     kmRuntimeWrite32A(0x80534880, 0x2C050000);
     kmRuntimeWrite32A(0x80799CAC, 0x9421ffd0);
     kmRuntimeWrite32A(0x807123e8, 0x7c63002e);
+    kmRuntimeWrite32A(0x807CC7F0, 0x4bfc6209);
     const RacedataScenario& scenario = Racedata::sInstance->menusScenario;
     const GameMode mode = scenario.settings.gamemode;
     bool isElim = ELIMINATION_DISABLED;
@@ -292,10 +294,12 @@ void BattleElim() {
         kmRuntimeWrite32A(0x805348E8, 0x2C000000);
         kmRuntimeWrite32A(0x80534880, 0x2C05FFFF);
         kmRuntimeWrite32A(0x80799CAC, 0x9421ffd0);
+        kmRuntimeWrite32A(0x807CC7F0, 0x38600001);
         if (IsAnyLocalPlayerEliminated() && IsAnyLocalPlayerFinished()) {
             // If a local player is both eliminated and finished, tweak the
             // drive-through-items behavior to disable pickups.
             kmRuntimeWrite32A(0x80799CAC, 0x4e800020);
+            kmRuntimeWrite32A(0x807CC7F0, 0x38600003);
         }
     }
 }
