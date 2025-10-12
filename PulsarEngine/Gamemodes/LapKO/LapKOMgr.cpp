@@ -474,10 +474,6 @@ void Mgr::UpdateFrame() {
             if (holder == nullptr) continue;
             if (holder->packetSize < sizeof(Network::PulRH1)) holder->packetSize = sizeof(Network::PulRH1);
             Network::PulRH1* packet = holder->packet;
-            packet->lapKoEventSeq = this->pendingSequence;
-            packet->lapKoEliminatedId = this->pendingElimination;
-            packet->lapKoRoundIndex = this->pendingRound;
-            packet->lapKoActiveCount = this->pendingActiveCount;
         }
         if (this->pendingTimer > 0) {
             --this->pendingTimer;
@@ -492,9 +488,6 @@ void Mgr::UpdateFrame() {
         if (holder == nullptr) return;
         if (holder->packetSize != sizeof(Network::PulRH1)) return;
         const Network::PulRH1* packet = holder->packet;
-        if (packet->lapKoEventSeq == 0) return;
-        if (packet->lapKoEventSeq == this->appliedSequence) return;
-        this->ApplyRemoteEvent(packet->lapKoEventSeq, packet->lapKoEliminatedId, packet->lapKoRoundIndex, packet->lapKoActiveCount);
     }
 }
 
@@ -624,7 +617,7 @@ void Mgr::RecordEliminationForDisplay(u8 playerId, u8 concludedRound) {
         this->recentEliminationRound = concludedRound;
     }
 
-    if (this->recentEliminationCount < 2) {
+    if (this->recentEliminationCount < 4) {
         this->recentEliminations[this->recentEliminationCount++] = playerId;
     }
 
@@ -636,6 +629,8 @@ void Mgr::ResetEliminationDisplay() {
     this->recentEliminationRound = 0;
     this->recentEliminations[0] = 0xFF;
     this->recentEliminations[1] = 0xFF;
+    this->recentEliminations[2] = 0xFF;
+    this->recentEliminations[3] = 0xFF;
     this->eliminationDisplayTimer = 0;
 }
 

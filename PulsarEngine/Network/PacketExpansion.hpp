@@ -45,12 +45,6 @@ struct PulRH1 : public RKNet::RACEHEADER1Packet {
     u16 timeInDanger;
     u8 almostKOdCounter;
     u8 finalPercentageSum;  // to be divided by racecount at the end of the GP
-
-    // LapKO elimination event (host authoritative)
-    u8 lapKoEventSeq;
-    u8 lapKoEliminatedId;
-    u8 lapKoRoundIndex;
-    u8 lapKoActiveCount;
 };
 struct PulRH2 : public RKNet::RACEHEADER2Packet {};
 struct PulROOM : public RKNet::ROOMPacket {

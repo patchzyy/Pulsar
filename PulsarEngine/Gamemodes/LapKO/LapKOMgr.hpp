@@ -92,7 +92,8 @@ class Mgr {
     bool raceFinished;
     bool raceInitDone;
     u16 lastRaceFrames;
-    u8 recentEliminations[2];
+    // Increase to 4 to allow elimination display of up to four names
+    u8 recentEliminations[4];
     u8 recentEliminationCount;
     u8 recentEliminationRound;
     u16 eliminationDisplayTimer;
