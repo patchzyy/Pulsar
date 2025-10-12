@@ -7,6 +7,7 @@
 #include <MarioKartWii/RKNet/RKNetController.hpp>
 #include <MarioKartWii/File/StatsParam.hpp>
 #include <Race/200ccParams.hpp>
+#include <Gamemodes/LapKO/LapKOMgr.hpp>
 #include <PulsarSystem.hpp>
 #include <RetroRewind.hpp>
 #include <Settings/Settings.hpp>
@@ -26,9 +27,10 @@ bool IsLapKOEnabled(const System* system) {
 u8 GetLapKOTargetCount(const System* system, const Racedata* racedata, u8 fallback) {
     u8 playerCount = 0;
     if (system != nullptr) playerCount = system->nonTTGhostPlayersCount;
+    if (playerCount == 0 && racedata != nullptr) playerCount = racedata->racesScenario.playerCount;
     if (playerCount == 0) playerCount = fallback;
     if (playerCount < 2) playerCount = 2;
-    if (playerCount > 9) playerCount = 9;
+    if (playerCount > 12) playerCount = 12;
     return playerCount;
 }
 
@@ -41,29 +43,26 @@ RaceinfoPlayer* LoadCustomLapCount(RaceinfoPlayer* player, u8 id) {
     if (lapKoActive) {
         // Base KO lap count (existing behaviour)
         const u8 basePlayers = GetLapKOTargetCount(system, racedata, 1);
-        u8 koLapCount = static_cast<u8>(basePlayers - 1);
+        const RKNet::Controller* controller = RKNet::Controller::sInstance;
+        const bool offlineLapKO = (controller == nullptr || controller->roomType == RKNet::ROOMTYPE_NONE);
 
-        // Detect usual track lap count from KMP (1, 2, or 3+)
+        u8 koPerRace = 1;
+        if (system != nullptr && system->lapKoMgr != nullptr && !offlineLapKO) {
+            koPerRace = system->lapKoMgr->GetKoPerRace();
+        } else {
+            const Settings::Mgr& settings = Settings::Mgr::Get();
+            koPerRace = static_cast<u8>(settings.GetUserSettingValue(Settings::SETTINGSTYPE_KO, SCROLLER_KOPERRACE) + 1);
+            if (koPerRace == 0) koPerRace = 1;
+            if (system != nullptr && system->lapKoMgr != nullptr) {
+                system->lapKoMgr->SetKoPerRace(koPerRace);
+            }
+        }
+
         const u8 usualTrackLaps = KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->lapCount;
 
-        // Special cases for LapKO
-        if (usualTrackLaps <= 1) {
-            // 1-lap tracks: always 1 lap
-            lapCount = 1; // ensure non-zero; display hook will handle proper labeling
-        } else if (usualTrackLaps == 2) {
-            // 2-lap tracks: keep same logic for 2 players, but for 3+ players halve the KO lap count
-            if (basePlayers >= 3) {
-                // Halve, rounding down, but ensure at least 1 in the internal representation
-                u8 halved = static_cast<u8>(koLapCount / 2);
-                if (halved == 0) halved = 1; // safety floor
-                lapCount = halved;
-            } else {
-                lapCount = koLapCount;
-            }
-        } else {
-            // Normal tracks: existing KO behaviour
-            lapCount = koLapCount;
-        }
+        // BuildPlan handles 1-lap tracks and 2-lap pacing adjustments internally
+        const u8 totalRounds = LapKO::Mgr::BuildPlan(basePlayers, koPerRace, usualTrackLaps, nullptr, LapKO::Mgr::MaxRounds);
+        lapCount = (totalRounds == 0) ? 1 : totalRounds;
     }
 
     if (racedata != nullptr) {
