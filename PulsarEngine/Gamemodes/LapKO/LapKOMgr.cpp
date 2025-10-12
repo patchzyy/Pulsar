@@ -175,22 +175,38 @@ void Mgr::TryResolveRound() {
     }
     if (this->orderCursor < requiredCrossings) return;  // wait until all safe players crossed
 
-    // Collect elimination targets = remaining active players who haven't crossed OR tail of order if overflow
+    // Collect elimination targets = bottom ranked active players at this moment
+    // Prefer Raceinfo's current placement ordering to avoid false eliminations (e.g., players a lap ahead)
     u8 eliminatedList[12];
     u8 elimCount = 0;
-    // First try find not crossed players
-    for (u8 i = 0; i < 12 && elimCount < toEliminate; ++i) {
-        if (!this->active[i]) continue;
-        if (this->crossed[i]) continue;
-        eliminatedList[elimCount++] = i;
+
+    Raceinfo* raceinfoLocal = Raceinfo::sInstance;
+    if (raceinfoLocal != nullptr && raceinfoLocal->playerIdInEachPosition != nullptr) {
+        // Iterate from worst position to best, selecting active players
+        for (int pos = 11; pos >= 0 && elimCount < toEliminate; --pos) {
+            u8 pid = raceinfoLocal->playerIdInEachPosition[pos];
+            if (pid >= 12) continue;
+            if (!this->active[pid]) continue;
+            // Dedup safety
+            bool already = false;
+            for (u8 c = 0; c < elimCount; ++c) { if (eliminatedList[c] == pid) { already = true; break; } }
+            if (!already) eliminatedList[elimCount++] = pid;
+        }
+    } else {
+        // Fallback: use previous approach based on not-crossed and tail of cross order
+        for (u8 i = 0; i < 12 && elimCount < toEliminate; ++i) {
+            if (!this->active[i]) continue;
+            if (this->crossed[i]) continue;
+            eliminatedList[elimCount++] = i;
+        }
+        for (int idx = this->orderCursor - 1; elimCount < toEliminate && idx >= 0; --idx) {
+            u8 pid = this->crossOrder[idx];
+            bool already = false;
+            for (u8 c = 0; c < elimCount; ++c) if (eliminatedList[c] == pid) already = true;
+            if (!already) eliminatedList[elimCount++] = pid;
+        }
     }
-    // If still need more (all crossed because of lag), pick from the slowest finishers (end of crossOrder)
-    for (int idx = this->orderCursor - 1; elimCount < toEliminate && idx >= 0; --idx) {
-        u8 pid = this->crossOrder[idx];
-        bool already = false;
-        for (u8 c = 0; c < elimCount; ++c) if (eliminatedList[c] == pid) already = true;
-        if (!already) eliminatedList[elimCount++] = pid;
-    }
+
     if (elimCount == 0) return;
 
     // Apply eliminations sequentially but avoid advancing round until last in batch
