@@ -7,6 +7,8 @@
 #include <MarioKartWii/3D/Camera/RaceCamera.hpp>
 #include <MarioKartWii/Driver/DriverManager.hpp>
 #include <MarioKartWii/UI/Section/SectionMgr.hpp>
+#include <Settings/Settings.hpp>
+#include <Settings/SettingsParam.hpp>
 
 namespace Pulsar {
 namespace LapKO {
@@ -15,11 +17,12 @@ static const u16 pendingBroadcastFrames = 120;
 static const u16 eliminationDisplayDuration = 180; 
 
 Mgr::Mgr()
-    : orderCursor(0),
+    : koPerRaceSetting(1),
+      orderCursor(0),
       activeCount(0),
       playerCount(0),
       roundIndex(1),
-    totalRounds(0),
+      totalRounds(0),
       eventSequence(0),
       appliedSequence(0),
       pendingSequence(0),
@@ -31,11 +34,11 @@ Mgr::Mgr()
       isHost(true),
       hostAid(0xFF),
       pendingTimer(0),
-    raceFinished(false),
-    raceInitDone(false),
-    recentEliminationCount(0),
-    recentEliminationRound(0),
-    eliminationDisplayTimer(0) {
+      raceFinished(false),
+      raceInitDone(false),
+      recentEliminationCount(0),
+      recentEliminationRound(0),
+      eliminationDisplayTimer(0) {
     for (int i = 0; i < 12; ++i) {
         this->active[i] = false;
         this->crossed[i] = false;
@@ -48,6 +51,52 @@ Mgr::Mgr()
 }
 
 Mgr::~Mgr() {}
+
+void Mgr::SetKoPerRace(u8 value) {
+    if (value == 0) value = 1;
+    this->koPerRaceSetting = value;
+}
+
+u8 Mgr::GetKoPerRace() const {
+    return (this->koPerRaceSetting == 0) ? 1 : this->koPerRaceSetting;
+}
+
+u8 Mgr::BuildPlan(u8 playerCount, u8 koPerRace, u8 usualLapCount, u8* outPlan, u8 capacity) {
+    if (outPlan != nullptr) {
+        for (u8 i = 0; i < capacity; ++i) outPlan[i] = 0;
+    }
+
+    if (capacity == 0) return 0;
+    if (playerCount < 2) return 0;
+
+    if (usualLapCount <= 1) {
+        if (outPlan != nullptr && capacity > 0) {
+            outPlan[0] = (playerCount > 1) ? static_cast<u8>(playerCount - 1) : 0;
+        }
+        return 1;
+    }
+
+    if (koPerRace == 0) koPerRace = 1;
+
+    const bool twoLapTrack = (usualLapCount == 2);
+    if (twoLapTrack && playerCount >= 3) {
+        u16 doubled = static_cast<u16>(koPerRace) * 2;
+        if (doubled > 255) doubled = 255;
+        koPerRace = static_cast<u8>(doubled);
+    }
+
+    u8 remainingPlayers = playerCount;
+    u8 round = 0;
+    while (remainingPlayers > 1 && round < capacity) {
+        u8 planned = koPerRace;
+        if (planned >= remainingPlayers) planned = static_cast<u8>(remainingPlayers - 1);
+        if (planned == 0) planned = 1;
+        if (outPlan != nullptr) outPlan[round] = planned;
+        remainingPlayers = static_cast<u8>(remainingPlayers - planned);
+        ++round;
+    }
+    return round;
+}
 
 void Mgr::InitForRace() {
     this->raceInitDone = true;
@@ -97,6 +146,10 @@ void Mgr::InitForRace() {
         this->hostAid = 0xFF;
         this->isHost = true;
         this->lastAvailableAids = 0;
+
+        const Settings::Mgr& settings = Settings::Mgr::Get();
+        u8 offlineKo = static_cast<u8>(settings.GetUserSettingValue(Settings::SETTINGSTYPE_KO, SCROLLER_KOPERRACE) + 1);
+        this->SetKoPerRace(offlineKo);
     }
 
     Racedata* raceDataMutable = Racedata::sInstance;
@@ -104,7 +157,7 @@ void Mgr::InitForRace() {
         raceDataMutable->menusScenario.settings.lapCount = raceDataMutable->racesScenario.settings.lapCount;
     }
 
-    // Build elimination plan so final is 1v1 within <=8 laps
+    // Build elimination plan using the configured KO-per-race setting
     this->ComputeEliminationPlan();
     for (u8 i = 0; i < this->totalRounds; ++i) OS::Report("%u", this->eliminationPlan[i]);
     OS::Report("\nLapKO: InitForRace done players=%u host=%u\n", this->playerCount, this->isHost);
@@ -162,7 +215,7 @@ void Mgr::TryResolveRound() {
     // Determine number of eliminations this round
     u8 planIdx = (this->roundIndex - 1);
     if (planIdx >= this->totalRounds) return;
-    u8 toEliminate = (planIdx < 8) ? this->eliminationPlan[planIdx] : 0;
+    u8 toEliminate = (planIdx < MaxRounds) ? this->eliminationPlan[planIdx] : 0;
     if (toEliminate == 0) return;  // no eliminations scheduled this round
     if (toEliminate >= this->activeCount) toEliminate = static_cast<u8>(this->activeCount - 1);
 
@@ -560,57 +613,9 @@ bool Mgr::EnterSpectateIfLocal(u8 eliminatedId) {
 }
 
 void Mgr::ComputeEliminationPlan() {
-    for (int i = 0; i < 8; ++i) this->eliminationPlan[i] = 0;
-    if (this->playerCount < 2) { this->totalRounds = 0; return; }
     const u8 usualLaps = this->GetUsualTrackLapCount();
-
-    // Special-case planning for 1-lap and 2-lap tracks
-    if (usualLaps <= 1) {
-        // Single round: when first crosses, eliminate everyone else
-        this->eliminationPlan[0] = static_cast<u8>((this->playerCount > 1) ? (this->playerCount - 1) : 0);
-        this->totalRounds = 1;
-        return;
-    }
-
-    // For 2-lap tracks, keep same logic for 2 players, else halve normal KO pacing by doubling eliminations
-    const bool twoLapTrack = (usualLaps == 2);
-
-    u8 remainingPlayers = this->playerCount;
-    u8 round = 0;
-    // While more than 2 players and room for another round
-    while (remainingPlayers > 2 && round < 8) {
-        // Decide elimination count this round
-        u8 elim = 1;
-        if (remainingPlayers > 6) {
-            // If we eliminate 2 now, remainingPlayers-2 >= 2
-            elim = 2;
-        } else {
-            u8 afterSingle = remainingPlayers - 1;
-            u8 neededIfSingle = afterSingle - 1;
-            u8 potentialTotalRounds = static_cast<u8>(round + 1 + neededIfSingle);
-            if (potentialTotalRounds > 8 && remainingPlayers > 3) elim = 2;
-        }
-
-        if (elim >= remainingPlayers - 1) elim = 1;
-
-        if (twoLapTrack && this->playerCount >= 3) {
-            // Double the elimination rate, but never eliminate all remaining in a single round
-            u8 doubled = static_cast<u8>(elim * 2);
-            if (doubled >= remainingPlayers) doubled = static_cast<u8>(remainingPlayers - 1);
-            if (doubled == 0) doubled = 1;
-            elim = doubled;
-        }
-        this->eliminationPlan[round] = elim;
-        remainingPlayers -= elim;
-        ++round;
-    }
-    // If we ended with two players and still have room, schedule a final 1v1 elimination
-    if (remainingPlayers == 2 && round < 8) {
-        this->eliminationPlan[round] = 1;
-        ++round;
-        remainingPlayers -= 1;
-    }
-    this->totalRounds = round;
+    const u8 koPerRace = this->GetKoPerRace();
+    this->totalRounds = BuildPlan(this->playerCount, koPerRace, usualLaps, this->eliminationPlan, MaxRounds);
 }
 
 u8 Mgr::GetUsualTrackLapCount() const {
