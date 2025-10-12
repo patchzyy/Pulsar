@@ -4,7 +4,6 @@
 #include <MarioKartWii/UI/Section/SectionMgr.hpp>
 #include <MarioKartWii/Race/RaceInfo/RaceInfo.hpp>
 #include <Gamemodes/KO/KOMgr.hpp>
-#include <Gamemodes/LapKO/LapKOMgr.hpp>
 
 namespace Pulsar {
 namespace Race {
@@ -14,8 +13,7 @@ static const u64 CreateSwitchFocusPlayerPtmfs(u32 arg) {  // extremely hacky, bu
 
     SectionId id = SectionMgr::sInstance->curSection->sectionId;
     const System* system = System::sInstance;
-    const bool isKoSpectate = system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating;
-    if (isKoSpectate || id >= SECTION_WATCH_GHOST_FROM_CHANNEL && id <= SECTION_WATCH_GHOST_FROM_MENU) id = SECTION_P1_WIFI_VS_LIVEVIEW;
+    if (system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating || id >= SECTION_WATCH_GHOST_FROM_CHANNEL && id <= SECTION_WATCH_GHOST_FROM_MENU) id = SECTION_P1_WIFI_VS_LIVEVIEW;
     fakeSection = id;
     u64 ret = ((static_cast<u64>(arg)) << 32) | (reinterpret_cast<u32>(&fakeSection) & 0xffffffffL);
     return ret;
@@ -67,16 +65,13 @@ static void RaceinfoNoSpectating() {
     register Raceinfo* raceInfo;
     asm(mr raceInfo, r28;);
     const System* system = System::sInstance;
-    bool allowSpectate = false;
-    if (system->IsContext(PULSAR_MODE_KO)) allowSpectate = system->koMgr->isSpectating;
-    raceInfo->isSpectating = allowSpectate;
+    raceInfo->isSpectating = !system->IsContext(PULSAR_MODE_KO);  // default instruction would store 1, here we only store 1 if it's not ko
 }
 kmCall(0x80532cf8, RaceinfoNoSpectating);
 
 static bool SkipOpeningPanCheck(const RaceCameraMgr& cameraMgr) {
     const System* system = System::sInstance;
-    const bool isKoSpectate = system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating;
-    if (isKoSpectate)
+    if (system->IsContext(PULSAR_MODE_KO) && system->koMgr->isSpectating)
         return true;
     else
         return cameraMgr.HasEveryOpeningPanEnded();

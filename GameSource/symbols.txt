@@ -2158,3 +2158,7 @@ CUSTOM_DRIVER = 0x808904f1
 #Battle
 HasPlayerFinished__12CtrlRaceTimeFUc = 0x807f82bc
 GetLocalPlayerCount__Fv = 0x808605fc
+
+fun_getHUDPlayerID = 0x807EC7F8
+ptr_raceData = 0x809BD728
+ptr_inputBase = 0x809BD70C
