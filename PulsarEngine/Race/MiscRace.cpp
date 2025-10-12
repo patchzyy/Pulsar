@@ -107,7 +107,7 @@ kmWrite32(0x807F4DB8, 0x38000001);
 
 // Draggable blue shells
 static void DraggableBlueShells(Item::PlayerObj& sub) {
-    sub.isNotDragged = true;
+    sub.isNotDragged = false;
 }
 kmBranch(0x807ae8ac, DraggableBlueShells);
 

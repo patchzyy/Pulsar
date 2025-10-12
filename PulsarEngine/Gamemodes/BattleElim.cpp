@@ -257,6 +257,18 @@ asmFunc GetFanfare() {
         end : blr;)
 }
 
+asmFunc GetFanfareKO() {
+    ASM(
+        nofralloc;
+        lwzx r3, r3, r0;
+        cmpwi r3, 0x68;
+        beq - UnusedFanFareID;
+        b end;
+        UnusedFanFareID :;
+        li r3, 0x6f;
+        end : blr;)
+}
+
 kmRuntimeUse(0x80579C1C);  // OnBattleRespawn [ZPL]
 kmRuntimeUse(0x80535C7C);  // ForceTimerOnStore [ZPL]
 kmRuntimeUse(0x806619AC);  // ForceBalloonBattle [Ro]
@@ -277,6 +289,7 @@ void BattleElim() {
     kmRuntimeWrite32A(0x807123e8, 0x7c63002e);
     const RacedataScenario& scenario = Racedata::sInstance->menusScenario;
     const GameMode mode = scenario.settings.gamemode;
+    System* system = System::sInstance;
     bool isElim = ELIMINATION_DISABLED;
     if ((RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE) && (mode == MODE_PRIVATE_BATTLE || mode == MODE_PUBLIC_BATTLE) && System::sInstance->IsContext(PULSAR_TEAM_BATTLE) == BATTLE_TEAMS_DISABLED && scenario.settings.battleType == BATTLE_BALLOON) {
         isElim = Pulsar::System::sInstance->IsContext(PULSAR_ELIMINATION) ? ELIMINATION_ENABLED : ELIMINATION_DISABLED;
@@ -297,6 +310,9 @@ void BattleElim() {
             // drive-through-items behavior to disable pickups.
             kmRuntimeWrite32A(0x80799CAC, 0x4e800020);
         }
+    }
+    if (system->IsContext(PULSAR_MODE_LAPKO)) {
+        kmRuntimeCallA(0x807123e8, GetFanfareKO);
     }
 }
 static PageLoadHook BattleElimHook(BattleElim);
