@@ -12,6 +12,7 @@ namespace LapKO {
 
 class Mgr {
    public:
+    enum { MaxRounds = 12 };
     Mgr();
     ~Mgr();
 
@@ -30,7 +31,7 @@ class Mgr {
         if (this->activeCount <= 1) return 0;
         const u8 idx = (this->roundIndex == 0) ? 0 : static_cast<u8>(this->roundIndex - 1);
         u8 elim = 1;
-        if (idx < 8) {
+        if (idx < MaxRounds) {
             u8 planned = this->eliminationPlan[idx];
             if (planned != 0) elim = planned;
         }
@@ -47,6 +48,10 @@ class Mgr {
     u8 GetRecentEliminationId(u8 index) const {
         return (index < this->recentEliminationCount) ? this->recentEliminations[index] : 0xFF;
     }
+
+    void SetKoPerRace(u8 value);
+    u8 GetKoPerRace() const;
+    static u8 BuildPlan(u8 playerCount, u8 koPerRace, u8 usualLapCount, u8* outPlan, u8 capacity);
 
     void ClearPendingEvent();
 
@@ -65,8 +70,8 @@ class Mgr {
     void RecordEliminationForDisplay(u8 playerId, u8 concludedRound);
     void ResetEliminationDisplay();
 
-
-    u8 eliminationPlan[8];
+    u8 koPerRaceSetting;
+    u8 eliminationPlan[MaxRounds];
     u8 totalRounds;
 
     bool active[12];
