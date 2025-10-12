@@ -162,8 +162,8 @@ kmWrite32(0x800ECAAC, 0x7C7E1B78);
 kmWrite32(0x805a906c, 0x4E800020);
 
 // No VR/BR Loss on Disconnect [Bully]
-kmWrite32(0x80856560, 0x60000000); // Disable VR loss
-kmWrite32(0x808565CC, 0x60000000); // Disable BR loss
+kmWrite32(0x80856560, 0x60000000);  // Disable VR loss
+kmWrite32(0x808565CC, 0x60000000);  // Disable BR loss
 
 // Ultra Uncut [MrBean35000vr + Chadderz]
 asmFunc GetUltraUncut() {
@@ -260,7 +260,7 @@ asmFunc Deflicker() {
     ASM(
         nofralloc;
         cntlzw r0, r3;
-        lwz r5, 0x14 (r5);
+        lwz r5, 0x14(r5);
         cmpwi r5, 0x0;
         bnelr;
         li r0, 0x0;
@@ -296,18 +296,18 @@ asmFunc halfpipeWarpFix() {
     ASM(
         nofralloc;
         lwz r11, 8(r4);
-        rlwinm. r12, r11, 0, 21, 21;
-        beq- loc_0x20;
+        rlwinm.r12, r11, 0, 21, 21;
+        beq - loc_0x20;
         lha r0, 86(r31);
         cmpwi r0, 0x52;
-        blt- loc_0x20;
+        blt - loc_0x20;
         rlwinm r11, r11, 0, 22, 20;
         stw r11, 8(r4);
 
-        loc_0x20:;
+        loc_0x20 :;
         mr r4, r11;
         blr;)
-    }
+}
 kmCall(0x8058BF58, halfpipeWarpFix);
 
 // Show Your Respawn Boost Online [Ro] #1
@@ -317,16 +317,16 @@ asmFunc respawnBoostFix1() {
         lwz r4, 0(r3);
         lwz r4, 60(r4);
         cmpwi r4, 0x0;
-        beq- loc_0x20;
+        beq - loc_0x20;
         lwz r4, 16(r4);
         lwz r5, 16(r4);
         xoris r5, r5, 16384;
         stw r5, 16(r4);
 
-        loc_0x20:;
+        loc_0x20 :;
         li r4, 0x3;
         blr;)
-    }
+}
 kmCall(0x80581E40, respawnBoostFix1);
 
 asmFunc respawnBoostFix2() {
@@ -335,16 +335,16 @@ asmFunc respawnBoostFix2() {
         lwz r4, 0(r3);
         lwz r4, 60(r4);
         cmpwi r4, 0x0;
-        beq- loc_0x20;
+        beq - loc_0x20;
         lwz r4, 16(r4);
         lwz r5, 16(r4);
         xoris r5, r5, 16384;
         stw r5, 16(r4);
 
-        loc_0x20:;
+        loc_0x20 :;
         li r4, 0x3;
         blr;)
-    }
+}
 kmCall(0x805820B0, respawnBoostFix2);
 
 // No Shell Tail Dissolve [Ro]
@@ -370,106 +370,79 @@ kmWrite32(0x80827968, 0x38000000);
 // Slot Specific Objects Work in All Slots (pylon01, sunDS, FireSnake and begoman_spike) [Ro]
 kmWrite32(0x8082A4F8, 0x3800000A);
 
-// Fix Character Icons in Live View [Ro]
-// extern "C" void fun_getHUDPlayerID(void*);
-// extern "C" void ptr_raceData(void*);
-// asmFunc iconFixC21() {
-//     ASM(
-//         nofralloc;
-//         lbz r0, 0x38 (r3);
-
-//         lwz r12, 0xB74 (r6);
-//         cmpwi r12, 6;
-//         bne end;
-
-//         mr r3, r28;
-//         lis r12, fun_getHUDPlayerID@h;
-//         ori r12, r12, fun_getHUDPlayerID@l;
-//         mtctr r12;
-//         bctrl;
-
-//         lwz r0, 0x1B4 (r28);
-//         subf r0, r0, r3;
-//         cntlzw r0, r0;
-//         srwi r0, r0, 5;
-//         xori r0, r0, 1;
-
-//         end:;
-//         blr;)
-//     }
-//     kmCall(0x807EB440, iconFixC21);
-
-//     asmFunc iconFixC22() {
-//     ASM(
-//         nofralloc;
-//         lis r12, ptr_raceData@ha;
-//         lwz r12, ptr_raceData@l (r12);
-//         lwz r12, 0xB74 (r12);
-//         cmpwi r12, 6;
-//         bne end;
-
-//         li r3, 0;
-
-//         end:;
-//         extsb. r28, r3;
-//         blr;)
-//     }
-//     kmCall(0x807EAF78, iconFixC22);
-
-
-    // Cancel Friend Room Joining by Pressing B [Ro]
-    extern "C" void ptr_inputBase(void*);
-    asmFunc friendRoomJoinCancel() {
+// Cancel Friend Room Joining by Pressing B [Ro]
+extern "C" void ptr_inputBase(void*);
+asmFunc friendRoomJoinCancel() {
     ASM(
         nofralloc;
-        lis r31, ptr_inputBase@ha;
-        lwz r31, ptr_inputBase@l (r31);
-        lhz r31, 0x60 (r31);
-        andi. r31, r31, 0x2;
+        lis r31, ptr_inputBase @ha;
+        lwz r31, ptr_inputBase @l(r31);
+        lhz r31, 0x60(r31);
+        andi.r31, r31, 0x2;
         beq end;
 
         li r3, 3;
 
-        end:;
+        end :;
         cmpwi r3, 3;
         blr;)
-    }
-    kmCall(0x805DD85C, friendRoomJoinCancel);
+}
+kmCall(0x805DD85C, friendRoomJoinCancel);
 
-    /*
-    // Dead/Inactive Bomb Cars Are Visible [Ro]
-    kmWrite32(0x806D7FF8, 0x81830008);
-    kmWrite32(0x806D7FFC, 0x38600044);
-    kmWrite32(0x806D8000, 0x986C012C);
-    kmWrite32(0x806D8E5C, 0x81830008);
-    kmWrite32(0x806D8E60, 0x38600054);
-    kmWrite32(0x806D8E64, 0x986C012C);
+/*
+// Dead/Inactive Bomb Cars Are Visible [Ro]
+kmWrite32(0x806D7FF8, 0x81830008);
+kmWrite32(0x806D7FFC, 0x38600044);
+kmWrite32(0x806D8000, 0x986C012C);
+kmWrite32(0x806D8E5C, 0x81830008);
+kmWrite32(0x806D8E60, 0x38600054);
+kmWrite32(0x806D8E64, 0x986C012C);
 
-    // Dead Goombas Are Visible [Ro]
-    kmWrite32(0x806DC810, 0x48000084);
-    */
+// Dead Goombas Are Visible [Ro]
+kmWrite32(0x806DC810, 0x48000084);
+*/
 
-    // Play Character Icon Damage Animation When Burned Out [Ro]
-    asmFunc burnoutIconFix() {
+// Play Character Icon Damage Animation When Burned Out [Ro]
+asmFunc burnoutIconFix() {
     ASM(
         nofralloc;
         lwz r0, 8(r3);
-        andis. r12, r0, 0x4;
-        beq- loc_0x10;
+        andis.r12, r0, 0x4;
+        beq - loc_0x10;
         ori r0, r0, 0x1;
 
-        loc_0x10:;
+        loc_0x10 :;
         blr;)
-    }
-    kmCall(0x807EB38C, burnoutIconFix);
+}
+kmCall(0x807EB38C, burnoutIconFix);
 
-    // Allow Pausing Before Race Starts [Sponge]
-    kmWrite32(0x80856a28, 0x40810050);
+// Allow Pausing Before Race Starts [Sponge]
+kmWrite32(0x80856a28, 0x40810050);
 
 // jugemnu_lap.brres [ZPL]
 kmWrite16(0x808a22ec, 'RR');
 
 // Disable 6 minute time limit Online [CLF78]
 kmWrite32(0x8053F478, 0x4800000C);
+
+// Clear Exhaust Pipe Boost Particle After Damage [Ro]
+extern "C" void exhaustPipeboost(void*);
+asmFunc exhaustPipeboostFix() {
+    ASM(
+        nofralloc;
+        lis r3, exhaustPipeboost @h;
+        lwz r3, exhaustPipeboost @l(r3);
+        lwz r3, 104(r3);
+        lwz r4, 0(r31);
+        lwz r5, 40(r4);
+        lwz r4, 0(r4);
+        lbz r4, 16(r4);
+        mulli r4, r4, 0x4;
+        lwzx r3, r3, r4;
+        li r0, 0x0;
+        stw r0, 24(r3);
+        blr;)
+}
+kmCall(0x805674B8, exhaustPipeboostFix);
 
 }  // namespace Codes
