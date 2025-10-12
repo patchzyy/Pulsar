@@ -156,37 +156,23 @@ static void SkipVRControlFill(Pages::VR& vr, u32 index, u32 playerId, u32 team, 
 static void PatchAidsBeforeSELECTStageMgrSetup(Pages::SELECTStageMgr& stageMgr) {
     const System* system = System::sInstance;
 
-    const bool isKO = system->IsContext(PULSAR_MODE_KO);
-    const bool isLapKO = system->IsContext(PULSAR_MODE_LAPKO);
-    const bool needsSelectData = isKO || isLapKO;
-
-    if (needsSelectData) {
+    if (system->IsContext(PULSAR_MODE_KO)) {
+        Mgr* mgr = system->koMgr;
         RKNet::Controller* controller = RKNet::Controller::sInstance;
-        if (controller != nullptr) {
-            RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
-            Network::ExpSELECTHandler& handler = Network::ExpSELECTHandler::Get();
-            const Network::PulSELECT* select = nullptr;
-            const u8 hostAid = sub.hostAid;
-            if (hostAid == sub.localAid || hostAid >= 12) {
-                select = &handler.toSendPacket;
-            } else {
-                select = &handler.receivedPackets[hostAid];
-            }
-
-            if (isKO && system->koMgr != nullptr && select != nullptr) {
-                Mgr* mgr = system->koMgr;
-                mgr->koPerRace = select->koPerRace;
-                mgr->racesPerKO = select->racesPerKO;
-                mgr->alwaysFinal = select->alwaysFinal;
-                mgr->PatchAids(sub);
-                reinterpret_cast<RKNet::SELECTHandler&>(handler).AllocatePlayerIdsToAids();
-                controller->UpdateAidsBelongingToPlayerIds();
-            }
-
-            if (isLapKO && system->lapKoMgr != nullptr && select != nullptr) {
-                system->lapKoMgr->SetKoPerRace(select->koPerRace);
-            }
-        }
+        RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
+        Network::ExpSELECTHandler& handler = Network::ExpSELECTHandler::Get();
+        const Network::PulSELECT* select;
+        const u8 hostAid = sub.hostAid;
+        if (hostAid == sub.localAid)
+            select = &handler.toSendPacket;
+        else
+            select = &handler.receivedPackets[hostAid];
+        mgr->koPerRace = select->koPerRace;
+        mgr->racesPerKO = select->racesPerKO;
+        mgr->alwaysFinal = select->alwaysFinal;
+        mgr->PatchAids(sub);
+        reinterpret_cast<RKNet::SELECTHandler&>(handler).AllocatePlayerIdsToAids();
+        controller->UpdateAidsBelongingToPlayerIds();
     }
 
     stageMgr.SetModeTypes();

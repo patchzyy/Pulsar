@@ -1,7 +1,7 @@
-CC := G:/Coding/MarioKart/Compilers/Wii/1.7/mwcceppc.exe
+CC := mwcceppc.exe
 GAMESOURCE := ./GameSource
 PULSAR := ./PulsarEngine
-KAMEK := G:/Coding/MarioKart/RR/RR61/Pulsar/KamekLinker/Kamek.exe
+KAMEK := Kamek.exe
 KAMEK_H := ./KamekInclude
 
 -include .env
