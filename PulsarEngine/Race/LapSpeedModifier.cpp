@@ -12,6 +12,7 @@
 #include <RetroRewind.hpp>
 #include <Settings/Settings.hpp>
 #include <Settings/SettingsParam.hpp>
+#include <runtimeWrite.hpp>
 
 namespace Pulsar {
 namespace Race {
@@ -82,12 +83,34 @@ void DisplayCorrectLap(AnmTexPatHolder* texPat) {  // This Anm is held by a Mode
 }
 kmCall(0x80723d70, DisplayCorrectLap);
 
+kmRuntimeUse(0x808a9cc7); // lap_number.brctr
+void DisplayCorrectLapNumber() {
+    kmRuntimeWrite16A(0x808a9cc7, 'la');
+
+    const System* system = System::sInstance;
+    if (!IsLapKOEnabled(system)) return;
+
+    const Racedata* racedata = Racedata::sInstance;
+    const u8 lapCount = (racedata != nullptr) ? racedata->racesScenario.settings.lapCount : 0;
+
+    if (lapCount > 9) {
+        kmRuntimeWrite16A(0x808a9cc7, 'RR'); // RRp_number.brctr
+    }
+}
+static SectionLoadHook hookDisplayCorrectLapNumber(DisplayCorrectLapNumber);
+
 // Moved speed modifier to Race/StatChanges.cpp
 kmWrite32(0x805336B8, 0x60000000);
 kmWrite32(0x80534350, 0x60000000);
 kmWrite32(0x80534BBC, 0x60000000);
-kmWrite32(0x80723D10, 0x281D0009);
-kmWrite32(0x80723D40, 0x3BA00009);
+kmWrite32(0x80723D10, 0x281D0063);
+kmWrite32(0x80723D40, 0x3BA00063);
+
+// Increase Lap Limit [Toadette Hack Fan]
+kmWrite32(0x805328C0, 0x2800000C);
+kmWrite32(0x805336c8, 0x2800000C);
+kmWrite32(0x80534bcc, 0x2800000C);
+kmWrite32(0x80534360, 0x2800000C);
 
 kmWrite24(0x808AAA0C, 'PUL');  // time_number -> time_numPUL
 }  // namespace Race

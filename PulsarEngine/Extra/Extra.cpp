@@ -466,4 +466,10 @@ kmWrite32(0x8082A4F8, 0x3800000A);
     // Allow Pausing Before Race Starts [Sponge]
     kmWrite32(0x80856a28, 0x40810050);
 
+// jugemnu_lap.brres [ZPL]
+kmWrite16(0x808a22ec, 'RR');
+
+// Disable 6 minute time limit Online [CLF78]
+kmWrite32(0x8053F478, 0x4800000C);
+
 }  // namespace Codes
