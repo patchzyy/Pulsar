@@ -11,6 +11,7 @@
 #include <MarioKartWii/UI/Section/SectionMgr.hpp>
 #include <Settings/Settings.hpp>
 #include <Settings/SettingsParam.hpp>
+#include <runtimeWrite.hpp>
 
 namespace Pulsar {
 namespace LapKO {
@@ -666,20 +667,18 @@ void Mgr::UpdateFrame() {
     }
 }
 
-// Actual worker that runs when it’s safe (called from UpdateFrame)
+
+kmRuntimeUse(0x809c3670);
 void Mgr::ReweightItemProbabilitiesNow() {
-    // Only reweight after race is initialized and a short time into the race
     if (!this->raceInitDone || this->raceFinished) return;
     Raceinfo* ri = Raceinfo::sInstance;
     if (ri == nullptr) return;
-    // Ensure we're sufficiently past frame 0 to avoid hitting init-time windows
     if (ri->raceFrames < 90) return;
-    // Ensure the Item system is present before touching ItemSlotData
     if (Item::Manager::sInstance == nullptr) return;
 
     // In retail, Item::ItemSlotData::sInstance is stored at 0x809c3670 as a pointer to the instance.
     // Read the pointer value from that address.
-    Item::ItemSlotData* slot = *reinterpret_cast<Item::ItemSlotData**>(0x809c3670);
+    Item::ItemSlotData* slot = *reinterpret_cast<Item::ItemSlotData**>(kmRuntimeAddr(0x809c3670));
     if (slot == nullptr) return;
 
     u8 activePlayers = this->activeCount;
