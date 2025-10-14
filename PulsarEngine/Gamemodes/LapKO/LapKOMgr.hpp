@@ -57,6 +57,11 @@ class Mgr {
     void ClearPendingEvent();
 
    private:
+    // Schedules and performs safe, deferred item probability reweighting.
+    // We avoid touching Item::Manager::playerCount mid-race; instead we only
+    // re-run ItemSlot post-processing a couple frames after active player
+    // count changes.
+    void ReweightItemProbabilitiesNow();
     void ComputeEliminationPlan();
     u8 GetUsualTrackLapCount() const;
     void ProcessEliminationInternal(u8 playerId, const char* reason, bool fromNetwork, bool suppressRoundAdvance);
@@ -68,6 +73,7 @@ class Mgr {
     void FinishOfflineAtCurrentStandings();
     void BroadcastEvent(u8 playerId, u8 concludedRound);
     void BroadcastBatch(const u8* elimIds, u8 elimCount, u8 concludedRound);
+    void UpdateActivePlayerCounts();
     void LogState(const char* tag, u8 value) const;
     void RecordEliminationForDisplay(u8 playerId, u8 concludedRound);
     void ResetEliminationDisplay();
@@ -108,6 +114,9 @@ class Mgr {
     u8 recentEliminationCount;
     u8 recentEliminationRound;
     u16 eliminationDisplayTimer;
+    // Frames to wait before reweighting item probabilities after an active
+    // player count change. Initialized to 0.
+    u8 pendingItemReweightFrames;
 };
 
 }  // namespace LapKO

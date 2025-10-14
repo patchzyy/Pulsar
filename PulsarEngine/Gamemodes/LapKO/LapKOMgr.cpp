@@ -1,4 +1,6 @@
 #include <Gamemodes/LapKO/LapKOMgr.hpp>
+#include <MarioKartWii/Item/ItemManager.hpp>
+#include <MarioKartWii/Item/ItemSlot.hpp>
 #include <MarioKartWii/Race/RaceData.hpp>
 #include <MarioKartWii/RKNet/RKNetController.hpp>
 #include <Network/PacketExpansion.hpp>
@@ -39,7 +41,8 @@ Mgr::Mgr()
       raceInitDone(false),
       recentEliminationCount(0),
       recentEliminationRound(0),
-      eliminationDisplayTimer(0) {
+    eliminationDisplayTimer(0),
+    pendingItemReweightFrames(0) {
     for (int i = 0; i < 12; ++i) {
         this->active[i] = false;
         this->crossed[i] = false;
@@ -158,6 +161,14 @@ void Mgr::InitForRace() {
     if (raceDataMutable != nullptr) {
         raceDataMutable->menusScenario.settings.lapCount = raceDataMutable->racesScenario.settings.lapCount;
     }
+
+    // Safe: initialize the Item::Manager playerCount at race start only.
+    // Do not mutate it mid-race as it sizes internal arrays.
+    if (Item::Manager::sInstance != nullptr) {
+        Item::Manager::sInstance->playerCount = this->playerCount;
+    }
+
+    this->UpdateActivePlayerCounts();
 
     // Build elimination plan using the configured KO-per-race setting
     this->ComputeEliminationPlan();
@@ -296,6 +307,7 @@ void Mgr::ProcessEliminationInternal(u8 playerId, const char* reason, bool fromN
     this->active[playerId] = false;
 
     if (this->activeCount > 0) --this->activeCount;
+    this->UpdateActivePlayerCounts();
     if (this->isHost && !fromNetwork) {
         if (this->IsFriendRoomOnline()) {
             // Friend rooms: use batched broadcast path even for single eliminations (e.g., disconnects)
@@ -451,6 +463,10 @@ void Mgr::BroadcastBatch(const u8* elimIds, u8 elimCount, u8 concludedRound) {
     OS::Report("LapKO: BroadcastBatch seq=%u count=%u round=%u active=%u\n", this->pendingSequence, elimCount, concludedRound, this->pendingActiveCount);
 }
 
+void Mgr::UpdateActivePlayerCounts() {
+    if (this->pendingItemReweightFrames < 120) this->pendingItemReweightFrames = 120;
+}
+
 void Mgr::ClearPendingEvent() {
     this->pendingSequence = 0;
     this->pendingElimination = 0xFF;
@@ -469,6 +485,7 @@ void Mgr::ApplyRemoteEvent(u8 seq, u8 eliminatedId, u8 roundIdx, u8 activeCnt) {
     this->roundIndex = roundIdx;
     this->ProcessElimination(eliminatedId, "network", true);
     this->activeCount = activeCnt;
+    this->UpdateActivePlayerCounts();
 }
 
 void Mgr::ApplyRemoteBatch(u8 seq, u8 roundIdx, u8 activeCnt, const u8* elimIds, u8 elimCount) {
@@ -584,6 +601,14 @@ void Mgr::UpdateFrame() {
         }
     }
 
+    // Run the deferred item reweight outside GMData/Raceinfo loops
+    if (this->pendingItemReweightFrames > 0) {
+        --this->pendingItemReweightFrames;
+        if (this->pendingItemReweightFrames == 0) {
+            this->ReweightItemProbabilitiesNow();
+        }
+    }
+
     if (this->isHost) {
         // Fill outgoing PulRH1 extras for all peers. If we don't have a pending event, explicitly zero seq.
         for (int aid = 0; aid < 12; ++aid) {
@@ -638,6 +663,42 @@ void Mgr::UpdateFrame() {
         if (this->IsFriendRoomOnline() && packet->lapKoSeq != 0 && packet->lapKoElimCount > 0 && packet->lapKoElimCount <= 12) {
             this->ApplyRemoteBatch(packet->lapKoSeq, packet->lapKoRoundIndex, packet->lapKoActiveCount, packet->lapKoElims, packet->lapKoElimCount);
         }
+    }
+}
+
+// Actual worker that runs when it’s safe (called from UpdateFrame)
+void Mgr::ReweightItemProbabilitiesNow() {
+    // Only reweight after race is initialized and a short time into the race
+    if (!this->raceInitDone || this->raceFinished) return;
+    Raceinfo* ri = Raceinfo::sInstance;
+    if (ri == nullptr) return;
+    // Ensure we're sufficiently past frame 0 to avoid hitting init-time windows
+    if (ri->raceFrames < 90) return;
+    // Ensure the Item system is present before touching ItemSlotData
+    if (Item::Manager::sInstance == nullptr) return;
+
+    // In retail, Item::ItemSlotData::sInstance is stored at 0x809c3670 as a pointer to the instance.
+    // Read the pointer value from that address.
+    Item::ItemSlotData* slot = *reinterpret_cast<Item::ItemSlotData**>(0x809c3670);
+    if (slot == nullptr) return;
+
+    u8 activePlayers = this->activeCount;
+    if (activePlayers == 0) activePlayers = 1;
+
+    // If nothing changed, don’t touch memory
+    if (slot->playerCount == activePlayers) return;
+
+    // Tell the setup how many effective players we have now.
+    // DO NOT touch Item::Manager::playerCount mid-race.
+    slot->playerCount = activePlayers;
+
+    // Rebuild VS probabilities the same way the game does, to ensure all caches
+    // and roulette-related structures are consistent.
+    const bool isOnline = (RKNet::Controller::sInstance != nullptr && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_NONE);
+    if (isOnline) {
+        slot->SetupOnlineVSProbabilities();
+    } else {
+        slot->SetupVSProbabilities();
     }
 }
 
