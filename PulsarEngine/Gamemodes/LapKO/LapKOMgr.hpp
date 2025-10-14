@@ -23,6 +23,7 @@ class Mgr {
     void OnPlayerDisconnected(u8 playerId);
     void UpdateFrame();
     void ApplyRemoteEvent(u8 seq, u8 eliminatedId, u8 roundIndex, u8 activeCount);
+    void ApplyRemoteBatch(u8 seq, u8 roundIndex, u8 activeCount, const u8* elimIds, u8 elimCount);
 
     bool IsActive(u8 playerId) const { return this->active[playerId]; }
     u8 GetActiveCount() const { return this->activeCount; }
@@ -66,9 +67,11 @@ class Mgr {
     void ConcludeRace(u8 winnerId);
     void FinishOfflineAtCurrentStandings();
     void BroadcastEvent(u8 playerId, u8 concludedRound);
+    void BroadcastBatch(const u8* elimIds, u8 elimCount, u8 concludedRound);
     void LogState(const char* tag, u8 value) const;
     void RecordEliminationForDisplay(u8 playerId, u8 concludedRound);
     void ResetEliminationDisplay();
+    bool IsFriendRoomOnline() const;
 
     u8 koPerRaceSetting;
     u8 eliminationPlan[MaxRounds];
@@ -89,6 +92,9 @@ class Mgr {
     u8 pendingRound;
     u8 pendingActiveCount;
     bool hasPendingEvent;
+    // Batch pending (friend rooms)
+    u8 pendingBatchCount;
+    u8 pendingBatch[12];
     bool isSpectating;
     bool isHost;
     u8 hostAid;

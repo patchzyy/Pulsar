@@ -29,7 +29,8 @@ Mgr::Mgr()
       pendingElimination(0xFF),
       pendingRound(0),
       pendingActiveCount(0),
-      hasPendingEvent(false),
+    hasPendingEvent(false),
+    pendingBatchCount(0),
       isSpectating(false),
       isHost(true),
       hostAid(0xFF),
@@ -132,6 +133,7 @@ void Mgr::InitForRace() {
     this->pendingActiveCount = 0;
     this->pendingTimer = 0;
     this->hasPendingEvent = false;
+    this->pendingBatchCount = 0;
     this->isSpectating = false;
     this->raceFinished = false;
     this->raceInitDone = true;
@@ -182,7 +184,10 @@ void Mgr::OnLapComplete(u8 playerId, RaceinfoPlayer& player) {
         this->crossOrder[this->orderCursor] = playerId;
         ++this->orderCursor;
     }
-    this->TryResolveRound();
+    // In friend rooms, only the host computes eliminations; non-hosts wait for network
+    if (!this->IsFriendRoomOnline() || this->isHost) {
+        this->TryResolveRound();
+    }
 }
 
 void Mgr::OnPlayerFinished(u8 playerId) {
@@ -202,7 +207,10 @@ void Mgr::OnPlayerDisconnected(u8 playerId) {
     if (playerId >= 12) return;
     if (!this->active[playerId]) return;
     OS::Report("LapKO: Disconnect player=%u\n", playerId);
-    this->ProcessElimination(playerId, "disconnect", false);
+    // In friend rooms, only the host determines eliminations on disconnects
+    if (!this->IsFriendRoomOnline() || this->isHost) {
+        this->ProcessElimination(playerId, "disconnect", false);
+    }
 }
 
 void Mgr::TryResolveRound() {
@@ -263,9 +271,14 @@ void Mgr::TryResolveRound() {
     if (elimCount == 0) return;
 
     // Apply eliminations sequentially but avoid advancing round until last in batch
+    const u8 concludedRound = this->roundIndex;
     for (u8 i = 0; i < elimCount; ++i) {
         const bool lastOne = (i == elimCount - 1);
         this->ProcessEliminationInternal(eliminatedList[i], "round", false, !lastOne);
+    }
+    // Host in friend room broadcasts the batch to all clients
+    if (this->IsFriendRoomOnline() && this->isHost) {
+        this->BroadcastBatch(eliminatedList, elimCount, concludedRound);
     }
 }
 
@@ -284,7 +297,14 @@ void Mgr::ProcessEliminationInternal(u8 playerId, const char* reason, bool fromN
 
     if (this->activeCount > 0) --this->activeCount;
     if (this->isHost && !fromNetwork) {
-        this->BroadcastEvent(playerId, concludedRound);
+        if (this->IsFriendRoomOnline()) {
+            // Friend rooms: use batched broadcast path even for single eliminations (e.g., disconnects)
+            u8 single[1] = {playerId};
+            this->BroadcastBatch(single, 1, concludedRound);
+        } else {
+            // Legacy single-elimination broadcast for non-friend online rooms
+            this->BroadcastEvent(playerId, concludedRound);
+        }
     }
 
     this->RecordEliminationForDisplay(playerId, concludedRound);
@@ -416,6 +436,21 @@ void Mgr::BroadcastEvent(u8 playerId, u8 concludedRound) {
     OS::Report("LapKO: Broadcast seq=%u player=%u round=%u active=%u\n", this->pendingSequence, playerId, concludedRound, this->pendingActiveCount);
 }
 
+void Mgr::BroadcastBatch(const u8* elimIds, u8 elimCount, u8 concludedRound) {
+    if (elimIds == nullptr || elimCount == 0) return;
+    if (elimCount > 12) elimCount = 12;
+    this->pendingSequence = static_cast<u8>((this->eventSequence + 1) & 0xFF);
+    if (this->pendingSequence == 0) this->pendingSequence = 1;
+    this->eventSequence = this->pendingSequence;
+    this->pendingRound = concludedRound;
+    this->pendingActiveCount = this->activeCount;
+    this->pendingBatchCount = elimCount;
+    for (u8 i = 0; i < elimCount; ++i) this->pendingBatch[i] = elimIds[i];
+    this->pendingTimer = pendingBroadcastFrames;
+    this->hasPendingEvent = true;
+    OS::Report("LapKO: BroadcastBatch seq=%u count=%u round=%u active=%u\n", this->pendingSequence, elimCount, concludedRound, this->pendingActiveCount);
+}
+
 void Mgr::ClearPendingEvent() {
     this->pendingSequence = 0;
     this->pendingElimination = 0xFF;
@@ -423,6 +458,7 @@ void Mgr::ClearPendingEvent() {
     this->pendingActiveCount = 0;
     this->pendingTimer = 0;
     this->hasPendingEvent = false;
+    this->pendingBatchCount = 0;
 }
 
 void Mgr::ApplyRemoteEvent(u8 seq, u8 eliminatedId, u8 roundIdx, u8 activeCnt) {
@@ -432,6 +468,20 @@ void Mgr::ApplyRemoteEvent(u8 seq, u8 eliminatedId, u8 roundIdx, u8 activeCnt) {
     this->appliedSequence = seq;
     this->roundIndex = roundIdx;
     this->ProcessElimination(eliminatedId, "network", true);
+    this->activeCount = activeCnt;
+}
+
+void Mgr::ApplyRemoteBatch(u8 seq, u8 roundIdx, u8 activeCnt, const u8* elimIds, u8 elimCount) {
+    if (seq == 0) return;
+    if (seq == this->appliedSequence) return;
+    if (elimIds == nullptr || elimCount == 0) return;
+    if (elimCount > 12) elimCount = 12;
+    this->appliedSequence = seq;
+    this->roundIndex = roundIdx;
+    for (u8 i = 0; i < elimCount; ++i) {
+        const bool lastOne = (i == elimCount - 1);
+        this->ProcessEliminationInternal(elimIds[i], "network", true, !lastOne);
+    }
     this->activeCount = activeCnt;
 }
 
@@ -535,7 +585,7 @@ void Mgr::UpdateFrame() {
     }
 
     if (this->isHost) {
-        if (!this->hasPendingEvent) return;
+        // Fill outgoing PulRH1 extras for all peers. If we don't have a pending event, explicitly zero seq.
         for (int aid = 0; aid < 12; ++aid) {
             if (aid == sub.localAid) continue;
             if ((sub.availableAids & (1 << aid)) == 0) continue;
@@ -543,6 +593,33 @@ void Mgr::UpdateFrame() {
             if (holder == nullptr) continue;
             if (holder->packetSize < sizeof(Network::PulRH1)) holder->packetSize = sizeof(Network::PulRH1);
             Network::PulRH1* packet = holder->packet;
+            if (this->hasPendingEvent && this->IsFriendRoomOnline()) {
+                // Populate LapKO friend-room fields
+                // Ensure Pulsar track id mirrors the base so AfterRH1Reception picks the correct track
+                packet->pulsarTrackId = static_cast<u16>(packet->trackId);
+                packet->variantIdx = 0;
+                packet->lapKoSeq = this->pendingSequence;
+                packet->lapKoRoundIndex = this->pendingRound;
+                packet->lapKoActiveCount = this->pendingActiveCount;
+                if (this->pendingBatchCount > 0) {
+                    packet->lapKoElimCount = this->pendingBatchCount;
+                    for (u8 i = 0; i < this->pendingBatchCount; ++i) packet->lapKoElims[i] = this->pendingBatch[i];
+                    // zero any unused slots
+                    for (u8 i = this->pendingBatchCount; i < 12; ++i) packet->lapKoElims[i] = 0xFF;
+                } else {
+                    packet->lapKoElimCount = 1;
+                    packet->lapKoElims[0] = this->pendingElimination;
+                    for (u8 i = 1; i < 12; ++i) packet->lapKoElims[i] = 0xFF;
+                }
+            } else {
+                packet->lapKoSeq = 0;
+                packet->lapKoElimCount = 0;
+                if (this->IsFriendRoomOnline()) {
+                    // Keep track id consistent even when no event
+                    packet->pulsarTrackId = static_cast<u16>(packet->trackId);
+                    packet->variantIdx = 0;
+                }
+            }
         }
         if (this->pendingTimer > 0) {
             --this->pendingTimer;
@@ -557,6 +634,10 @@ void Mgr::UpdateFrame() {
         if (holder == nullptr) return;
         if (holder->packetSize != sizeof(Network::PulRH1)) return;
         const Network::PulRH1* packet = holder->packet;
+        // Apply LapKO friend-room eliminations from host if present
+        if (this->IsFriendRoomOnline() && packet->lapKoSeq != 0 && packet->lapKoElimCount > 0 && packet->lapKoElimCount <= 12) {
+            this->ApplyRemoteBatch(packet->lapKoSeq, packet->lapKoRoundIndex, packet->lapKoActiveCount, packet->lapKoElims, packet->lapKoElimCount);
+        }
     }
 }
 
@@ -653,6 +734,12 @@ void Mgr::ResetEliminationDisplay() {
     this->recentEliminations[2] = 0xFF;
     this->recentEliminations[3] = 0xFF;
     this->eliminationDisplayTimer = 0;
+}
+
+bool Mgr::IsFriendRoomOnline() const {
+    const RKNet::Controller* controller = RKNet::Controller::sInstance;
+    if (controller == nullptr) return false;
+    return (controller->roomType == RKNet::ROOMTYPE_FROOM_HOST || controller->roomType == RKNet::ROOMTYPE_FROOM_NONHOST);
 }
 
 }  // namespace LapKO
