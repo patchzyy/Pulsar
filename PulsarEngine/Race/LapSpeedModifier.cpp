@@ -35,7 +35,9 @@ u8 GetLapKOTargetCount(const System* system, const Racedata* racedata, u8 fallba
     return playerCount;
 }
 
+kmRuntimeUse(0x808a9cc7); // lap_number.brctr
 RaceinfoPlayer* LoadCustomLapCount(RaceinfoPlayer* player, u8 id) {
+    kmRuntimeWrite16A(0x808a9cc7, 'la');
     System* system = System::sInstance;
     Racedata* racedata = Racedata::sInstance;
     u8 lapCount = KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->lapCount;
@@ -69,6 +71,9 @@ RaceinfoPlayer* LoadCustomLapCount(RaceinfoPlayer* player, u8 id) {
     if (racedata != nullptr) {
         racedata->racesScenario.settings.lapCount = lapCount;
         if (lapKoActive) racedata->menusScenario.settings.lapCount = lapCount;
+        if (lapCount > 9) {
+            kmRuntimeWrite16A(0x808a9cc7, 'RR'); // RRp_number.brctr
+        }
     }
     return new (player) RaceinfoPlayer(id, lapCount);
 }
@@ -82,22 +87,6 @@ void DisplayCorrectLap(AnmTexPatHolder* texPat) {  // This Anm is held by a Mode
     return;
 }
 kmCall(0x80723d70, DisplayCorrectLap);
-
-kmRuntimeUse(0x808a9cc7); // lap_number.brctr
-void DisplayCorrectLapNumber() {
-    kmRuntimeWrite16A(0x808a9cc7, 'la');
-
-    const System* system = System::sInstance;
-    if (!IsLapKOEnabled(system)) return;
-
-    const Racedata* racedata = Racedata::sInstance;
-    const u8 lapCount = (racedata != nullptr) ? racedata->racesScenario.settings.lapCount : 0;
-
-    if (lapCount > 9) {
-        kmRuntimeWrite16A(0x808a9cc7, 'RR'); // RRp_number.brctr
-    }
-}
-static SectionLoadHook hookDisplayCorrectLapNumber(DisplayCorrectLapNumber);
 
 // Moved speed modifier to Race/StatChanges.cpp
 kmWrite32(0x805336B8, 0x60000000);
