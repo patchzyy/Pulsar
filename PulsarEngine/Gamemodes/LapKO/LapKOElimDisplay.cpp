@@ -132,7 +132,7 @@ void CtrlRaceLapKOElimMessage::UpdateMessage(const Mgr& mgr) {
     wchar_t buffer[128];
     buffer[0] = L'\0';
     const size_t bufferLen = sizeof(buffer) / sizeof(buffer[0]);
-    int written = ::swprintf(buffer, bufferLen, L"Eliminated: ");
+    int written = ::swprintf(buffer, bufferLen, L"\nEliminated: ");
     if (written < 0) {
         written = 0;
         buffer[0] = L'\0';
