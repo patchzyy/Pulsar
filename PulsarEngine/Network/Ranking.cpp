@@ -102,10 +102,25 @@ int FormatRankMessage(wchar_t* dst, size_t dstLen) {
     int score = GetCurrentLicenseScore();
     if (rank < 0) rank = 0;  // default if unavailable
     if (score < 0) score = 0;
-    // Format as two lines to match requested format:
-    // Rank: X,
-    // Score: XX
-    return ::swprintf(dst, dstLen, L"Rank: %d,\nScore: %d", rank, score);
+    // Map rank numbers to requested display characters.
+    // Rank: 0 -> "0"
+    // Rank: 1..9 -> U+F07D .. U+F085 respectively
+    const wchar_t* rankLabel = L"0";
+    switch (rank) {
+        case 1: rankLabel = L"\uF07D"; break;
+        case 2: rankLabel = L"\uF07E"; break;
+        case 3: rankLabel = L"\uF07F"; break;
+        case 4: rankLabel = L"\uF080"; break;
+        case 5: rankLabel = L"\uF081"; break;
+        case 6: rankLabel = L"\uF082"; break;
+        case 7: rankLabel = L"\uF083"; break;
+        case 8: rankLabel = L"\uF084"; break;
+        case 9: rankLabel = L"\uF085"; break;
+        default: rankLabel = L"0"; break;
+    }
+
+    // Format two-line message: Rank: <label>\nScore: <score>
+    return ::swprintf(dst, dstLen, L"Rank: %ls\nScore: %d", rankLabel, score);
 }
 
 // Address found by B_squo, original idea by Zeraora, developed by ZPL
