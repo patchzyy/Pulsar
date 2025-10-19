@@ -68,7 +68,7 @@ void PositionCounter::UpdatePositionDisplay(CtrlRaceRankNum& posTracker) {
                 if (elimCount > 0) {
                     const RaceinfoPlayer* player = raceinfo->players[playerId];
                     if (player != nullptr) {
-                        const u8 position = player->position; // 1 = leader
+                        const u8 position = player->position;  // 1 = leader
                         // Players considered in danger are those in the last 'elimCount' positions among active racers.
                         // Example: activeCount=5, elimCount=2 -> positions 4 and 5 are in danger.
                         const u8 dangerStartPos = static_cast<u8>(activeCount - elimCount + 1);

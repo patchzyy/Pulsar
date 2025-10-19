@@ -79,7 +79,7 @@ class Mgr {
     void ResetEliminationDisplay();
     bool IsFriendRoomOnline() const;
 
-    public:
+   public:
     u8 koPerRaceSetting;
     u8 eliminationPlan[MaxRounds];
     u8 totalRounds;

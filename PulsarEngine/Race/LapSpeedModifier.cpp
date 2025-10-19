@@ -35,7 +35,7 @@ u8 GetLapKOTargetCount(const System* system, const Racedata* racedata, u8 fallba
     return playerCount;
 }
 
-kmRuntimeUse(0x808a9cc7); // lap_number.brctr
+kmRuntimeUse(0x808a9cc7);  // lap_number.brctr
 RaceinfoPlayer* LoadCustomLapCount(RaceinfoPlayer* player, u8 id) {
     kmRuntimeWrite16A(0x808a9cc7, 'la');
     System* system = System::sInstance;
@@ -72,7 +72,7 @@ RaceinfoPlayer* LoadCustomLapCount(RaceinfoPlayer* player, u8 id) {
         racedata->racesScenario.settings.lapCount = lapCount;
         if (lapKoActive) racedata->menusScenario.settings.lapCount = lapCount;
         if (lapCount > 9) {
-            kmRuntimeWrite16A(0x808a9cc7, 'RR'); // RRp_number.brctr
+            kmRuntimeWrite16A(0x808a9cc7, 'RR');  // RRp_number.brctr
         }
     }
     return new (player) RaceinfoPlayer(id, lapCount);

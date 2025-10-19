@@ -294,12 +294,10 @@ void SettingsPanel::LoadPrevMenuAndSaveSettings(PushButton& button) {
         section->Get<ExpFroom>()->topSettingsPage = static_cast<PulPageId>(this->pageId);
         this->nextPageId = PAGE_NONE;
         this->EndStateAnimated(0, button.GetAnimationFrameSize());
-    }
-    else if (this->prevPageId == PAGE_VR) {
+    } else if (this->prevPageId == PAGE_VR) {
         this->nextPageId = PAGE_NONE;
         this->EndStateAnimated(0, button.GetAnimationFrameSize());
-    }
-    else {
+    } else {
         this->LoadPrevPage(button);
         if (this->prevPageId == PAGE_WFC_MAIN) {
             section->Get<ExpWFCMain>()->topSettingsPage = static_cast<PulPageId>(this->pageId);

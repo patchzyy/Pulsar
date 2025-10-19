@@ -28,7 +28,7 @@ static float ComputeVsScoreFromLicense(const RKSYS::LicenseMgr& license) {
     float distInFirst = license.GetDistancetravelledwhilein1stplace();
 
     // Compute win percentages (0-100). If insufficient data (<1 match), treat as 50% neutral baseline.
-    float racingWinPct = (totalVs > 0) ? (100.0f * (float)vsWins / (float)totalVs) : 50.0f;
+    float racingWinPct = (totalVs > 0) ? (100.0f * (float)vsWins / (float)totalVs) : 45.0f;
 
     // Normalize ratings (expected range 1-30000). Clamp to [0,30000] just in case.
     float vrClamped = (float)(vr.points > 30000 ? 30000 : vr.points);
@@ -36,9 +36,9 @@ static float ComputeVsScoreFromLicense(const RKSYS::LicenseMgr& license) {
     float vrNorm = (vrClamped / 30000.0f) * 100.0f;
 
     // Normalize added metrics to 0-100
-    float firstsNorm = (times1st >= 1500) ? 100.0f : (100.0f * (float)times1st / 1500.0f);
-    float distNorm = (distTravelled >= 75000.0f) ? 100.0f : (100.0f * distTravelled / 75000.0f);
-    float distFirstNorm = (distInFirst >= 20000.0f) ? 100.0f : (100.0f * distInFirst / 20000.0f);
+    float firstsNorm = (times1st >= 1500) ? 100.0f : (100.0f * (float)times1st / 1250.0f);
+    float distNorm = (distTravelled >= 75000.0f) ? 100.0f : (100.0f * distTravelled / 50000.0f);
+    float distFirstNorm = (distInFirst >= 20000.0f) ? 100.0f : (100.0f * distInFirst / 10000.0f);
 
     // Weighted composite emphasizing VR and VS performance; battle stats removed.
     // Base weights (sum = 1.0): VR 0.60, RWin 0.20, Firsts 0.10, Dist 0.05, DistInFirst 0.05
@@ -53,9 +53,9 @@ static float ComputeVsScoreFromLicense(const RKSYS::LicenseMgr& license) {
 
     // Anchors
     const float AH_VR = 100.0f, AH_RWIN = 65.0f, AH_FIRSTS = 100.0f, AH_DIST = 100.0f, AH_DIST1ST = 100.0f;  // -> 100
-    const float AL_VR = 16.6667f, AL_RWIN = 50.0f, AL_FIRSTS = 0.0f, AL_DIST = 0.0f, AL_DIST1ST = 0.0f;      // -> 10
+    const float AL_VR = 16.6667f, AL_RWIN = 50.0f, AL_FIRSTS = 0.0f, AL_DIST = 0.0f, AL_DIST1ST = 0.0f;  // -> 10
     float M1 = W_VR * AH_VR + W_RWIN * AH_RWIN + W_FIRSTS * AH_FIRSTS + W_DIST * AH_DIST + W_DIST1ST * AH_DIST1ST;  // ~93.0
-    float M2 = W_VR * AL_VR + W_RWIN * AL_RWIN + W_FIRSTS * AL_FIRSTS + W_DIST * AL_DIST + W_DIST1ST * AL_DIST1ST;   // ~20.0
+    float M2 = W_VR * AL_VR + W_RWIN * AL_RWIN + W_FIRSTS * AL_FIRSTS + W_DIST * AL_DIST + W_DIST1ST * AL_DIST1ST;  // ~20.0
     float alpha = 90.0f / (M1 - M2);  // 100-10 over delta
     float beta = 100.0f - alpha * M1;
 
@@ -107,16 +107,36 @@ int FormatRankMessage(wchar_t* dst, size_t dstLen) {
     // Rank: 1..9 -> U+F07D .. U+F085 respectively
     const wchar_t* rankLabel = L"0";
     switch (rank) {
-        case 1: rankLabel = L"\uF07D"; break;
-        case 2: rankLabel = L"\uF07E"; break;
-        case 3: rankLabel = L"\uF07F"; break;
-        case 4: rankLabel = L"\uF080"; break;
-        case 5: rankLabel = L"\uF081"; break;
-        case 6: rankLabel = L"\uF082"; break;
-        case 7: rankLabel = L"\uF083"; break;
-        case 8: rankLabel = L"\uF084"; break;
-        case 9: rankLabel = L"\uF085"; break;
-        default: rankLabel = L"0"; break;
+        case 1:
+            rankLabel = L"\uF07D";
+            break;
+        case 2:
+            rankLabel = L"\uF07E";
+            break;
+        case 3:
+            rankLabel = L"\uF07F";
+            break;
+        case 4:
+            rankLabel = L"\uF080";
+            break;
+        case 5:
+            rankLabel = L"\uF081";
+            break;
+        case 6:
+            rankLabel = L"\uF082";
+            break;
+        case 7:
+            rankLabel = L"\uF083";
+            break;
+        case 8:
+            rankLabel = L"\uF084";
+            break;
+        case 9:
+            rankLabel = L"\uF085";
+            break;
+        default:
+            rankLabel = L"0";
+            break;
     }
 
     // Format two-line message: Rank: <label>\nScore: <score>
@@ -127,7 +147,7 @@ int FormatRankMessage(wchar_t* dst, size_t dstLen) {
 kmRuntimeUse(0x806436a0);
 static void DisplayOnlineRanking() {
     // Default to rank 0
-    kmRuntimeWrite32A(0x806436a0, 0x38600000); // li r3,0
+    kmRuntimeWrite32A(0x806436a0, 0x38600000);  // li r3,0
 
     const RacedataSettings& racedataSettings = Racedata::sInstance->menusScenario.settings;
     const GameMode mode = racedataSettings.gamemode;
@@ -142,5 +162,5 @@ static void DisplayOnlineRanking() {
 }
 static SectionLoadHook HookRankIcon(DisplayOnlineRanking);
 
-} // namespace Ranking
-} // namespace Pulsar
+}  // namespace Ranking
+}  // namespace Pulsar

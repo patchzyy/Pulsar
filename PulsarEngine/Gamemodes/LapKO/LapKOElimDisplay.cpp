@@ -19,24 +19,23 @@ static const u16 kEliminationDisplayDuration = 180;
 
 extern "C" void fun_playSound(void*);
 extern "C" void ptr_menuPageOrSomething(void*);
-asmFunc playElimSound(){
+asmFunc playElimSound() {
     ASM(
         nofralloc;
         mflr r11;
-        stwu sp,-0x80 (sp);
-        stmw r3, 0x8 (sp);
-        lis r11, ptr_menuPageOrSomething@ha;
-        lwz r3, ptr_menuPageOrSomething@l (r11);
+        stwu sp, -0x80(sp);
+        stmw r3, 0x8(sp);
+        lis r11, ptr_menuPageOrSomething @ha;
+        lwz r3, ptr_menuPageOrSomething @l(r11);
         li r4, 0xDD;
-        lis r12, fun_playSound@h;
-        ori r12, r12, fun_playSound@l;
+        lis r12, fun_playSound @h;
+        ori r12, r12, fun_playSound @l;
         mtctr r12;
         bctrl;
-        lmw r3, 0x8 (sp);
+        lmw r3, 0x8(sp);
         addi sp, sp, 0x80;
         mtlr r11;
-		blr;
-    )
+        blr;)
 }
 
 // Safely copy a wchar_t name from a fixed-size source buffer to dst.
@@ -132,7 +131,7 @@ void CtrlRaceLapKOElimMessage::OnUpdate() {
     if (timer == 0 || mgr.GetRecentEliminationCount() == 0) {
         this->Show(false);
         this->lastDisplayTimer = 0;
-        this->soundPlayedThisDisplay = false; // reset so next display will play sound
+        this->soundPlayedThisDisplay = false;  // reset so next display will play sound
         return;
     }
 

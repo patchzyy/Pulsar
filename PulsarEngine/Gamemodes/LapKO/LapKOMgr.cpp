@@ -17,7 +17,7 @@ namespace Pulsar {
 namespace LapKO {
 
 static const u16 pendingBroadcastFrames = 120;
-static const u16 eliminationDisplayDuration = 180; 
+static const u16 eliminationDisplayDuration = 180;
 
 Mgr::Mgr()
     : koPerRaceSetting(1),
@@ -32,8 +32,8 @@ Mgr::Mgr()
       pendingElimination(0xFF),
       pendingRound(0),
       pendingActiveCount(0),
-    hasPendingEvent(false),
-    pendingBatchCount(0),
+      hasPendingEvent(false),
+      pendingBatchCount(0),
       isSpectating(false),
       isHost(true),
       hostAid(0xFF),
@@ -42,9 +42,9 @@ Mgr::Mgr()
       raceInitDone(false),
       recentEliminationCount(0),
       recentEliminationRound(0),
-    eliminationDisplayTimer(0),
-    pendingItemReweightFrames(0),
-    disconnectGraceFrames(0) {
+      eliminationDisplayTimer(0),
+      pendingItemReweightFrames(0),
+      disconnectGraceFrames(0) {
     for (int i = 0; i < 12; ++i) {
         this->active[i] = false;
         this->crossed[i] = false;
@@ -145,7 +145,7 @@ void Mgr::InitForRace() {
     this->ResetEliminationDisplay();
     // Start with a short grace window before we interpret missing AIDs as disconnects.
     // This mitigates first-round false eliminations of the host due to transient AID availability.
-    this->disconnectGraceFrames = 180; // ~3 seconds at 60fps
+    this->disconnectGraceFrames = 180;  // ~3 seconds at 60fps
 
     if (controller != nullptr && controller->roomType != RKNet::ROOMTYPE_NONE) {
         const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
@@ -180,7 +180,6 @@ void Mgr::InitForRace() {
     for (u8 i = 0; i < this->totalRounds; ++i) OS::Report("%u", this->eliminationPlan[i]);
     OS::Report("\nLapKO: InitForRace done players=%u host=%u\n", this->playerCount, this->isHost);
 }
-
 
 void Mgr::ResetRound() {
     this->orderCursor = 0;
@@ -267,9 +266,14 @@ void Mgr::TryResolveRound() {
             const u8 pid = raceinfoLocal->playerIdInEachPosition[pos];
             if (pid >= 12) continue;
             if (!this->active[pid]) continue;
-            if (this->crossed[pid]) continue; // safe in this round
+            if (this->crossed[pid]) continue;  // safe in this round
             bool already = false;
-            for (u8 c = 0; c < elimCount; ++c) { if (eliminatedList[c] == pid) { already = true; break; } }
+            for (u8 c = 0; c < elimCount; ++c) {
+                if (eliminatedList[c] == pid) {
+                    already = true;
+                    break;
+                }
+            }
             if (!already) eliminatedList[elimCount++] = pid;
         }
         // Pass 2: If still short (e.g., everyone crossed on 1-lap tracks), fill from the tail of cross order
@@ -278,7 +282,12 @@ void Mgr::TryResolveRound() {
             if (pid >= 12) continue;
             if (!this->active[pid]) continue;
             bool already = false;
-            for (u8 c = 0; c < elimCount; ++c) { if (eliminatedList[c] == pid) { already = true; break; } }
+            for (u8 c = 0; c < elimCount; ++c) {
+                if (eliminatedList[c] == pid) {
+                    already = true;
+                    break;
+                }
+            }
             if (!already) eliminatedList[elimCount++] = pid;
         }
     } else {
@@ -291,7 +300,8 @@ void Mgr::TryResolveRound() {
         for (int idx = this->orderCursor - 1; elimCount < toEliminate && idx >= 0; --idx) {
             u8 pid = this->crossOrder[idx];
             bool already = false;
-            for (u8 c = 0; c < elimCount; ++c) if (eliminatedList[c] == pid) already = true;
+            for (u8 c = 0; c < elimCount; ++c)
+                if (eliminatedList[c] == pid) already = true;
             if (!already) eliminatedList[elimCount++] = pid;
         }
     }
@@ -313,7 +323,6 @@ void Mgr::TryResolveRound() {
 void Mgr::ProcessElimination(u8 playerId, const char* reason, bool fromNetwork) {
     this->ProcessEliminationInternal(playerId, reason, fromNetwork, false);
 }
-
 
 void Mgr::ProcessEliminationInternal(u8 playerId, const char* reason, bool fromNetwork, bool suppressRoundAdvance) {
     if (playerId >= 12) return;
@@ -605,7 +614,10 @@ void Mgr::UpdateFrame() {
                 u8 targetCamIdx = 0xFF;
                 for (u32 i = 0; i < camMgr->cameraCount; ++i) {
                     RaceCamera* cam = camMgr->cameras[i];
-                    if (cam != nullptr && cam->playerId == leaderPid) { targetCamIdx = static_cast<u8>(i); break; }
+                    if (cam != nullptr && cam->playerId == leaderPid) {
+                        targetCamIdx = static_cast<u8>(i);
+                        break;
+                    }
                 }
                 if (targetCamIdx != 0xFF) {
                     // Update both driver watched index and camera focus to the camera index
@@ -688,7 +700,6 @@ void Mgr::UpdateFrame() {
     }
 }
 
-
 kmRuntimeUse(0x809c3670);
 void Mgr::ReweightItemProbabilitiesNow() {
     if (!this->raceInitDone || this->raceFinished) return;
@@ -756,7 +767,10 @@ bool Mgr::EnterSpectateIfLocal(u8 eliminatedId) {
                 u8 targetCamIdx = 0xFF;
                 for (u32 i = 0; i < camMgr->cameraCount; ++i) {
                     RaceCamera* cam = camMgr->cameras[i];
-                    if (cam != nullptr && cam->playerId == leaderPid) { targetCamIdx = static_cast<u8>(i); break; }
+                    if (cam != nullptr && cam->playerId == leaderPid) {
+                        targetCamIdx = static_cast<u8>(i);
+                        break;
+                    }
                 }
                 if (targetCamIdx != 0xFF) {
                     DriverMgr::ChangeFocusedPlayer(targetCamIdx);
@@ -788,7 +802,7 @@ u8 Mgr::GetUsualTrackLapCount() const {
         KMP::Manager::sInstance->stgiSection->holdersArray[0] != nullptr &&
         KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw != nullptr) {
         usual = KMP::Manager::sInstance->stgiSection->holdersArray[0]->raw->lapCount;
-        if (usual == 0) usual = 3; // safety
+        if (usual == 0) usual = 3;  // safety
     }
     return usual;
 }

@@ -176,7 +176,6 @@ void SpawnItemRain() {
 
     for (int i = 0; i < ITEMS_PER_SPAWN; i++) {
         for (int playerIdx = 0; playerIdx < playerCount; playerIdx++) {
-
             Item::Player& player = Item::Manager::sInstance->players[playerIdx];
             bool isLocal = false;
             if (player.kartPlayer && player.kartPlayer->IsLocal()) {

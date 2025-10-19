@@ -120,7 +120,7 @@ void ExpWFCMain::BeforeControlUpdate() {
     if (!Dolphin::IsEmulator()) {
         this->playerCount.SetPaneVisibility("capsul_null", false);
     }
-    
+
     wchar_t rankBuf[48];
     rankBuf[0] = L'\0';
     Ranking::FormatRankMessage(rankBuf, sizeof(rankBuf) / sizeof(rankBuf[0]));

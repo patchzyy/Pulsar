@@ -8,18 +8,17 @@ namespace UI {
 extern "C" void sInstance__8Racedata(void*);
 asmFunc MiiTag() {
     ASM(
-    nofralloc;
-    lis r12, sInstance__8Racedata@ha;
-    lwz r12, sInstance__8Racedata@l(r12);
-    mulli r11, r30, 0xF0;
-    addi r11, r11, 0x28;
-    add r12, r12, r11;
-    lwz r11, 0x74(r12);
-    stw r11, 0x14(r1);
-    stw r11, 0x2C(r1);
-    lwz r28, 0x2C(r1);
-    blr;
-    )
+        nofralloc;
+        lis r12, sInstance__8Racedata @ha;
+        lwz r12, sInstance__8Racedata @l(r12);
+        mulli r11, r30, 0xF0;
+        addi r11, r11, 0x28;
+        add r12, r12, r11;
+        lwz r11, 0x74(r12);
+        stw r11, 0x14(r1);
+        stw r11, 0x2C(r1);
+        lwz r28, 0x2C(r1);
+        blr;)
 }
 
 kmRuntimeUse(0x807F042C);
@@ -32,5 +31,5 @@ void PatchMiiTag() {
 }
 static SectionLoadHook MiiTagHook(PatchMiiTag);
 
-} // namespace UI
-} // namespace Pulsar
+}  // namespace UI
+}  // namespace Pulsar

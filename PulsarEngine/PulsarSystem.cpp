@@ -45,7 +45,8 @@ BootHook CreateSystem(System::CreateSystem, 0);
 
 System::System() : heap(RKSystem::mInstance.EGGSystem), taskThread(EGG::TaskThread::Create(8, 0, 0x4000, this->heap)),
                    // Modes
-                   koMgr(nullptr), lapKoMgr(nullptr) {
+                   koMgr(nullptr),
+                   lapKoMgr(nullptr) {
 }
 
 void System::Init(const ConfigFile& conf) {
@@ -123,7 +124,7 @@ void System::InitSettings(const u16* totalTrophyCount) const {
     char settingsPath[IOS::ipcMaxPath];
     snprintf(settingsPath, IOS::ipcMaxPath, "%s/%s", this->GetModFolder(), "RRGameSettings.pul");
     char trophiesPath[IOS::ipcMaxPath];
-    snprintf(trophiesPath, IOS::ipcMaxPath, "%s/%s", this->GetModFolder(), "RRSettings.pul"); // Original settings file
+    snprintf(trophiesPath, IOS::ipcMaxPath, "%s/%s", this->GetModFolder(), "RRSettings.pul");  // Original settings file
     settings->Init(totalTrophyCount, settingsPath, trophiesPath);
     Settings::Mgr::sInstance = settings;
 }

@@ -61,8 +61,8 @@ extern "C" void exhaustPipeboost(void*);
 asmFunc cameraIDHUD() {
     ASM(
         nofralloc;
-        lis r3, exhaustPipeboost@h;
-        lwz r3, exhaustPipeboost@l(r3);
+        lis r3, exhaustPipeboost @h;
+        lwz r3, exhaustPipeboost @l(r3);
         lwz r3, 0x9D8(r3);
         lwz r3, 0(r3);
         lwz r3, 4(r3);
