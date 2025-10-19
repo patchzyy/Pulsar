@@ -43,7 +43,8 @@ Mgr::Mgr()
       recentEliminationCount(0),
       recentEliminationRound(0),
     eliminationDisplayTimer(0),
-    pendingItemReweightFrames(0) {
+    pendingItemReweightFrames(0),
+    disconnectGraceFrames(0) {
     for (int i = 0; i < 12; ++i) {
         this->active[i] = false;
         this->crossed[i] = false;
@@ -142,6 +143,9 @@ void Mgr::InitForRace() {
     this->raceFinished = false;
     this->raceInitDone = true;
     this->ResetEliminationDisplay();
+    // Start with a short grace window before we interpret missing AIDs as disconnects.
+    // This mitigates first-round false eliminations of the host due to transient AID availability.
+    this->disconnectGraceFrames = 180; // ~3 seconds at 60fps
 
     if (controller != nullptr && controller->roomType != RKNet::ROOMTYPE_NONE) {
         const RKNet::ControllerSub& sub = controller->subs[controller->currentSub];
@@ -249,18 +253,30 @@ void Mgr::TryResolveRound() {
     if (this->orderCursor < requiredCrossings) return;  // wait until all safe players crossed
 
     // Collect elimination targets = bottom ranked active players at this moment
-    // Prefer Raceinfo's current placement ordering to avoid false eliminations (e.g., players a lap ahead)
+    // Prefer Raceinfo's current placement ordering, BUT only eliminate players who have NOT crossed into the new lap yet.
+    // This avoids eliminating a safe player (e.g., host) if placements are momentarily incomplete online at the round boundary.
+    // Provenance: observed early-round host elimination due to transient standings; fixed by gating on !crossed first and
+    // breaking ties using placement order and crossOrder tail.
     u8 eliminatedList[12];
     u8 elimCount = 0;
 
     Raceinfo* raceinfoLocal = Raceinfo::sInstance;
     if (raceinfoLocal != nullptr && raceinfoLocal->playerIdInEachPosition != nullptr) {
-        // Iterate from worst position to best, selecting active players
+        // Pass 1: Prefer eliminating those who have not crossed into the next lap yet
         for (int pos = 11; pos >= 0 && elimCount < toEliminate; --pos) {
-            u8 pid = raceinfoLocal->playerIdInEachPosition[pos];
+            const u8 pid = raceinfoLocal->playerIdInEachPosition[pos];
             if (pid >= 12) continue;
             if (!this->active[pid]) continue;
-            // Dedup safety
+            if (this->crossed[pid]) continue; // safe in this round
+            bool already = false;
+            for (u8 c = 0; c < elimCount; ++c) { if (eliminatedList[c] == pid) { already = true; break; } }
+            if (!already) eliminatedList[elimCount++] = pid;
+        }
+        // Pass 2: If still short (e.g., everyone crossed on 1-lap tracks), fill from the tail of cross order
+        for (int idx = this->orderCursor - 1; elimCount < toEliminate && idx >= 0; --idx) {
+            const u8 pid = this->crossOrder[idx];
+            if (pid >= 12) continue;
+            if (!this->active[pid]) continue;
             bool already = false;
             for (u8 c = 0; c < elimCount; ++c) { if (eliminatedList[c] == pid) { already = true; break; } }
             if (!already) eliminatedList[elimCount++] = pid;
@@ -537,7 +553,11 @@ void Mgr::UpdateFrame() {
 
     if (this->isHost && controller->roomType != RKNet::ROOMTYPE_NONE) {
         const u32 availableAids = sub.availableAids;
-        if (this->lastAvailableAids != 0) {
+        if (this->disconnectGraceFrames > 0) {
+            --this->disconnectGraceFrames;
+            // During grace period, just update lastAvailableAids but do not eliminate.
+            this->lastAvailableAids = availableAids;
+        } else if (this->lastAvailableAids != 0) {
             const u32 lost = this->lastAvailableAids & ~availableAids;
             if (lost != 0) {
                 for (u8 playerId = 0; playerId < 12; ++playerId) {
@@ -545,6 +565,7 @@ void Mgr::UpdateFrame() {
                     const u8 aid = controller->aidsBelongingToPlayerIds[playerId];
                     if (aid >= 12) continue;
                     if ((lost & (1 << aid)) != 0) {
+                        OS::Report("LapKO: Detected disconnect AID=%u player=%u (lost=%08x)\n", aid, playerId, lost);
                         this->ProcessElimination(playerId, "disconnect", false);
                     }
                 }

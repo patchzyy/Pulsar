@@ -2169,3 +2169,6 @@ exhaustPipeboost = 0x809c21d0
 SetupOnlineVSProbabilities__Q24Item12ItemSlotDataFv = 0x807bbd60
 SetupVSProbabilities__Q24Item12ItemSlotDataFv = 0x807bbef8
 PostProcessVSTable__Q24Item12ItemSlotDataFPQ34Item12ItemSlotData13Probabilities = 0x807bad20
+ptr_playerBase = 0x809C18F8
+fun_playSound = 0x8071497C
+ptr_menuPageOrSomething = 0x809C2850

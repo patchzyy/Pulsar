@@ -11,6 +11,7 @@
 #include <Gamemodes/KO/KOMgr.hpp>
 #include <Gamemodes/KO/KORaceEndPage.hpp>
 #include <Debug/Debug.hpp>
+#include <Gamemodes/LapKO/LapKOMgr.hpp>
 #include <UI/UI.hpp>
 
 namespace Pulsar {
@@ -64,6 +65,18 @@ static void FixStartMessageFroom(CtrlRaceWifiStartMessage* startMsg, u32 bmgId, 
                 else
                     koCount = playerCount - (1 + koMgr->alwaysFinal);  // check if the setting is on, if it is, leave 2 players, otherwise, leave 1 player/the ko count is the complement
             }
+            bmgId = BMG_KO_ELIM_START_NONE + koCount;
+        } else if (system->IsContext(PULSAR_MODE_LAPKO)) {
+            const LapKO::Mgr* lapKoMgr = system->lapKoMgr;
+            const u32 playerCount = system->nonTTGhostPlayersCount;
+            u32 koCount = 0;
+            if (playerCount == 2)
+                koCount = 1;
+            const u32 koPerRace = lapKoMgr->koPerRaceSetting;
+            if (playerCount - koPerRace > 1)
+                koCount = koPerRace;  // eliminating the setting's amount of players, does not lead in a potential final
+            else
+                koCount = playerCount - 1;  // check if the setting is on, if it is, leave 2 players, otherwise, leave 1 player/the ko count is the complement
             bmgId = BMG_KO_ELIM_START_NONE + koCount;
         }
         info->intToPass[0] = raceNumber;

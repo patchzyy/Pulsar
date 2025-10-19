@@ -15,9 +15,29 @@
 namespace Pulsar {
 namespace LapKO {
 
-namespace {
-
 static const u16 kEliminationDisplayDuration = 180;
+
+extern "C" void fun_playSound(void*);
+extern "C" void ptr_menuPageOrSomething(void*);
+asmFunc playElimSound(){
+    ASM(
+        nofralloc;
+        mflr r11;
+        stwu sp,-0x80 (sp);
+        stmw r3, 0x8 (sp);
+        lis r11, ptr_menuPageOrSomething@ha;
+        lwz r3, ptr_menuPageOrSomething@l (r11);
+        li r4, 0xDD;
+        lis r12, fun_playSound@h;
+        ori r12, r12, fun_playSound@l;
+        mtctr r12;
+        bctrl;
+        lmw r3, 0x8 (sp);
+        addi sp, sp, 0x80;
+        mtlr r11;
+		blr;
+    )
+}
 
 // Safely copy a wchar_t name from a fixed-size source buffer to dst.
 // - Stops at the first null in src or at srcMax, and ensures dst is null-terminated.
@@ -55,6 +75,7 @@ class CtrlRaceLapKOElimMessage : public CtrlRaceBase {
     nw4r::lyt::Pane* root;
     nw4r::lyt::TextBox* textBox;
     u16 lastDisplayTimer;
+    bool soundPlayedThisDisplay;
 };
 
 static UI::CustomCtrlBuilder sLapKOElimMessageBuilder(
@@ -93,6 +114,7 @@ void CtrlRaceLapKOElimMessage::Load(u8 hudSlot) {
     }
     this->textBox = static_cast<nw4r::lyt::TextBox*>(this->layout.GetPaneByName("TextBox_00"));
     this->lastDisplayTimer = 0;
+    this->soundPlayedThisDisplay = false;
     this->Show(false);
 }
 
@@ -110,6 +132,7 @@ void CtrlRaceLapKOElimMessage::OnUpdate() {
     if (timer == 0 || mgr.GetRecentEliminationCount() == 0) {
         this->Show(false);
         this->lastDisplayTimer = 0;
+        this->soundPlayedThisDisplay = false; // reset so next display will play sound
         return;
     }
 
@@ -161,6 +184,13 @@ void CtrlRaceLapKOElimMessage::UpdateMessage(const Mgr& mgr) {
         if (res > 0) written += res;
     }
 
+    // Play the elimination sound the first time this message is established for the
+    // current display. Subsequent updates while the display is active won't replay it.
+    if (!this->soundPlayedThisDisplay) {
+        playElimSound();
+        this->soundPlayedThisDisplay = true;
+    }
+
     Text::Info info;
     info.strings[0] = buffer;
     this->SetMessage(UI::BMG_TEXT, &info);
@@ -206,8 +236,6 @@ const wchar_t* CtrlRaceLapKOElimMessage::GetPlayerDisplayName(u8 playerId, wchar
 
     return L"Player";
 }
-
-}  // namespace
 
 }  // namespace LapKO
 }  // namespace Pulsar

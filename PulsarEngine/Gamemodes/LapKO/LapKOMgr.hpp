@@ -79,6 +79,7 @@ class Mgr {
     void ResetEliminationDisplay();
     bool IsFriendRoomOnline() const;
 
+    public:
     u8 koPerRaceSetting;
     u8 eliminationPlan[MaxRounds];
     u8 totalRounds;
@@ -117,6 +118,7 @@ class Mgr {
     // Frames to wait before reweighting item probabilities after an active
     // player count change. Initialized to 0.
     u8 pendingItemReweightFrames;
+    u16 disconnectGraceFrames;
 };
 
 }  // namespace LapKO
