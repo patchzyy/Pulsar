@@ -373,6 +373,7 @@ void SettingsPanel::OnLeftButtonClick(PushButton& button, u32 hudSlotId) {
 void SettingsPanel::OnButtonClick(PushButton& button, u32 direction) {
     SectionId id = SectionMgr::sInstance->curSection->sectionId;
     bool isVotingSection = (id >= SECTION_P1_WIFI_FROOM_VS_VOTING && id <= SECTION_P2_WIFI_FROOM_COIN_VOTING) || (id == SECTION_P1_WIFI_VS_VOTING) || (id == SECTION_P1_WIFI_BATTLE_VOTING);
+    bool isOnlineSection = (id == SECTION_P1_WIFI || id == SECTION_P2_WIFI);
 
     int nextIdx = this->GetNextSheetIdx(direction);
 
@@ -383,6 +384,13 @@ void SettingsPanel::OnButtonClick(PushButton& button, u32 direction) {
                nextIdx == Settings::SETTINGSTYPE_FROOM1 ||
                nextIdx == (Settings::SETTINGSTYPE_FROOM2 + Settings::Params::pulsarPageCount) ||
                nextIdx == (Settings::SETTINGSTYPE_MISC + Settings::Params::pulsarPageCount)) {
+            nextIdx = (nextIdx + direction + Settings::Params::pageCount) % Settings::Params::pageCount;
+        }
+    }
+
+    if (isOnlineSection) {
+        // Skip restricted pages in online sections
+        while (nextIdx == (Settings::SETTINGSTYPE_MISC + Settings::Params::pulsarPageCount)) {
             nextIdx = (nextIdx + direction + Settings::Params::pageCount) % Settings::Params::pageCount;
         }
     }
