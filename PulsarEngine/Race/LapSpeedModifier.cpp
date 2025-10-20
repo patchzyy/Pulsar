@@ -21,7 +21,7 @@ bool IsLapKOEnabled(const System* system) {
     if (system == nullptr) return false;
     if (system->IsContext(PULSAR_MODE_LAPKO)) return true;
     if (system->lapKoMgr != nullptr) return true;
-    if ((system->netMgr.hostContext & (1 << PULSAR_MODE_LAPKO)) != 0) return true;
+    if (RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_FROOM_NONHOST && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_FROOM_HOST && RKNet::Controller::sInstance->roomType != RKNet::ROOMTYPE_NONE) return false;
     return false;
 }
 
