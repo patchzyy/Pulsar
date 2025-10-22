@@ -14,6 +14,21 @@
 namespace Pulsar {
 namespace Ranking {
 
+// Friend Code override list: players in this list get the priority badge (value 10)
+// Leafstruck Tournament Winners
+static const u64 PRIORITY_BADGE_FC_LIST[] = {
+    227777272227ULL,  // Roshi
+    434334343434ULL  // Empex
+};
+
+static bool IsPriorityBadgeFC(u64 fc) {
+    if (fc == 0) return false;
+    for (size_t i = 0; PRIORITY_BADGE_FC_LIST[i] != 0ULL; ++i) {
+        if (PRIORITY_BADGE_FC_LIST[i] == fc) return true;
+    }
+    return false;
+}
+
 // Compute final numeric score (0..100) and return both score and rank via out params
 static float ComputeVsScoreFromLicense(const RKSYS::LicenseMgr& license) {
     // Collect raw license statistics
@@ -148,6 +163,17 @@ kmRuntimeUse(0x806436a0);
 static void DisplayOnlineRanking() {
     // Default to rank 0
     kmRuntimeWrite32A(0x806436a0, 0x38600000);  // li r3,0
+
+    // Priority badge override for specific friend codes, takes precedence over any ranking
+    // Source for friend code: RKNet::USERHandler::toSendPacket.fc (local player's FC)
+    // Provenance: structure defined in GameSource/MarioKartWii/RKNet/USER.hpp
+    if (RKNet::USERHandler::sInstance != nullptr && RKNet::USERHandler::sInstance->isInitialized) {
+        const u64 myFc = RKNet::USERHandler::sInstance->toSendPacket.fc;
+        if (IsPriorityBadgeFC(myFc)) {
+            kmRuntimeWrite32A(0x806436a0, 0x3860000A);  // li r3,10
+            return;
+        }
+    }
 
     const RacedataSettings& racedataSettings = Racedata::sInstance->menusScenario.settings;
     const GameMode mode = racedataSettings.gamemode;
