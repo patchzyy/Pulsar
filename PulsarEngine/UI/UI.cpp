@@ -27,6 +27,7 @@
 #include <Gamemodes/KO/KOMgr.hpp>
 #include <Gamemodes/KO/KOWinnerPage.hpp>
 #include <Settings/UI/SettingsPanel.hpp>
+#include <Settings/UI/CodeDrivenPage.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -123,6 +124,7 @@ void ExpSection::CreatePulPages() {
         case SECTION_P1_WIFI_VS_VOTING:  // 0x60
         case SECTION_P1_WIFI_BATTLE_VOTING:
             this->CreateAndInitPage(*this, SettingsPanel::id);
+            this->CreateAndInitPage(*this, CodeDrivenPage::id);
     }
     if (this->hasAutoVote) {
         this->CreateAndInitPage(*this, PAGE_AUTO_ENDING2);
@@ -221,6 +223,9 @@ void ExpSection::CreateAndInitPage(ExpSection& self, u32 id) {
             break;
         case SettingsPanel::id:
             page = new SettingsPanel;
+            break;
+        case CodeDrivenPage::id:
+            page = new CodeDrivenPage;
             break;
         case ExtendedTeamSelect::id:
             page = new ExtendedTeamSelect;

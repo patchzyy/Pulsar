@@ -15,6 +15,7 @@ class ExpOptions : public Pages::Options {
    private:
     void ExpandedOnButtonClick(PushButton& pushButton, u32 hudSlotId);
     PushButton settingsButton;
+    PushButton codeDrivenButton;
 };
 }  // namespace UI
 }  // namespace Pulsar
