@@ -25,6 +25,7 @@ public:
     int GetPlayerBitfield() const override;
     ManipulatorManager& GetManipulatorManager() override;
     void BeforeControlUpdate() override;
+    UIControl* CreateControl(u32 id) override;
     
     PageId prevPageId;
     
@@ -42,6 +43,8 @@ private:
     
     DynamicLayoutControl dynamicLayout;
     PushButton optionButtons[5];
+    // Use a page-level manipulator since this page has no interactive controls
+    PageManipulatorManager pageManipulatorManager;
     
     int selectedOption;
 };

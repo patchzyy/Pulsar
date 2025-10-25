@@ -3,7 +3,6 @@
 
 #include <kamek.hpp>
 #include <core/nw4r/lyt/Pane.hpp>
-#include <core/nw4r/lyt/Picture.hpp>
 #include <core/nw4r/lyt/TextBox.hpp>
 #include <core/nw4r/lyt/Material.hpp>
 #include <core/nw4r/ut/Color.hpp>
@@ -25,10 +24,10 @@ public:
     static nw4r::lyt::Pane* CreatePane(const char* name, float x, float y, float width, float height);
     
     // Create a picture pane (colored rectangle or textured)
-    static nw4r::lyt::Picture* CreatePicturePane(const char* name, float x, float y, float width, float height, u32 color = 0xFFFFFFFF);
+    static nw4r::lyt::Pane* CreatePicturePane(const char* name, float x, float y, float width, float height, u32 color = 0xFFFFFFFF);
     
     // Create a text box pane
-    static nw4r::lyt::TextBox* CreateTextPane(const char* name, float x, float y, float width, float height, const wchar_t* text = nullptr);
+    static nw4r::lyt::Pane* CreateTextPane(const char* name, float x, float y, float width, float height, const wchar_t* text = nullptr);
     
     // Helper to set pane properties
     static void SetPanePosition(nw4r::lyt::Pane* pane, float x, float y, float z = 0.0f);
@@ -39,8 +38,8 @@ public:
     static void SetPaneVisible(nw4r::lyt::Pane* pane, bool visible);
     
     // Helper to set picture pane colors
-    static void SetPictureColor(nw4r::lyt::Picture* pane, u32 color);
-    static void SetPictureColors(nw4r::lyt::Picture* pane, u32 topLeft, u32 topRight, u32 bottomLeft, u32 bottomRight);
+    static void SetPictureColor(nw4r::lyt::Pane* pane, u32 color);
+    static void SetPictureColors(nw4r::lyt::Pane* pane, u32 topLeft, u32 topRight, u32 bottomLeft, u32 bottomRight);
     
     // Helper to add child panes
     static void AddChild(nw4r::lyt::Pane* parent, nw4r::lyt::Pane* child);
@@ -73,19 +72,19 @@ public:
     DynamicUIBuilder(nw4r::lyt::Pane* root);
     
     // Build a panel (colored rectangle)
-    nw4r::lyt::Picture* AddPanel(const char* name, float x, float y, float width, float height, u32 color = 0x333333FF);
+    nw4r::lyt::Pane* AddPanel(const char* name, float x, float y, float width, float height, u32 color = 0x333333FF);
     
     // Build a text label
-    nw4r::lyt::TextBox* AddText(const char* name, float x, float y, float width, float height, const wchar_t* text);
+    nw4r::lyt::Pane* AddText(const char* name, float x, float y, float width, float height, const wchar_t* text);
     
     // Build a button background (can be styled differently)
-    nw4r::lyt::Picture* AddButton(const char* name, float x, float y, float width, float height, u32 color = 0x4444AAFF);
+    nw4r::lyt::Pane* AddButton(const char* name, float x, float y, float width, float height, u32 color = 0x4444AAFF);
     
     // Build a title bar
-    nw4r::lyt::Picture* AddTitleBar(const char* name, float x, float y, float width, float height);
+    nw4r::lyt::Pane* AddTitleBar(const char* name, float x, float y, float width, float height);
     
     // Build a separator line
-    nw4r::lyt::Picture* AddSeparator(const char* name, float x, float y, float width, float thickness = 2.0f);
+    nw4r::lyt::Pane* AddSeparator(const char* name, float x, float y, float width, float thickness = 2.0f);
     
     // Add a list item (panel + text)
     void AddListItem(const char* namePrefix, float x, float y, float width, float height, const wchar_t* text, u32 bgColor = 0x444444FF);

@@ -1,10 +1,9 @@
 #include <UI/DynamicUI/DynamicSettingsPage.hpp>
 #include <MarioKartWii/UI/Section/SectionMgr.hpp>
-#include <MarioKartWii/System/Controller.hpp>
+#include <MarioKartWii/Input/Controller.hpp>
 #include <Settings/Settings.hpp>
 #include <Settings/UI/SettingsPanel.hpp>
 #include <PulsarSystem.hpp>
-#include <wchar.h>
 
 namespace Pulsar {
 namespace UI {
@@ -13,7 +12,7 @@ DynamicSettingsPage::DynamicSettingsPage()
     : selectedOption(0) {
     
     externControlCount = 0;
-    internControlCount = 5; // 5 option buttons
+    internControlCount = 0; // controls are managed manually via dynamicLayout
     hasBackButton = false;
     nextPageId = PAGE_NONE;
     activePlayerBitfield = 1;
@@ -38,9 +37,10 @@ DynamicSettingsPage::DynamicSettingsPage()
     onButtonDeselectHandler.subject = this;
     onButtonDeselectHandler.ptmf = &DynamicSettingsPage::OnButtonDeselect;
     
-    this->controlsManipulatorManager.Init(1, false);
-    this->SetManipulatorManager(controlsManipulatorManager);
-    this->controlsManipulatorManager.SetGlobalHandler(BACK_PRESS, onBackPressHandler, false, false);
+    // Use a PageManipulatorManager because this page doesn't add interactive ControlManipulators
+    this->pageManipulatorManager.Init(1, false);
+    this->SetManipulatorManager(pageManipulatorManager);
+    this->pageManipulatorManager.SetGlobalHandler(BACK_PRESS, onBackPressHandler, false);
 }
 
 DynamicSettingsPage::~DynamicSettingsPage() {
@@ -68,11 +68,11 @@ void DynamicSettingsPage::BuildDynamicLayout() {
     DynamicUIBuilder builder(root);
     
     // Title bar at the top
-    nw4r::lyt::Picture* titleBar = builder.AddTitleBar("title_bar", -300.0f, -200.0f, 600.0f, 50.0f);
-    nw4r::lyt::TextBox* titleText = builder.AddText("title_text", -250.0f, -185.0f, 500.0f, 30.0f, L"Dynamic Settings Demo");
+    nw4r::lyt::Pane* titleBar = builder.AddTitleBar("title_bar", -300.0f, -200.0f, 600.0f, 50.0f);
+    nw4r::lyt::Pane* titleText = builder.AddText("title_text", -250.0f, -185.0f, 500.0f, 30.0f, L"Dynamic Settings Demo");
     
     // Main content panel
-    nw4r::lyt::Picture* mainPanel = builder.AddPanel("main_panel", -280.0f, -140.0f, 560.0f, 320.0f, 0x222222FF);
+    nw4r::lyt::Pane* mainPanel = builder.AddPanel("main_panel", -280.0f, -140.0f, 560.0f, 320.0f, 0x222222FF);
     
     // Add some informational text
     builder.AddText("info_text", -260.0f, -120.0f, 520.0f, 20.0f, L"This page is created entirely from code!");
@@ -89,11 +89,11 @@ void DynamicSettingsPage::BuildDynamicLayout() {
     builder.AddListItem("option", -260.0f, 140.0f, 520.0f, 40.0f, L"Network Settings", 0x444488FF);
     
     // Add some decorative elements
-    nw4r::lyt::Picture* leftBorder = builder.AddPanel("left_border", -320.0f, -200.0f, 5.0f, 400.0f, 0x4488FFFF);
-    nw4r::lyt::Picture* rightBorder = builder.AddPanel("right_border", 315.0f, -200.0f, 5.0f, 400.0f, 0x4488FFFF);
+    nw4r::lyt::Pane* leftBorder = builder.AddPanel("left_border", -320.0f, -200.0f, 5.0f, 400.0f, 0x4488FFFF);
+    nw4r::lyt::Pane* rightBorder = builder.AddPanel("right_border", 315.0f, -200.0f, 5.0f, 400.0f, 0x4488FFFF);
     
     // Bottom info bar
-    nw4r::lyt::Picture* bottomBar = builder.AddPanel("bottom_bar", -300.0f, 190.0f, 600.0f, 40.0f, 0x333333FF);
+    nw4r::lyt::Pane* bottomBar = builder.AddPanel("bottom_bar", -300.0f, 190.0f, 600.0f, 40.0f, 0x333333FF);
     builder.AddText("bottom_text", -250.0f, 200.0f, 500.0f, 20.0f, L"Press Back to return");
 }
 
@@ -105,7 +105,7 @@ void DynamicSettingsPage::OnActivate() {
 }
 
 const ut::detail::RuntimeTypeInfo* DynamicSettingsPage::GetRuntimeTypeInfo() const {
-    return Pages::Menu::typeInfo;
+    return Pages::Menu::GetRuntimeTypeInfo();
 }
 
 int DynamicSettingsPage::GetActivePlayerBitfield() const {
@@ -117,11 +117,17 @@ int DynamicSettingsPage::GetPlayerBitfield() const {
 }
 
 ManipulatorManager& DynamicSettingsPage::GetManipulatorManager() {
-    return this->controlsManipulatorManager;
+    // Return the active manager for this page (page-level handlers only)
+    return this->pageManipulatorManager;
 }
 
 void DynamicSettingsPage::BeforeControlUpdate() {
     MenuInteractable::BeforeControlUpdate();
+}
+
+UIControl* DynamicSettingsPage::CreateControl(u32 id) {
+    // This dynamic page doesn't create standard controls via factory; everything is built in code.
+    return nullptr;
 }
 
 void DynamicSettingsPage::OnBackPress(u32 hudSlotId) {
