@@ -27,6 +27,7 @@
 #include <Gamemodes/KO/KOMgr.hpp>
 #include <Gamemodes/KO/KOWinnerPage.hpp>
 #include <Settings/UI/SettingsPanel.hpp>
+#include <Settings/UI/DynamicSettingsPage.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -78,6 +79,7 @@ void ExpSection::CreatePulPages() {
         case SECTION_P2_WIFI_FROOM_BALLOON_VOTING:  // 0x66
         case SECTION_P2_WIFI_FROOM_COIN_VOTING:  // 0x67
             this->CreateAndInitPage(*this, SettingsPanel::id);
+            this->CreateAndInitPage(*this, DynamicSettingsPage::id);
             break;
 
         case SECTION_P1_WIFI_VS:  // 0x68
@@ -123,6 +125,7 @@ void ExpSection::CreatePulPages() {
         case SECTION_P1_WIFI_VS_VOTING:  // 0x60
         case SECTION_P1_WIFI_BATTLE_VOTING:
             this->CreateAndInitPage(*this, SettingsPanel::id);
+            this->CreateAndInitPage(*this, DynamicSettingsPage::id);
     }
     if (this->hasAutoVote) {
         this->CreateAndInitPage(*this, PAGE_AUTO_ENDING2);
@@ -230,6 +233,9 @@ void ExpSection::CreateAndInitPage(ExpSection& self, u32 id) {
             break;
         case ExtendedTeamResultIrregularTotal::id:
             page = new ExtendedTeamResultIrregularTotal;
+            break;
+        case DynamicSettingsPage::id:
+            page = new DynamicSettingsPage;
             break;
         default:
             page = self.CreatePageById(initId);
