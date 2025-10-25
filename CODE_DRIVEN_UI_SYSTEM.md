@@ -347,3 +347,36 @@ To test the demo page:
 The code-driven UI layout system provides a powerful alternative to traditional BRLYT files for certain use cases. While it doesn't replace the need for artist-created layouts, it offers significant advantages for programmatic and dynamic UIs. The system integrates seamlessly with the existing Pulsar page infrastructure and can be used alongside traditional layouts as needed.
 
 For questions or contributions, refer to the inline code documentation and the README in `/PulsarEngine/UI/CodeLayout/`.
+
+## Update: Settings Panel Integration
+
+The CodeDrivenPage is now fully integrated into the Settings Panel navigation system.
+
+### How to Access
+
+**Via Settings Panel** (Primary Method):
+1. Navigate to Options → Settings
+2. Use LEFT/RIGHT buttons to cycle through settings pages
+3. After the last page (Misc), press RIGHT once more
+4. The page automatically redirects to the Code-Driven Demo
+
+**Via Options Menu** (Alternative):
+- A button can be added to the Options menu for direct access
+- Currently implemented as button ID 6 in ExpOptionsPage
+
+### Implementation
+
+The integration uses a clever approach:
+- Adds a virtual "demo page" to the settings navigation cycle
+- When activated, SettingsPanel::OnActivate() detects the special page index
+- Automatically redirects to CodeDrivenPage using EndStateAnimated()
+- Returns to Settings Panel when user presses BACK
+
+Key changes:
+- `GetNextSheetIdx()`: Extended to include demo page (pageCount + 1)
+- `OnActivate()`: Added redirect logic for demo page
+- CodeDrivenPage: Set prevPageId to SettingsPanel::id
+
+This creates seamless integration where the demo appears as part of the normal settings flow.
+
+See `/PulsarEngine/UI/CodeLayout/ACCESS.md` for detailed access instructions.

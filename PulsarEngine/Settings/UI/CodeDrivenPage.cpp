@@ -1,5 +1,6 @@
 #include <Settings/UI/CodeDrivenPage.hpp>
 #include <MarioKartWii/UI/Section/SectionMgr.hpp>
+#include <Settings/UI/SettingsPanel.hpp>
 #include <UI/UI.hpp>
 #include <core/nw4r/ut/Color.hpp>
 
@@ -18,7 +19,7 @@ CodeDrivenPage::CodeDrivenPage() :
     this->internControlCount = 0;
     this->hasBackButton = false;
     this->nextPageId = PAGE_OPTIONS;
-    this->prevPageId = PAGE_OPTIONS;
+    this->prevPageId = static_cast<PageId>(SettingsPanel::id);
     this->activePlayerBitfield = 1;
     this->movieStartFrame = -1;
     this->extraControlNumber = 0;
