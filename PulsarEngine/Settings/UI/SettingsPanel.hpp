@@ -62,6 +62,7 @@ class SettingsPanel : public Pages::MenuInteractable {
     void LoadPrevMenuAndSaveSettings(PushButton& button);
     int GetNextSheetIdx(s32 direction);  // 1 for right, -1 for left
     int GetNextBMGOffset(s32 direction);
+    void OnStartPress(u32 hudSlotId);
     u32 GetTextId(const TextUpDownValueControl::TextControl& text) const {
         TextUpDownValueControl* valueControl = static_cast<TextUpDownValueControl*>(text.parentGroup->parentControl);
         return static_cast<int>(reinterpret_cast<u32>(valueControl) - reinterpret_cast<u32>(&this->textUpDown[0])) / sizeof(TextUpDownValueControl);
