@@ -31,10 +31,14 @@ public:
 private:
     void OnBackPress(u32 hudSlotId);
     void OnOptionButtonClick(PushButton& button, u32 hudSlotId);
+    void OnButtonSelect(PushButton& button, u32 hudSlotId);
+    void OnButtonDeselect(PushButton& button, u32 hudSlotId);
     void BuildDynamicLayout();
     
     PtmfHolder_1A<DynamicSettingsPage, void, u32> onBackPressHandler;
     PtmfHolder_2A<DynamicSettingsPage, void, PushButton&, u32> onOptionButtonClickHandler;
+    PtmfHolder_2A<DynamicSettingsPage, void, PushButton&, u32> onButtonSelectHandler;
+    PtmfHolder_2A<DynamicSettingsPage, void, PushButton&, u32> onButtonDeselectHandler;
     
     DynamicLayoutControl dynamicLayout;
     PushButton optionButtons[5];

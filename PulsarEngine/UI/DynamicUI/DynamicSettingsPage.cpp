@@ -1,8 +1,10 @@
 #include <UI/DynamicUI/DynamicSettingsPage.hpp>
 #include <MarioKartWii/UI/Section/SectionMgr.hpp>
+#include <MarioKartWii/System/Controller.hpp>
 #include <Settings/Settings.hpp>
 #include <Settings/UI/SettingsPanel.hpp>
 #include <PulsarSystem.hpp>
+#include <wchar.h>
 
 namespace Pulsar {
 namespace UI {
@@ -31,10 +33,10 @@ DynamicSettingsPage::DynamicSettingsPage()
     onOptionButtonClickHandler.ptmf = &DynamicSettingsPage::OnOptionButtonClick;
     
     onButtonSelectHandler.subject = this;
-    onButtonSelectHandler.ptmf = &MenuInteractable::OnButtonSelect;
+    onButtonSelectHandler.ptmf = &DynamicSettingsPage::OnButtonSelect;
     
     onButtonDeselectHandler.subject = this;
-    onButtonDeselectHandler.ptmf = &MenuInteractable::OnButtonDeselect;
+    onButtonDeselectHandler.ptmf = &DynamicSettingsPage::OnButtonDeselect;
     
     this->controlsManipulatorManager.Init(1, false);
     this->SetManipulatorManager(controlsManipulatorManager);
@@ -133,6 +135,14 @@ void DynamicSettingsPage::OnOptionButtonClick(PushButton& button, u32 hudSlotId)
     selectedOption = button.buttonId;
     
     // In a real implementation, you would navigate to a sub-page or change settings here
+}
+
+void DynamicSettingsPage::OnButtonSelect(PushButton& button, u32 hudSlotId) {
+    // Button selection handler - can be used to update UI when hovering over buttons
+}
+
+void DynamicSettingsPage::OnButtonDeselect(PushButton& button, u32 hudSlotId) {
+    // Button deselection handler
 }
 
 } // namespace UI

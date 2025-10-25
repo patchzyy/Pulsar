@@ -1,8 +1,8 @@
 #include <UI/DynamicUI/DynamicLayout.hpp>
 #include <MarioKartWii/UI/Section/SectionMgr.hpp>
 #include <core/rvl/MEM/MEMallocator.hpp>
-#include <cstring>
-#include <cstdio>
+#include <string.h>
+#include <stdio.h>
 
 namespace Pulsar {
 namespace UI {
