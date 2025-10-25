@@ -3,6 +3,7 @@
 #include <kamek.hpp>
 #include <MarioKartWii/UI/Page/Menu/Menu.hpp>
 #include <MarioKartWii/UI/Ctrl/PushButton.hpp>
+#include <UI/UI.hpp>
 #include <UI/CodeLayout/CodeLayout.hpp>
 #include <UI/CodeLayout/CodePane.hpp>
 
