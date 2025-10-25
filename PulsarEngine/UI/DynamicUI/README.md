@@ -74,7 +74,7 @@ The `DynamicSettingsPage` demonstrates a complete settings page built entirely w
 
 ### Accessing the Dynamic Settings Page
 
-From the settings panel (accessible via the Options menu), press the **Start button** to navigate to the dynamic settings demo page.
+From the settings panel (accessible via the Options menu), navigate past the last settings category using the right shoulder buttons (or left from the first category). The panel wraps to the **Dynamic Layouts** entry, which opens the dynamic settings demo page.
 
 ### Code Example
 

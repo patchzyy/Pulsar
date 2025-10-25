@@ -375,6 +375,7 @@ void SettingsPanel::OnButtonClick(PushButton& button, u32 direction) {
     SectionId id = SectionMgr::sInstance->curSection->sectionId;
     bool isVotingSection = (id >= SECTION_P1_WIFI_FROOM_VS_VOTING && id <= SECTION_P2_WIFI_FROOM_COIN_VOTING) || (id == SECTION_P1_WIFI_VS_VOTING) || (id == SECTION_P1_WIFI_BATTLE_VOTING);
 
+    const int curIdx = static_cast<int>(this->sheetIdx);
     int nextIdx = this->GetNextSheetIdx(direction);
 
     // Skip restricted pages in voting sections
@@ -386,6 +387,15 @@ void SettingsPanel::OnButtonClick(PushButton& button, u32 direction) {
                nextIdx == (Settings::SETTINGSTYPE_MISC + Settings::Params::pulsarPageCount)) {
             nextIdx = (nextIdx + direction + Settings::Params::pageCount) % Settings::Params::pageCount;
         }
+    }
+
+    const bool wrapsForward = (direction > 0) && (nextIdx <= curIdx);
+    const bool wrapsBackward = (direction < 0) && (nextIdx >= curIdx);
+    if (wrapsForward || wrapsBackward) {
+        this->SaveSettings(false);
+        this->nextPageId = static_cast<PageId>(DynamicSettingsPage::id);
+        this->EndStateAnimated(0, button.GetAnimationFrameSize());
+        return;
     }
 
     this->nextPageId = this->pageId;
@@ -444,9 +454,8 @@ int SettingsPanel::GetNextBMGOffset(s32 direction) {
 }
 
 void SettingsPanel::OnStartPress(u32 hudSlotId) {
-    // Navigate to the dynamic settings page when start is pressed
-    this->nextPageId = static_cast<PageId>(DynamicSettingsPage::id);
-    this->EndStateAnimated(0, 0.0f);
+    // Preserve default behavior if start is pressed
+    MenuInteractable::HandleStartPress(hudSlotId);
 }
 
 }  // namespace UI

@@ -75,16 +75,16 @@ void DynamicSettingsPage::BuildDynamicLayout() {
     // Add some informational text
     builder.AddText("info_text", -260.0f, -120.0f, 520.0f, 20.0f, L"This page is created entirely from code!");
     builder.AddText("info_text2", -260.0f, -90.0f, 520.0f, 20.0f, L"No brlyt or brctr files were used.");
+    builder.AddText("info_text3", -260.0f, -60.0f, 520.0f, 20.0f, L"Use the arrows in the Settings Panel to reach this demo.");
     
     // Add a separator
-    builder.AddSeparator("separator1", -260.0f, -60.0f, 520.0f, 2.0f);
+    builder.AddSeparator("separator1", -260.0f, -30.0f, 520.0f, 2.0f);
     
     // Add list items for different settings options
-    builder.AddListItem("option", -260.0f, -40.0f, 520.0f, 40.0f, L"Visual Settings", 0x444488FF);
-    builder.AddListItem("option", -260.0f, 10.0f, 520.0f, 40.0f, L"Audio Settings", 0x444488FF);
-    builder.AddListItem("option", -260.0f, 60.0f, 520.0f, 40.0f, L"Gameplay Settings", 0x444488FF);
-    builder.AddListItem("option", -260.0f, 110.0f, 520.0f, 40.0f, L"Network Settings", 0x444488FF);
-    builder.AddListItem("option", -260.0f, 160.0f, 520.0f, 40.0f, L"Advanced Settings", 0x888844FF);
+    builder.AddListItem("option", -260.0f, -10.0f, 520.0f, 40.0f, L"Visual Settings", 0x444488FF);
+    builder.AddListItem("option", -260.0f, 40.0f, 520.0f, 40.0f, L"Audio Settings", 0x444488FF);
+    builder.AddListItem("option", -260.0f, 90.0f, 520.0f, 40.0f, L"Gameplay Settings", 0x444488FF);
+    builder.AddListItem("option", -260.0f, 140.0f, 520.0f, 40.0f, L"Network Settings", 0x444488FF);
     
     // Add some decorative elements
     nw4r::lyt::Picture* leftBorder = builder.AddPanel("left_border", -320.0f, -200.0f, 5.0f, 400.0f, 0x4488FFFF);
