@@ -4,7 +4,7 @@
 namespace Pulsar {
 namespace UI {
 
-static const ut::detail::RuntimeTypeInfo typeInfo = {0, nullptr};
+static const ut::detail::RuntimeTypeInfo typeInfo = {0};
 
 CodeLayout::CodeLayout() : rootCodePane(nullptr), paneCount(0), isBuilt(false) {
     for(u32 i = 0; i < 32; ++i) {
@@ -34,8 +34,7 @@ void CodeLayout::Update() {
 
 void CodeLayout::Draw(u32 curZIdx) {
     if(this->isBuilt && this->rootPane) {
-        nw4r::lyt::DrawInfo drawInfo;
-        this->layout.layout.SetupDrawInfo(&drawInfo);
+    nw4r::lyt::DrawInfo drawInfo;
         
         if(this->rootCodePane && this->rootCodePane->GetPane()) {
             nw4r::lyt::Pane* pane = this->rootCodePane->GetPane();

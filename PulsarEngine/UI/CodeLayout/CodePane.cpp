@@ -1,7 +1,7 @@
 #include <UI/CodeLayout/CodePane.hpp>
 #include <core/nw4r/lyt/Pane.hpp>
 #include <core/nw4r/lyt/resources.hpp>
-#include <cstring>
+#include <include/c_string.h>
 
 namespace Pulsar {
 namespace UI {
@@ -22,7 +22,7 @@ void CodePane::SetSize(float width, float height) {
     nw4r::lyt::Pane* pane = this->GetPane();
     if(pane) {
         pane->size.x = width;
-        pane->size.y = height;
+        pane->size.z = height;
     }
 }
 
@@ -30,7 +30,7 @@ void CodePane::SetScale(float x, float y) {
     nw4r::lyt::Pane* pane = this->GetPane();
     if(pane) {
         pane->scale.x = x;
-        pane->scale.y = y;
+        pane->scale.z = y;
     }
 }
 
@@ -71,7 +71,7 @@ void CodePane::SetName(const char* name) {
 
 void CodePane::AddChild(CodePane* child) {
     nw4r::lyt::Pane* pane = this->GetPane();
-    nw4r::lyt::Pane* childPane = child ? child->GetPane() : nullptr;
+    nw4r::lyt::Pane* childPane = child ? child->GetPane() : (nw4r::lyt::Pane*)0;
     if(pane && childPane) {
         pane->AppendChild(childPane);
     }
@@ -93,7 +93,7 @@ CodeBasicPane::CodeBasicPane(float width, float height) {
     paneRes.rotation.y = 0.0f;
     paneRes.rotation.z = 0.0f;
     paneRes.scale.x = 1.0f;
-    paneRes.scale.y = 1.0f;
+    paneRes.scale.z = 1.0f;
     paneRes.width = width;
     paneRes.height = height;
     

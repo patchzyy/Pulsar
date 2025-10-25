@@ -1,8 +1,9 @@
-CC := mwcceppc.exe
+CC := G:/Coding/MarioKart/Compilers/Wii/1.7/mwcceppc.exe
 GAMESOURCE := ./GameSource
 PULSAR := ./PulsarEngine
-KAMEK := Kamek.exe
+KAMEK := G:/Coding/MarioKart/RR/RR61/Pulsar/KamekLinker/Kamek.exe
 KAMEK_H := ./KamekInclude
+RIIVO := "C:/Users/patchzy/AppData/Roaming/Dolphin Emulator/Load/Riivolution/WheelWizard/RetroRewind6"
 
 -include .env
 

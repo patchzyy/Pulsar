@@ -53,8 +53,9 @@ CodeDrivenPage::~CodeDrivenPage() {
 }
 
 void CodeDrivenPage::OnInit() {
-    this->BuildCodeLayout();
+    // Initialize the control group first so AddControl in BuildCodeLayout is safe
     MenuInteractable::OnInit();
+    this->BuildCodeLayout();
     this->SetTransitionSound(0, 0);
 }
 
@@ -67,7 +68,7 @@ void CodeDrivenPage::OnActivate() {
 
 void CodeDrivenPage::BeforeEntranceAnimations() {
     if(this->codeLayout) {
-        this->codeLayout->animator.GetAnimationGroupById(0)->PlayAnimationAtFrame(0, 0.0f);
+        this->codeLayout->animator.GetAnimationGroupById(0).PlayAnimationAtFrame(0, 0.0f);
     }
 }
 
@@ -103,7 +104,9 @@ UIControl* CodeDrivenPage::CreateExternalControl(u32 id) {
     if(id == 0) {
         PushButton* button = new PushButton();
         this->AddControl(this->controlCount++, *button, 0);
-        button->Load(UI::buttonFolder, "OKButton", "OK", this->activePlayerBitfield, 0, false);
+        // Use a known-existing button resource to avoid ControlLoader::Load DSI on missing assets
+        // Fallback chosen based on other usages in the project (see ChangeCombo.cpp)
+        button->Load(UI::buttonFolder, "PULiMemberConfirmButton", "Change", this->activePlayerBitfield, 0, false);
         return button;
     }
     return nullptr;
@@ -141,7 +144,7 @@ void CodeDrivenPage::BuildCodeLayout() {
     this->titlePane = new CodeBasicPane(500.0f, 40.0f);
     this->titlePane->SetPosition(0.0f, -150.0f);
     this->titlePane->SetName("title");
-    nw4r::ut::Color red = {255, 100, 100, 255};
+    nw4r::ut::Color red(255, 100, 100, 255);
     this->titlePane->GetPane()->SetVtxColor(0, red);
     this->titlePane->GetPane()->SetVtxColor(1, red);
     this->titlePane->GetPane()->SetVtxColor(2, red);
@@ -152,7 +155,7 @@ void CodeDrivenPage::BuildCodeLayout() {
     this->descPane = new CodeBasicPane(500.0f, 30.0f);
     this->descPane->SetPosition(0.0f, -80.0f);
     this->descPane->SetName("desc");
-    nw4r::ut::Color green = {100, 255, 100, 255};
+    nw4r::ut::Color green(100, 255, 100, 255);
     this->descPane->GetPane()->SetVtxColor(0, green);
     this->descPane->GetPane()->SetVtxColor(1, green);
     this->descPane->GetPane()->SetVtxColor(2, green);
@@ -163,7 +166,7 @@ void CodeDrivenPage::BuildCodeLayout() {
     this->item1Pane = new CodeBasicPane(450.0f, 25.0f);
     this->item1Pane->SetPosition(0.0f, -10.0f);
     this->item1Pane->SetName("item1");
-    nw4r::ut::Color cyan = {100, 200, 255, 255};
+    nw4r::ut::Color cyan(100, 200, 255, 255);
     this->item1Pane->GetPane()->SetVtxColor(0, cyan);
     this->item1Pane->GetPane()->SetVtxColor(1, cyan);
     this->item1Pane->GetPane()->SetVtxColor(2, cyan);
@@ -174,7 +177,7 @@ void CodeDrivenPage::BuildCodeLayout() {
     this->item2Pane = new CodeBasicPane(450.0f, 25.0f);
     this->item2Pane->SetPosition(0.0f, 40.0f);
     this->item2Pane->SetName("item2");
-    nw4r::ut::Color blue = {100, 100, 255, 255};
+    nw4r::ut::Color blue(100, 100, 255, 255);
     this->item2Pane->GetPane()->SetVtxColor(0, blue);
     this->item2Pane->GetPane()->SetVtxColor(1, blue);
     this->item2Pane->GetPane()->SetVtxColor(2, blue);
@@ -185,7 +188,7 @@ void CodeDrivenPage::BuildCodeLayout() {
     this->item3Pane = new CodeBasicPane(450.0f, 25.0f);
     this->item3Pane->SetPosition(0.0f, 90.0f);
     this->item3Pane->SetName("item3");
-    nw4r::ut::Color yellow = {255, 255, 100, 255};
+    nw4r::ut::Color yellow(255, 255, 100, 255);
     this->item3Pane->GetPane()->SetVtxColor(0, yellow);
     this->item3Pane->GetPane()->SetVtxColor(1, yellow);
     this->item3Pane->GetPane()->SetVtxColor(2, yellow);
