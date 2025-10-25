@@ -1,8 +1,8 @@
-#include <Settings/UI/SettingsPanel.hpp>
-#include <Settings/Settings.hpp>
+#include <Settings/UI/SettingsPanel.hpp>\n#include <Settings/Settings.hpp>
 #include <Settings/UI/ExpOptionsPage.hpp>
 #include <Settings/UI/ExpFroomPage.hpp>
 #include <Settings/UI/ExpWFCMainPage.hpp>
+#include <Settings/UI/DynamicSettingsPage.hpp>
 #include <UI/ChangeCombo/ChangeCombo.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
 #include <Network/PacketExpansion.hpp>
@@ -373,6 +373,14 @@ void SettingsPanel::OnLeftButtonClick(PushButton& button, u32 hudSlotId) {
 void SettingsPanel::OnButtonClick(PushButton& button, u32 direction) {
     SectionId id = SectionMgr::sInstance->curSection->sectionId;
     bool isVotingSection = (id >= SECTION_P1_WIFI_FROOM_VS_VOTING && id <= SECTION_P2_WIFI_FROOM_COIN_VOTING) || (id == SECTION_P1_WIFI_VS_VOTING) || (id == SECTION_P1_WIFI_BATTLE_VOTING);
+
+    // If we're at the last sheet and navigating to the right, open the dynamic code-driven settings page
+    if (!isVotingSection && direction == 1 && this->sheetIdx == (Settings::Params::pageCount - 1)) {
+        this->nextPageId = static_cast<PageId>(DynamicSettingsPage::id);
+        this->EndStateAnimated(0, button.GetAnimationFrameSize());
+        this->SaveSettings(false);
+        return;
+    }
 
     int nextIdx = this->GetNextSheetIdx(direction);
 
