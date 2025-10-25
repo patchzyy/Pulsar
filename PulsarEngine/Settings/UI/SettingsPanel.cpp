@@ -8,6 +8,7 @@
 #include <Network/PacketExpansion.hpp>
 #include <MarioKartWii/UI/Ctrl/CountDown.hpp>
 #include <core/System/SystemManager.hpp>
+#include <UI/DynamicUI/DynamicSettingsPage.hpp>
 
 namespace Pulsar {
 namespace UI {
@@ -60,7 +61,7 @@ SettingsPanel::SettingsPanel() {
     onBackPressHandler.subject = this;
     onBackPressHandler.ptmf = &SettingsPanel::OnBackPress;
     onStartPressHandler.subject = this;
-    onStartPressHandler.ptmf = &MenuInteractable::HandleStartPress;
+    onStartPressHandler.ptmf = &SettingsPanel::OnStartPress;
 
     onButtonClickHandler.subject = this;
     onButtonClickHandler.ptmf = &SettingsPanel::OnSaveButtonClick;
@@ -440,6 +441,12 @@ int SettingsPanel::GetNextBMGOffset(s32 direction) {
         return nextIdx;
     else
         return BMG_USERSETTINGSOFFSET + nextIdx - Settings::Params::pulsarPageCount;
+}
+
+void SettingsPanel::OnStartPress(u32 hudSlotId) {
+    // Navigate to the dynamic settings page when start is pressed
+    this->nextPageId = static_cast<PageId>(DynamicSettingsPage::id);
+    this->EndStateAnimated(0, 0.0f);
 }
 
 }  // namespace UI
