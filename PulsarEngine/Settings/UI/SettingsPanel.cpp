@@ -3,6 +3,7 @@
 #include <Settings/UI/ExpOptionsPage.hpp>
 #include <Settings/UI/ExpFroomPage.hpp>
 #include <Settings/UI/ExpWFCMainPage.hpp>
+#include <Settings/UI/CodeDrivenPage.hpp>
 #include <UI/ChangeCombo/ChangeCombo.hpp>
 #include <SlotExpansion/CupsConfig.hpp>
 #include <Network/PacketExpansion.hpp>
@@ -171,6 +172,13 @@ void SettingsPanel::SetButtonHandlers(PushButton& button) {
 }
 
 void SettingsPanel::OnActivate() {
+    // Special handling: if sheetIdx is the last page (demo page), navigate to CodeDrivenPage
+    if (this->sheetIdx >= Settings::Params::pageCount) {
+        this->nextPageId = static_cast<PageId>(CodeDrivenPage::id);
+        this->EndStateAnimated(0, 0);
+        return;
+    }
+
     this->titleBmg = this->bmgOffset + BMG_SETTINGS_TITLE + this->catIdx;
     this->externControls[0]->SelectInitial(0);
     this->bottomText->SetMessage(BMG_SETTINGS_BOTTOM);
@@ -437,11 +445,17 @@ void SettingsPanel::OnUpDownSelect(UpDownControl& upDownControl, u32 hudSlotId) 
 }
 
 int SettingsPanel::GetNextSheetIdx(s32 direction) {
-    return (this->sheetIdx + direction + Settings::Params::pageCount) % Settings::Params::pageCount;
+    // Add 1 to pageCount to include the demo page redirect
+    const int totalPages = Settings::Params::pageCount + 1;
+    return (this->sheetIdx + direction + totalPages) % totalPages;
 }
 
 int SettingsPanel::GetNextBMGOffset(s32 direction) {
     const u32 nextIdx = this->GetNextSheetIdx(direction);
+    // If it's the demo page, show a special message
+    if (nextIdx >= Settings::Params::pageCount) {
+        return BMG_TEXT - BMG_SETTINGS_PAGE; // Will show "Code Demo"
+    }
     if (nextIdx < Settings::Params::pulsarPageCount)
         return nextIdx;
     else

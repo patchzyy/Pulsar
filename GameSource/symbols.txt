@@ -1,3 +1,7 @@
+__ct__Q34nw4r3lyt8DrawInfoFv = 0x80082620
+__dt__Q34nw4r3lyt8DrawInfoFv = 0x800826a0
+AppendChild__Q34nw4r3lyt4PaneFPQ34nw4r3lyt4Pane = 0x80078c00
+__ct__Q34nw4r3lyt4PaneFPCQ44nw4r3lyt3res4Pane = 0x80078980
 ##C lib##
 memcpy = 0x80005f34
 memset = 0x80006038
